@@ -1,16 +1,15 @@
 # NotesTakingApp
 
-Starter Android notes app scaffold built with Kotlin + Jetpack Compose.
+Starter Android notes app scaffold built with Kotlin + Jetpack Compose + Room.
 
 ## Current status
 - Bottom navigation
-- Notes screen
-- Folders screen
-- Settings screen
-- Basic package structure for MVP growth
+- Polished Notes / Folders / Settings UI scaffold
+- Room database setup for notes and folders
+- Seed data for first launch
 
 ## Next steps
-- Add Room database
-- Add note editor
-- Add folder hierarchy
-- Match provided UI design more closely
+- Bind UI to Room flows with ViewModels
+- Add note editor screen
+- Add folder hierarchy interactions
+- Match provided UI design even more closely
