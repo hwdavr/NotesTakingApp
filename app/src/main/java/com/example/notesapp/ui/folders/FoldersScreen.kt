@@ -23,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.notesapp.NotesApplication
 import com.example.notesapp.data.repository.FolderRepository
+import com.example.notesapp.data.repository.NoteRepository
 import com.example.notesapp.ui.common.components.AddFab
 import com.example.notesapp.ui.common.components.AppSearchBar
 import com.example.notesapp.ui.common.components.SectionTitle
@@ -33,10 +34,11 @@ fun FoldersScreen(parentPadding: PaddingValues) {
     val context = LocalContext.current.applicationContext as NotesApplication
     val viewModel: FoldersViewModel = viewModel(
         factory = FoldersViewModel.Factory(
-            FolderRepository(context.database.folderDao())
+            FolderRepository(context.database.folderDao()),
+            NoteRepository(context.database.noteDao())
         )
     )
-    val folders by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
 
     Scaffold(
@@ -70,13 +72,13 @@ fun FoldersScreen(parentPadding: PaddingValues) {
             }
 
             item { SectionTitle(title = "Smart collections") }
-            item { FolderRow(name = "All Notes", count = "Auto") }
-            item { FolderRow(name = "Favorites", count = "Auto") }
-            item { FolderRow(name = "Archive", count = "Auto") }
+            item { FolderRow(name = "All Notes", count = state.smartCounts.allNotes.toString()) }
+            item { FolderRow(name = "Favorites", count = state.smartCounts.favorites.toString()) }
+            item { FolderRow(name = "Archive", count = state.smartCounts.archive.toString()) }
 
-            item { SectionTitle(title = if (folders.isEmpty()) "No folders yet" else "My folders") }
+            item { SectionTitle(title = if (state.folders.isEmpty()) "No folders yet" else "My folders") }
 
-            if (folders.isEmpty()) {
+            if (state.folders.isEmpty()) {
                 item {
                     Text(
                         text = "Your folders will appear here once they are created.",
@@ -84,8 +86,8 @@ fun FoldersScreen(parentPadding: PaddingValues) {
                     )
                 }
             } else {
-                items(folders) { folder ->
-                    FolderRow(name = folder.name, count = "Folder")
+                items(state.folders) { item ->
+                    FolderRow(name = item.folder.name, count = item.noteCount.toString())
                 }
             }
         }

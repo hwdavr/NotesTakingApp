@@ -11,5 +11,6 @@ Starter Android notes app scaffold built with Kotlin + Jetpack Compose + Room.
 ## Next steps
 - Bind UI to Room flows with ViewModels
 - Add note editor screen with create/edit/save flow
+- Folder selection, archive toggle, and delete action
 - Add folder hierarchy interactions
 - Match provided UI design even more closely

@@ -13,6 +13,14 @@ class NoteRepository(private val noteDao: NoteDao) {
 
     fun searchNotes(query: String): Flow<List<NoteEntity>> = noteDao.searchNotes(query)
 
+    suspend fun getActiveNoteCount(): Int = noteDao.getActiveNoteCount()
+
+    suspend fun getFavoriteCount(): Int = noteDao.getFavoriteCount()
+
+    suspend fun getArchivedCount(): Int = noteDao.getArchivedCount()
+
+    suspend fun getActiveNoteCountForFolder(folderId: Long): Int = noteDao.getActiveNoteCountForFolder(folderId)
+
     suspend fun insert(note: NoteEntity): Long = noteDao.insert(note)
 
     suspend fun update(note: NoteEntity) = noteDao.update(note)
