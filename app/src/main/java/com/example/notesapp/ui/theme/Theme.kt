@@ -5,9 +5,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColors = lightColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    background = Background
+    primary = LavenderPrimary,
+    secondary = LavenderSecondary,
+    background = AppBackground,
+    surface = SurfaceCard,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary
 )
 
 @Composable
