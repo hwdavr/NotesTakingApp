@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.notes
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +35,11 @@ import com.example.notesapp.ui.theme.AccentPink
 import com.example.notesapp.ui.theme.AccentYellow
 
 @Composable
-fun NotesScreen(parentPadding: PaddingValues) {
+fun NotesScreen(
+    parentPadding: PaddingValues,
+    onAddNote: () -> Unit,
+    onOpenNote: (Long) -> Unit
+) {
     val context = LocalContext.current.applicationContext as NotesApplication
     val viewModel: NotesViewModel = viewModel(
         factory = NotesViewModel.Factory(
@@ -47,7 +52,7 @@ fun NotesScreen(parentPadding: PaddingValues) {
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        floatingActionButton = { AddFab(onClick = { }) }
+        floatingActionButton = { AddFab(onClick = onAddNote) }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -95,16 +100,18 @@ fun NotesScreen(parentPadding: PaddingValues) {
                 }
             } else {
                 items(notes) { note ->
-                    NoteCard(
-                        title = note.title,
-                        preview = note.content,
-                        meta = buildString {
-                            append(if (note.isFavorite) "★ Favorite" else "Note")
-                            append(" • ")
-                            append("Updated")
-                        },
-                        color = cardColors[(note.id % cardColors.size).toInt()]
-                    )
+                    Column(modifier = Modifier.clickable { onOpenNote(note.id) }) {
+                        NoteCard(
+                            title = note.title,
+                            preview = note.content,
+                            meta = buildString {
+                                append(if (note.isFavorite) "★ Favorite" else "Note")
+                                append(" • ")
+                                append("Updated")
+                            },
+                            color = cardColors[(note.id % cardColors.size).toInt()]
+                        )
+                    }
                 }
             }
         }
