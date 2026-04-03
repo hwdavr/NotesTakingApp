@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.notesapp.data.local.FolderEntity
 import com.example.notesapp.data.repository.FolderRepository
 import com.example.notesapp.data.repository.NoteRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,10 +36,11 @@ class FoldersViewModel(
 ) : ViewModel() {
     private val searchQuery = MutableStateFlow("")
     private val smartCounts = MutableStateFlow(SmartCollectionCounts())
+    private val folderCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
 
     private val allFolders = folderRepository.getFolders()
 
-    val uiState: StateFlow<FoldersUiState> = combine(allFolders, searchQuery, smartCounts) { folders, query, counts ->
+    val uiState: StateFlow<FoldersUiState> = combine(allFolders, searchQuery, smartCounts, folderCounts) { folders, query, counts, perFolderCounts ->
         val visibleFolders = if (query.isBlank()) {
             folders
         } else {
@@ -48,7 +50,7 @@ class FoldersViewModel(
         FoldersUiState(
             smartCounts = counts,
             folders = visibleFolders.map { folder ->
-                FolderItemUi(folder = folder, noteCount = 0)
+                FolderItemUi(folder = folder, noteCount = perFolderCounts[folder.id] ?: 0)
             }
         )
     }.stateIn(
@@ -67,11 +69,21 @@ class FoldersViewModel(
 
     private fun refreshCounts() {
         viewModelScope.launch {
+            val folders = folderRepository.getFolders().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            ).value
+
             smartCounts.value = SmartCollectionCounts(
                 allNotes = noteRepository.getActiveNoteCount(),
                 favorites = noteRepository.getFavoriteCount(),
                 archive = noteRepository.getArchivedCount()
             )
+
+            folderCounts.value = folders.associate { folder ->
+                folder.id to async { noteRepository.getActiveNoteCountForFolder(folder.id) }.await()
+            }
         }
     }
 
