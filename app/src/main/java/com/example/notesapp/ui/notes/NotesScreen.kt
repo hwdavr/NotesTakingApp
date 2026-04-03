@@ -7,28 +7,43 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.item
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.notesapp.NotesApplication
+import com.example.notesapp.data.repository.NoteRepository
 import com.example.notesapp.ui.common.components.AddFab
 import com.example.notesapp.ui.common.components.AppSearchBar
 import com.example.notesapp.ui.common.components.SectionTitle
 import com.example.notesapp.ui.notes.components.FolderChipsRow
 import com.example.notesapp.ui.notes.components.NoteCard
+import com.example.notesapp.ui.theme.AccentBlue
 import com.example.notesapp.ui.theme.AccentMint
 import com.example.notesapp.ui.theme.AccentPink
 import com.example.notesapp.ui.theme.AccentYellow
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 
 @Composable
 fun NotesScreen(parentPadding: PaddingValues) {
+    val context = LocalContext.current.applicationContext as NotesApplication
+    val viewModel: NotesViewModel = viewModel(
+        factory = NotesViewModel.Factory(
+            NoteRepository(context.database.noteDao())
+        )
+    )
+    val notes by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
+    val cardColors = listOf(AccentYellow, AccentPink, AccentMint, AccentBlue)
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
@@ -52,7 +67,10 @@ fun NotesScreen(parentPadding: PaddingValues) {
             item {
                 AppSearchBar(
                     value = search,
-                    onValueChange = { search = it },
+                    onValueChange = {
+                        search = it
+                        viewModel.onSearchChanged(it)
+                    },
                     placeholder = "Search notes"
                 )
             }
@@ -65,34 +83,29 @@ fun NotesScreen(parentPadding: PaddingValues) {
             }
 
             item {
-                SectionTitle(title = "Latest notes")
+                SectionTitle(title = if (notes.isEmpty()) "No notes yet" else "Latest notes")
             }
 
-            item {
-                NoteCard(
-                    title = "Trip planning",
-                    preview = "Book flights, shortlist places to stay, and prepare itinerary notes for the weekend.",
-                    meta = "Personal • Updated 2h ago",
-                    color = AccentYellow
-                )
-            }
-
-            item {
-                NoteCard(
-                    title = "Sprint tasks",
-                    preview = "Polish Android UI, add folder tree, and connect note editor to local storage.",
-                    meta = "Work • Updated today",
-                    color = AccentPink
-                )
-            }
-
-            item {
-                NoteCard(
-                    title = "Startup ideas",
-                    preview = "Offline-first note app with folder nesting, quick search, and calm pastel UI.",
-                    meta = "Ideas • Yesterday",
-                    color = AccentMint
-                )
+            if (notes.isEmpty()) {
+                item {
+                    Text(
+                        text = "Your notes will appear here once you create them.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                items(notes) { note ->
+                    NoteCard(
+                        title = note.title,
+                        preview = note.content,
+                        meta = buildString {
+                            append(if (note.isFavorite) "★ Favorite" else "Note")
+                            append(" • ")
+                            append("Updated")
+                        },
+                        color = cardColors[(note.id % cardColors.size).toInt()]
+                    )
+                }
             }
         }
     }

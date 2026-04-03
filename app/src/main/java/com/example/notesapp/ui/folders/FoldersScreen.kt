@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.item
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -16,7 +17,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.notesapp.NotesApplication
+import com.example.notesapp.data.repository.FolderRepository
 import com.example.notesapp.ui.common.components.AddFab
 import com.example.notesapp.ui.common.components.AppSearchBar
 import com.example.notesapp.ui.common.components.SectionTitle
@@ -24,6 +30,13 @@ import com.example.notesapp.ui.folders.components.FolderRow
 
 @Composable
 fun FoldersScreen(parentPadding: PaddingValues) {
+    val context = LocalContext.current.applicationContext as NotesApplication
+    val viewModel: FoldersViewModel = viewModel(
+        factory = FoldersViewModel.Factory(
+            FolderRepository(context.database.folderDao())
+        )
+    )
+    val folders by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
 
     Scaffold(
@@ -48,21 +61,33 @@ fun FoldersScreen(parentPadding: PaddingValues) {
             item {
                 AppSearchBar(
                     value = search,
-                    onValueChange = { search = it },
+                    onValueChange = {
+                        search = it
+                        viewModel.onSearchChanged(it)
+                    },
                     placeholder = "Search folders"
                 )
             }
 
             item { SectionTitle(title = "Smart collections") }
-            item { FolderRow(name = "All Notes", count = "12") }
-            item { FolderRow(name = "Favorites", count = "4") }
-            item { FolderRow(name = "Archive", count = "2") }
+            item { FolderRow(name = "All Notes", count = "Auto") }
+            item { FolderRow(name = "Favorites", count = "Auto") }
+            item { FolderRow(name = "Archive", count = "Auto") }
 
-            item { SectionTitle(title = "My folders") }
-            item { FolderRow(name = "Personal", count = "6") }
-            item { FolderRow(name = "Work", count = "5") }
-            item { FolderRow(name = "Travel Plans", count = "3") }
-            item { FolderRow(name = "Ideas", count = "8") }
+            item { SectionTitle(title = if (folders.isEmpty()) "No folders yet" else "My folders") }
+
+            if (folders.isEmpty()) {
+                item {
+                    Text(
+                        text = "Your folders will appear here once they are created.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                items(folders) { folder ->
+                    FolderRow(name = folder.name, count = "Folder")
+                }
+            }
         }
     }
 }
