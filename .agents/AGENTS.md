@@ -87,6 +87,7 @@ When making UI changes:
 ## Build and validation rules
 
 ### Baseline checks
+This project is running in wsl.localhost. Before running the command below, make sure you are runing in a WSL terminal with the correct environment.
 After meaningful code changes, prefer running:
 - `./gradlew assembleDebug`
 - `./gradlew test`
@@ -142,33 +143,61 @@ Examples of important interactions:
 - folder selection
 - navigation between Notes / Folders / Settings
 
-## UI automation guidance
+## Testing pyramid
 
-If this repo adds UI automation, prefer **native Android test tooling first**.
-For this app, that usually means:
-- Compose UI tests
-- instrumented tests
-- screenshot tests
+### 1. Unit tests
+Use for:
+- business logic
+- ViewModel logic
+- use cases
+- reducers / UiState mapping
+- mappers
+- formatting / fallback logic
 
-If the goal is only visual verification:
-- prefer screenshot/snapshot-style testing when possible
+### 2. Integration tests (primary)
+Use for:
+- repository + mocked API
+- API success and error handling
+- parsing and mapping
+- retry / fallback logic
+- DAO / Room / cache behavior
+- ViewModel state transitions from mocked backend responses
 
-If the goal is interaction verification:
-- prefer Compose UI tests with stable test tags
+### 3. Instrumented UI tests
+Use for:
+- mocked data to UI rendering
+- loading / empty / error / success states
+- user interaction
+- navigation
+- critical multi-screen flows
 
-### Test tag guidance
-For important UI nodes, use stable semantic names such as:
-- `notes_tab`
-- `folders_tab`
-- `settings_tab`
-- `new_note_button`
-- `save_note_button`
-- `delete_note_button`
-- `archive_toggle`
-- `folder_picker`
-- `note_editor_screen`
+## Shared JSON scenarios
+This repository uses shared JSON scenario files as a cross-platform contract for Android and iOS.
 
-Use names that describe product meaning, not visual placement.
+Each scenario may contain:
+- apiMocks
+- expected.domain
+- expected.ui
+
+Rules:
+- integration tests consume expected.domain
+- instrumented UI tests consume expected.ui
+- do not duplicate scenario logic outside the JSON unless necessary
+
+## AI-generated UI verification
+When AI modifies UI code, verification should happen in this order:
+
+1. fast checks
+- compile
+- lint
+- relevant unit tests
+
+2. Android-native UI behavior verification
+- instrumented UI tests with mocked data
+- verify user-visible behavior
+
+3. visual verification
+- screenshot or snapshot verification when layout or visual presentation changed
 
 ## Navigation and debugability
 

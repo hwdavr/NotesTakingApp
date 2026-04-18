@@ -20,14 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.ColorLens
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.FontDownload
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.IosShare
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.PrivacyTip
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,20 +50,17 @@ import com.example.notesapp.ui.theme.LavenderPrimary
 import com.example.notesapp.ui.theme.LavenderSecondary
 import com.example.notesapp.ui.theme.TextSecondary
 
-// ─── Colours inferred from SVG ──────────────────────────────────────────────
 private val ProBadgeGradientStart = Color(0xFF9B8CFF)
 private val ProBadgeGradientEnd = Color(0xFFE06FD8)
 private val HeroGradientStart = Color(0xFF7C6CF2)
 private val HeroGradientEnd = Color(0xFFC569E0)
-private val HeroAvatarOrange = Color(0xFFFF7F0B)
-private val SparkleColor = Color(0xFFFFFFFF).copy(alpha = 0.29f)
 private val SectionBorder = Color(0xFFEAEAEA)
 
 @Composable
 fun SettingsScreen(parentPadding: PaddingValues) {
     Scaffold(
-        modifier = Modifier.padding(parentPadding),
-        containerColor = Color(0xFFFFFFFF)
+        modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
+        containerColor = Color(0xFFF8F8FA)
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -70,102 +68,121 @@ fun SettingsScreen(parentPadding: PaddingValues) {
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // ── Top app bar ──────────────────────────────────────────────────
+            // ── Top App Bar: "AI Notes" + Pro badge ──────────────────────────
             SettingsTopBar()
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Hero subscription card ───────────────────────────────────────
-            SubscriptionHeroCard(
+            // ── Hero Banner ─────────────────────────────────────────────────
+            HeroBanner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .testTag("settings_hero_card")
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── Profile section ──────────────────────────────────────────────
+            // ── Account section ─────────────────────────────────────────────
+            SectionHeader(title = "Account")
             SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .testTag("settings_account_section")
             ) {
-                ProfileRow()
+                SettingRowItem(
+                    icon = Icons.Outlined.SmartToy,
+                    iconBackground = Color(0xFFF3F4F6),
+                    iconTint = Color(0xFF6B7280),
+                    title = "Test Device",
+                    subtitle = "Unlimited Smart notes, no limits!",
+                    showArrow = false
+                )
             }
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // ── Settings sections card ───────────────────────────────────────
+            // ── General section ─────────────────────────────────────────────
+            SectionHeader(title = "General")
             SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .testTag("settings_general_section")
             ) {
-                SettingsSectionHeader(title = "Appearance")
-                SettingRowItem(
-                    icon = Icons.Outlined.ColorLens,
-                    iconBackground = Color(0xFFEDE9FE),
-                    iconTint = LavenderPrimary,
-                    title = "Theme",
-                    subtitle = "Light theme"
-                )
-                SettingsDivider()
-                SettingRowItem(
-                    icon = Icons.Outlined.DarkMode,
-                    iconBackground = Color(0xFFE0E7FF),
-                    iconTint = Color(0xFF4A68E0),
-                    title = "Dark Mode",
-                    subtitle = "System default"
-                )
-                SettingsDivider()
-                SettingRowItem(
-                    icon = Icons.Outlined.FontDownload,
-                    iconBackground = Color(0xFFF3F4F6),
-                    iconTint = Color(0xFF6B7280),
-                    title = "Font",
-                    subtitle = "System default"
-                )
-                SettingsDivider()
-                SettingsSectionHeader(title = "Account & Sync")
-                SettingRowItem(
-                    icon = Icons.Outlined.Sync,
-                    iconBackground = Color(0xFFDCFCE7),
-                    iconTint = Color(0xFF16A34A),
-                    title = "Sync",
-                    subtitle = "Not connected"
-                )
-                SettingsDivider()
-                SettingRowItem(
-                    icon = Icons.Outlined.Notifications,
-                    iconBackground = Color(0xFFFFF7ED),
-                    iconTint = Color(0xFFEA580C),
-                    title = "Notifications",
-                    subtitle = "Daily reminders off"
-                )
-                SettingsDivider()
-                SettingRowItem(
-                    icon = Icons.Outlined.Lock,
-                    iconBackground = Color(0xFFFCE7F3),
-                    iconTint = Color(0xFFDB2777),
-                    title = "Privacy",
-                    subtitle = "Manage permissions"
-                )
-                SettingsDivider()
-                SettingsSectionHeader(title = "General")
                 SettingRowItem(
                     icon = Icons.Outlined.Language,
                     iconBackground = Color(0xFFEFF6FF),
                     iconTint = Color(0xFF2563EB),
-                    title = "Language",
-                    subtitle = "English (US)"
+                    title = "App Languages",
+                    subtitle = null,
+                    showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
-                    icon = Icons.Outlined.AccountCircle,
+                    icon = Icons.Outlined.ShoppingCart,
+                    iconBackground = Color(0xFFDCFCE7),
+                    iconTint = Color(0xFF16A34A),
+                    title = "Restore Purchase",
+                    subtitle = null,
+                    showArrow = true
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ── Other section ───────────────────────────────────────────────
+            SectionHeader(title = "Other")
+            SectionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .testTag("settings_other_section")
+            ) {
+                SettingRowItem(
+                    icon = Icons.Outlined.ThumbUp,
+                    iconBackground = Color(0xFFFEF9C3),
+                    iconTint = Color(0xFFEAB308),
+                    title = "Rate Us",
+                    subtitle = null,
+                    showArrow = true
+                )
+                SettingsDivider()
+                SettingRowItem(
+                    icon = Icons.Outlined.Feedback,
+                    iconBackground = Color(0xFFF3F4F6),
+                    iconTint = Color(0xFF6B7280),
+                    title = "Feedback",
+                    subtitle = null,
+                    showArrow = true
+                )
+                SettingsDivider()
+                SettingRowItem(
+                    icon = Icons.Outlined.IosShare,
+                    iconBackground = Color(0xFFE0E7FF),
+                    iconTint = Color(0xFF4A68E0),
+                    title = "Share",
+                    subtitle = null,
+                    showArrow = true
+                )
+                SettingsDivider()
+                SettingRowItem(
+                    icon = Icons.Outlined.PrivacyTip,
+                    iconBackground = Color(0xFFFCE7F3),
+                    iconTint = Color(0xFFDB2777),
+                    title = "Privacy Policy",
+                    subtitle = null,
+                    showArrow = true
+                )
+                SettingsDivider()
+                SettingRowItem(
+                    icon = Icons.Outlined.Description,
                     iconBackground = Color(0xFFF5F3FF),
                     iconTint = LavenderPrimary,
-                    title = "About",
-                    subtitle = "Version 1.0.0"
+                    title = "Terms of Use",
+                    subtitle = null,
+                    showArrow = true
                 )
             }
 
@@ -174,7 +191,7 @@ fun SettingsScreen(parentPadding: PaddingValues) {
     }
 }
 
-// ─── Top bar ─────────────────────────────────────────────────────────────────
+// ─── Top App Bar ──────────────────────────────────────────────────────────────
 @Composable
 private fun SettingsTopBar() {
     Row(
@@ -183,9 +200,8 @@ private fun SettingsTopBar() {
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // App logo / wordmark
         Text(
-            text = "ANOTES",
+            text = "AI Notes",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Black,
                 fontSize = 26.sp,
@@ -212,27 +228,16 @@ private fun SettingsTopBar() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Star icon (simplified as text glyph)
-                Text(
-                    text = "✦",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Pro",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                Text(text = "♛", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Pro", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
 }
 
-// ─── Hero subscription card ──────────────────────────────────────────────────
+// ─── Hero Banner ─────────────────────────────────────────────────────────────
 @Composable
-private fun SubscriptionHeroCard(modifier: Modifier = Modifier) {
+private fun HeroBanner(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -247,155 +252,81 @@ private fun SubscriptionHeroCard(modifier: Modifier = Modifier) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Left: text + CTA button
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "Upgrade to Pro",
+                    text = "Get the most out of AI Notes",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    lineHeight = 26.sp
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp
                 )
                 Text(
-                    text = "Unlock unlimited notes, themes, sync & more.",
+                    text = "Unlimited Smart notes, no limits!",
                     color = Color.White.copy(alpha = 0.85f),
-                    fontSize = 13.sp,
-                    lineHeight = 19.sp
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                // CTA chip
+                Spacer(modifier = Modifier.height(6.dp))
+                // CTA "Upgrade to pro" button
                 Box(
                     modifier = Modifier
                         .background(
-                            color = Color.White.copy(alpha = 0.20f),
+                            color = Color.White.copy(alpha = 0.22f),
                             shape = RoundedCornerShape(20.dp)
                         )
                         .border(
                             width = 1.dp,
-                            color = Color.White.copy(alpha = 0.35f),
+                            color = Color.White.copy(alpha = 0.40f),
                             shape = RoundedCornerShape(20.dp)
                         )
                         .padding(horizontal = 16.dp, vertical = 7.dp)
                 ) {
                     Text(
-                        text = "Get Pro now",
+                        text = "Upgrade to pro",
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp
                     )
                 }
             }
-            Spacer(modifier = Modifier.width(16.dp))
-            // User avatar circle
-            AvatarCircle()
-        }
-        // Decorative sparkles
-        SparkleDecoration(
-            modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 140.dp)
-        )
-    }
-}
 
-@Composable
-private fun AvatarCircle() {
-    Box(
-        modifier = Modifier
-            .size(80.dp)
-            .clip(CircleShape)
-            .background(HeroAvatarOrange),
-        contentAlignment = Alignment.Center
-    ) {
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Right: user avatar circle
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(LavenderPrimary, LavenderSecondary)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "👤", fontSize = 32.sp)
+            }
+        }
+
+        // Sparkle decoration
         Text(
-            text = "👤",
-            fontSize = 36.sp
+            text = "✦",
+            color = Color.White.copy(alpha = 0.30f),
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.TopEnd).padding(top = 0.dp, end = 96.dp)
         )
     }
 }
 
+// ─── Section header (outside cards) ──────────────────────────────────────────
 @Composable
-private fun SparkleDecoration(modifier: Modifier = Modifier) {
-    Text(
-        text = "✦",
-        color = SparkleColor,
-        fontSize = 22.sp,
-        modifier = modifier
-    )
-}
-
-// ─── Profile row ─────────────────────────────────────────────────────────────
-@Composable
-private fun ProfileRow() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        // Avatar initials
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(LavenderPrimary, LavenderSecondary)
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "N",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "Notes User",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
-            )
-            Text(
-                text = "notes@email.com",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = "Go to profile",
-            tint = TextSecondary
-        )
-    }
-}
-
-// ─── Shared card wrapper ──────────────────────────────────────────────────────
-@Composable
-private fun SectionCard(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .border(width = 1.dp, color = SectionBorder, shape = RoundedCornerShape(8.dp))
-            .background(Color.White)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            content()
-        }
-    }
-}
-
-// ─── Section header ───────────────────────────────────────────────────────────
-@Composable
-private fun SettingsSectionHeader(title: String) {
+private fun SectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelSmall.copy(
@@ -406,8 +337,26 @@ private fun SettingsSectionHeader(title: String) {
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, top = 14.dp, bottom = 4.dp, end = 16.dp)
+            .padding(start = 16.dp, bottom = 6.dp, end = 16.dp)
     )
+}
+
+// ─── Shared card wrapper ──────────────────────────────────────────────────────
+@Composable
+private fun SectionCard(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .border(width = 1.dp, color = SectionBorder, shape = RoundedCornerShape(12.dp))
+            .background(Color.White)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            content()
+        }
+    }
 }
 
 // ─── Individual setting row ───────────────────────────────────────────────────
@@ -417,13 +366,14 @@ private fun SettingRowItem(
     iconBackground: Color,
     iconTint: Color,
     title: String,
-    subtitle: String,
+    subtitle: String?,
+    showArrow: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 11.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -449,18 +399,22 @@ private fun SettingRowItem(
                     color = Color(0xFF333333)
                 )
             )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+            }
+        }
+        if (showArrow) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Color(0xFFB5B5B5),
+                modifier = Modifier.size(20.dp)
             )
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-            contentDescription = null,
-            tint = Color(0xFFB5B5B5),
-            modifier = Modifier.size(20.dp)
-        )
     }
 }
 
