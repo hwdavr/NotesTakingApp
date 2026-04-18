@@ -43,7 +43,10 @@ Current known status from README:
 - Notes / Folders / Settings UI scaffold exists
 - Room database setup exists
 - seed data exists
-- next likely work includes ViewModels, note editor flow, folder actions, and closer UI matching
+- SettingsScreen implemented and matches UX/settings.png design
+- instrumented UI tests set up (`SettingsScreenTest`, `NotesTakingAppComposeUiTestTemplate`)
+- `androidTestImplementation` dependencies for Compose UI testing are in place
+- next likely work includes ViewModels, note editor flow, folder actions, and closer UI matching for remaining screens
 
 ## General coding rules
 
@@ -100,6 +103,14 @@ If a change affects screen behavior or navigation, also verify at least one of:
 - screenshot/snapshot test passes, if available
 - UI automation/instrumented test passes, if available
 - emulator/manual validation path is documented in the task summary
+
+To capture a reliable screenshot from the emulator:
+1. Run `./gradlew installDebug` and launch with `adb shell am start -n <package>/<activity>`.
+2. Use `adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml` to confirm the correct screen is active and find navigation tap coordinates.
+3. Tap to navigate: `adb shell input tap <x> <y>` (use bounds from the dump to find the center coordinate).
+4. Capture: `adb exec-out screencap -p > screenshot.png`.
+5. Verify all texts: `grep -oP 'text="[^"]+"' /tmp/ui.xml | grep -v 'text=""'` and compare against the design.
+6. Scroll if needed (`adb shell input swipe 540 1200 540 400`) and dump again to verify off-screen items.
 
 ### No fake confidence
 Do not claim a screen, interaction, or persistence flow works unless one of the following is true:

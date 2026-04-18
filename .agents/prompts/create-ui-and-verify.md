@@ -47,15 +47,31 @@ Implement or update the Android UI to match the provided screenshot as closely a
 - Keep the test focused on user-visible behavior.
 
 ### 6. Capture screenshot for verification
-- After implementing the screen and test, take a screenshot of the rendered UI in the test environment.
-- Compare it against the provided screenshot at a practical engineering level:
-  - layout structure
-  - key text blocks
-  - major spacing/alignment
-  - button placement
-  - major visual differences
-- Make sure all the elements in the screenshot are visible in the UI.
-- Make sure all the copies/texts are exactly same as the screenshot.
+After implementing the screen, install the app on the emulator and capture a real screenshot:
+
+#### 6a. Install and navigate to the screen
+1. Run `./gradlew installDebug` to install the latest build.
+2. Launch the app: `adb shell am start -n <package>/<activity>`.
+3. Wait for the app to load (`sleep 3` or more).
+4. Use `adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml` to inspect the current screen.
+5. Find the tap target coordinates: `grep -oP 'text="[^"]+"[^/]+bounds="[^"]+"' /tmp/ui.xml` or `grep -oP 'text="<label>"[^/]+/>' /tmp/ui.xml`.
+6. Tap the correct navigation element: `adb shell input tap <x> <y>`.
+7. Wait (`sleep 2`) then capture: `adb exec-out screencap -p > screenshot.png`.
+
+#### 6b. Verify all texts match the design exactly
+- Use `adb shell uiautomator dump` and grep to extract all visible text nodes:
+  ```
+  adb shell uiautomator dump /sdcard/screen.xml && adb pull /sdcard/screen.xml /tmp/screen.xml
+  grep -oP 'text="[^"]+"' /tmp/screen.xml | grep -v 'text=""'
+  ```
+- Compare every text string against the design screenshot — **all copies must be identical**.
+- Scroll if needed (`adb shell input swipe 540 1200 540 400`) and dump again to verify off-screen items.
+- Use `tesseract <design.png> stdout` if available for OCR comparison against the design image.
+
+#### 6c. Acceptance criteria
+- Every text string visible in the design screenshot is present in the UI (on-screen or accessible by scroll).
+- No text string in the UI differs from the design in wording, casing, or punctuation.
+- Layout structure matches the design (hero card, section order, row groupings).
 
 ### 7. Report result
 Return:
@@ -72,8 +88,11 @@ Return:
 - Prefer Android-native UI verification over Appium.
 - Use Appium only if explicitly required for a top-level smoke path.
 - Do not use Thread.sleep in tests.
+- Use `performScrollTo()` to assert items that are below the visible area in scrollable lists.
+- If a text string appears more than once on the screen, use `onAllNodesWithText()[index]` to avoid ambiguous selector errors.
 - Keep one main UI scenario per test.
 - Match repository style and architecture.
+- Before writing instrumented tests, verify that `androidTestImplementation` dependencies for `ui-test-junit4` and `junit` are present in `app/build.gradle.kts`.
 
 ## If repository context is incomplete
 - inspect nearby screens, tests, screen objects, and helpers first
