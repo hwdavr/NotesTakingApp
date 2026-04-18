@@ -2,6 +2,7 @@ package com.example.notesapp.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.IosShare
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.SmartToy
@@ -57,7 +59,7 @@ private val HeroGradientEnd = Color(0xFFC569E0)
 private val SectionBorder = Color(0xFFEAEAEA)
 
 @Composable
-fun SettingsScreen(parentPadding: PaddingValues) {
+fun SettingsScreen(parentPadding: PaddingValues, onLogout: () -> Unit) {
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
         containerColor = Color(0xFFF8F8FA)
@@ -98,6 +100,16 @@ fun SettingsScreen(parentPadding: PaddingValues) {
                     title = "Test Device",
                     subtitle = "Unlimited Smart notes, no limits!",
                     showArrow = false
+                )
+                SettingsDivider()
+                SettingRowItem(
+                    icon = Icons.Outlined.Logout,
+                    iconBackground = Color(0xFFFFEBEE),
+                    iconTint = Color(0xFFD32F2F),
+                    title = "Logout",
+                    subtitle = null,
+                    showArrow = true,
+                    modifier = Modifier.clickable { onLogout() }
                 )
             }
 
