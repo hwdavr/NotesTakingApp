@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,19 +45,18 @@ fun OnboardingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Title Line
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Write ",
+                        text = stringResource(R.string.onboarding_write),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "your ideas",
+                        text = stringResource(R.string.onboarding_your_ideas),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -76,7 +76,7 @@ fun OnboardingScreen(
 
                 // Headline
                 Text(
-                    text = "Save and share notes",
+                    text = stringResource(R.string.onboarding_save_share),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -122,7 +122,7 @@ fun OnboardingScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Create account",
+                            text = stringResource(R.string.onboarding_create_account),
                             color = Color.White,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -136,13 +136,13 @@ fun OnboardingScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Have an account?",
+                        text = stringResource(R.string.onboarding_have_account),
                         color = Color(0xFF4B4B57),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Log in",
+                        text = stringResource(R.string.onboarding_log_in),
                         color = Color(0xFF6E63F6),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,

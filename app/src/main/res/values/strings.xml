@@ -2,5 +2,34 @@
     <string name="app_name">NotesTakingApp</string>
     <string name="auth0_scheme">notesapp</string>
     <string name="auth0_domain">dev-9sa8k5kv.us.auth0.com</string>
-    <string name="auth0_client_id">lzsKedDvFDb1Ko7L6997fkPX3W53ZIsU</string>
+    
+    <string name="folders_title">Folders</string>
+    <string name="folders_subtitle">Organize notes by category and projects.</string>
+    <string name="folders_empty_state">Your folders will appear here once they are created.</string>
+    <string name="notes_title">My Notes</string>
+    <string name="notes_subtitle">Capture ideas, plans, and reminders.</string>
+    <string name="notes_empty_state">Your notes will appear here once you create them.</string>
+    <string name="onboarding_write">Write </string>
+    <string name="onboarding_your_ideas">your ideas</string>
+    <string name="onboarding_save_share">Save and share notes</string>
+    <string name="onboarding_create_account">Create account</string>
+    <string name="onboarding_have_account">Have an account?</string>
+    <string name="onboarding_log_in">Log in</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="settings_ai_notes">AI Notes</string>
+    <string name="settings_pro">Pro</string>
+    <string name="settings_ai_notes_desc">Get the most out of AI Notes</string>
+    <string name="settings_pro_desc">Unlimited Smart notes, no limits!</string>
+    <string name="settings_upgrade_pro">Upgrade to pro</string>
+    <string name="home_notes_title">My Notes</string>
+    <string name="home_notes_subtitle">Quickly capture and revisit your ideas</string>
+    <string name="home_recent_folders">Recent folders</string>
+    <string name="home_recent_notes">Recent notes</string>
+    <string name="home_note_count">%d notes</string>
+    <string name="editor_folder_label">Folder</string>
+    <string name="editor_no_folder">No folder</string>
+    <string name="editor_title_label">Title</string>
+    <string name="editor_write_note">Write your note</string>
+    <string name="editor_save">Save</string>
+    <string name="editor_delete"> Delete</string>
 </resources>

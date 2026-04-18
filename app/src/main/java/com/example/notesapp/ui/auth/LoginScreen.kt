@@ -11,8 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.notesapp.R
 
 @Composable
 fun LoginScreen(onBack: () -> Unit, onLogin: () -> Unit) {
@@ -20,7 +22,7 @@ fun LoginScreen(onBack: () -> Unit, onLogin: () -> Unit) {
     var password by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
-            AuthHeader(title = "Log in", onBack = onBack)
+            AuthHeader(title = stringResource(R.string.onboarding_log_in), onBack = onBack)
         },
         containerColor = Color(0xFFECECF2)
     ) { padding ->
@@ -36,7 +38,7 @@ fun LoginScreen(onBack: () -> Unit, onLogin: () -> Unit) {
                 AuthTextField(value = password, onValueChange = { password = it }, label = "Password", placeholder = "••••••••", isPassword = true)
                 
                 Text(
-                    text = "Forgot password?",
+                    text = stringResource(R.string.auth_forgot_password),
                     color = Color(0xFF6D63F5),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -45,7 +47,7 @@ fun LoginScreen(onBack: () -> Unit, onLogin: () -> Unit) {
             }
 
             AuthBottomSection(
-                buttonText = "Log in",
+                buttonText = stringResource(R.string.onboarding_log_in),
                 onButtonClick = onLogin,
                 termsText = "By continuing, you agree to our Terms of Service and Privacy Policy."
             )

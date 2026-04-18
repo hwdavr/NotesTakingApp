@@ -17,8 +17,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import com.example.notesapp.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.notesapp.NotesApplication
@@ -63,8 +65,8 @@ fun NotesScreen(
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(text = "My Notes", style = MaterialTheme.typography.headlineMedium)
-                    Text(text = "Capture ideas, plans, and reminders.", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.notes_title), style = MaterialTheme.typography.headlineMedium)
+                    Text(text = stringResource(R.string.notes_subtitle), style = MaterialTheme.typography.bodyMedium)
                 }
             }
 
@@ -93,7 +95,7 @@ fun NotesScreen(
             if (notes.isEmpty()) {
                 item {
                     Text(
-                        text = "Your notes will appear here once you create them.",
+                        text = stringResource(R.string.notes_empty_state),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

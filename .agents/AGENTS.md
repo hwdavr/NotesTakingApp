@@ -87,6 +87,12 @@ When making UI changes:
 - match spacing, hierarchy, and emphasis as closely as reasonable
 - do not overfit decorative details if it harms maintainability
 
+### 5. Define string resources for text copy
+When adding or modifying text copy in UI screens:
+- Do not use hardcoded strings (e.g., `Text("Hello")`).
+- Define string resources in `res/values/strings.xml` and use `stringResource(R.string.hello)`.
+- Use descriptive names for string resource keys, prefixing them with the screen or component name when applicable (e.g., `login_title_text`).
+
 ## Build and validation rules
 
 ### Baseline checks

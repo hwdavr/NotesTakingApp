@@ -1,9 +1,19 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val auth0ClientId = localProperties.getProperty("AUTH0_CLIENT_ID") ?: ""
 
 android {
     namespace = "com.example.notesapp"
@@ -18,6 +28,8 @@ android {
 
         manifestPlaceholders["auth0Domain"] = "@string/auth0_domain"
         manifestPlaceholders["auth0Scheme"] = "@string/auth0_scheme"
+        
+        resValue("string", "auth0_client_id", "\"$auth0ClientId\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

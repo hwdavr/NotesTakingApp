@@ -11,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.notesapp.R
 
 @Composable
 fun HomeNotesScreen() {
@@ -31,13 +33,13 @@ fun HomeNotesScreen() {
         // Header
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
             Text(
-                text = "My Notes",
+                text = stringResource(R.string.home_notes_title),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1E1E24)
             )
             Text(
-                text = "Quickly capture and revisit your ideas",
+                text = stringResource(R.string.home_notes_subtitle),
                 fontSize = 14.sp,
                 color = Color(0xFF5C5C73)
             )
@@ -47,7 +49,7 @@ fun HomeNotesScreen() {
 
         // Recent Folders Section
         Text(
-            text = "Recent folders",
+            text = stringResource(R.string.home_recent_folders),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF1E1E24)
@@ -75,7 +77,7 @@ fun HomeNotesScreen() {
 
         // Recent Notes Section
         Text(
-            text = "Recent notes",
+            text = stringResource(R.string.home_recent_notes),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF1E1E24)
@@ -129,7 +131,7 @@ fun FolderCard(name: String, noteCount: Int, modifier: Modifier = Modifier, isPr
                 color = if (isPrimary) Color.White else Color(0xFF1E1E24)
             )
             Text(
-                text = "$noteCount notes",
+                text = String.format(stringResource(R.string.home_note_count), noteCount),
                 fontSize = 13.sp,
                 color = if (isPrimary) Color.White.copy(alpha = 0.8f) else Color(0xFF5C5C73)
             )

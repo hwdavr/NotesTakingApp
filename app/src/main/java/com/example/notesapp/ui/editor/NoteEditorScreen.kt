@@ -33,7 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.notesapp.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.notesapp.NotesApplication
@@ -98,12 +100,12 @@ fun NoteEditorScreen(
                 expanded = folderMenuExpanded,
                 onExpandedChange = { folderMenuExpanded = !folderMenuExpanded }
             ) {
-                val selectedFolderName = state.availableFolders.firstOrNull { it.id == state.folderId }?.name ?: "No folder"
+                val selectedFolderName = state.availableFolders.firstOrNull { it.id == state.folderId }?.name ?: stringResource(R.string.editor_no_folder)
                 OutlinedTextField(
                     value = selectedFolderName,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Folder") },
+                    label = { Text(stringResource(R.string.editor_folder_label)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = folderMenuExpanded) },
                     modifier = Modifier
                         .menuAnchor()
@@ -114,7 +116,7 @@ fun NoteEditorScreen(
                     onDismissRequest = { folderMenuExpanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("No folder") },
+                        text = { Text(stringResource(R.string.editor_no_folder)) },
                         onClick = {
                             viewModel.onFolderSelected(null)
                             folderMenuExpanded = false
@@ -136,7 +138,7 @@ fun NoteEditorScreen(
                 value = state.title,
                 onValueChange = viewModel::onTitleChange,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.editor_title_label)) },
                 singleLine = true
             )
 
@@ -146,7 +148,7 @@ fun NoteEditorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                label = { Text("Write your note") }
+                label = { Text(stringResource(R.string.editor_write_note)) }
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -154,7 +156,7 @@ fun NoteEditorScreen(
                     onClick = { viewModel.save(onDone = onBack) },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.editor_save))
                 }
                 if (noteId >= 0) {
                     Button(
@@ -162,7 +164,7 @@ fun NoteEditorScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Icon(Icons.Outlined.Delete, contentDescription = null)
-                        Text(" Delete")
+                        Text(stringResource(R.string.editor_delete))
                     }
                 }
             }

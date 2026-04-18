@@ -18,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.notesapp.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.notesapp.NotesApplication
@@ -54,8 +56,8 @@ fun FoldersScreen(parentPadding: PaddingValues) {
         ) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(text = "Folders", style = MaterialTheme.typography.headlineMedium)
-                    Text(text = "Organize notes by category and projects.", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.folders_title), style = MaterialTheme.typography.headlineMedium)
+                    Text(text = stringResource(R.string.folders_subtitle), style = MaterialTheme.typography.bodyMedium)
                 }
             }
 
@@ -80,7 +82,7 @@ fun FoldersScreen(parentPadding: PaddingValues) {
             if (state.folders.isEmpty()) {
                 item {
                     Text(
-                        text = "Your folders will appear here once they are created.",
+                        text = stringResource(R.string.folders_empty_state),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

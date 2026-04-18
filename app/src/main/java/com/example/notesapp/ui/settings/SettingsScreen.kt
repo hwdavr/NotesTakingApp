@@ -44,7 +44,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.notesapp.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.ui.theme.BorderSubtle
@@ -213,7 +215,7 @@ private fun SettingsTopBar() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "AI Notes",
+            text = stringResource(R.string.settings_ai_notes),
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Black,
                 fontSize = 26.sp,
@@ -241,7 +243,7 @@ private fun SettingsTopBar() {
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(text = "♛", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                Text(text = "Pro", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(text = stringResource(R.string.settings_pro), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
@@ -272,14 +274,14 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "Get the most out of AI Notes",
+                    text = stringResource(R.string.settings_ai_notes_desc),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     lineHeight = 24.sp
                 )
                 Text(
-                    text = "Unlimited Smart notes, no limits!",
+                    text = stringResource(R.string.settings_pro_desc),
                     color = Color.White.copy(alpha = 0.85f),
                     fontSize = 12.sp,
                     lineHeight = 18.sp
@@ -300,7 +302,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
                         .padding(horizontal = 16.dp, vertical = 7.dp)
                 ) {
                     Text(
-                        text = "Upgrade to pro",
+                        text = stringResource(R.string.settings_upgrade_pro),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp
