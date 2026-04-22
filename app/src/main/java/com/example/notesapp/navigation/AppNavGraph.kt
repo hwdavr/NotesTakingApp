@@ -1,5 +1,6 @@
 package com.example.notesapp.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -27,7 +28,7 @@ import com.example.notesapp.ui.home.HomeNotesScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 
 @Composable
-fun AppNavGraph(authManager: AuthManager) {
+fun AppNavGraph(authManager: AuthManager, activity: Context) {
     val navController = rememberNavController()
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
     
@@ -77,6 +78,7 @@ fun AppNavGraph(authManager: AuthManager) {
                     onBack = { navController.popBackStack() },
                     onLogin = { 
                         authManager.login(
+                            activityContext = activity,
                             onSuccess = { 
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
@@ -92,6 +94,7 @@ fun AppNavGraph(authManager: AuthManager) {
                     onBack = { navController.popBackStack() },
                     onSignup = {
                         authManager.login( // Using login for signup in this simple prototype
+                            activityContext = activity,
                             onSuccess = { 
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
@@ -105,21 +108,19 @@ fun AppNavGraph(authManager: AuthManager) {
 
             // Main Flow
             composable(Destinations.Notes.route) {
-                HomeNotesScreen() // Using the new HomeNotesScreen
+                HomeNotesScreen(
+                    onAddNote = { navController.navigate(Destinations.Editor.createRoute()) },
+                    onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) }
+                )
             }
             composable(Destinations.Folders.route) { FoldersScreen(innerPadding) }
             composable(Destinations.Settings.route) { 
                 SettingsScreen(
                     parentPadding = innerPadding,
-                    onLogout = {
-                        authManager.logout(
-                            onSuccess = {
-                                navController.navigate(Destinations.Onboarding.route) {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            },
-                            onError = { /* Handle error */ }
-                        )
+                    onLogoutSuccess = {
+                        navController.navigate(Destinations.Onboarding.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 ) 
             }

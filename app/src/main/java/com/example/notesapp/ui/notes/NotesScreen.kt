@@ -19,12 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
-import com.example.notesapp.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.notesapp.NotesApplication
-import com.example.notesapp.data.repository.NoteRepository
+import com.example.notesapp.R
 import com.example.notesapp.ui.common.components.AddFab
 import com.example.notesapp.ui.common.components.AppSearchBar
 import com.example.notesapp.ui.common.components.SectionTitle
@@ -39,15 +36,10 @@ import com.example.notesapp.ui.theme.AccentYellow
 fun NotesScreen(
     parentPadding: PaddingValues,
     onAddNote: () -> Unit,
-    onOpenNote: (Long) -> Unit
+    onOpenNote: (Long) -> Unit,
+    viewModel: NotesViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current.applicationContext as NotesApplication
-    val viewModel: NotesViewModel = viewModel(
-        factory = NotesViewModel.Factory(
-            NoteRepository(context.database.noteDao())
-        )
-    )
-    val notes by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
     val cardColors = listOf(AccentYellow, AccentPink, AccentMint, AccentBlue)
 
@@ -89,10 +81,10 @@ fun NotesScreen(
             }
 
             item {
-                SectionTitle(title = if (notes.isEmpty()) "No notes yet" else "Latest notes")
+                SectionTitle(title = if (state.notes.isEmpty()) "No notes yet" else "Latest notes")
             }
 
-            if (notes.isEmpty()) {
+            if (state.notes.isEmpty() && !state.isLoading) {
                 item {
                     Text(
                         text = stringResource(R.string.notes_empty_state),
@@ -100,17 +92,17 @@ fun NotesScreen(
                     )
                 }
             } else {
-                items(notes) { note ->
+                items(state.notes) { note ->
                     Column(modifier = Modifier.clickable { onOpenNote(note.id) }) {
                         NoteCard(
                             title = note.title,
-                            preview = note.content,
+                            preview = note.preview,
                             meta = buildString {
                                 append(if (note.isFavorite) "★ Favorite" else "Note")
                                 append(" • ")
                                 append("Updated")
                             },
-                            color = cardColors[(note.id % cardColors.size).toInt()]
+                            color = cardColors[note.colorIndex]
                         )
                     }
                 }

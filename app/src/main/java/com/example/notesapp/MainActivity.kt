@@ -9,19 +9,23 @@ import androidx.compose.ui.Modifier
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.navigation.AppNavGraph
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var authManager: AuthManager
+
+    @Inject
+    lateinit var authManager: AuthManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        authManager = AuthManager(this)
         authManager.checkSession()
 
         setContent {
             NotesTakingAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppNavGraph(authManager = authManager)
+                    AppNavGraph(authManager = authManager, activity = this)
                 }
             }
         }

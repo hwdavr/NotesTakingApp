@@ -16,29 +16,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
-import com.example.notesapp.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.notesapp.NotesApplication
-import com.example.notesapp.data.repository.FolderRepository
-import com.example.notesapp.data.repository.NoteRepository
+import com.example.notesapp.R
 import com.example.notesapp.ui.common.components.AddFab
 import com.example.notesapp.ui.common.components.AppSearchBar
 import com.example.notesapp.ui.common.components.SectionTitle
 import com.example.notesapp.ui.folders.components.FolderRow
 
 @Composable
-fun FoldersScreen(parentPadding: PaddingValues) {
-    val context = LocalContext.current.applicationContext as NotesApplication
-    val viewModel: FoldersViewModel = viewModel(
-        factory = FoldersViewModel.Factory(
-            FolderRepository(context.database.folderDao()),
-            NoteRepository(context.database.noteDao())
-        )
-    )
+fun FoldersScreen(
+    parentPadding: PaddingValues,
+    viewModel: FoldersViewModel = hiltViewModel()
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
 

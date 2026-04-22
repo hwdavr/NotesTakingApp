@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.settings
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,9 +44,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notesapp.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +64,12 @@ private val HeroGradientEnd = Color(0xFFC569E0)
 private val SectionBorder = Color(0xFFEAEAEA)
 
 @Composable
-fun SettingsScreen(parentPadding: PaddingValues, onLogout: () -> Unit) {
+fun SettingsScreen(
+    parentPadding: PaddingValues,
+    onLogoutSuccess: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
         containerColor = Color(0xFFF8F8FA)
@@ -111,7 +119,13 @@ fun SettingsScreen(parentPadding: PaddingValues, onLogout: () -> Unit) {
                     title = "Logout",
                     subtitle = null,
                     showArrow = true,
-                    modifier = Modifier.clickable { onLogout() }
+                    modifier = Modifier.clickable {
+                        viewModel.logout(
+                            activityContext = context as Activity,
+                            onSuccess = onLogoutSuccess,
+                            onError = { /* Handle error */ }
+                        )
+                    }
                 )
             }
 

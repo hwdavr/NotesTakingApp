@@ -1,34 +1,37 @@
 package com.example.notesapp.ui.editor
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.notesapp.data.local.FolderEntity
-import com.example.notesapp.data.local.NoteEntity
-import com.example.notesapp.data.repository.FolderRepository
-import com.example.notesapp.data.repository.NoteRepository
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class NoteEditorUiState(
     val noteId: Long? = null,
     val title: String = "",
     val content: String = "",
     val folderId: Long? = null,
-    val availableFolders: List<FolderEntity> = emptyList(),
+    val availableFolders: List<Folder> = emptyList(),
     val createdAt: Long = 0L,
     val isFavorite: Boolean = false,
     val isArchived: Boolean = false,
     val isLoaded: Boolean = false
 )
 
-class NoteEditorViewModel(
+@HiltViewModel
+class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
 
@@ -86,7 +89,7 @@ class NoteEditorViewModel(
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             val current = _uiState.value
-            val note = NoteEntity(
+            val note = Note(
                 id = current.noteId ?: 0,
                 title = current.title.ifBlank { "Untitled note" },
                 content = current.content,
@@ -96,7 +99,7 @@ class NoteEditorViewModel(
                 createdAt = if (current.noteId == null) now else current.createdAt,
                 updatedAt = now
             )
-            noteRepository.insert(note)
+            noteRepository.save(note)
             onDone()
         }
     }
@@ -110,7 +113,7 @@ class NoteEditorViewModel(
 
         viewModelScope.launch {
             noteRepository.delete(
-                NoteEntity(
+                Note(
                     id = current.noteId,
                     title = current.title,
                     content = current.content,
@@ -122,16 +125,6 @@ class NoteEditorViewModel(
                 )
             )
             onDone()
-        }
-    }
-
-    class Factory(
-        private val noteRepository: NoteRepository,
-        private val folderRepository: FolderRepository
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return NoteEditorViewModel(noteRepository, folderRepository) as T
         }
     }
 }

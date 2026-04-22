@@ -1,25 +1,28 @@
 package com.example.notesapp.ui.notes
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.notesapp.data.local.NoteEntity
-import com.example.notesapp.data.repository.NoteRepository
+import com.example.notesapp.domain.note.NoteRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class NotesViewModel(
+@HiltViewModel
+class NotesViewModel @Inject constructor(
     private val noteRepository: NoteRepository
 ) : ViewModel() {
+
     private val searchQuery = MutableStateFlow("")
 
-    private val allNotes = noteRepository.getActiveNotes()
-
-    val uiState: StateFlow<List<NoteEntity>> = combine(allNotes, searchQuery) { notes, query ->
-        if (query.isBlank()) {
+    val uiState: StateFlow<NotesUiState> = combine(
+        noteRepository.getActiveNotes(),
+        searchQuery
+    ) { notes, query ->
+        val filtered = if (query.isBlank()) {
             notes
         } else {
             notes.filter {
@@ -27,20 +30,25 @@ class NotesViewModel(
                     it.content.contains(query, ignoreCase = true)
             }
         }
+        NotesUiState(
+            isLoading = false,
+            notes = filtered.mapIndexed { index, note ->
+                NoteUiModel(
+                    id = note.id,
+                    title = note.title,
+                    preview = note.content,
+                    isFavorite = note.isFavorite,
+                    colorIndex = (note.id % 4).toInt()
+                )
+            }
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
+        initialValue = NotesUiState(isLoading = true)
     )
 
     fun onSearchChanged(query: String) {
         searchQuery.value = query
-    }
-
-    class Factory(private val noteRepository: NoteRepository) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return NotesViewModel(noteRepository) as T
-        }
     }
 }
