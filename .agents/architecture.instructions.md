@@ -131,6 +131,11 @@ Not allowed:
 
 ---
 
+## Dependency Injection
+- Use **Hilt** for dependency injection across all layers. Ensure proper scoping (e.g., `@Singleton`, `@ViewModelScoped`).
+
+---
+
 ## State Management Rules
 
 ### Single source of truth
