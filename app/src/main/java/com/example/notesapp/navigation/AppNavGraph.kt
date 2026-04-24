@@ -9,6 +9,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,13 +20,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.notesapp.ui.editor.NoteEditorScreen
 import com.example.notesapp.ui.folders.FoldersScreen
-import com.example.notesapp.ui.notes.NotesScreen
 import com.example.notesapp.ui.settings.SettingsScreen
 
 import androidx.compose.runtime.collectAsState
 import com.example.notesapp.auth.AuthManager
-import com.example.notesapp.ui.auth.LoginScreen
-import com.example.notesapp.ui.auth.SignupScreen
+import com.example.notesapp.ui.common.components.ErrorDialog
 import com.example.notesapp.ui.home.HomeNotesScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 
@@ -35,8 +36,17 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
     
-    val authRoutes = listOf(Destinations.Onboarding.route, Destinations.Login.route, Destinations.Signup.route)
+    val authRoutes = listOf(Destinations.Onboarding.route)
     val showBottomBar = isLoggedIn && currentRoute?.startsWith("editor") != true && currentRoute !in authRoutes
+
+    var authError by remember { mutableStateOf<String?>(null) }
+
+    if (authError != null) {
+        ErrorDialog(
+            message = authError!!,
+            onDismiss = { authError = null }
+        )
+    }
 
     Scaffold(
         bottomBar = {
@@ -69,38 +79,32 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
             // Auth Flow
             composable(Destinations.Onboarding.route) {
                 OnboardingScreen(
-                    onLoginClick = { navController.navigate(Destinations.Login.route) },
-                    onSignupClick = { navController.navigate(Destinations.Signup.route) }
-                )
-            }
-            composable(Destinations.Login.route) {
-                LoginScreen(
-                    onBack = { navController.popBackStack() },
-                    onLogin = { 
+                    onLoginClick = { 
                         authManager.login(
                             activityContext = activity,
                             onSuccess = { 
+                                authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
                                 }
                             },
-                            onError = { /* Handle error */ }
+                            onError = { description ->
+                                authError = description
+                            }
                         )
-                    }
-                )
-            }
-            composable(Destinations.Signup.route) {
-                SignupScreen(
-                    onBack = { navController.popBackStack() },
-                    onSignup = {
-                        authManager.login( // Using login for signup in this simple prototype
+                    },
+                    onSignupClick = { 
+                        authManager.login( // Universal login handles both
                             activityContext = activity,
                             onSuccess = { 
+                                authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
                                 }
                             },
-                            onError = { /* Handle error */ }
+                            onError = { description ->
+                                authError = description
+                            }
                         )
                     }
                 )

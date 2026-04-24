@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.util.Log
 
 @Singleton
 class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    private val TAG = "AuthManager"
     private val account = Auth0(
         context.getString(R.string.auth0_client_id),
         context.getString(R.string.auth0_domain)
@@ -31,16 +33,19 @@ class AuthManager @Inject constructor(
      * @param activityContext An Activity context required by Auth0's WebAuthProvider.
      */
     fun login(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        Log.d(TAG, "Starting login flow with scheme: ${context.getString(R.string.auth0_scheme)}")
         WebAuthProvider.login(account)
             .withScheme(context.getString(R.string.auth0_scheme))
             .withScope("openid profile email")
             .start(activityContext, object : Callback<Credentials, AuthenticationException> {
                 override fun onSuccess(result: Credentials) {
+                    Log.d(TAG, "Login successful! Access token: ${result.accessToken.take(10)}...")
                     _isLoggedIn.value = true
                     onSuccess()
                 }
-
+ 
                 override fun onFailure(error: AuthenticationException) {
+                    Log.e(TAG, "Login failed: ${error.getDescription()}", error)
                     onError(error.getDescription())
                 }
             })
@@ -55,17 +60,19 @@ class AuthManager @Inject constructor(
             .withScheme(context.getString(R.string.auth0_scheme))
             .start(activityContext, object : Callback<Void?, AuthenticationException> {
                 override fun onSuccess(result: Void?) {
+                    Log.d(TAG, "Logout successful")
                     _isLoggedIn.value = false
                     onSuccess()
                 }
 
                 override fun onFailure(error: AuthenticationException) {
+                    Log.e(TAG, "Logout failed: ${error.getDescription()}", error)
                     onError(error.getDescription())
                 }
             })
     }
 
-    // Mock check for session (in a real app, use CredentialsManager to check stored tokens)
+    // Mock check for session
     fun checkSession() {
         // For prototype, we'll keep it simple
     }
