@@ -43,14 +43,15 @@ import com.example.notesapp.R
 fun NoteEditorScreen(
     parentPadding: PaddingValues,
     noteId: Long,
+    folderId: Long? = null,
     onBack: () -> Unit,
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var folderMenuExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(noteId) {
-        viewModel.load(noteId)
+    LaunchedEffect(noteId, folderId) {
+        viewModel.load(noteId, folderId)
     }
 
     Scaffold(modifier = Modifier.padding(parentPadding)) { innerPadding ->

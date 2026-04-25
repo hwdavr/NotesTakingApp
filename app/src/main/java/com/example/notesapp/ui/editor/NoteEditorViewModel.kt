@@ -35,12 +35,13 @@ class NoteEditorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
 
-    fun load(noteId: Long) {
+    fun load(noteId: Long, folderId: Long? = null) {
         viewModelScope.launch {
             val folders = folderRepository.getFolders().first()
             if (noteId < 0L) {
                 _uiState.value = _uiState.value.copy(
                     availableFolders = folders,
+                    folderId = folderId,
                     isLoaded = true
                 )
                 return@launch

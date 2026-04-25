@@ -84,6 +84,9 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
 
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 

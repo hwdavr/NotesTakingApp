@@ -117,7 +117,17 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                     onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) }
                 )
             }
-            composable(Destinations.Folders.route) { FoldersScreen(innerPadding) }
+            composable(Destinations.Folders.route) { 
+                FoldersScreen(
+                    parentPadding = innerPadding,
+                    onAddNote = { folderId -> 
+                        navController.navigate(Destinations.Editor.createRoute(folderId = folderId))
+                    },
+                    onOpenNote = { noteId ->
+                        navController.navigate(Destinations.Editor.createRoute(noteId = noteId))
+                    }
+                ) 
+            }
             composable(Destinations.Settings.route) { 
                 SettingsScreen(
                     parentPadding = innerPadding,
@@ -134,13 +144,19 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                     navArgument("noteId") {
                         type = NavType.LongType
                         defaultValue = -1L
+                    },
+                    navArgument("folderId") {
+                        type = NavType.LongType
+                        defaultValue = -1L
                     }
                 )
             ) { backStackEntry ->
                 val noteId = backStackEntry.arguments?.getLong("noteId") ?: -1L
+                val folderId = backStackEntry.arguments?.getLong("folderId") ?: -1L
                 NoteEditorScreen(
                     parentPadding = innerPadding,
                     noteId = noteId,
+                    folderId = if (folderId == -1L) null else folderId,
                     onBack = { navController.popBackStack() }
                 )
             }

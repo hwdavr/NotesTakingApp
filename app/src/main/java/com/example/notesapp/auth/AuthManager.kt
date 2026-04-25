@@ -1,6 +1,7 @@
 package com.example.notesapp.auth
 
 import android.content.Context
+import android.util.Log
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationException
 import com.auth0.android.callback.Callback
@@ -13,11 +14,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
 
 @Singleton
 class AuthManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val tokenStorage: TokenStorage
 ) {
     private val TAG = "AuthManager"
     private val account = Auth0(
@@ -28,22 +29,26 @@ class AuthManager @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    init {
+        checkSession()
+    }
+
     /**
      * Launches the Auth0 web login flow.
-     * @param activityContext An Activity context required by Auth0's WebAuthProvider.
      */
     fun login(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        Log.d(TAG, "Starting login flow with scheme: ${context.getString(R.string.auth0_scheme)}")
+        Log.d(TAG, "Starting login flow")
         WebAuthProvider.login(account)
             .withScheme(context.getString(R.string.auth0_scheme))
-            .withScope("openid profile email")
+            .withScope("openid profile email offline_access") // Added offline_access for refresh token
             .start(activityContext, object : Callback<Credentials, AuthenticationException> {
                 override fun onSuccess(result: Credentials) {
-                    Log.d(TAG, "Login successful! Access token: ${result.accessToken.take(10)}...")
+                    Log.d(TAG, "Login successful!")
+                    tokenStorage.saveTokens(result.accessToken, result.refreshToken)
                     _isLoggedIn.value = true
                     onSuccess()
                 }
- 
+
                 override fun onFailure(error: AuthenticationException) {
                     Log.e(TAG, "Login failed: ${error.getDescription()}", error)
                     onError(error.getDescription())
@@ -53,7 +58,6 @@ class AuthManager @Inject constructor(
 
     /**
      * Launches the Auth0 web logout flow.
-     * @param activityContext An Activity context required by Auth0's WebAuthProvider.
      */
     fun logout(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
         WebAuthProvider.logout(account)
@@ -61,6 +65,7 @@ class AuthManager @Inject constructor(
             .start(activityContext, object : Callback<Void?, AuthenticationException> {
                 override fun onSuccess(result: Void?) {
                     Log.d(TAG, "Logout successful")
+                    tokenStorage.clearTokens()
                     _isLoggedIn.value = false
                     onSuccess()
                 }
@@ -72,8 +77,17 @@ class AuthManager @Inject constructor(
             })
     }
 
-    // Mock check for session
+    /**
+     * Checks if a valid access token exists in secure storage.
+     */
     fun checkSession() {
-        // For prototype, we'll keep it simple
+        val accessToken = tokenStorage.getAccessToken()
+        if (accessToken != null) {
+            Log.d(TAG, "Session found")
+            _isLoggedIn.value = true
+        } else {
+            Log.d(TAG, "No session found")
+            _isLoggedIn.value = false
+        }
     }
 }
