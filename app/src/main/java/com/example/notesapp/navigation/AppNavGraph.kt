@@ -142,21 +142,21 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                 route = Destinations.Editor.route,
                 arguments = listOf(
                     navArgument("noteId") {
-                        type = NavType.LongType
-                        defaultValue = -1L
+                        type = NavType.StringType
+                        defaultValue = ""
                     },
                     navArgument("folderId") {
-                        type = NavType.LongType
-                        defaultValue = -1L
+                        type = NavType.StringType
+                        defaultValue = ""
                     }
                 )
             ) { backStackEntry ->
-                val noteId = backStackEntry.arguments?.getLong("noteId") ?: -1L
-                val folderId = backStackEntry.arguments?.getLong("folderId") ?: -1L
+                val noteId = backStackEntry.arguments?.getString("noteId").orEmpty().ifBlank { null }
+                val folderId = backStackEntry.arguments?.getString("folderId").orEmpty().ifBlank { null }
                 NoteEditorScreen(
                     parentPadding = innerPadding,
                     noteId = noteId,
-                    folderId = if (folderId == -1L) null else folderId,
+                    folderId = folderId,
                     onBack = { navController.popBackStack() }
                 )
             }

@@ -25,7 +25,7 @@ import com.example.notesapp.ui.notes.NoteUiModel
 @Composable
 fun HomeNotesScreen(
     onAddNote: () -> Unit,
-    onOpenNote: (Long) -> Unit,
+    onOpenNote: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()

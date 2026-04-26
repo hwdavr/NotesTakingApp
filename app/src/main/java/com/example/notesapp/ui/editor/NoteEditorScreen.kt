@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,8 +39,8 @@ import com.example.notesapp.R
 @Composable
 fun NoteEditorScreen(
     parentPadding: PaddingValues,
-    noteId: Long,
-    folderId: Long? = null,
+    noteId: String?,
+    folderId: String? = null,
     onBack: () -> Unit,
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
@@ -71,20 +68,10 @@ fun NoteEditorScreen(
                     Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
                 }
                 Text(
-                    text = if (noteId >= 0) "Edit Note" else "New Note",
+                    text = if (!noteId.isNullOrBlank()) "Edit Note" else "New Note",
                     style = MaterialTheme.typography.titleLarge
                 )
-                Row {
-                    IconButton(onClick = { viewModel.toggleArchived() }) {
-                        Icon(Icons.Outlined.Archive, contentDescription = "Archive")
-                    }
-                    IconButton(onClick = { viewModel.toggleFavorite() }) {
-                        Icon(
-                            imageVector = if (state.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = "Favorite"
-                        )
-                    }
-                }
+                Row {}
             }
 
             ExposedDropdownMenuBox(
@@ -149,7 +136,7 @@ fun NoteEditorScreen(
                 ) {
                     Text(stringResource(R.string.editor_save))
                 }
-                if (noteId >= 0) {
+                if (!noteId.isNullOrBlank()) {
                     Button(
                         onClick = { viewModel.delete(onDone = onBack) },
                         modifier = Modifier.weight(1f)

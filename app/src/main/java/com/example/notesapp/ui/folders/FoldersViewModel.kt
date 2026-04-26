@@ -18,9 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SmartCollectionCounts(
-    val allNotes: Int = 0,
-    val favorites: Int = 0,
-    val archive: Int = 0
+    val allNotes: Int = 0
 )
 
 sealed class FolderTreeItem {
@@ -42,7 +40,7 @@ class FoldersViewModel @Inject constructor(
 
     private val searchQuery = MutableStateFlow("")
     private val smartCounts = MutableStateFlow(SmartCollectionCounts())
-    private val folderCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
+    private val folderCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
 
     private val allFolders = folderRepository.getFolders()
     private val allNotes = noteRepository.getActiveNotes()
@@ -70,6 +68,9 @@ class FoldersViewModel @Inject constructor(
     )
 
     init {
+        viewModelScope.launch {
+            folderRepository.sync()
+        }
         refreshCounts()
     }
 
@@ -82,9 +83,7 @@ class FoldersViewModel @Inject constructor(
             val folders = folderRepository.getFolders().first()
 
             smartCounts.value = SmartCollectionCounts(
-                allNotes = noteRepository.getActiveNoteCount(),
-                favorites = noteRepository.getFavoriteCount(),
-                archive = noteRepository.getArchivedCount()
+                allNotes = noteRepository.getActiveNoteCount()
             )
 
             folderCounts.value = folders.associate { folder ->
@@ -93,13 +92,16 @@ class FoldersViewModel @Inject constructor(
         }
     }
 
-    fun addFolder(name: String, parentId: Long? = null) {
+    fun addFolder(name: String, parentId: String? = null) {
         viewModelScope.launch {
             folderRepository.insert(
                 Folder(
                     name = name,
                     parentFolderId = parentId,
-                    createdAt = System.currentTimeMillis()
+                    sortKey = System.currentTimeMillis().toString(),
+                    deviceId = "",
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
                 )
             )
             refreshCounts()
@@ -109,9 +111,9 @@ class FoldersViewModel @Inject constructor(
     private fun buildTree(
         folders: List<Folder>,
         notes: List<Note>,
-        parentId: Long?,
+        parentId: String?,
         depth: Int,
-        perFolderCounts: Map<Long, Int>
+        perFolderCounts: Map<String, Int>
     ): List<FolderTreeItem> {
         val result = mutableListOf<FolderTreeItem>()
         

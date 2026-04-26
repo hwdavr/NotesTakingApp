@@ -18,12 +18,15 @@ import androidx.room.PrimaryKey
     indices = [Index("folderId")]
 )
 data class NoteEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: String,
     val title: String,
     val content: String,
-    val folderId: Long? = null,
-    val isFavorite: Boolean = false,
-    val isArchived: Boolean = false,
+    val folderId: String? = null,
+    val sortKey: String,
+    val version: Long,
+    val deviceId: String,
+    val lastSyncedVersion: Long,
+    val deletedAt: Long? = null,
     val createdAt: Long,
     val updatedAt: Long
 )

@@ -7,12 +7,24 @@ fun FolderEntity.toDomain(): Folder = Folder(
     id = id,
     name = name,
     parentFolderId = parentFolderId,
-    createdAt = createdAt
+    sortKey = sortKey,
+    version = version,
+    deviceId = deviceId,
+    lastSyncedVersion = lastSyncedVersion,
+    deletedAt = deletedAt,
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )
 
 fun Folder.toEntity(): FolderEntity = FolderEntity(
     id = id,
     name = name,
     parentFolderId = parentFolderId,
-    createdAt = createdAt
+    sortKey = sortKey,
+    version = version,
+    deviceId = deviceId,
+    lastSyncedVersion = lastSyncedVersion,
+    deletedAt = deletedAt,
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )

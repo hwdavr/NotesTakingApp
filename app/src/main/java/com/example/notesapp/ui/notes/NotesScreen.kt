@@ -36,7 +36,7 @@ import com.example.notesapp.ui.theme.AccentYellow
 fun NotesScreen(
     parentPadding: PaddingValues,
     onAddNote: () -> Unit,
-    onOpenNote: (Long) -> Unit,
+    onOpenNote: (String) -> Unit,
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -98,9 +98,7 @@ fun NotesScreen(
                             title = note.title,
                             preview = note.preview,
                             meta = buildString {
-                                append(if (note.isFavorite) "★ Favorite" else "Note")
-                                append(" • ")
-                                append("Updated")
+                                append("Note • Updated")
                             },
                             color = cardColors[note.colorIndex]
                         )

@@ -36,8 +36,8 @@ import com.example.notesapp.ui.folders.components.NoteRow
 @Composable
 fun FoldersScreen(
     parentPadding: PaddingValues,
-    onAddNote: (Long) -> Unit = {},
-    onOpenNote: (Long) -> Unit = {},
+    onAddNote: (String) -> Unit = {},
+    onOpenNote: (String) -> Unit = {},
     viewModel: FoldersViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -86,8 +86,6 @@ fun FoldersScreen(
             if (!state.isSearchActive) {
                 item { SectionTitle(title = "Smart collections") }
                 item { FolderRow(name = "All Notes", count = state.smartCounts.allNotes.toString()) }
-                item { FolderRow(name = "Favorites", count = state.smartCounts.favorites.toString()) }
-                item { FolderRow(name = "Archive", count = state.smartCounts.archive.toString()) }
 
                 item { SectionTitle(title = if (state.treeItems.isEmpty()) "No folders yet" else "My folders") }
             } else {

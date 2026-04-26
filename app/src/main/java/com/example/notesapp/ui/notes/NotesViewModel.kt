@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.note.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,12 @@ class NotesViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val searchQuery = MutableStateFlow("")
+
+    init {
+        viewModelScope.launch {
+            noteRepository.sync()
+        }
+    }
 
     val uiState: StateFlow<NotesUiState> = combine(
         noteRepository.getActiveNotes(),
@@ -37,8 +44,7 @@ class NotesViewModel @Inject constructor(
                     id = note.id,
                     title = note.title,
                     preview = note.content,
-                    isFavorite = note.isFavorite,
-                    colorIndex = (note.id % 4).toInt()
+                    colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             }
         )

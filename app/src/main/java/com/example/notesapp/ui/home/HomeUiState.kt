@@ -3,7 +3,7 @@ package com.example.notesapp.ui.home
 import com.example.notesapp.ui.notes.NoteUiModel
 
 data class FolderUiModel(
-    val id: Long,
+    val id: String,
     val name: String,
     val noteCount: Int,
     val isPrimary: Boolean = false

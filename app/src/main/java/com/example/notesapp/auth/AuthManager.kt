@@ -40,7 +40,8 @@ class AuthManager @Inject constructor(
         Log.d(TAG, "Starting login flow")
         WebAuthProvider.login(account)
             .withScheme(context.getString(R.string.auth0_scheme))
-            .withScope("openid profile email offline_access") // Added offline_access for refresh token
+            .withScope("openid profile email offline_access")
+            .withAudience(context.getString(R.string.auth0_audience))
             .start(activityContext, object : Callback<Credentials, AuthenticationException> {
                 override fun onSuccess(result: Credentials) {
                     Log.d(TAG, "Login successful!")

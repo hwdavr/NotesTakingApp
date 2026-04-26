@@ -1,6 +1,25 @@
 # NotesTakingApp
 
-Starter Android notes app scaffold built with Kotlin + Jetpack Compose + Room.
+Android notes app built with Kotlin, Jetpack Compose, Room, Hilt, Auth0, and a backend API integration driven by the OpenAPI contract in `../NotesAppBackend/openapi.yaml`.
+
+## Backend Integration
+
+The app now uses:
+
+- Auth0 access tokens with the backend API audience
+- Retrofit + Moshi + OkHttp for API calls
+- Room as a local cache for folders and notes
+- Backend item IDs and tree structure based on `parentId`
+
+Set these values in `local.properties` before running the app:
+
+```properties
+AUTH0_CLIENT_ID=your_auth0_native_client_id
+AUTH0_AUDIENCE=https://notes-app.api
+API_BASE_URL=http://10.0.2.2:8080/
+```
+
+`API_BASE_URL` defaults to the Android emulator loopback for a backend running on the same machine.
 
 ## Harness Engineering
 

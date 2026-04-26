@@ -6,6 +6,7 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.notes.NoteUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,6 +19,12 @@ class HomeViewModel @Inject constructor(
     private val folderRepository: FolderRepository
 ) : ViewModel() {
 
+    init {
+        viewModelScope.launch {
+            folderRepository.sync()
+        }
+    }
+
     val uiState: StateFlow<HomeUiState> = combine(
         noteRepository.getActiveNotes(),
         folderRepository.getFolders()
@@ -28,8 +35,7 @@ class HomeViewModel @Inject constructor(
                     id = note.id,
                     title = note.title,
                     preview = note.content,
-                    isFavorite = note.isFavorite,
-                    colorIndex = (note.id % 4).toInt()
+                    colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             },
             recentFolders = folders.take(2).mapIndexed { index, folder ->

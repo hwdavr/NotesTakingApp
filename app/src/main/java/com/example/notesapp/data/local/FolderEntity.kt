@@ -18,8 +18,14 @@ import androidx.room.PrimaryKey
     indices = [Index("parentFolderId")]
 )
 data class FolderEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: String,
     val name: String,
-    val parentFolderId: Long? = null,
-    val createdAt: Long
+    val parentFolderId: String? = null,
+    val sortKey: String,
+    val version: Long,
+    val deviceId: String,
+    val lastSyncedVersion: Long,
+    val deletedAt: Long? = null,
+    val createdAt: Long,
+    val updatedAt: Long
 )

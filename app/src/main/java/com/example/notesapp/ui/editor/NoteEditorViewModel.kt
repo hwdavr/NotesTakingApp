@@ -15,14 +15,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class NoteEditorUiState(
-    val noteId: Long? = null,
+    val noteId: String? = null,
     val title: String = "",
     val content: String = "",
-    val folderId: Long? = null,
+    val folderId: String? = null,
     val availableFolders: List<Folder> = emptyList(),
     val createdAt: Long = 0L,
-    val isFavorite: Boolean = false,
-    val isArchived: Boolean = false,
     val isLoaded: Boolean = false
 )
 
@@ -35,10 +33,11 @@ class NoteEditorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
 
-    fun load(noteId: Long, folderId: Long? = null) {
+    fun load(noteId: String?, folderId: String? = null) {
         viewModelScope.launch {
+            folderRepository.sync()
             val folders = folderRepository.getFolders().first()
-            if (noteId < 0L) {
+            if (noteId.isNullOrBlank()) {
                 _uiState.value = _uiState.value.copy(
                     availableFolders = folders,
                     folderId = folderId,
@@ -56,8 +55,6 @@ class NoteEditorViewModel @Inject constructor(
                     folderId = note.folderId,
                     availableFolders = folders,
                     createdAt = note.createdAt,
-                    isFavorite = note.isFavorite,
-                    isArchived = note.isArchived,
                     isLoaded = true
                 )
             } else {
@@ -74,16 +71,8 @@ class NoteEditorViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(content = value)
     }
 
-    fun onFolderSelected(folderId: Long?) {
+    fun onFolderSelected(folderId: String?) {
         _uiState.value = _uiState.value.copy(folderId = folderId)
-    }
-
-    fun toggleFavorite() {
-        _uiState.value = _uiState.value.copy(isFavorite = !_uiState.value.isFavorite)
-    }
-
-    fun toggleArchived() {
-        _uiState.value = _uiState.value.copy(isArchived = !_uiState.value.isArchived)
     }
 
     fun save(onDone: () -> Unit) {
@@ -91,12 +80,12 @@ class NoteEditorViewModel @Inject constructor(
             val now = System.currentTimeMillis()
             val current = _uiState.value
             val note = Note(
-                id = current.noteId ?: 0,
+                id = current.noteId.orEmpty(),
                 title = current.title.ifBlank { "Untitled note" },
                 content = current.content,
                 folderId = current.folderId,
-                isFavorite = current.isFavorite,
-                isArchived = current.isArchived,
+                sortKey = now.toString(),
+                deviceId = "",
                 createdAt = if (current.noteId == null) now else current.createdAt,
                 updatedAt = now
             )
@@ -115,12 +104,13 @@ class NoteEditorViewModel @Inject constructor(
         viewModelScope.launch {
             noteRepository.delete(
                 Note(
-                    id = current.noteId,
+                    id = current.noteId.orEmpty(),
                     title = current.title,
                     content = current.content,
                     folderId = current.folderId,
-                    isFavorite = current.isFavorite,
-                    isArchived = current.isArchived,
+                    sortKey = "",
+                    version = 0,
+                    deviceId = "",
                     createdAt = current.createdAt,
                     updatedAt = System.currentTimeMillis()
                 )

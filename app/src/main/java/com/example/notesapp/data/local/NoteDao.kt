@@ -10,32 +10,20 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM notes WHERE isArchived = 0 ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM notes WHERE deletedAt IS NULL ORDER BY updatedAt DESC")
     fun getActiveNotes(): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")
-    suspend fun getNoteById(id: Long): NoteEntity?
+    suspend fun getNoteById(id: String): NoteEntity?
 
-    @Query("SELECT * FROM notes WHERE isFavorite = 1 AND isArchived = 0 ORDER BY updatedAt DESC")
-    fun getFavoriteNotes(): Flow<List<NoteEntity>>
+    @Query("SELECT * FROM notes WHERE folderId = :folderId AND deletedAt IS NULL ORDER BY updatedAt DESC")
+    fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
 
-    @Query("SELECT * FROM notes WHERE isArchived = 1 ORDER BY updatedAt DESC")
-    fun getArchivedNotes(): Flow<List<NoteEntity>>
+    @Query("SELECT COUNT(*) FROM notes WHERE folderId = :folderId AND deletedAt IS NULL")
+    suspend fun getActiveNoteCountForFolder(folderId: String): Int
 
-    @Query("SELECT * FROM notes WHERE folderId = :folderId AND isArchived = 0 ORDER BY updatedAt DESC")
-    fun getNotesByFolder(folderId: Long): Flow<List<NoteEntity>>
-
-    @Query("SELECT COUNT(*) FROM notes WHERE folderId = :folderId AND isArchived = 0")
-    suspend fun getActiveNoteCountForFolder(folderId: Long): Int
-
-    @Query("SELECT COUNT(*) FROM notes WHERE isArchived = 0")
+    @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NULL")
     suspend fun getActiveNoteCount(): Int
-
-    @Query("SELECT COUNT(*) FROM notes WHERE isFavorite = 1 AND isArchived = 0")
-    suspend fun getFavoriteCount(): Int
-
-    @Query("SELECT COUNT(*) FROM notes WHERE isArchived = 1")
-    suspend fun getArchivedCount(): Int
 
     @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
     fun searchNotes(query: String): Flow<List<NoteEntity>>
@@ -44,11 +32,14 @@ interface NoteDao {
     suspend fun getNoteCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(note: NoteEntity): Long
+    suspend fun insert(note: NoteEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(notes: List<NoteEntity>)
 
     @Update
     suspend fun update(note: NoteEntity)
 
-    @Delete
-    suspend fun delete(note: NoteEntity)
+    @Query("DELETE FROM notes")
+    suspend fun clearAll()
 }

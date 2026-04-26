@@ -15,6 +15,8 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 val auth0ClientId = localProperties.getProperty("AUTH0_CLIENT_ID") ?: ""
+val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: "https://notes-app.api"
+val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: "http://10.0.2.2:8080/"
 
 android {
     namespace = "com.example.notesapp"
@@ -31,6 +33,8 @@ android {
         manifestPlaceholders["auth0Scheme"] = "@string/auth0_scheme"
         
         resValue("string", "auth0_client_id", "\"$auth0ClientId\"")
+        resValue("string", "auth0_audience", "\"$auth0Audience\"")
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -56,6 +60,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -76,6 +81,12 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Hilt

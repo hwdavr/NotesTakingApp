@@ -8,8 +8,11 @@ fun NoteEntity.toDomain(): Note = Note(
     title = title,
     content = content,
     folderId = folderId,
-    isFavorite = isFavorite,
-    isArchived = isArchived,
+    sortKey = sortKey,
+    version = version,
+    deviceId = deviceId,
+    lastSyncedVersion = lastSyncedVersion,
+    deletedAt = deletedAt,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -19,8 +22,11 @@ fun Note.toEntity(): NoteEntity = NoteEntity(
     title = title,
     content = content,
     folderId = folderId,
-    isFavorite = isFavorite,
-    isArchived = isArchived,
+    sortKey = sortKey,
+    version = version,
+    deviceId = deviceId,
+    lastSyncedVersion = lastSyncedVersion,
+    deletedAt = deletedAt,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
