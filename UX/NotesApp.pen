@@ -6,8 +6,8 @@
       "id": "mkcjF",
       "x": 0,
       "y": -1051,
-      "name": "Notes Mobile App",
-      "width": 930,
+      "name": "Home screen",
+      "width": 391,
       "height": 849,
       "gap": 80,
       "children": [
@@ -784,7 +784,7 @@
         {
           "type": "frame",
           "id": "eeGX9",
-          "name": "Tab 2 - Folder Structure",
+          "name": "Tab 2 - Folders",
           "width": 390,
           "height": 844,
           "fill": {
@@ -951,16 +951,6 @@
                       ]
                     }
                   ]
-                },
-                {
-                  "type": "text",
-                  "id": "qpckV",
-                  "name": "title",
-                  "fill": "#2F343A",
-                  "content": "My Notes",
-                  "fontFamily": "Inter",
-                  "fontSize": 24,
-                  "fontWeight": "700"
                 },
                 {
                   "type": "frame",
@@ -1142,6 +1132,16 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "type": "text",
+                  "id": "qpckV",
+                  "name": "title",
+                  "fill": "#2F343A",
+                  "content": "My Notes",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "700"
                 },
                 {
                   "type": "frame",
