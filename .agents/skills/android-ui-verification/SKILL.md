@@ -1,3 +1,8 @@
+---
+name: Android UI verification skill
+description: Use this skill after AI generates or modifies Android UI code.
+---
+
 # Android UI verification skill
 
 Use this skill after AI generates or modifies Android UI code.

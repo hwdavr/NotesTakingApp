@@ -1,3 +1,8 @@
+---
+name: Android feature skill
+description: Use this skill when implementing or modifying Android feature code.
+---
+
 # Android feature skill
 
 Use this skill when implementing or modifying Android feature code.

@@ -1,3 +1,8 @@
+---
+name: Android instrumented UI test skill
+description: Use this skill for Android UI tests on real runtime.
+---
+
 # Android instrumented UI test skill
 
 Use this skill for Android UI tests on real runtime.

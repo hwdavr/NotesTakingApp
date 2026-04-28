@@ -1,3 +1,8 @@
+---
+name: Shared JSON scenarios skill
+description: Use this skill when defining or consuming cross-platform test scenarios shared by Android and iOS.
+---
+
 # Shared JSON scenarios skill
 
 Use this skill when defining or consuming cross-platform test scenarios shared by Android and iOS.

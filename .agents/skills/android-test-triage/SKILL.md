@@ -1,3 +1,8 @@
+---
+name: Android test triage skill
+description: Use this skill to choose the correct test layer for a scenario.
+---
+
 # Android test triage skill
 
 Use this skill to choose the correct test layer for a scenario.
