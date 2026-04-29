@@ -20,17 +20,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.StickyNote2
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.CreateNewFolder
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.automirrored.outlined.StickyNote2
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,9 +64,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
-import com.example.notesapp.ui.common.components.SearchHeader
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.common.components.SearchHeader
 
 sealed class QuickActionItem {
     data class FolderItem(val folder: Folder) : QuickActionItem()
@@ -79,6 +79,7 @@ fun FoldersScreen(
     parentPadding: PaddingValues,
     onAddNote: (String) -> Unit = {},
     onOpenNote: (String) -> Unit = {},
+    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit = { _, _, _ -> },
     viewModel: FoldersViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -123,7 +124,10 @@ fun FoldersScreen(
                 CollectionStats(
                     allNotes = state.smartCounts.allNotes,
                     favorites = state.smartCounts.favorites,
-                    archive = state.smartCounts.archive
+                    archive = state.smartCounts.archive,
+                    onAllNotesClick = { onOpenCollection("all", "All Notes", null) },
+                    onFavoritesClick = { onOpenCollection("favorites", "Favorites", null) },
+                    onArchiveClick = { onOpenCollection("archive", "Archive", null) }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -165,7 +169,12 @@ fun FoldersScreen(
                                 is FolderTreeItem.FolderItem -> FolderTreeRow(
                                     item = item,
                                     highlighted = !state.isSearchActive && item.depth == 0 && index == 0,
-                                    onQuickActions = { selectedItemForQuickActions = QuickActionItem.FolderItem(item.folder) },
+                                    onOpenCollection = {
+                                        onOpenCollection("folder", item.folder.name, item.folder.id)
+                                    },
+                                    onQuickActions = {
+                                        selectedItemForQuickActions = QuickActionItem.FolderItem(item.folder)
+                                    },
                                     onQuickAdd = { selectedFolderForQuickAdd = item.folder }
                                 )
 
@@ -173,7 +182,9 @@ fun FoldersScreen(
                                     note = item.note,
                                     depth = item.depth,
                                     onClick = { onOpenNote(item.note.id) },
-                                    onQuickActions = { selectedItemForQuickActions = QuickActionItem.NoteItem(item.note) }
+                                    onQuickActions = {
+                                        selectedItemForQuickActions = QuickActionItem.NoteItem(item.note)
+                                    }
                                 )
                             }
                         }
@@ -222,6 +233,7 @@ fun FoldersScreen(
                 onRename = { selectedItemForQuickActions = null },
                 onDelete = { selectedItemForQuickActions = null }
             )
+
             is QuickActionItem.NoteItem -> NoteItemActionsSheet(
                 note = item.note,
                 onDismiss = { selectedItemForQuickActions = null },
@@ -230,7 +242,8 @@ fun FoldersScreen(
                 onRename = { selectedItemForQuickActions = null },
                 onDelete = { selectedItemForQuickActions = null }
             )
-            null -> {}
+
+            null -> Unit
         }
     }
 
@@ -281,23 +294,29 @@ fun FoldersScreen(
 private fun CollectionStats(
     allNotes: Int,
     favorites: Int,
-    archive: Int
+    archive: Int,
+    onAllNotesClick: () -> Unit,
+    onFavoritesClick: () -> Unit,
+    onArchiveClick: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         CollectionStatRow(
             icon = Icons.AutoMirrored.Outlined.StickyNote2,
             label = stringResource(R.string.folders_stat_all_notes),
-            count = allNotes
+            count = allNotes,
+            onClick = onAllNotesClick
         )
         CollectionStatRow(
             icon = Icons.Outlined.Folder,
             label = stringResource(R.string.folders_stat_favorites),
-            count = favorites
+            count = favorites,
+            onClick = onFavoritesClick
         )
         CollectionStatRow(
             icon = Icons.Outlined.CreateNewFolder,
             label = stringResource(R.string.folders_stat_archive),
-            count = archive
+            count = archive,
+            onClick = onArchiveClick
         )
     }
 }
@@ -306,10 +325,13 @@ private fun CollectionStats(
 private fun CollectionStatRow(
     icon: ImageVector,
     label: String,
-    count: Int
+    count: Int,
+    onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -381,6 +403,7 @@ private fun NotesTreeHeader(onAddClick: () -> Unit) {
 private fun FolderTreeRow(
     item: FolderTreeItem.FolderItem,
     highlighted: Boolean,
+    onOpenCollection: () -> Unit,
     onQuickActions: () -> Unit,
     onQuickAdd: () -> Unit
 ) {
@@ -389,6 +412,7 @@ private fun FolderTreeRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(if (highlighted) Color(0xFFF0F4FF) else Color.Transparent)
+            .clickable(onClick = onOpenCollection)
             .padding(
                 start = if (highlighted) 8.dp else (item.depth * 22).dp,
                 top = if (highlighted) 6.dp else 0.dp,
@@ -494,8 +518,8 @@ private fun NoteTreeRow(
                 contentDescription = null,
                 tint = Color(0xFF8B9199),
                 modifier = Modifier.size(20.dp)
-        )
-}
+            )
+        }
     }
 }
 
@@ -518,7 +542,6 @@ private fun FolderAddActionsSheet(
                 .padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

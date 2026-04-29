@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
 import com.example.notesapp.ui.home.HomeNotesScreen
+import com.example.notesapp.ui.notes.CollectionNotesScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 
 @Composable
@@ -37,7 +38,10 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
     val currentRoute = currentBackStack?.destination?.route
     
     val authRoutes = listOf(Destinations.Onboarding.route)
-    val showBottomBar = isLoggedIn && currentRoute?.startsWith("editor") != true && currentRoute !in authRoutes
+    val showBottomBar = isLoggedIn &&
+        currentRoute?.startsWith("editor") != true &&
+        currentRoute?.startsWith("collectionNotes") != true &&
+        currentRoute !in authRoutes
 
     var authError by remember { mutableStateOf<String?>(null) }
 
@@ -126,8 +130,44 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                     },
                     onOpenNote = { noteId ->
                         navController.navigate(Destinations.Editor.createRoute(noteId = noteId))
+                    },
+                    onOpenCollection = { type, label, folderId ->
+                        navController.navigate(
+                            Destinations.CollectionNotes.createRoute(
+                                type = type,
+                                label = label,
+                                folderId = folderId
+                            )
+                        )
                     }
                 ) 
+            }
+            composable(
+                route = Destinations.CollectionNotes.route,
+                arguments = listOf(
+                    navArgument("type") {
+                        type = NavType.StringType
+                        defaultValue = "all"
+                    },
+                    navArgument("folderId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
+                    navArgument("label") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                CollectionNotesScreen(
+                    parentPadding = innerPadding,
+                    onAddNote = { folderId ->
+                        navController.navigate(Destinations.Editor.createRoute(folderId = folderId))
+                    },
+                    onOpenNote = { noteId ->
+                        navController.navigate(Destinations.Editor.createRoute(noteId = noteId))
+                    }
+                )
             }
             composable(Destinations.Settings.route) { 
                 SettingsScreen(
