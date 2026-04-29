@@ -29,6 +29,11 @@ class HomeViewModel @Inject constructor(
         noteRepository.getActiveNotes(),
         folderRepository.getFolders()
     ) { notes, folders ->
+        val noteCountsByFolder = notes
+            .mapNotNull { note -> note.folderId }
+            .groupingBy { it }
+            .eachCount()
+
         HomeUiState(
             recentNotes = notes.take(5).map { note ->
                 NoteUiModel(
@@ -38,12 +43,12 @@ class HomeViewModel @Inject constructor(
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             },
-            recentFolders = folders.take(2).mapIndexed { index, folder ->
+            recentFolders = folders.take(4).mapIndexed { index, folder ->
                 FolderUiModel(
                     id = folder.id,
                     name = folder.name,
-                    noteCount = 0, // Simplified for now, could be improved with a proper count query
-                    isPrimary = index == 1 // Just to match the existing design hint
+                    noteCount = noteCountsByFolder[folder.id] ?: 0,
+                    isPrimary = index == 0
                 )
             },
             isLoading = false

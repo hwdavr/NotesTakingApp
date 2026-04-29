@@ -113,6 +113,7 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
             // Main Flow
             composable(Destinations.Notes.route) {
                 HomeNotesScreen(
+                    parentPadding = innerPadding,
                     onAddNote = { navController.navigate(Destinations.Editor.createRoute()) },
                     onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) }
                 )

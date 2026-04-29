@@ -2,189 +2,246 @@ package com.example.notesapp.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
-import com.example.notesapp.ui.common.components.AddFab
-import com.example.notesapp.ui.notes.NoteUiModel
+import com.example.notesapp.ui.common.components.SearchHeader
+import com.example.notesapp.ui.notes.components.NoteCard
+import com.example.notesapp.ui.theme.AccentBlue
+import com.example.notesapp.ui.theme.AccentMint
+import com.example.notesapp.ui.theme.AccentPink
+import com.example.notesapp.ui.theme.AccentYellow
 
 @Composable
 fun HomeNotesScreen(
+    parentPadding: PaddingValues,
     onAddNote: () -> Unit,
     onOpenNote: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val cardColors = remember { listOf(AccentYellow, AccentPink, AccentMint, AccentBlue) }
+    val filteredNotes = remember(state.recentNotes, searchQuery) {
+        if (searchQuery.isBlank()) {
+            state.recentNotes
+        } else {
+            val query = searchQuery.trim()
+            state.recentNotes.filter { note ->
+                note.title.contains(query, ignoreCase = true) ||
+                    note.preview.contains(query, ignoreCase = true)
+            }
+        }
+    }
 
     Scaffold(
-        floatingActionButton = { AddFab(onClick = onAddNote) }
-    ) { padding ->
-        Column(
+        modifier = Modifier.padding(parentPadding),
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(Color(0xFFF3F7FF), Color(0xFFEDF3FF))
                     )
                 )
-                .padding(horizontal = 16.dp)
+                .padding(innerPadding)
         ) {
-            Spacer(modifier = Modifier.height(62.dp)) // Status bar space
-
-            // Header
-            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                Text(
-                    text = stringResource(R.string.home_notes_title),
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E1E24)
-                )
-                Text(
-                    text = stringResource(R.string.home_notes_subtitle),
-                    fontSize = 14.sp,
-                    color = Color(0xFF5C5C73)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Recent Folders Section
-            Text(
-                text = stringResource(R.string.home_recent_folders),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1E1E24)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                state.recentFolders.forEach { folder ->
-                    FolderCard(
-                        name = folder.name,
-                        noteCount = folder.noteCount,
-                        modifier = Modifier.weight(1f),
-                        isPrimary = folder.isPrimary
-                    )
-                }
-                if (state.recentFolders.isEmpty()) {
-                    // Placeholder or empty state if no folders
-                    Spacer(modifier = Modifier.weight(1f))
-                    Spacer(modifier = Modifier.weight(1f))
-                } else if (state.recentFolders.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Recent Notes Section
-            Text(
-                text = stringResource(R.string.home_recent_notes),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1E1E24)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            
-            Card(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .fillMaxSize()
+                    .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 10.dp)
+                    .padding(horizontal = 16.dp)
             ) {
-                if (state.recentNotes.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                        Text(text = "No recent notes", color = Color.Gray)
+                SearchHeader(
+                    value = searchQuery,
+                    placeholder = stringResource(R.string.home_search_placeholder),
+                    onValueChange = { searchQuery = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(R.string.home_recent_folders),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color(0xFF26262B)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                FolderChipsRow(items = state.recentFolders)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                when {
+                    state.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = Color(0xFF5F6EFA))
+                        }
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        items(state.recentNotes) { note ->
-                            NoteItem(note, onClick = { onOpenNote(note.id) })
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                                thickness = 0.5.dp,
-                                color = Color(0xFFE1E3EC)
-                            )
+
+                    filteredNotes.isEmpty() -> {
+                        EmptyNotesState(
+                            modifier = Modifier.weight(1f),
+                            searchActive = searchQuery.isNotBlank()
+                        )
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(bottom = 104.dp)
+                        ) {
+                            items(filteredNotes) { note ->
+                                Box(modifier = Modifier.clickable { onOpenNote(note.id) }) {
+                                    NoteCard(
+                                        title = note.title,
+                                        preview = note.preview.ifBlank {
+                                            stringResource(R.string.home_note_preview_fallback)
+                                        },
+                                        meta = stringResource(R.string.home_note_meta),
+                                        color = cardColors[note.colorIndex]
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
+
+            HomeAddButton(
+                onClick = onAddNote,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 28.dp)
+            )
         }
     }
 }
 
 @Composable
-fun FolderCard(name: String, noteCount: Int, modifier: Modifier = Modifier, isPrimary: Boolean) {
-    Card(
-        modifier = modifier.height(116.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isPrimary) Color(0xFF6E63F6) else Color.White
+private fun FolderChipsRow(items: List<FolderUiModel>) {
+    if (items.isEmpty()) {
+        Text(
+            text = stringResource(R.string.home_folders_empty_state),
+            color = Color(0xFF7A7A82),
+            style = MaterialTheme.typography.bodyMedium
         )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = name,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (isPrimary) Color.White else Color(0xFF1E1E24)
-            )
-            Text(
-                text = String.format(stringResource(R.string.home_note_count), noteCount),
-                fontSize = 13.sp,
-                color = if (isPrimary) Color.White.copy(alpha = 0.8f) else Color(0xFF5C5C73)
-            )
-        }
+        return
     }
-}
 
-@Composable
-fun NoteItem(note: NoteUiModel, onClick: () -> Unit) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items.forEach { folder ->
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = if (folder.isPrimary) Color(0xFFDFECE7) else Color(0xFFEFEFF1)
+            ) {
+                Text(
+                    text = folder.name,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    color = if (folder.isPrimary) Color(0xFF5E6A64) else Color(0xFF7A7A82),
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyNotesState(
+    modifier: Modifier = Modifier,
+    searchActive: Boolean
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         Text(
-            text = note.title,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF1E1E24)
+            text = stringResource(
+                if (searchActive) R.string.home_search_empty_state else R.string.home_notes_empty_state
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF7A7A82)
         )
-        Text(
-            text = note.preview,
-            fontSize = 13.sp,
-            color = Color(0xFF5C5C73),
-            maxLines = 1
-        )
+    }
+}
+
+@Composable
+private fun HomeAddButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        color = Color(0xFF6E6E73),
+        shadowElevation = 0.dp
+    ) {
+        Box(
+            modifier = Modifier.size(56.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "+",
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }

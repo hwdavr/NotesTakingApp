@@ -13,7 +13,7 @@ data class BottomNavItem(
 )
 
 val bottomNavItems = listOf(
-    BottomNavItem("Notes", Destinations.Notes.route, Icons.Outlined.StickyNote2),
+    BottomNavItem("Home", Destinations.Notes.route, Icons.Outlined.StickyNote2),
     BottomNavItem("Folders", Destinations.Folders.route, Icons.Outlined.Folder),
     BottomNavItem("Settings", Destinations.Settings.route, Icons.Outlined.Settings)
 )

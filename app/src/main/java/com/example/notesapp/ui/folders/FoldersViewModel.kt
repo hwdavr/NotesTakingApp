@@ -18,11 +18,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SmartCollectionCounts(
-    val allNotes: Int = 0
+    val allNotes: Int = 0,
+    val favorites: Int = 0,
+    val archive: Int = 0
 )
 
 sealed class FolderTreeItem {
-    data class FolderItem(val folder: Folder, val depth: Int, val noteCount: Int) : FolderTreeItem()
+    data class FolderItem(
+        val folder: Folder,
+        val depth: Int,
+        val noteCount: Int,
+        val hasChildren: Boolean
+    ) : FolderTreeItem()
+
     data class NoteItem(val note: Note, val depth: Int) : FolderTreeItem()
 }
 
@@ -51,11 +59,28 @@ class FoldersViewModel @Inject constructor(
         val items = if (query.isBlank()) {
             buildTree(folders, notes, null, 0, perFolderCounts)
         } else {
-            // Flattened search results
-            folders.filter { it.name.contains(query, ignoreCase = true) }
-                .map { FolderTreeItem.FolderItem(it, 0, perFolderCounts[it.id] ?: 0) }
+            val matchingFolders = folders
+                .filter { it.name.contains(query, ignoreCase = true) }
+                .map {
+                    FolderTreeItem.FolderItem(
+                        folder = it,
+                        depth = 0,
+                        noteCount = perFolderCounts[it.id] ?: 0,
+                        hasChildren = folders.any { child -> child.parentFolderId == it.id } ||
+                            notes.any { note -> note.folderId == it.id }
+                    )
+                }
+
+            val matchingNotes = notes
+                .filter {
+                    it.title.contains(query, ignoreCase = true) ||
+                        it.content.contains(query, ignoreCase = true)
+                }
+                .map { FolderTreeItem.NoteItem(it, 0) }
+
+            matchingFolders + matchingNotes
         }
-        
+
         FoldersUiState(
             smartCounts = counts,
             treeItems = items,
@@ -83,7 +108,12 @@ class FoldersViewModel @Inject constructor(
             val folders = folderRepository.getFolders().first()
 
             smartCounts.value = SmartCollectionCounts(
-                allNotes = noteRepository.getActiveNoteCount()
+                allNotes = noteRepository.getActiveNoteCount(),
+                favorites = folders
+                    .firstOrNull { it.name.equals("Favorites", ignoreCase = true) }
+                    ?.let { favoriteFolder -> noteRepository.getActiveNoteCountForFolder(favoriteFolder.id) }
+                    ?: 0,
+                archive = 0
             )
 
             folderCounts.value = folders.associate { folder ->
@@ -116,19 +146,27 @@ class FoldersViewModel @Inject constructor(
         perFolderCounts: Map<String, Int>
     ): List<FolderTreeItem> {
         val result = mutableListOf<FolderTreeItem>()
-        
+
         folders.filter { it.parentFolderId == parentId }.forEach { folder ->
-            result.add(FolderTreeItem.FolderItem(folder, depth, perFolderCounts[folder.id] ?: 0))
-            
-            // Add notes in this folder
+            val hasChildFolders = folders.any { it.parentFolderId == folder.id }
+            val hasChildNotes = notes.any { it.folderId == folder.id }
+
+            result.add(
+                FolderTreeItem.FolderItem(
+                    folder = folder,
+                    depth = depth,
+                    noteCount = perFolderCounts[folder.id] ?: 0,
+                    hasChildren = hasChildFolders || hasChildNotes
+                )
+            )
+
             notes.filter { it.folderId == folder.id }.forEach { note ->
                 result.add(FolderTreeItem.NoteItem(note, depth + 1))
             }
-            
-            // Recursively add subfolders
+
             result.addAll(buildTree(folders, notes, folder.id, depth + 1, perFolderCounts))
         }
-        
+
         return result
     }
 }
