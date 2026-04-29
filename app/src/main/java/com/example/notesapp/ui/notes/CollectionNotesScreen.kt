@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.StickyNote2
 import androidx.compose.material.icons.outlined.CreateNewFolder
 import androidx.compose.material.icons.outlined.Folder
@@ -25,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -47,7 +50,9 @@ import com.example.notesapp.R
 @Composable
 fun CollectionNotesScreen(
     parentPadding: PaddingValues,
+    onBack: () -> Unit,
     onAddNote: (String?) -> Unit,
+    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
     onOpenNote: (String) -> Unit,
     viewModel: CollectionNotesViewModel = hiltViewModel()
 ) {
@@ -73,9 +78,14 @@ fun CollectionNotesScreen(
                     .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 10.dp)
                     .padding(horizontal = 16.dp)
             ) {
+                CollectionTopBar(
+                    title = state.label,
+                    onBack = onBack
+                )
+
                 CollectionHeaderRow(
                     label = state.label,
-                    count = state.notes.size,
+                    count = state.items.size,
                     icon = collectionIconForType(state.type)
                 )
 
@@ -89,7 +99,7 @@ fun CollectionNotesScreen(
                         }
                     }
 
-                    state.notes.isEmpty() -> {
+                    state.items.isEmpty() -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -108,11 +118,19 @@ fun CollectionNotesScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
                         ) {
-                            items(state.notes) { note ->
-                                CollectionNoteCard(
-                                    note = note,
-                                    onClick = { onOpenNote(note.id) }
-                                )
+                            items(state.items) { item ->
+                                when (item) {
+                                    is CollectionItemUiModel.FolderItem -> CollectionFolderCard(
+                                        folder = item,
+                                        onClick = {
+                                            onOpenCollection("folder", item.name, item.id)
+                                        }
+                                    )
+                                    is CollectionItemUiModel.NoteItem -> CollectionNoteCard(
+                                        note = item.note,
+                                        onClick = { onOpenNote(item.note.id) }
+                                    )
+                                }
                             }
                         }
                     }
@@ -126,6 +144,34 @@ fun CollectionNotesScreen(
                     .padding(end = 16.dp, bottom = 28.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun CollectionTopBar(
+    title: String,
+    onBack: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.collection_notes_back)
+            )
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2A2A30)
+            )
+        )
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -175,6 +221,62 @@ private fun CollectionHeaderRow(
                 color = Color(0xFF7D848B)
             )
         )
+    }
+}
+
+@Composable
+private fun CollectionFolderCard(
+    folder: CollectionItemUiModel.FolderItem,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = CardDefaults.outlinedCardBorder(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFDCE1E2), RoundedCornerShape(6.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Folder,
+                    contentDescription = null,
+                    tint = Color(0xFF5F6770),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = folder.name,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp,
+                        color = Color(0xFF2A2A30)
+                    )
+                )
+                Text(
+                    text = stringResource(R.string.collection_folder_note_count, folder.noteCount),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = Color(0xFF8A8A90)
+                    )
+                )
+            }
+        }
     }
 }
 

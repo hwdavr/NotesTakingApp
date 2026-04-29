@@ -50,7 +50,9 @@
     <string name="home_notes_empty_state">No recent notes yet.</string>
     <string name="home_search_empty_state">No notes match your search.</string>
     <string name="home_folders_empty_state">Create folders to organize your notes.</string>
+    <string name="collection_notes_back">Back</string>
     <string name="collection_notes_empty_state">No notes available here yet.</string>
+    <string name="collection_folder_note_count">%1$d notes</string>
     <string name="editor_folder_label">Folder</string>
     <string name="editor_no_folder">No folder</string>
     <string name="editor_title_label">Title</string>

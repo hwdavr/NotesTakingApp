@@ -161,8 +161,18 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
             ) {
                 CollectionNotesScreen(
                     parentPadding = innerPadding,
+                    onBack = { navController.popBackStack() },
                     onAddNote = { folderId ->
                         navController.navigate(Destinations.Editor.createRoute(folderId = folderId))
+                    },
+                    onOpenCollection = { type, label, folderId ->
+                        navController.navigate(
+                            Destinations.CollectionNotes.createRoute(
+                                type = type,
+                                label = label,
+                                folderId = folderId
+                            )
+                        )
                     },
                     onOpenNote = { noteId ->
                         navController.navigate(Destinations.Editor.createRoute(noteId = noteId))

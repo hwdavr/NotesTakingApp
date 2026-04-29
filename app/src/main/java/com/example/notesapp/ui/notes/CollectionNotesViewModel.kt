@@ -3,24 +3,40 @@ package com.example.notesapp.ui.notes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+
+sealed class CollectionItemUiModel {
+    data class FolderItem(
+        val id: String,
+        val name: String,
+        val noteCount: Int
+    ) : CollectionItemUiModel()
+
+    data class NoteItem(
+        val note: NoteUiModel
+    ) : CollectionItemUiModel()
+}
 
 data class CollectionNotesUiState(
     val isLoading: Boolean = false,
     val label: String = "",
     val type: String = "all",
     val folderId: String? = null,
-    val notes: List<NoteUiModel> = emptyList()
+    val items: List<CollectionItemUiModel> = emptyList()
 )
 
 @HiltViewModel
 class CollectionNotesViewModel @Inject constructor(
+    folderRepository: FolderRepository,
     noteRepository: NoteRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -29,13 +45,23 @@ class CollectionNotesViewModel @Inject constructor(
     private val folderId: String? = savedStateHandle.get<String>("folderId")?.ifBlank { null }
     private val label: String = savedStateHandle["label"] ?: defaultLabel(type)
 
-    val uiState: StateFlow<CollectionNotesUiState> = noteRepository.getActiveNotes()
-        .map { notes ->
-            val filtered = when (type) {
-                "folder" -> notes.filter { it.folderId == folderId }
-                "favorites" -> notes.filter { false }
-                "archive" -> notes.filter { false }
-                else -> notes
+    val uiState: StateFlow<CollectionNotesUiState> = combine(
+        folderRepository.getFolders(),
+        noteRepository.getActiveNotes()
+    ) { folders, notes ->
+            val items = when (type) {
+                "folder" -> buildFolderCollectionItems(
+                    folders = folders,
+                    notes = notes,
+                    parentFolderId = folderId
+                )
+                "favorites" -> emptyList()
+                "archive" -> emptyList()
+                else -> notes.map { note ->
+                    CollectionItemUiModel.NoteItem(
+                        note = note.toUiModel()
+                    )
+                }
             }
 
             CollectionNotesUiState(
@@ -43,14 +69,7 @@ class CollectionNotesViewModel @Inject constructor(
                 label = label,
                 type = type,
                 folderId = folderId,
-                notes = filtered.map { note ->
-                    NoteUiModel(
-                        id = note.id,
-                        title = note.title,
-                        preview = note.content,
-                        colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
-                    )
-                }
+                items = items
             )
         }
         .stateIn(
@@ -59,6 +78,38 @@ class CollectionNotesViewModel @Inject constructor(
             initialValue = CollectionNotesUiState(isLoading = true)
         )
 }
+
+private fun buildFolderCollectionItems(
+    folders: List<Folder>,
+    notes: List<Note>,
+    parentFolderId: String?
+): List<CollectionItemUiModel> {
+    val childFolders = folders
+        .filter { it.parentFolderId == parentFolderId }
+        .map { folder ->
+            CollectionItemUiModel.FolderItem(
+                id = folder.id,
+                name = folder.name,
+                noteCount = notes.count { it.folderId == folder.id }
+            )
+        }
+
+    val childNotes = notes
+        .filter { it.folderId == parentFolderId }
+        .map { note ->
+            CollectionItemUiModel.NoteItem(note = note.toUiModel())
+        }
+
+    return childFolders + childNotes
+}
+
+private fun Note.toUiModel(): NoteUiModel =
+    NoteUiModel(
+        id = id,
+        title = title,
+        preview = content,
+        colorIndex = id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
+    )
 
 private fun defaultLabel(type: String): String = when (type) {
     "favorites" -> "Favorites"
