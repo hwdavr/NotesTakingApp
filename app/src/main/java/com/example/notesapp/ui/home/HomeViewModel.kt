@@ -7,6 +7,7 @@ import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.notes.NoteUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -19,23 +20,43 @@ class HomeViewModel @Inject constructor(
     private val folderRepository: FolderRepository
 ) : ViewModel() {
 
+    private val selectedFolderId = MutableStateFlow("all_notes")
+
     init {
         viewModelScope.launch {
             folderRepository.sync()
         }
     }
 
+    fun selectFolder(id: String) {
+        selectedFolderId.value = id
+    }
+
     val uiState: StateFlow<HomeUiState> = combine(
         noteRepository.getActiveNotes(),
-        folderRepository.getFolders()
-    ) { notes, folders ->
+        folderRepository.getFolders(),
+        selectedFolderId
+    ) { notes, folders, selectedId ->
+        val filteredNotes = when (selectedId) {
+            "all_notes" -> notes
+            "favorites" -> {
+                val favFolder = folders.find { it.name.equals("Favorites", ignoreCase = true) }
+                if (favFolder != null) {
+                    notes.filter { it.folderId == favFolder.id }
+                } else {
+                    emptyList()
+                }
+            }
+            else -> notes.filter { it.folderId == selectedId }
+        }
+
         val noteCountsByFolder = notes
             .mapNotNull { note -> note.folderId }
             .groupingBy { it }
             .eachCount()
 
         HomeUiState(
-            recentNotes = notes.take(5).map { note ->
+            recentNotes = filteredNotes.map { note ->
                 NoteUiModel(
                     id = note.id,
                     title = note.title,
@@ -43,17 +64,19 @@ class HomeViewModel @Inject constructor(
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             },
-            recentFolders = folders.take(4).mapIndexed { index, folder ->
+            recentFolders = folders.map { folder ->
                 FolderUiModel(
                     id = folder.id,
                     name = folder.name,
                     noteCount = noteCountsByFolder[folder.id] ?: 0,
-                    isPrimary = index == 0
+                    isPrimary = folder.name.equals("Favorites", ignoreCase = true)
                 )
             },
+            selectedFolderId = selectedId,
             isLoading = false
         )
-    }.stateIn(
+    }
+.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = HomeUiState(isLoading = true)

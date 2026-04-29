@@ -12,5 +12,6 @@ data class FolderUiModel(
 data class HomeUiState(
     val recentNotes: List<NoteUiModel> = emptyList(),
     val recentFolders: List<FolderUiModel> = emptyList(),
+    val selectedFolderId: String = "all_notes",
     val isLoading: Boolean = false
 )

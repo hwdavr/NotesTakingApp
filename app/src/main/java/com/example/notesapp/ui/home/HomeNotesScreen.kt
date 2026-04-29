@@ -111,7 +111,11 @@ fun HomeNotesScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                FolderChipsRow(items = state.recentFolders)
+                FolderChipsRow(
+                    items = state.recentFolders,
+                    selectedId = state.selectedFolderId,
+                    onSelect = { viewModel.selectFolder(it) }
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -166,38 +170,65 @@ fun HomeNotesScreen(
 }
 
 @Composable
-private fun FolderChipsRow(items: List<FolderUiModel>) {
-    if (items.isEmpty()) {
-        Text(
-            text = stringResource(R.string.home_folders_empty_state),
-            color = Color(0xFF7A7A82),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        return
-    }
-
+private fun FolderChipsRow(
+    items: List<FolderUiModel>,
+    selectedId: String,
+    onSelect: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items.forEach { folder ->
-            Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = if (folder.isPrimary) Color(0xFFDFECE7) else Color(0xFFEFEFF1)
-            ) {
-                Text(
-                    text = folder.name,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    color = if (folder.isPrimary) Color(0xFF5E6A64) else Color(0xFF7A7A82),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp
-                    )
-                )
-            }
+        // All Notes Pill
+        FolderPill(
+            id = "all_notes",
+            name = stringResource(R.string.folders_stat_all_notes),
+            isSelected = selectedId == "all_notes",
+            onClick = { onSelect("all_notes") }
+        )
+
+        // Favorites Pill
+        FolderPill(
+            id = "favorites",
+            name = stringResource(R.string.folders_stat_favorites),
+            isSelected = selectedId == "favorites",
+            onClick = { onSelect("favorites") }
+        )
+
+        items.filter { !it.name.equals("Favorites", ignoreCase = true) }.forEach { folder ->
+            FolderPill(
+                id = folder.id,
+                name = folder.name,
+                isSelected = selectedId == folder.id,
+                onClick = { onSelect(folder.id) }
+            )
         }
+    }
+}
+
+@Composable
+private fun FolderPill(
+    id: String,
+    name: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(6.dp),
+        color = if (isSelected) Color(0xFFDFECE7) else Color(0xFFEFEFF1)
+    ) {
+        Text(
+            text = name,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            color = if (isSelected) Color(0xFF5E6A64) else Color(0xFF7A7A82),
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp
+            )
+        )
     }
 }
 
