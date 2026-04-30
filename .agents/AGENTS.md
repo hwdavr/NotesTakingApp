@@ -20,15 +20,18 @@ When working in this project:
 - keep plans and summaries concise
 - make deterministic validation part of the normal flow
 - do not rely on “it should work” without verification when verification is available
+- Don't repeat things that were already done. Create utilities for common tasks.
+- Don't assume anything that is not explicitly stated.
 
 ## Current project shape
 
-Current known structure:
+Current structure:
 - `app/` — Android application module
-- `UX/` — design source SVGs for target screens
+- `UX/` — design assets
+- `sharedContracts/` — shared domain and contract definitions
 - root Gradle files — project build configuration
 
-Current known stack:
+Current tech stack:
 - Kotlin
 - Jetpack Compose
 - Material 3
@@ -37,16 +40,6 @@ Current known stack:
 - KSP
 - Java/Kotlin target 17
 - minSdk 24 / targetSdk 34 / compileSdk 34
-
-Current known status from README:
-- bottom navigation exists
-- Notes / Folders / Settings UI scaffold exists
-- Room database setup exists
-- seed data exists
-- SettingsScreen implemented and matches UX/settings.png design
-- instrumented UI tests set up (`SettingsScreenTest`, `NotesTakingAppComposeUiTestTemplate`)
-- `androidTestImplementation` dependencies for Compose UI testing are in place
-- next likely work includes ViewModels, note editor flow, folder actions, and closer UI matching for remaining screens
 
 ## General coding rules
 

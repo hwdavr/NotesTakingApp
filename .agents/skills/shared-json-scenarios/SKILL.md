@@ -22,6 +22,55 @@ Each scenario should contain:
 - expected.ui
 - tags
 
+### Example shape
+`sharedContracts/test-scenarios/bill_list_overdue_001.json`
+```
+{
+  "id": "bill_list_overdue_001",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/bills",
+      "status": 200,
+      "response": {
+        "bills": [
+          {
+            "id": "bill_001",
+            "title": "Water Bill",
+            "status": "OVERDUE",
+            "amount": 88.0
+          }
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "domain": {
+      "billCount": 1,
+      "bills": [
+        {
+          "id": "bill_001",
+          "status": "OVERDUE",
+          "payAllowed": true
+        }
+      ]
+    },
+    "ui": {
+      "screen": "bill_list",
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "bill_001",
+          "title": "Water Bill",
+          "statusLabel": "OVERDUE",
+          "payEnabled": true
+        }
+      ]
+    }
+  }
+}
+```
+
 ## Rule by layer
 - integration tests should consume expected.domain
 - instrumented UI tests should consume expected.ui
