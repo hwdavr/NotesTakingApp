@@ -7,11 +7,14 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 data class NoteEditorUiState(
@@ -33,12 +36,15 @@ class NoteEditorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
 
+    private var autoSaveJob: Job? = null
+
     fun load(noteId: String?, folderId: String? = null) {
         viewModelScope.launch {
             folderRepository.sync()
             val folders = folderRepository.getFolders().first()
             if (noteId.isNullOrBlank()) {
                 _uiState.value = _uiState.value.copy(
+                    noteId = "note_${UUID.randomUUID()}",
                     availableFolders = folders,
                     folderId = folderId,
                     isLoaded = true
@@ -58,45 +64,76 @@ class NoteEditorViewModel @Inject constructor(
                     isLoaded = true
                 )
             } else {
-                NoteEditorUiState(availableFolders = folders, isLoaded = true)
+                NoteEditorUiState(
+                    noteId = "note_${UUID.randomUUID()}",
+                    availableFolders = folders,
+                    isLoaded = true
+                )
             }
         }
     }
 
     fun onTitleChange(value: String) {
         _uiState.value = _uiState.value.copy(title = value)
+        scheduleAutoSave()
     }
 
     fun onContentChange(value: String) {
         _uiState.value = _uiState.value.copy(content = value)
+        scheduleAutoSave()
     }
 
     fun onFolderSelected(folderId: String?) {
         _uiState.value = _uiState.value.copy(folderId = folderId)
+        scheduleAutoSave()
+    }
+
+    private fun scheduleAutoSave() {
+        autoSaveJob?.cancel()
+        autoSaveJob = viewModelScope.launch {
+            delay(2000)
+            saveInternally()
+        }
+    }
+
+    private suspend fun saveInternally() {
+        val current = _uiState.value
+        // Don't auto-save if both title and content are empty
+        if (current.title.isBlank() && current.content.isBlank()) return
+
+        val now = System.currentTimeMillis()
+        val noteId = current.noteId ?: "note_${UUID.randomUUID()}"
+        val note = Note(
+            id = noteId,
+            title = current.title.ifBlank { "Untitled note" },
+            content = current.content,
+            folderId = current.folderId,
+            sortKey = now.toString(),
+            deviceId = "",
+            createdAt = if (current.createdAt == 0L) now else current.createdAt,
+            updatedAt = now
+        )
+        noteRepository.save(note)
+        
+        // Update state with generated ID and createdAt to avoid duplicate creations
+        _uiState.value = _uiState.value.copy(
+            noteId = noteId,
+            createdAt = note.createdAt
+        )
     }
 
     fun save(onDone: () -> Unit) {
+        autoSaveJob?.cancel()
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
-            val current = _uiState.value
-            val note = Note(
-                id = current.noteId.orEmpty(),
-                title = current.title.ifBlank { "Untitled note" },
-                content = current.content,
-                folderId = current.folderId,
-                sortKey = now.toString(),
-                deviceId = "",
-                createdAt = if (current.noteId == null) now else current.createdAt,
-                updatedAt = now
-            )
-            noteRepository.save(note)
+            saveInternally()
             onDone()
         }
     }
 
     fun delete(onDone: () -> Unit) {
         val current = _uiState.value
-        if (current.noteId == null) {
+        // If not saved yet, just finish
+        if (current.createdAt == 0L) {
             onDone()
             return
         }
