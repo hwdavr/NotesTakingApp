@@ -1,0 +1,60 @@
+{
+  "id": "note_update_content_001",
+  "description": "Successfully update note content and auto-save",
+  "apiMocks": [
+    {
+      "method": "PATCH",
+      "path": "/v1/notes/note_001/content",
+      "status": 200,
+      "response": {
+        "status": "success",
+        "item": {
+          "id": "note_001",
+          "userId": "auth0|abc123",
+          "type": "note",
+          "parentId": "folder_001",
+          "name": "My Note",
+          "content": "Updated content",
+          "sortKey": "b0",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T11:00:00Z"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "note_001",
+          "userId": "auth0|abc123",
+          "type": "note",
+          "parentId": "folder_001",
+          "name": "My Note",
+          "content": "Updated content",
+          "sortKey": "b0",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 2,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T11:00:00Z"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "domain": {
+      "noteId": "note_001",
+      "content": "Updated content"
+    },
+    "ui": {
+      "screen": "editor",
+      "noteId": "note_001",
+      "content": "Updated content"
+    }
+  }
+}
