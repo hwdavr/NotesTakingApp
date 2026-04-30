@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,7 +46,8 @@ fun NotesScreen(
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        floatingActionButton = { AddFab(onClick = onAddNote) }
+        floatingActionButton = { AddFab(onClick = onAddNote) },
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier

@@ -111,7 +111,7 @@ If a change affects screen behavior or navigation, also verify at least one of:
 - emulator/manual validation path is documented in the task summary
 
 To capture a reliable screenshot from the emulator:
-1. Run `./gradlew installDebug` and launch with `adb shell am start -n <package>/<activity>`.
+1. Run `./gradlew assembleDebug` and then `adb install app/build/outputs/apk/debug/app-debug.apk` and then launch with `adb shell am start -n <package>/<activity>`.
 2. Use `adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml` to confirm the correct screen is active and find navigation tap coordinates.
 3. Tap to navigate: `adb shell input tap <x> <y>` (use bounds from the dump to find the center coordinate).
 4. Capture: `adb exec-out screencap -p > screenshot.png`.

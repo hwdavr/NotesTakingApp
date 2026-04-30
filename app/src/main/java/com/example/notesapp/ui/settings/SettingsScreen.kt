@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -72,7 +73,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
-        containerColor = Color(0xFFF8F8FA)
+        containerColor = Color(0xFFF8F8FA),
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
             modifier = Modifier

@@ -57,6 +57,11 @@
     <string name="editor_no_folder">No folder</string>
     <string name="editor_title_label">Title</string>
     <string name="editor_write_note">Write your note</string>
+    <string name="editor_title_placeholder">Untitled note</string>
+    <string name="editor_content_placeholder">Start writing...</string>
+    <string name="editor_done">Done</string>
+    <string name="editor_delete_action">Delete</string>
+    <string name="editor_untitled_note">Untitled note</string>
     <string name="editor_save">Save</string>
     <string name="editor_delete"> Delete</string>
 </resources>

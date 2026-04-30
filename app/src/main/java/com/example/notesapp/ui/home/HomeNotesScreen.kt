@@ -74,7 +74,8 @@ fun HomeNotesScreen(
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -89,7 +90,7 @@ fun HomeNotesScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 10.dp)
+                    .padding(top = 10.dp)
                     .padding(horizontal = 16.dp)
             ) {
                 SearchHeader(
