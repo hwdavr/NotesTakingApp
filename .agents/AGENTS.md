@@ -86,6 +86,11 @@ When adding or modifying text copy in UI screens:
 - Define string resources in `res/values/strings.xml` and use `stringResource(R.string.hello)`.
 - Use descriptive names for string resource keys, prefixing them with the screen or component name when applicable (e.g., `login_title_text`).
 
+## Security and Secrets
+- **NEVER** put any API keys, tokens, or other secrets directly inside the source code.
+- All secrets and keys must be placed in the `local.properties` file.
+- Access these secrets in the code securely, for instance, by reading them in `build.gradle` and exposing them via `BuildConfig`.
+
 ## Build and validation rules
 
 ### Baseline checks
