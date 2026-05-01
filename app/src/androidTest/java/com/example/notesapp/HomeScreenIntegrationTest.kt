@@ -1,0 +1,119 @@
+package com.example.notesapp
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.home.HomeNotesScreen
+import com.example.notesapp.ui.home.HomeViewModel
+import com.example.notesapp.ui.theme.NotesTakingAppTheme
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class HomeScreenIntegrationTest {
+
+    @get:Rule
+    val composeRule = createComposeRule()
+
+    private val screen = HomeScreenRobot(composeRule)
+
+    @Test
+    fun selectingFolderChipUpdatesRenderedNotesThroughViewModel() {
+        val viewModel = HomeViewModel(
+            noteRepository = FakeNoteRepository(
+                initialNotes = listOf(
+                    note(id = "note_001", title = "Project Plan", content = "Launch tasks", folderId = "work"),
+                    note(id = "note_002", title = "Grocery List", content = "Milk and bread", folderId = "personal")
+                )
+            ),
+            folderRepository = FakeFolderRepository(
+                initialFolders = listOf(
+                    folder(id = "work", name = "Work"),
+                    folder(id = "personal", name = "Personal")
+                )
+            )
+        )
+
+        step("Render Home screen with a real ViewModel and fake repositories") {
+            composeRule.setContent {
+                NotesTakingAppTheme {
+                    HomeNotesScreen(
+                        parentPadding = PaddingValues(0.dp),
+                        onAddNote = {},
+                        onOpenNote = {},
+                        viewModel = viewModel
+                    )
+                }
+            }
+        }
+
+        step("Verify all notes render before filtering") {
+            screen.waitForNote("Project Plan")
+            screen.assertNoteVisible("Grocery List")
+        }
+
+        step("Select the Personal folder chip") {
+            screen.selectFolder("Personal")
+        }
+
+        step("Verify the UI is updated from ViewModel state") {
+            screen.assertNoteVisible("Grocery List")
+            screen.assertNoteMissing("Project Plan")
+        }
+    }
+
+    private fun step(description: String, action: () -> Unit) {
+        action()
+    }
+}
+
+private class HomeScreenRobot(
+    private val composeRule: ComposeContentTestRule
+) {
+    fun waitForNote(title: String) {
+        composeRule.waitUntil(10_000) {
+            composeRule.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
+    fun assertNoteVisible(title: String) {
+        composeRule.onNodeWithText(title).assertIsDisplayed()
+    }
+
+    fun assertNoteMissing(title: String) {
+        assertTrue(composeRule.onAllNodesWithText(title).fetchSemanticsNodes().isEmpty())
+    }
+
+    fun selectFolder(name: String) {
+        composeRule.onNodeWithText(name).performClick()
+    }
+}
+
+private fun folder(id: String, name: String, parentFolderId: String? = null): Folder =
+    Folder(
+        id = id,
+        name = name,
+        parentFolderId = parentFolderId,
+        createdAt = 0,
+        updatedAt = 0
+    )
+
+private fun note(id: String, title: String, content: String, folderId: String?): Note =
+    Note(
+        id = id,
+        title = title,
+        content = content,
+        folderId = folderId,
+        createdAt = 0,
+        updatedAt = 0
+    )

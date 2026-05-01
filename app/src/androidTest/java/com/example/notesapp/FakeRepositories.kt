@@ -1,0 +1,58 @@
+package com.example.notesapp
+
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+
+class FakeFolderRepository(
+    initialFolders: List<Folder> = emptyList()
+) : FolderRepository {
+    private val folders = MutableStateFlow(initialFolders)
+
+    override fun getFolders(): Flow<List<Folder>> = folders
+
+    override suspend fun insert(folder: Folder) {
+        folders.value = folders.value + folder
+    }
+
+    override suspend fun update(folder: Folder) {
+        folders.value = folders.value.map { if (it.id == folder.id) folder else it }
+    }
+
+    override suspend fun delete(folder: Folder) {
+        folders.value = folders.value.filterNot { it.id == folder.id }
+    }
+
+    override suspend fun sync() = Unit
+}
+
+class FakeNoteRepository(
+    initialNotes: List<Note> = emptyList()
+) : NoteRepository {
+    private val notes = MutableStateFlow(initialNotes)
+
+    override fun getActiveNotes(): Flow<List<Note>> = notes
+
+    override suspend fun getNoteById(id: String): Note? =
+        notes.value.firstOrNull { it.id == id }
+
+    override suspend fun getActiveNoteCount(): Int =
+        notes.value.size
+
+    override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
+        notes.value.count { it.folderId == folderId }
+
+    override suspend fun save(note: Note) {
+        notes.value = notes.value
+            .filterNot { it.id == note.id } + note
+    }
+
+    override suspend fun delete(note: Note) {
+        notes.value = notes.value.filterNot { it.id == note.id }
+    }
+
+    override suspend fun sync() = Unit
+}

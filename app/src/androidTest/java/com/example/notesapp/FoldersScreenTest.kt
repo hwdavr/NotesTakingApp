@@ -49,6 +49,56 @@ class FoldersScreenTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun folderAddScenario_rendersExpectedFolder() {
+        val folder = Folder(id = "folder_001", name = "Work", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            smartCounts = SmartCollectionCounts(allNotes = 0),
+            treeItems = listOf(FolderTreeItem.FolderItem(folder, 0, 0, false))
+        )
+
+        composeRule.setContent {
+            TestFoldersScreen(state = state)
+        }
+
+        composeRule.onNodeWithTag("folders_screen").assertIsDisplayed()
+        composeRule.onNodeWithText("Work").assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun searchingWithoutMatches_showsSearchEmptyState() {
+        var searchQuery = ""
+        val state = FoldersUiState(
+            treeItems = emptyList(),
+            isSearchActive = true
+        )
+
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                FoldersScreenContent(
+                    parentPadding = PaddingValues(0.dp),
+                    state = state,
+                    onSearchChanged = { searchQuery = it },
+                    onAddFolder = { _, _ -> },
+                    onRenameFolder = { _, _ -> },
+                    onRenameNote = { _, _ -> },
+                    onDeleteFolder = {},
+                    onDeleteNote = {},
+                    onAddNote = {},
+                    onOpenNote = {},
+                    onOpenCollection = { _, _, _ -> }
+                )
+            }
+        }
+
+        composeRule.onNode(hasSetTextAction()).performTextInput("missing")
+
+        composeRule.onNodeWithText("No folders or notes match your search.").assertIsDisplayed()
+        assertEquals("missing", searchQuery)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun deleteFolder_showsConfirmationDialog_andDeletesOnConfirm() {
         var deletedFolder: Folder? = null
         val folder = Folder(id = "f1", name = "Test Folder", createdAt = 0, updatedAt = 0)
