@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+open class HomeViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository
 ) : ViewModel() {
@@ -32,7 +32,7 @@ class HomeViewModel @Inject constructor(
         selectedFolderId.value = id
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    open val uiState: StateFlow<HomeUiState> = combine(
         noteRepository.getActiveNotes(),
         folderRepository.getFolders(),
         selectedFolderId

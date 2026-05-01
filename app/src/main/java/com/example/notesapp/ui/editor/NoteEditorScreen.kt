@@ -78,12 +78,39 @@ fun NoteEditorScreen(
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var folderMenuExpanded by remember { mutableStateOf(false) }
-    var moreMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(noteId, folderId) {
         viewModel.load(noteId, folderId)
     }
+
+    NoteEditorScreenContent(
+        parentPadding = parentPadding,
+        noteId = noteId,
+        state = state,
+        onBack = onBack,
+        onSave = { viewModel.save(onDone = onBack) },
+        onDelete = { viewModel.delete(onDone = onBack) },
+        onTitleChange = viewModel::onTitleChange,
+        onContentChange = viewModel::onContentChange,
+        onFolderSelected = viewModel::onFolderSelected
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NoteEditorScreenContent(
+    parentPadding: PaddingValues,
+    noteId: String?,
+    state: NoteEditorUiState,
+    onBack: () -> Unit,
+    onSave: () -> Unit,
+    onDelete: () -> Unit,
+    onTitleChange: (String) -> Unit,
+    onContentChange: (String) -> Unit,
+    onFolderSelected: (String?) -> Unit
+) {
+    var folderMenuExpanded by remember { mutableStateOf(false) }
+    var moreMenuExpanded by remember { mutableStateOf(false) }
 
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
     val breadcrumbText = buildBreadcrumb(
@@ -107,7 +134,7 @@ fun NoteEditorScreen(
         ) {
             EditorTopBar(
                 onBack = onBack,
-                onSave = { viewModel.save(onDone = onBack) },
+                onSave = onSave,
                 onMore = { moreMenuExpanded = true }
             )
 
@@ -163,7 +190,7 @@ fun NoteEditorScreen(
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.editor_no_folder)) },
                             onClick = {
-                                viewModel.onFolderSelected(null)
+                                onFolderSelected(null)
                                 folderMenuExpanded = false
                             }
                         )
@@ -171,7 +198,7 @@ fun NoteEditorScreen(
                             DropdownMenuItem(
                                 text = { Text(folder.name) },
                                 onClick = {
-                                    viewModel.onFolderSelected(folder.id)
+                                    onFolderSelected(folder.id)
                                     folderMenuExpanded = false
                                 }
                             )
@@ -195,7 +222,7 @@ fun NoteEditorScreen(
                     ) {
                         OutlinedTextField(
                             value = state.title,
-                            onValueChange = viewModel::onTitleChange,
+                            onValueChange = onTitleChange,
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = {
                                 Text(stringResource(R.string.editor_title_placeholder))
@@ -211,7 +238,7 @@ fun NoteEditorScreen(
 
                         OutlinedTextField(
                             value = state.content,
-                            onValueChange = viewModel::onContentChange,
+                            onValueChange = onContentChange,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
@@ -248,13 +275,14 @@ fun NoteEditorScreen(
                     },
                     onClick = {
                         moreMenuExpanded = false
-                        viewModel.delete(onDone = onBack)
+                        onDelete()
                     }
                 )
             }
         }
     }
 }
+
 
 @Composable
 private fun EditorTopBar(

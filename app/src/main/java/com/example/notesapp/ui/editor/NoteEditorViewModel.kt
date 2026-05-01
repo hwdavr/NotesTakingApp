@@ -28,13 +28,13 @@ data class NoteEditorUiState(
 )
 
 @HiltViewModel
-class NoteEditorViewModel @Inject constructor(
+open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NoteEditorUiState())
-    val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
+    open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
 
     private var autoSaveJob: Job? = null
 

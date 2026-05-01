@@ -57,7 +57,25 @@ fun CollectionNotesScreen(
     viewModel: CollectionNotesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    CollectionNotesScreenContent(
+        parentPadding = parentPadding,
+        state = state,
+        onBack = onBack,
+        onAddNote = onAddNote,
+        onOpenCollection = onOpenCollection,
+        onOpenNote = onOpenNote
+    )
+}
 
+@Composable
+fun CollectionNotesScreenContent(
+    parentPadding: PaddingValues,
+    state: CollectionNotesUiState,
+    onBack: () -> Unit,
+    onAddNote: (String?) -> Unit,
+    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
+    onOpenNote: (String) -> Unit
+) {
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         containerColor = Color.Transparent,
@@ -147,6 +165,7 @@ fun CollectionNotesScreen(
         }
     }
 }
+
 
 @Composable
 private fun CollectionTopBar(

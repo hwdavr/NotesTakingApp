@@ -41,7 +41,7 @@ data class FoldersUiState(
 )
 
 @HiltViewModel
-class FoldersViewModel @Inject constructor(
+open class FoldersViewModel @Inject constructor(
     private val folderRepository: FolderRepository,
     private val noteRepository: NoteRepository
 ) : ViewModel() {
@@ -53,7 +53,7 @@ class FoldersViewModel @Inject constructor(
     private val allFolders = folderRepository.getFolders()
     private val allNotes = noteRepository.getActiveNotes()
 
-    val uiState: StateFlow<FoldersUiState> = combine(
+    open val uiState: StateFlow<FoldersUiState> = combine(
         allFolders, allNotes, searchQuery, smartCounts, folderCounts
     ) { folders, notes, query, counts, perFolderCounts ->
         val items = if (query.isBlank()) {
@@ -105,19 +105,23 @@ class FoldersViewModel @Inject constructor(
 
     private fun refreshCounts() {
         viewModelScope.launch {
-            val folders = folderRepository.getFolders().first()
+            try {
+                val folders = folderRepository.getFolders().first()
 
-            smartCounts.value = SmartCollectionCounts(
-                allNotes = noteRepository.getActiveNoteCount(),
-                favorites = folders
-                    .firstOrNull { it.name.equals("Favorites", ignoreCase = true) }
-                    ?.let { favoriteFolder -> noteRepository.getActiveNoteCountForFolder(favoriteFolder.id) }
-                    ?: 0,
-                archive = 0
-            )
+                smartCounts.value = SmartCollectionCounts(
+                    allNotes = noteRepository.getActiveNoteCount(),
+                    favorites = folders
+                        .firstOrNull { it.name.equals("Favorites", ignoreCase = true) }
+                        ?.let { favoriteFolder -> noteRepository.getActiveNoteCountForFolder(favoriteFolder.id) }
+                        ?: 0,
+                    archive = 0
+                )
 
-            folderCounts.value = folders.associate { folder ->
-                folder.id to async { noteRepository.getActiveNoteCountForFolder(folder.id) }.await()
+                folderCounts.value = folders.associate { folder ->
+                    folder.id to async { noteRepository.getActiveNoteCountForFolder(folder.id) }.await()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

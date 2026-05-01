@@ -35,7 +35,7 @@ data class CollectionNotesUiState(
 )
 
 @HiltViewModel
-class CollectionNotesViewModel @Inject constructor(
+open class CollectionNotesViewModel @Inject constructor(
     folderRepository: FolderRepository,
     noteRepository: NoteRepository,
     savedStateHandle: SavedStateHandle
@@ -45,7 +45,7 @@ class CollectionNotesViewModel @Inject constructor(
     private val folderId: String? = savedStateHandle.get<String>("folderId")?.ifBlank { null }
     private val label: String = savedStateHandle["label"] ?: defaultLabel(type)
 
-    val uiState: StateFlow<CollectionNotesUiState> = combine(
+    open val uiState: StateFlow<CollectionNotesUiState> = combine(
         folderRepository.getFolders(),
         noteRepository.getActiveNotes()
     ) { folders, notes ->

@@ -58,6 +58,23 @@ fun HomeNotesScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    HomeNotesScreenContent(
+        parentPadding = parentPadding,
+        state = state,
+        onAddNote = onAddNote,
+        onOpenNote = onOpenNote,
+        onSelectFolder = viewModel::selectFolder
+    )
+}
+
+@Composable
+fun HomeNotesScreenContent(
+    parentPadding: PaddingValues,
+    state: HomeUiState,
+    onAddNote: () -> Unit,
+    onOpenNote: (String) -> Unit,
+    onSelectFolder: (String) -> Unit
+) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val cardColors = remember { listOf(AccentYellow, AccentPink, AccentMint, AccentBlue) }
     val filteredNotes = remember(state.recentNotes, searchQuery) {
@@ -115,7 +132,7 @@ fun HomeNotesScreen(
                 FolderChipsRow(
                     items = state.recentFolders,
                     selectedId = state.selectedFolderId,
-                    onSelect = { viewModel.selectFolder(it) }
+                    onSelect = onSelectFolder
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -169,6 +186,7 @@ fun HomeNotesScreen(
         }
     }
 }
+
 
 @Composable
 private fun FolderChipsRow(

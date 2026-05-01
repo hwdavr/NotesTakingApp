@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+open class SettingsViewModel @Inject constructor(
     private val authManager: AuthManager
 ) : ViewModel() {
 

@@ -19,18 +19,54 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.notesapp.ui.editor.NoteEditorScreen
+import com.example.notesapp.ui.editor.NoteEditorViewModel
 import com.example.notesapp.ui.folders.FoldersScreen
+import com.example.notesapp.ui.folders.FoldersViewModel
 import com.example.notesapp.ui.settings.SettingsScreen
+import com.example.notesapp.ui.settings.SettingsViewModel
 
 import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
 import com.example.notesapp.ui.home.HomeNotesScreen
+import com.example.notesapp.ui.home.HomeViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
+import com.example.notesapp.ui.notes.CollectionNotesViewModel
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 
 @Composable
-fun AppNavGraph(authManager: AuthManager, activity: Context) {
+fun AppNavGraph(
+    authManager: AuthManager, 
+    activity: Context
+) {
+    AppNavHost(
+        authManager = authManager,
+        onLogin = { onSuccess, onError ->
+            authManager.login(
+                activityContext = activity,
+                onSuccess = onSuccess,
+                onError = onError
+            )
+        },
+        homeViewModel = hiltViewModel(),
+        foldersViewModel = hiltViewModel(),
+        settingsViewModel = hiltViewModel(),
+        collectionNotesViewModel = hiltViewModel(),
+        noteEditorViewModel = hiltViewModel()
+    )
+}
+
+@Composable
+fun AppNavHost(
+    authManager: AuthManager,
+    onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
+    homeViewModel: HomeViewModel,
+    foldersViewModel: FoldersViewModel,
+    settingsViewModel: SettingsViewModel,
+    collectionNotesViewModel: CollectionNotesViewModel,
+    noteEditorViewModel: NoteEditorViewModel
+) {
     val navController = rememberNavController()
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
     
@@ -84,29 +120,27 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
             composable(Destinations.Onboarding.route) {
                 OnboardingScreen(
                     onLoginClick = { 
-                        authManager.login(
-                            activityContext = activity,
-                            onSuccess = { 
+                        onLogin(
+                            { 
                                 authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
                                 }
                             },
-                            onError = { description ->
+                            { description ->
                                 authError = description
                             }
                         )
                     },
                     onSignupClick = { 
-                        authManager.login( // Universal login handles both
-                            activityContext = activity,
-                            onSuccess = { 
+                        onLogin(
+                            { 
                                 authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
                                 }
                             },
-                            onError = { description ->
+                            { description ->
                                 authError = description
                             }
                         )
@@ -119,7 +153,8 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                 HomeNotesScreen(
                     parentPadding = innerPadding,
                     onAddNote = { navController.navigate(Destinations.Editor.createRoute()) },
-                    onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) }
+                    onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) },
+                    viewModel = homeViewModel
                 )
             }
             composable(Destinations.Folders.route) { 
@@ -139,7 +174,8 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                                 folderId = folderId
                             )
                         )
-                    }
+                    },
+                    viewModel = foldersViewModel
                 ) 
             }
             composable(
@@ -176,7 +212,8 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                     },
                     onOpenNote = { noteId ->
                         navController.navigate(Destinations.Editor.createRoute(noteId = noteId))
-                    }
+                    },
+                    viewModel = collectionNotesViewModel
                 )
             }
             composable(Destinations.Settings.route) { 
@@ -186,7 +223,8 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                         navController.navigate(Destinations.Onboarding.route) {
                             popUpTo(0) { inclusive = true }
                         }
-                    }
+                    },
+                    viewModel = settingsViewModel
                 ) 
             }
             composable(
@@ -208,9 +246,14 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
                     parentPadding = innerPadding,
                     noteId = noteId,
                     folderId = folderId,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    viewModel = noteEditorViewModel
                 )
             }
         }
     }
 }
+
+
+
+
