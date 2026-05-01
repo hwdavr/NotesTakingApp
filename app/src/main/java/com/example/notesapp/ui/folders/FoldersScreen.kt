@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,6 +84,36 @@ fun FoldersScreen(
     viewModel: FoldersViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    FoldersScreenContent(
+        parentPadding = parentPadding,
+        state = state,
+        onSearchChanged = viewModel::onSearchChanged,
+        onAddFolder = viewModel::addFolder,
+        onRenameFolder = viewModel::renameFolder,
+        onRenameNote = viewModel::renameNote,
+        onDeleteFolder = viewModel::deleteFolder,
+        onDeleteNote = viewModel::deleteNote,
+        onAddNote = onAddNote,
+        onOpenNote = onOpenNote,
+        onOpenCollection = onOpenCollection
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FoldersScreenContent(
+    parentPadding: PaddingValues,
+    state: FoldersUiState,
+    onSearchChanged: (String) -> Unit,
+    onAddFolder: (String, String?) -> Unit,
+    onRenameFolder: (Folder, String) -> Unit,
+    onRenameNote: (Note, String) -> Unit,
+    onDeleteFolder: (Folder) -> Unit,
+    onDeleteNote: (Note) -> Unit,
+    onAddNote: (String) -> Unit,
+    onOpenNote: (String) -> Unit,
+    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit
+) {
     var search by rememberSaveable { mutableStateOf("") }
     var selectedItemForQuickActions by remember { mutableStateOf<QuickActionItem?>(null) }
     var selectedFolderForQuickAdd by remember { mutableStateOf<Folder?>(null) }
@@ -91,6 +122,7 @@ fun FoldersScreen(
     var newFolderName by rememberSaveable { mutableStateOf("") }
     var itemToRename by remember { mutableStateOf<QuickActionItem?>(null) }
     var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
+    var itemToDelete by remember { mutableStateOf<QuickActionItem?>(null) }
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
@@ -106,6 +138,7 @@ fun FoldersScreen(
                     )
                 )
                 .padding(innerPadding)
+                .testTag("folders_screen")
         ) {
             Column(
                 modifier = Modifier
@@ -118,7 +151,7 @@ fun FoldersScreen(
                     placeholder = stringResource(R.string.folders_search_placeholder),
                     onValueChange = {
                         search = it
-                        viewModel.onSearchChanged(it)
+                        onSearchChanged(it)
                     }
                 )
 
@@ -238,7 +271,10 @@ fun FoldersScreen(
                     renameTextFieldValue = item.folder.name
                     selectedItemForQuickActions = null
                 },
-                onDelete = { selectedItemForQuickActions = null }
+                onDelete = {
+                    itemToDelete = selectedItemForQuickActions
+                    selectedItemForQuickActions = null
+                }
             )
 
             is QuickActionItem.NoteItem -> NoteItemActionsSheet(
@@ -251,7 +287,10 @@ fun FoldersScreen(
                     renameTextFieldValue = item.note.title
                     selectedItemForQuickActions = null
                 },
-                onDelete = { selectedItemForQuickActions = null }
+                onDelete = {
+                    itemToDelete = selectedItemForQuickActions
+                    selectedItemForQuickActions = null
+                }
             )
 
             null -> Unit
@@ -278,7 +317,7 @@ fun FoldersScreen(
                 TextButton(
                     onClick = {
                         if (newFolderName.isNotBlank()) {
-                            viewModel.addFolder(newFolderName, selectedFolderForAdd?.id)
+                            onAddFolder(newFolderName, selectedFolderForAdd?.id)
                             showAddFolderDialog = false
                             newFolderName = ""
                         }
@@ -341,8 +380,8 @@ fun FoldersScreen(
                     onClick = {
                         if (renameTextFieldValue.isNotBlank()) {
                             when (val item = itemToRename) {
-                                is QuickActionItem.FolderItem -> viewModel.renameFolder(item.folder, renameTextFieldValue)
-                                is QuickActionItem.NoteItem -> viewModel.renameNote(item.note, renameTextFieldValue)
+                                is QuickActionItem.FolderItem -> onRenameFolder(item.folder, renameTextFieldValue)
+                                is QuickActionItem.NoteItem -> onRenameNote(item.note, renameTextFieldValue)
                                 null -> Unit
                             }
                             itemToRename = null
@@ -360,6 +399,49 @@ fun FoldersScreen(
                         renameTextFieldValue = ""
                     }
                 ) {
+                    Text(stringResource(R.string.folders_cancel_action))
+                }
+            }
+        )
+    }
+
+    if (itemToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { itemToDelete = null },
+            title = {
+                Text(
+                    text = stringResource(
+                        if (itemToDelete is QuickActionItem.FolderItem) {
+                            R.string.folders_delete_folder_confirm_title
+                        } else {
+                            R.string.folders_delete_note_confirm_title
+                        }
+                    )
+                )
+            },
+            text = {
+                Text(text = stringResource(R.string.folders_delete_confirm_text))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        when (val item = itemToDelete) {
+                            is QuickActionItem.FolderItem -> onDeleteFolder(item.folder)
+                            is QuickActionItem.NoteItem -> onDeleteNote(item.note)
+                            null -> Unit
+                        }
+                        itemToDelete = null
+                    },
+                    modifier = Modifier.testTag("confirm_delete_button")
+                ) {
+                    Text(
+                        text = stringResource(R.string.folders_delete_action),
+                        color = Color(0xFFC44A4A)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { itemToDelete = null }) {
                     Text(stringResource(R.string.folders_cancel_action))
                 }
             }
@@ -537,7 +619,12 @@ private fun FolderTreeRow(
             )
         )
 
-        IconButton(onClick = onQuickActions, modifier = Modifier.size(28.dp)) {
+        IconButton(
+            onClick = onQuickActions,
+            modifier = Modifier
+                .size(28.dp)
+                .testTag("folder_more_actions_${item.folder.id}")
+        ) {
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
                 contentDescription = stringResource(R.string.folders_more_actions),
@@ -589,7 +676,12 @@ private fun NoteTreeRow(
             overflow = TextOverflow.Ellipsis
         )
 
-        IconButton(onClick = onQuickActions, modifier = Modifier.size(28.dp)) {
+        IconButton(
+            onClick = onQuickActions,
+            modifier = Modifier
+                .size(28.dp)
+                .testTag("note_more_actions_${note.id}")
+        ) {
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
                 contentDescription = null,
@@ -724,7 +816,8 @@ private fun FolderItemActionsSheet(
                 label = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
                 iconTint = Color(0xFFC44A4A),
-                textColor = Color(0xFFC44A4A)
+                textColor = Color(0xFFC44A4A),
+                modifier = Modifier.testTag("delete_item_action")
             )
         }
     }
@@ -808,10 +901,11 @@ private fun SheetActionRow(
     label: String,
     onClick: () -> Unit,
     iconTint: Color = Color(0xFF4C5560),
-    textColor: Color = Color(0xFF2F343A)
+    textColor: Color = Color(0xFF2F343A),
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)

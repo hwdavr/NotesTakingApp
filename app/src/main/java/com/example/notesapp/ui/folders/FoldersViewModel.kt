@@ -152,6 +152,43 @@ class FoldersViewModel @Inject constructor(
         }
     }
 
+    fun deleteFolder(folder: Folder) {
+        viewModelScope.launch {
+            val folders = folderRepository.getFolders().first()
+            val notes = noteRepository.getActiveNotes().first()
+
+            val foldersToDelete = mutableListOf<Folder>()
+            val notesToDelete = mutableListOf<Note>()
+
+            fun collectChildren(parentId: String) {
+                folders.filter { it.parentFolderId == parentId }.forEach { childFolder ->
+                    foldersToDelete.add(childFolder)
+                    collectChildren(childFolder.id)
+                }
+                notes.filter { it.folderId == parentId }.forEach { childNote ->
+                    notesToDelete.add(childNote)
+                }
+            }
+
+            foldersToDelete.add(folder)
+            collectChildren(folder.id)
+
+            // Delete notes first
+            notesToDelete.forEach { noteRepository.delete(it) }
+            // Delete folders from bottom up
+            foldersToDelete.reversed().forEach { folderRepository.delete(it) }
+
+            refreshCounts()
+        }
+    }
+
+    fun deleteNote(note: Note) {
+        viewModelScope.launch {
+            noteRepository.delete(note)
+            refreshCounts()
+        }
+    }
+
     private fun buildTree(
         folders: List<Folder>,
         notes: List<Note>,

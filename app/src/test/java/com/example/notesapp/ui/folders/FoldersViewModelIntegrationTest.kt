@@ -153,4 +153,72 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         
         collectJob.cancel()
     }
+
+    @Test
+    fun `test delete folder updates UI state`() = runTest {
+        val scenarioFile = File("../sharedContracts/test-scenarios/folder_delete_001.json")
+        val jsonObject = JSONObject(scenarioFile.readText())
+        val apiMocks = jsonObject.getJSONArray("apiMocks")
+
+        // Initial sync (empty)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
+        
+        viewModel = FoldersViewModel(folderRepository, noteRepository)
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        advanceUntilIdle()
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // init sync
+
+        // 1. Setup: Add folder f1
+        val folderId = "f1"
+        mockWebServer.enqueue(MockResponse().setResponseCode(201).setBody("""
+            {
+                "id": "$folderId", "userId": "u1", "type": "folder", "parentId": null, "name": "Delete Me",
+                "content": "", "sortKey": "a0", "version": 1, "deviceId": "dev", "lastSyncedVersion": 1,
+                "createdAt": "2026-04-26T10:00:00Z", "updatedAt": "2026-04-26T10:00:00Z"
+            }
+        """.trimIndent()))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("""
+            [{
+                "id": "$folderId", "userId": "u1", "type": "folder", "parentId": null, "name": "Delete Me",
+                "content": "", "sortKey": "a0", "version": 1, "deviceId": "dev", "lastSyncedVersion": 1,
+                "createdAt": "2026-04-26T10:00:00Z", "updatedAt": "2026-04-26T10:00:00Z"
+            }]
+        """.trimIndent()))
+        
+        viewModel.addFolder("Delete Me")
+        advanceUntilIdle()
+        
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // create
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync
+
+        waitUntil { viewModel.uiState.value.treeItems.isNotEmpty() }
+        val folder = (viewModel.uiState.value.treeItems[0] as FolderTreeItem.FolderItem).folder
+
+        // 2. Action: Delete folder using scenario mocks
+        val firstMock = apiMocks.getJSONObject(0)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(firstMock.getInt("status"))
+                .setBody(firstMock.getJSONObject("response").toString())
+        )
+        val secondMock = apiMocks.getJSONObject(1)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(secondMock.getInt("status"))
+                .setBody(secondMock.getJSONArray("response").toString())
+        )
+
+        viewModel.deleteFolder(folder)
+        advanceUntilIdle()
+
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // delete
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync
+
+        waitUntil { viewModel.uiState.value.treeItems.isEmpty() }
+        assertEquals(0, viewModel.uiState.value.treeItems.size)
+        
+        collectJob.cancel()
+    }
 }

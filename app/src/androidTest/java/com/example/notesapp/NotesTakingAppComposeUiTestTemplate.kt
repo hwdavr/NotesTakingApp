@@ -3,12 +3,21 @@ package com.example.notesapp
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -47,7 +56,7 @@ import org.junit.runner.RunWith
 class NotesTakingAppComposeUiTestTemplate {
 
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun bottomNavigation_notesTab_isDisplayed() {
@@ -92,31 +101,40 @@ class NotesTakingAppComposeUiTestTemplate {
 
 @Composable
 private fun PlaceholderBottomNavScreen(selected: String) {
-    when (selected) {
-        "notes" -> PlaceholderNotesScreen(showEditor = false)
-        "folders" -> Box(modifier = Modifier.fillMaxSize().testTag("folders_screen")) {
-            Text("Folders")
+    var currentSelected by remember { mutableStateOf(selected) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (currentSelected) {
+            "notes" -> PlaceholderNotesScreen(showEditor = false)
+            "folders" -> Box(modifier = Modifier.fillMaxSize().testTag("folders_screen")) {
+                Text("Folders")
+            }
+            "settings" -> Box(modifier = Modifier.fillMaxSize().testTag("settings_screen")) {
+                Text("Settings")
+            }
         }
-        "settings" -> Box(modifier = Modifier.fillMaxSize().testTag("settings_screen")) {
-            Text("Settings")
+
+        // Simple placeholders to demonstrate tag names used by tests.
+        // Arranged in a Row to avoid overlapping.
+        Row(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Box(modifier = Modifier.size(48.dp).testTag("notes_tab").clickable { currentSelected = "notes" })
+            Box(modifier = Modifier.size(48.dp).testTag("folders_tab").clickable { currentSelected = "folders" })
+            Box(modifier = Modifier.size(48.dp).testTag("settings_tab").clickable { currentSelected = "settings" })
         }
     }
-
-    // Simple placeholders to demonstrate tag names used by tests.
-    Box(modifier = Modifier.testTag("notes_tab"))
-    Box(modifier = Modifier.testTag("folders_tab"))
-    Box(modifier = Modifier.testTag("settings_tab"))
 }
 
 @Composable
 private fun PlaceholderNotesScreen(showEditor: Boolean) {
+    var isEditorVisible by remember { mutableStateOf(showEditor) }
+
     Box(modifier = Modifier.fillMaxSize().testTag("notes_screen")) {
         Text("Notes")
     }
 
-    Box(modifier = Modifier.testTag("new_note_button"))
+    Box(modifier = Modifier.size(1.dp).testTag("new_note_button").clickable { isEditorVisible = true })
 
-    if (showEditor) {
+    if (isEditorVisible) {
         Box(modifier = Modifier.fillMaxSize().testTag("note_editor_screen")) {
             Text("Editor")
         }

@@ -1,0 +1,40 @@
+{
+  "id": "folder_delete_001",
+  "description": "Successfully delete a folder and verify it's removed from UI",
+  "apiMocks": [
+    {
+      "method": "DELETE",
+      "path": "/v1/items/f1",
+      "status": 200,
+      "response": {
+        "status": "success",
+        "item": {
+          "id": "f1",
+          "userId": "auth0|abc123",
+          "type": "folder",
+          "parentId": null,
+          "name": "Delete Me",
+          "content": "",
+          "sortKey": "a0",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "deletedAt": "2026-04-26T10:05:00Z",
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T10:05:00Z"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": []
+    }
+  ],
+  "expected": {
+    "ui": {
+      "itemCount": 0
+    }
+  }
+}

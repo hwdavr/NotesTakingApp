@@ -3,14 +3,14 @@ package com.example.notesapp
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.ui.settings.SettingsScreen
+import com.example.notesapp.ui.settings.SettingsScreenContent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,12 +19,15 @@ import org.junit.runner.RunWith
 class SettingsScreenTest {
 
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun settingsScreen_rendersCorrectly() {
         composeRule.setContent {
-            SettingsScreen(parentPadding = PaddingValues(0.dp))
+            SettingsScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                onLogout = {}
+            )
         }
 
         // Verify root screen is displayed

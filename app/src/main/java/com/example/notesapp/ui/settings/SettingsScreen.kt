@@ -71,6 +71,23 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    SettingsScreenContent(
+        parentPadding = parentPadding,
+        onLogout = {
+            viewModel.logout(
+                activityContext = context as Activity,
+                onSuccess = onLogoutSuccess,
+                onError = { /* Handle error */ }
+            )
+        }
+    )
+}
+
+@Composable
+fun SettingsScreenContent(
+    parentPadding: PaddingValues,
+    onLogout: () -> Unit
+) {
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
         containerColor = Color(0xFFF8F8FA),
@@ -122,11 +139,7 @@ fun SettingsScreen(
                     subtitle = null,
                     showArrow = true,
                     modifier = Modifier.clickable {
-                        viewModel.logout(
-                            activityContext = context as Activity,
-                            onSuccess = onLogoutSuccess,
-                            onError = { /* Handle error */ }
-                        )
+                        onLogout()
                     }
                 )
             }
