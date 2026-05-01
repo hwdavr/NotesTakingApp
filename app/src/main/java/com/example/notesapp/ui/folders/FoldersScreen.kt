@@ -372,7 +372,7 @@ fun FoldersScreenContent(
                         )
                     },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("rename_text_field")
                 )
             },
             confirmButton = {
@@ -387,7 +387,8 @@ fun FoldersScreenContent(
                             itemToRename = null
                             renameTextFieldValue = ""
                         }
-                    }
+                    },
+                    modifier = Modifier.testTag("rename_confirm_button")
                 ) {
                     Text(stringResource(R.string.folders_rename_action))
                 }
@@ -809,7 +810,8 @@ private fun FolderItemActionsSheet(
             SheetActionRow(
                 icon = Icons.Outlined.Edit,
                 label = stringResource(R.string.folders_rename_action),
-                onClick = onRename
+                onClick = onRename,
+                modifier = Modifier.testTag("rename_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Delete,
@@ -882,7 +884,8 @@ private fun NoteItemActionsSheet(
             SheetActionRow(
                 icon = Icons.Outlined.Edit,
                 label = stringResource(R.string.folders_rename_action),
-                onClick = onRename
+                onClick = onRename,
+                modifier = Modifier.testTag("rename_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Delete,

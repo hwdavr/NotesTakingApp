@@ -20,7 +20,7 @@ When a shared scenario file exists:
 - assert expected.ui for visible outcomes
 
 ## Rules
-- prefer Kaspresso if already used in the repository
+- Use Kaspresso for non compose UI tests
 - use Given / When / Then through step blocks
 - use Screen/Page Object abstractions
 - do not use Thread.sleep
