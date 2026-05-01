@@ -2,13 +2,14 @@ package com.example.notesapp.ui.settings
 
 import android.content.Context
 import com.example.notesapp.auth.AuthManager
+import com.example.notesapp.base.BaseViewModelTest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 
-class SettingsViewModelTest {
+class SettingsViewModelTest : BaseViewModelTest() {
 
     private val authManager: AuthManager = mockk(relaxed = true)
     private lateinit var viewModel: SettingsViewModel

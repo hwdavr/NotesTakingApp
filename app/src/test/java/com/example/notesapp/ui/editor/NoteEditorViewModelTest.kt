@@ -1,6 +1,6 @@
 package com.example.notesapp.ui.editor
 
-import com.example.notesapp.MainDispatcherRule
+import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
@@ -15,14 +15,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class NoteEditorViewModelTest {
-
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+class NoteEditorViewModelTest : BaseViewModelTest() {
 
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private val folderRepository: FolderRepository = mockk(relaxed = true)

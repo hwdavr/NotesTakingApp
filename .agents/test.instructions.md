@@ -21,6 +21,8 @@ Use unit tests for:
 - ViewModel logic that does not require Android runtime
 - UiState creation and state transition logic
 
+All ViewModel tests should inherit from **BaseViewModelTest**.
+
 ### Integration tests
 Use integration tests for:
 - ViewModel + repository + mocked API
@@ -30,6 +32,8 @@ Use integration tests for:
 - retry and fallback logic
 - DTO parsing and domain mapping
 - cache / database behavior when Android runtime is not required
+
+All Viewmodel integration tests should inherit from **BaseViewModelIntegrationTest**.
 
 ### Naming for Unit Tests and Integration tests
 - Use **<Class>Test.kt** naming convention for Unit Tests.

@@ -1,6 +1,6 @@
 package com.example.notesapp.ui.home
 
-import com.example.notesapp.MainDispatcherRule
+import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
@@ -16,14 +16,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class HomeViewModelTest {
-
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+class HomeViewModelTest : BaseViewModelTest() {
 
     private val folderRepository: FolderRepository = mockk(relaxed = true)
     private val noteRepository: NoteRepository = mockk(relaxed = true)

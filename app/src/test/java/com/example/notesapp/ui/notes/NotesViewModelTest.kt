@@ -1,6 +1,6 @@
 package com.example.notesapp.ui.notes
 
-import com.example.notesapp.MainDispatcherRule
+import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import io.mockk.every
@@ -14,14 +14,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class NotesViewModelTest {
-
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+class NotesViewModelTest : BaseViewModelTest() {
 
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private lateinit var viewModel: NotesViewModel
