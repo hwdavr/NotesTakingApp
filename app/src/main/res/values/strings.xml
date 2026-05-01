@@ -24,6 +24,9 @@
     <string name="folders_folder_name_label">Folder Name</string>
     <string name="folders_create_action">Create</string>
     <string name="folders_cancel_action">Cancel</string>
+    <string name="folders_rename_folder_title">Rename Folder</string>
+    <string name="folders_rename_note_title">Rename Note</string>
+    <string name="folders_note_title_label">Note Title</string>
     <string name="notes_title">My Notes</string>
     <string name="notes_subtitle">Capture ideas, plans, and reminders.</string>
     <string name="notes_empty_state">Your notes will appear here once you create them.</string>

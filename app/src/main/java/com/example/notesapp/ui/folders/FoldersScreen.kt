@@ -89,6 +89,8 @@ fun FoldersScreen(
     var selectedFolderForAdd by remember { mutableStateOf<Folder?>(null) }
     var showAddFolderDialog by remember { mutableStateOf(false) }
     var newFolderName by rememberSaveable { mutableStateOf("") }
+    var itemToRename by remember { mutableStateOf<QuickActionItem?>(null) }
+    var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
@@ -231,7 +233,11 @@ fun FoldersScreen(
                 onDismiss = { selectedItemForQuickActions = null },
                 onAddToFavorites = { selectedItemForQuickActions = null },
                 onMoveTo = { selectedItemForQuickActions = null },
-                onRename = { selectedItemForQuickActions = null },
+                onRename = {
+                    itemToRename = selectedItemForQuickActions
+                    renameTextFieldValue = item.folder.name
+                    selectedItemForQuickActions = null
+                },
                 onDelete = { selectedItemForQuickActions = null }
             )
 
@@ -240,7 +246,11 @@ fun FoldersScreen(
                 onDismiss = { selectedItemForQuickActions = null },
                 onAddToFavorites = { selectedItemForQuickActions = null },
                 onMoveTo = { selectedItemForQuickActions = null },
-                onRename = { selectedItemForQuickActions = null },
+                onRename = {
+                    itemToRename = selectedItemForQuickActions
+                    renameTextFieldValue = item.note.title
+                    selectedItemForQuickActions = null
+                },
                 onDelete = { selectedItemForQuickActions = null }
             )
 
@@ -282,6 +292,72 @@ fun FoldersScreen(
                     onClick = {
                         showAddFolderDialog = false
                         newFolderName = ""
+                    }
+                ) {
+                    Text(stringResource(R.string.folders_cancel_action))
+                }
+            }
+        )
+    }
+
+    if (itemToRename != null) {
+        AlertDialog(
+            onDismissRequest = {
+                itemToRename = null
+                renameTextFieldValue = ""
+            },
+            title = {
+                Text(
+                    text = stringResource(
+                        if (itemToRename is QuickActionItem.FolderItem) {
+                            R.string.folders_rename_folder_title
+                        } else {
+                            R.string.folders_rename_note_title
+                        }
+                    )
+                )
+            },
+            text = {
+                OutlinedTextField(
+                    value = renameTextFieldValue,
+                    onValueChange = { renameTextFieldValue = it },
+                    label = {
+                        Text(
+                            text = stringResource(
+                                if (itemToRename is QuickActionItem.FolderItem) {
+                                    R.string.folders_folder_name_label
+                                } else {
+                                    R.string.folders_note_title_label
+                                }
+                            )
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (renameTextFieldValue.isNotBlank()) {
+                            when (val item = itemToRename) {
+                                is QuickActionItem.FolderItem -> viewModel.renameFolder(item.folder, renameTextFieldValue)
+                                is QuickActionItem.NoteItem -> viewModel.renameNote(item.note, renameTextFieldValue)
+                                null -> Unit
+                            }
+                            itemToRename = null
+                            renameTextFieldValue = ""
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.folders_rename_action))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        itemToRename = null
+                        renameTextFieldValue = ""
                     }
                 ) {
                     Text(stringResource(R.string.folders_cancel_action))

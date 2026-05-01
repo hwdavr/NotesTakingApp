@@ -31,8 +31,8 @@ Implement a new feature or modify an existing one, ensuring that business logic,
 - Reuse existing architecture, themes, styles, and DI patterns.
 
 ### 3. Plan Data & API (if needed)
-- If new API responses are involved, check if they are already defined in `shared_contract` or `shared_json`.
-- Use **Shared JSON scenarios skill** to create or load mocks if they are available.
+- If new API responses are involved, check if they are already defined in `sharedContracts/openai.yaml`, otherwise, update it in the openapi.yaml.
+- Use **Shared JSON scenarios skill** to load mocks if they are available, otherwise, generate one using the skill. Don't create mock response data in the test cases.
 - Define necessary DTOs and Domain Models.
 
 ### 4. Implementation Phase
@@ -73,4 +73,5 @@ Return:
 2. Summary of the test coverage (which layers were used).
 3. Which skills were used.
 4. Key implementation decisions (architecture, DI, testing strategy).
-5. Result of the test runs.
+5. Missing APIs.
+6. Result of the test runs.

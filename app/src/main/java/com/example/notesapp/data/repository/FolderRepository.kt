@@ -6,6 +6,7 @@ import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.data.remote.NotesApiService
+import com.example.notesapp.data.remote.RenameItemRequest
 import com.example.notesapp.util.DeviceIdProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -42,6 +43,27 @@ class FolderRepositoryImpl @Inject constructor(
                 folder.copy(
                     id = folderId,
                     sortKey = folder.sortKey.ifBlank { System.currentTimeMillis().toString() },
+                    version = folder.version + 1,
+                    deviceId = deviceIdProvider.deviceId
+                ).toEntity()
+            )
+        }
+    }
+
+    override suspend fun update(folder: Folder) {
+        try {
+            api.renameItem(
+                folder.id,
+                RenameItemRequest(
+                    name = folder.name,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version
+                )
+            )
+            syncCoordinator.syncAll()
+        } catch (_: Exception) {
+            folderDao.insert(
+                folder.copy(
                     version = folder.version + 1,
                     deviceId = deviceIdProvider.deviceId
                 ).toEntity()

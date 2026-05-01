@@ -138,6 +138,20 @@ class FoldersViewModel @Inject constructor(
         }
     }
 
+    fun renameFolder(folder: Folder, newName: String) {
+        viewModelScope.launch {
+            folderRepository.update(folder.copy(name = newName, updatedAt = System.currentTimeMillis()))
+            refreshCounts()
+        }
+    }
+
+    fun renameNote(note: Note, newName: String) {
+        viewModelScope.launch {
+            noteRepository.save(note.copy(title = newName, updatedAt = System.currentTimeMillis()))
+            refreshCounts()
+        }
+    }
+
     private fun buildTree(
         folders: List<Folder>,
         notes: List<Note>,

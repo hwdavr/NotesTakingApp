@@ -1,0 +1,60 @@
+{
+  "id": "folder_rename_001",
+  "description": "Rename a folder and verify the UI updates with the new name after sync",
+  "apiMocks": [
+    {
+      "method": "PATCH",
+      "path": "/v1/items/folder_1/rename",
+      "status": 200,
+      "response": {
+        "status": "merged",
+        "item": {
+          "id": "folder_1",
+          "userId": "auth0|abc123",
+          "type": "folder",
+          "parentId": null,
+          "name": "New Name",
+          "content": "",
+          "sortKey": "a0",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-05-01T00:00:00Z",
+          "updatedAt": "2026-05-01T00:00:01Z"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "folder_1",
+          "userId": "auth0|abc123",
+          "type": "folder",
+          "parentId": null,
+          "name": "New Name",
+          "content": "",
+          "sortKey": "a0",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-05-01T00:00:00Z",
+          "updatedAt": "2026-05-01T00:00:01Z"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "ui": {
+      "itemCount": 1,
+      "items": [
+        {
+          "id": "folder_1",
+          "name": "New Name"
+        }
+      ]
+    }
+  }
+}

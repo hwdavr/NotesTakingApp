@@ -1,10 +1,12 @@
 package com.example.notesapp.ui.folders
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
+import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.ui.folders.FolderTreeItem
 import com.example.notesapp.ui.folders.FoldersViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -31,7 +33,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         
         viewModel = FoldersViewModel(folderRepository, noteRepository)
         
-        val collectJob = backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) {
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
         }
         
@@ -81,9 +83,74 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         assertEquals(expectedItemCount, uiState.treeItems.size)
         
-        collectJob.cancel()
-        
         val firstTreeItem = uiState.treeItems[0] as FolderTreeItem.FolderItem
         assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
+        
+        collectJob.cancel()
+    }
+
+    @Test
+    fun `test rename folder updates UI state`() = runTest {
+        val scenarioFile = File("../sharedContracts/test-scenarios/folder_rename_001.json")
+        val jsonObject = JSONObject(scenarioFile.readText())
+        val apiMocks = jsonObject.getJSONArray("apiMocks")
+
+        // Initial sync (empty)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
+        
+        viewModel = FoldersViewModel(folderRepository, noteRepository)
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        advanceUntilIdle()
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // init sync
+
+        val folderId = "folder_1"
+        val initialFolder = Folder(id = folderId, name = "Old Name", createdAt = 0, updatedAt = 0)
+        
+        // Enqueue for insert (not part of the rename scenario itself, but needed for setup)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("""{"id":"$folderId","name":"Old Name","type":"folder","version":1}"""))
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]")) // sync after insert
+        
+        folderRepository.insert(initialFolder)
+        advanceUntilIdle()
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // insert
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync
+
+        // Now the actual rename test using scenario
+        // 1. Rename PATCH
+        val firstMock = apiMocks.getJSONObject(0)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(firstMock.getInt("status"))
+                .setBody(firstMock.getJSONObject("response").toString())
+        )
+        // 2. Follow-up sync
+        val secondMock = apiMocks.getJSONObject(1)
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(secondMock.getInt("status"))
+                .setBody(secondMock.getJSONArray("response").toString())
+        )
+
+        viewModel.renameFolder(initialFolder.copy(version = 1), "New Name")
+        advanceUntilIdle()
+
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // rename PATCH
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // follow-up sync
+
+        waitUntil { 
+            val item = viewModel.uiState.value.treeItems.firstOrNull() as? FolderTreeItem.FolderItem
+            item?.folder?.name == "New Name"
+        }
+
+        val uiState = viewModel.uiState.value
+        val expectedUi = jsonObject.getJSONObject("expected").getJSONObject("ui")
+        val expectedFirstItemName = expectedUi.getJSONArray("items").getJSONObject(0).getString("name")
+
+        val firstTreeItem = uiState.treeItems[0] as FolderTreeItem.FolderItem
+        assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
+        
+        collectJob.cancel()
     }
 }
