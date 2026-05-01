@@ -5,23 +5,35 @@ applyTo: "app/src/test/**"
 # JVM unit and integration test instructions
 
 ## Purpose
-This folder is the main logic verification layer.
+This folder is the main verification layer for logic, ViewModel state, API handling, and data flow.
 
-## Use for
-- ViewModel tests
-- use case tests
-- mapper tests
-- reducer / UiState mapping tests
-- repository + MockWebServer tests
-- API success and error handling
-- Room or cache behavior if configured here
-- data-layer integration without real UI
+Most tests should live here because they are faster, more stable, and easier to debug than instrumented UI tests.
 
-## Shared JSON scenario usage
-When a shared scenario file exists:
-- load apiMocks for stubbing
-- assert expected.domain
-- keep assertions at logic/state level, not UI level
+## Use this folder for
+
+### Unit tests
+Use unit tests for:
+- business rules
+- domain use cases
+- mappers
+- reducers
+- formatting / fallback logic
+- ViewModel logic that does not require Android runtime
+- UiState creation and state transition logic
+
+### Integration tests
+Use integration tests for:
+- ViewModel + repository + mocked API
+- API response → repository → use case → ViewModel → UiState
+- API error handling
+- request parameter / request payload correctness
+- retry and fallback logic
+- DTO parsing and domain mapping
+- cache / database behavior when Android runtime is not required
+
+### Naming for Unit Tests and Integration tests
+- Use **<Class>Test.kt** naming convention for Unit Tests.
+- Use **<Class>IntegrationTest.kt** for Integration Tests.
 
 ## Must cover when relevant
 - success response
