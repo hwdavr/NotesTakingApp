@@ -11,17 +11,24 @@ Implement a new feature or modify an existing one, ensuring that business logic,
 - **Android integration test skill**: Testing logic, repositories, and API interactions.
 - **Android instrumented UI test skill**: Verifying user-visible behavior and UI states.
 - **Shared JSON scenarios skill**: (If applicable) Defining and using cross-platform API mocks.
+- **karpathy-guidelines**: Behavioral guidelines to reduce common LLM coding mistakes. Use this skill to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
 
 ## Required workflow
 
-### 1. Triage the feature requirements
+### 1. Clarify Requirements & Create Implementation Plan
+- **MANDATORY**: Before writing any code, you MUST clarify the feature requirements with the user, regardless of how simple the feature seems.
+- Apply the **karpathy-guidelines**: Don't assume. Surface any confusion or tradeoffs early.
+- Generate a detailed implementation plan using an artifact file.
+- Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
+
+### 2. Triage the feature requirements
 - Use the **Android test triage skill** to decide which layers need testing.
 - Identify:
   - Pure logic (Unit tests)
   - API/Repository/ViewModel state logic (Integration tests)
   - UI rendering/interaction/navigation (Instrumented UI tests)
 
-### 2. Inspect existing patterns
+### 3. Inspect existing patterns
 - Find existing features similar to the one being added.
 - Identify the target packages for:
   - UI (Screens, Components)
@@ -30,19 +37,19 @@ Implement a new feature or modify an existing one, ensuring that business logic,
   - DTOs/Domain Models
 - Reuse existing architecture, themes, styles, and DI patterns.
 
-### 3. Plan Data & API (if needed)
-- If new API responses are involved, check if they are already defined in `sharedContracts/openai.yaml`, otherwise, update it in the openapi.yaml.
+### 4. Plan Data & API (if needed)
+- If new API responses are involved, check if they are already defined in `sharedContracts/openapi.yaml`, otherwise, update it in the openapi.yaml.
 - Use **Shared JSON scenarios skill** to load mocks if they are available, otherwise, generate one using the skill. Don't create mock response data in the test cases.
 - Define necessary DTOs and Domain Models.
 
-### 4. Implementation Phase
+### 5. Implementation Phase
 - **Logic & Data**: Implement or update Repositories and ViewModels.
 - **UI**: Implement the screen or update existing components.
   - Follow the **Android feature skill** principles.
   - Add stable selectors (`testTag` for Compose, `id` for XML) for testing.
 - **TDD approach**: Prefer writing tests before or alongside implementation.
 
-### 5. Add or Update Tests
+### 6. Add or Update Tests
 - **Integration Tests**: Use **Android integration test skill** to verify:
   - API success/error handling via `MockWebServer`.
   - ViewModel state transitions.
@@ -53,7 +60,7 @@ Implement a new feature or modify an existing one, ensuring that business logic,
   - Navigation between screens.
 - **Unit Tests**: For any standalone utility or business logic.
 
-### 6. Verification & Polish
+### 7. Verification & Polish
 - Ensure the app builds: `./gradlew assembleDebug`.
 - Run all relevant tests:
   - Local tests: `./gradlew testDebugUnitTest`.
@@ -61,6 +68,7 @@ Implement a new feature or modify an existing one, ensuring that business logic,
 - Verify UI fidelity if a design was provided.
 
 ## Rules
+- **Adhere to Karpathy Guidelines**: Bias toward caution over speed. Think before coding.
 - **Prefer lower-level tests**: If logic can be verified in an integration test, don't duplicate it in a UI test.
 - **Stable selectors**: Always use `testTag` or `id` for UI assertions.
 - **No flaky tests**: Avoid `Thread.sleep`. Use proper coroutine test dispatchers or idling resources.
