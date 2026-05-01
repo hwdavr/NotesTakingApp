@@ -5,6 +5,8 @@ import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.toFolderEntity
 import com.example.notesapp.data.remote.toNoteEntity
+import com.example.notesapp.data.remote.UpdateNoteContentRequest
+import com.example.notesapp.util.DeviceIdProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,10 +14,35 @@ import javax.inject.Singleton
 class ItemsSyncCoordinator @Inject constructor(
     private val api: NotesApiService,
     private val folderDao: FolderDao,
-    private val noteDao: NoteDao
+    private val noteDao: NoteDao,
+    private val deviceIdProvider: DeviceIdProvider
 ) {
     suspend fun syncAll() {
-        val items = api.listItems(includeDeleted = true)
+        val initialItems = api.listItems(includeDeleted = true)
+        var hasUpdates = false
+
+        for (apiItem in initialItems) {
+            if (apiItem.type == "note") {
+                val localNote = noteDao.getNoteById(apiItem.id)
+                if (localNote != null && localNote.version > apiItem.version) {
+                    try {
+                        api.updateNoteContent(
+                            localNote.id,
+                            UpdateNoteContentRequest(
+                                content = localNote.content,
+                                deviceId = deviceIdProvider.deviceId,
+                                lastSyncedVersion = apiItem.version
+                            )
+                        )
+                        hasUpdates = true
+                    } catch (e: Exception) {
+                        // Ignore and keep local version for next sync
+                    }
+                }
+            }
+        }
+
+        val items = if (hasUpdates) api.listItems(includeDeleted = true) else initialItems
         val folders = items.filter { it.type == "folder" }.map { it.toFolderEntity() }
         val notes = items.filter { it.type == "note" }.map { it.toNoteEntity() }
 

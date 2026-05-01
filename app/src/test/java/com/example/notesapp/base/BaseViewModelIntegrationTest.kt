@@ -58,10 +58,10 @@ abstract class BaseViewModelIntegrationTest {
         fakeFolderDao = FakeFolderDao()
         fakeNoteDao = FakeNoteDao()
 
-        syncCoordinator = ItemsSyncCoordinator(apiService, fakeFolderDao, fakeNoteDao)
-
         val fakeDeviceIdProvider = mockk<DeviceIdProvider>()
         every { fakeDeviceIdProvider.deviceId } returns "test_device"
+
+        syncCoordinator = ItemsSyncCoordinator(apiService, fakeFolderDao, fakeNoteDao, fakeDeviceIdProvider)
 
         folderRepository = FolderRepositoryImpl(fakeFolderDao, apiService, syncCoordinator, fakeDeviceIdProvider)
         noteRepository = NoteRepositoryImpl(fakeNoteDao, apiService, syncCoordinator, fakeDeviceIdProvider)
