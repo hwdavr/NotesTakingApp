@@ -81,6 +81,8 @@ fun FoldersScreen(
     onAddNote: (String) -> Unit = {},
     onOpenNote: (String) -> Unit = {},
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit = { _, _, _ -> },
+    onMoveFolder: (Folder) -> Unit = {},
+    onMoveNote: (Note) -> Unit = {},
     viewModel: FoldersViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,7 +97,9 @@ fun FoldersScreen(
         onDeleteNote = viewModel::deleteNote,
         onAddNote = onAddNote,
         onOpenNote = onOpenNote,
-        onOpenCollection = onOpenCollection
+        onOpenCollection = onOpenCollection,
+        onMoveFolder = onMoveFolder,
+        onMoveNote = onMoveNote
     )
 }
 
@@ -112,7 +116,9 @@ fun FoldersScreenContent(
     onDeleteNote: (Note) -> Unit,
     onAddNote: (String) -> Unit,
     onOpenNote: (String) -> Unit,
-    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit
+    onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
+    onMoveFolder: (Folder) -> Unit = {},
+    onMoveNote: (Note) -> Unit = {}
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var selectedItemForQuickActions by remember { mutableStateOf<QuickActionItem?>(null) }
@@ -265,7 +271,10 @@ fun FoldersScreenContent(
                 folder = item.folder,
                 onDismiss = { selectedItemForQuickActions = null },
                 onAddToFavorites = { selectedItemForQuickActions = null },
-                onMoveTo = { selectedItemForQuickActions = null },
+                onMoveTo = {
+                    selectedItemForQuickActions = null
+                    onMoveFolder(item.folder)
+                },
                 onRename = {
                     itemToRename = selectedItemForQuickActions
                     renameTextFieldValue = item.folder.name
@@ -281,7 +290,10 @@ fun FoldersScreenContent(
                 note = item.note,
                 onDismiss = { selectedItemForQuickActions = null },
                 onAddToFavorites = { selectedItemForQuickActions = null },
-                onMoveTo = { selectedItemForQuickActions = null },
+                onMoveTo = {
+                    selectedItemForQuickActions = null
+                    onMoveNote(item.note)
+                },
                 onRename = {
                     itemToRename = selectedItemForQuickActions
                     renameTextFieldValue = item.note.title
@@ -805,7 +817,8 @@ private fun FolderItemActionsSheet(
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
                 label = stringResource(R.string.folders_move_to_action),
-                onClick = onMoveTo
+                onClick = onMoveTo,
+                modifier = Modifier.testTag("move_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Edit,
@@ -879,7 +892,8 @@ private fun NoteItemActionsSheet(
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
                 label = stringResource(R.string.folders_move_to_action),
-                onClick = onMoveTo
+                onClick = onMoveTo,
+                modifier = Modifier.testTag("move_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Edit,

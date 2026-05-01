@@ -6,6 +6,7 @@ import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.data.remote.DeleteItemRequest
+import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
 import com.example.notesapp.util.DeviceIdProvider
@@ -67,6 +68,30 @@ class FolderRepositoryImpl @Inject constructor(
                 folder.copy(
                     version = folder.version + 1,
                     deviceId = deviceIdProvider.deviceId
+                ).toEntity()
+            )
+        }
+    }
+
+    override suspend fun move(folder: Folder, parentFolderId: String?) {
+        try {
+            api.moveItem(
+                folder.id,
+                MoveItemRequest(
+                    parentId = parentFolderId,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version
+                )
+            )
+            syncCoordinator.syncAll()
+        } catch (_: Exception) {
+            folderDao.insert(
+                folder.copy(
+                    parentFolderId = parentFolderId,
+                    version = folder.version + 1,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version,
+                    updatedAt = System.currentTimeMillis()
                 ).toEntity()
             )
         }

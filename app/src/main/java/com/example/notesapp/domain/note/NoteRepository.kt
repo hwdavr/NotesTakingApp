@@ -8,6 +8,7 @@ interface NoteRepository {
     suspend fun getActiveNoteCount(): Int
     suspend fun getActiveNoteCountForFolder(folderId: String): Int
     suspend fun save(note: Note)
+    suspend fun move(note: Note, folderId: String?)
     suspend fun delete(note: Note)
     suspend fun sync()
 }

@@ -22,7 +22,9 @@ fun TestFoldersScreen(
     state: FoldersUiState,
     onDeleteFolder: (Folder) -> Unit = {},
     onRenameFolder: (Folder, String) -> Unit = { _, _ -> },
-    onRenameNote: (Note, String) -> Unit = { _, _ -> }
+    onRenameNote: (Note, String) -> Unit = { _, _ -> },
+    onMoveFolder: (Folder) -> Unit = {},
+    onMoveNote: (Note) -> Unit = {}
 ) {
     NotesTakingAppTheme {
         FoldersScreenContent(
@@ -36,7 +38,9 @@ fun TestFoldersScreen(
             onDeleteNote = {},
             onAddNote = {},
             onOpenNote = {},
-            onOpenCollection = { _, _, _ -> }
+            onOpenCollection = { _, _, _ -> },
+            onMoveFolder = onMoveFolder,
+            onMoveNote = onMoveNote
         )
     }
 }
@@ -95,6 +99,58 @@ class FoldersScreenTest {
 
         composeRule.onNodeWithText("No folders or notes match your search.").assertIsDisplayed()
         assertEquals("missing", searchQuery)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun moveFolderAction_emitsMoveFolderCallback() {
+        var folderToMove: Folder? = null
+        val folder = Folder(id = "f1", name = "Move Me", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            treeItems = listOf(FolderTreeItem.FolderItem(folder, 0, 0, false))
+        )
+
+        composeRule.setContent {
+            TestFoldersScreen(
+                state = state,
+                onMoveFolder = { folderToMove = it }
+            )
+        }
+
+        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("move_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("move_item_action", useUnmergedTree = true).performClick()
+
+        composeRule.waitForIdle()
+        assertEquals(folder, folderToMove)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun moveNoteAction_emitsMoveNoteCallback() {
+        var noteToMove: Note? = null
+        val note = Note(id = "n1", title = "Move Note", content = "", folderId = "f1", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            treeItems = listOf(FolderTreeItem.NoteItem(note, 0))
+        )
+
+        composeRule.setContent {
+            TestFoldersScreen(
+                state = state,
+                onMoveNote = { noteToMove = it }
+            )
+        }
+
+        composeRule.onNodeWithTag("note_more_actions_n1").performClick()
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("move_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("move_item_action", useUnmergedTree = true).performClick()
+
+        composeRule.waitForIdle()
+        assertEquals(note, noteToMove)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

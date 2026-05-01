@@ -98,6 +98,10 @@ class NoteRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun move(note: Note, folderId: String?) {
+        save(note.copy(folderId = folderId, updatedAt = System.currentTimeMillis()))
+    }
+
     override suspend fun delete(note: Note) {
         try {
             api.deleteItem(

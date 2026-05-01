@@ -13,6 +13,10 @@ sealed class Destinations(val route: String) {
             return "collectionNotes?type=$type&folderId=${folderId ?: ""}&label=$encodedLabel"
         }
     }
+    data object MoveTo : Destinations("moveTo?itemType={itemType}&itemId={itemId}") {
+        fun createRoute(itemType: String, itemId: String): String =
+            "moveTo?itemType=${Uri.encode(itemType)}&itemId=${Uri.encode(itemId)}"
+    }
     data object Editor : Destinations("editor?noteId={noteId}&folderId={folderId}") {
         fun createRoute(noteId: String? = null, folderId: String? = null): String {
             val notePart = if (noteId.isNullOrBlank()) "noteId=" else "noteId=$noteId"

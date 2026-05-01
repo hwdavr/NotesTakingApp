@@ -22,6 +22,16 @@ class FakeFolderRepository(
         folders.value = folders.value.map { if (it.id == folder.id) folder else it }
     }
 
+    override suspend fun move(folder: Folder, parentFolderId: String?) {
+        folders.value = folders.value.map {
+            if (it.id == folder.id) {
+                it.copy(parentFolderId = parentFolderId)
+            } else {
+                it
+            }
+        }
+    }
+
     override suspend fun delete(folder: Folder) {
         folders.value = folders.value.filterNot { it.id == folder.id }
     }
@@ -48,6 +58,10 @@ class FakeNoteRepository(
     override suspend fun save(note: Note) {
         notes.value = notes.value
             .filterNot { it.id == note.id } + note
+    }
+
+    override suspend fun move(note: Note, folderId: String?) {
+        save(note.copy(folderId = folderId))
     }
 
     override suspend fun delete(note: Note) {

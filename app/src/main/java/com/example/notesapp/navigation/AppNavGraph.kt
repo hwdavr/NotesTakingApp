@@ -31,6 +31,8 @@ import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
 import com.example.notesapp.ui.home.HomeNotesScreen
 import com.example.notesapp.ui.home.HomeViewModel
+import com.example.notesapp.ui.moveto.MoveToScreen
+import com.example.notesapp.ui.moveto.MoveToViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
 import com.example.notesapp.ui.notes.CollectionNotesViewModel
 import com.example.notesapp.ui.onboarding.OnboardingScreen
@@ -77,6 +79,7 @@ fun AppNavHost(
     val showBottomBar = isLoggedIn &&
         currentRoute?.startsWith("editor") != true &&
         currentRoute?.startsWith("collectionNotes") != true &&
+        currentRoute?.startsWith("moveTo") != true &&
         currentRoute !in authRoutes
 
     var authError by remember { mutableStateOf<String?>(null) }
@@ -175,8 +178,33 @@ fun AppNavHost(
                             )
                         )
                     },
+                    onMoveFolder = { folder ->
+                        navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_FOLDER, folder.id))
+                    },
+                    onMoveNote = { note ->
+                        navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, note.id))
+                    },
                     viewModel = foldersViewModel
                 ) 
+            }
+            composable(
+                route = Destinations.MoveTo.route,
+                arguments = listOf(
+                    navArgument("itemType") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
+                    navArgument("itemId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                MoveToScreen(
+                    parentPadding = innerPadding,
+                    onBack = { navController.popBackStack() },
+                    onMoved = { navController.popBackStack() }
+                )
             }
             composable(
                 route = Destinations.CollectionNotes.route,
@@ -253,7 +281,6 @@ fun AppNavHost(
         }
     }
 }
-
 
 
 

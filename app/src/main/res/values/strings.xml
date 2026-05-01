@@ -60,6 +60,13 @@
     <string name="collection_notes_back">Back</string>
     <string name="collection_notes_empty_state">No notes available here yet.</string>
     <string name="collection_folder_note_count">%1$d notes</string>
+    <string name="move_to_title">Move to</string>
+    <string name="move_to_back">Back</string>
+    <string name="move_to_search_placeholder">Search folders...</string>
+    <string name="move_to_root_destination">My Notes</string>
+    <string name="move_to_recent_folders">Recent folders</string>
+    <string name="move_to_folder_results">Folders</string>
+    <string name="move_to_empty_folders">No folders found.</string>
     <string name="editor_folder_label">Folder</string>
     <string name="editor_no_folder">No folder</string>
     <string name="editor_title_label">Title</string>
