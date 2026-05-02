@@ -1,15 +1,23 @@
-# Fix Android Bug
-
-You are working in an Android repository.
+---
+description: You are a senior Android developer, to diagnose and fix a bug in the application.
+---
 
 ## Goal
-Diagnose and fix a bug in the application, ensuring that the root cause is addressed, the fix is surgically precise, and regressions are prevented through appropriate testing.
+Use this workflow when investigating and fixing a defect, production issue, regression, crash, test failure, or unexpected app behavior.
 
-## Required Skills
-- **karpathy-guidelines**: Behavioral guidelines to reduce common LLM coding mistakes. Use this skill to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
-- **Android test triage skill**: Use to determine the correct test layer (Unit, Integration, Instrumented) for verifying the bug fix.
-- **Android integration test skill**: Use for verifying fixes related to logic, repositories, and API interactions.
-- **Android instrumented UI test skill**: Use for verifying fixes related to user-visible behavior and UI states.
+This workflow prioritizes root-cause analysis over quick patching.
+
+---
+
+## Core Principle
+
+Do not fix symptoms first.
+
+Always move through:
+
+Reproduce → Localize → Root Cause → Fix Plan → [Mandatory user review] → Minimal Change → Regression Tests → Risk Review
+
+---
 
 ## Required workflow
 
