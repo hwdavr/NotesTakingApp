@@ -36,6 +36,12 @@ class FakeFolderRepository(
         folders.value = folders.value.filterNot { it.id == folder.id }
     }
 
+    override suspend fun toggleFavorite(folder: Folder) {
+        folders.value = folders.value.map {
+            if (it.id == folder.id) it.copy(isFavorite = !it.isFavorite) else it
+        }
+    }
+
     override suspend fun sync() = Unit
 }
 
@@ -55,6 +61,9 @@ class FakeNoteRepository(
     override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
         notes.value.count { it.folderId == folderId }
 
+    override suspend fun getFavoriteNoteCount(): Int =
+        notes.value.count { it.isFavorite }
+
     override suspend fun save(note: Note) {
         notes.value = notes.value
             .filterNot { it.id == note.id } + note
@@ -66,6 +75,12 @@ class FakeNoteRepository(
 
     override suspend fun delete(note: Note) {
         notes.value = notes.value.filterNot { it.id == note.id }
+    }
+
+    override suspend fun toggleFavorite(note: Note) {
+        notes.value = notes.value.map {
+            if (it.id == note.id) it.copy(isFavorite = !it.isFavorite) else it
+        }
     }
 
     override suspend fun sync() = Unit

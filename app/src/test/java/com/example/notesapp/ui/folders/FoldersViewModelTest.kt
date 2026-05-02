@@ -91,4 +91,18 @@ class FoldersViewModelTest : BaseViewModelTest() {
         viewModel.renameNote(note, "Renamed Note")
         coVerify { noteRepository.save(match { it.title == "Renamed Note" && it.id == note.id }) }
     }
+
+    @Test
+    fun `addNoteToFavorites calls toggleFavorite on repository`() = runTest {
+        val note = testNotes[0]
+        viewModel.addNoteToFavorites(note)
+        coVerify { noteRepository.toggleFavorite(note) }
+    }
+
+    @Test
+    fun `addFolderToFavorites calls toggleFavorite on repository`() = runTest {
+        val folder = testFolders[0]
+        viewModel.addFolderToFavorites(folder)
+        coVerify { folderRepository.toggleFavorite(folder) }
+    }
 }

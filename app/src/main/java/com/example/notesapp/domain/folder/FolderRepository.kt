@@ -8,5 +8,6 @@ interface FolderRepository {
     suspend fun update(folder: Folder)
     suspend fun move(folder: Folder, parentFolderId: String?)
     suspend fun delete(folder: Folder)
+    suspend fun toggleFavorite(folder: Folder)
     suspend fun sync()
 }

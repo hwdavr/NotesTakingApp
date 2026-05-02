@@ -142,7 +142,7 @@ private class FakeMoveFolderRepository(
     }
 
     override suspend fun delete(folder: Folder) = Unit
-
+    override suspend fun toggleFavorite(folder: Folder) = Unit
     override suspend fun sync() = Unit
 }
 
@@ -162,6 +162,8 @@ private class FakeMoveNoteRepository(
     override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
         notes.value.count { it.folderId == folderId }
 
+    override suspend fun getFavoriteNoteCount(): Int = notes.value.count { it.isFavorite }
+
     override suspend fun save(note: Note) = Unit
 
     override suspend fun move(note: Note, folderId: String?) {
@@ -169,7 +171,7 @@ private class FakeMoveNoteRepository(
     }
 
     override suspend fun delete(note: Note) = Unit
-
+    override suspend fun toggleFavorite(note: Note) = Unit
     override suspend fun sync() = Unit
 }
 

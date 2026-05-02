@@ -14,7 +14,8 @@ fun NoteEntity.toDomain(): Note = Note(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isFavorite = isFavorite
 )
 
 fun Note.toEntity(): NoteEntity = NoteEntity(
@@ -28,5 +29,6 @@ fun Note.toEntity(): NoteEntity = NoteEntity(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isFavorite = isFavorite
 )

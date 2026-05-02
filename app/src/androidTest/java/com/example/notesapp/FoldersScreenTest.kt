@@ -24,7 +24,9 @@ fun TestFoldersScreen(
     onRenameFolder: (Folder, String) -> Unit = { _, _ -> },
     onRenameNote: (Note, String) -> Unit = { _, _ -> },
     onMoveFolder: (Folder) -> Unit = {},
-    onMoveNote: (Note) -> Unit = {}
+    onMoveNote: (Note) -> Unit = {},
+    onAddToFavoritesNote: (Note) -> Unit = {},
+    onAddToFavoritesFolder: (Folder) -> Unit = {}
 ) {
     NotesTakingAppTheme {
         FoldersScreenContent(
@@ -36,6 +38,8 @@ fun TestFoldersScreen(
             onRenameNote = onRenameNote,
             onDeleteFolder = onDeleteFolder,
             onDeleteNote = {},
+            onAddToFavoritesFolder = onAddToFavoritesFolder,
+            onAddToFavoritesNote = onAddToFavoritesNote,
             onAddNote = {},
             onOpenNote = {},
             onOpenCollection = { _, _, _ -> },
@@ -272,5 +276,57 @@ class FoldersScreenTest {
         // 5. Verify onRenameNote was called
         composeRule.waitForIdle()
         assertEquals(note to "New Note", renamedNote)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun addToFavoritesNoteAction_emitsFavoriteNoteCallback() {
+        var favoritedNote: Note? = null
+        val note = Note(id = "n1", title = "Fav Note", content = "", folderId = "f1", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            treeItems = listOf(FolderTreeItem.NoteItem(note, 0))
+        )
+
+        composeRule.setContent {
+            TestFoldersScreen(
+                state = state,
+                onAddToFavoritesNote = { favoritedNote = it }
+            )
+        }
+
+        composeRule.onNodeWithTag("note_more_actions_n1").performClick()
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
+
+        composeRule.waitForIdle()
+        assertEquals(note, favoritedNote)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun addToFavoritesFolderAction_emitsFavoriteFolderCallback() {
+        var favoritedFolder: Folder? = null
+        val folder = Folder(id = "f1", name = "Fav Folder", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            treeItems = listOf(FolderTreeItem.FolderItem(folder, 0, 0, false))
+        )
+
+        composeRule.setContent {
+            TestFoldersScreen(
+                state = state,
+                onAddToFavoritesFolder = { favoritedFolder = it }
+            )
+        }
+
+        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
+
+        composeRule.waitForIdle()
+        assertEquals(folder, favoritedFolder)
     }
 }

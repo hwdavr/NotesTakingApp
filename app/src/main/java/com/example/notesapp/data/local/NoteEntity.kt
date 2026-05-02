@@ -28,5 +28,6 @@ data class NoteEntity(
     val lastSyncedVersion: Long,
     val deletedAt: Long? = null,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val isFavorite: Boolean = false
 )

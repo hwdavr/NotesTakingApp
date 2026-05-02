@@ -25,6 +25,9 @@ interface NoteDao {
     @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NULL")
     suspend fun getActiveNoteCount(): Int
 
+    @Query("SELECT COUNT(*) FROM notes WHERE isFavorite = 1 AND deletedAt IS NULL")
+    suspend fun getFavoriteNoteCount(): Int
+
     @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
     fun searchNotes(query: String): Flow<List<NoteEntity>>
 

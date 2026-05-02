@@ -55,7 +55,19 @@ open class CollectionNotesViewModel @Inject constructor(
                     notes = notes,
                     parentFolderId = folderId
                 )
-                "favorites" -> emptyList()
+                "favorites" -> {
+                    val favFolders = folders.filter { it.isFavorite }.map { folder ->
+                        CollectionItemUiModel.FolderItem(
+                            id = folder.id,
+                            name = folder.name,
+                            noteCount = notes.count { it.folderId == folder.id }
+                        )
+                    }
+                    val favNotes = notes.filter { it.isFavorite }.map { note ->
+                        CollectionItemUiModel.NoteItem(note = note.toUiModel())
+                    }
+                    favFolders + favNotes
+                }
                 "archive" -> emptyList()
                 else -> notes.map { note ->
                     CollectionItemUiModel.NoteItem(

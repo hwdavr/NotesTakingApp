@@ -9,6 +9,7 @@ import com.example.notesapp.data.remote.DeleteItemRequest
 import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
+import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.util.DeviceIdProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -114,6 +115,31 @@ class FolderRepositoryImpl @Inject constructor(
                     deviceId = deviceIdProvider.deviceId,
                     lastSyncedVersion = folder.version,
                     deletedAt = System.currentTimeMillis()
+                ).toEntity()
+            )
+        }
+    }
+
+    override suspend fun toggleFavorite(folder: Folder) {
+        val newFavoriteStatus = !folder.isFavorite
+        try {
+            api.favoriteItem(
+                folder.id,
+                FavoriteItemRequest(
+                    isFavorite = newFavoriteStatus,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version
+                )
+            )
+            syncCoordinator.syncAll()
+        } catch (_: Exception) {
+            folderDao.insert(
+                folder.copy(
+                    isFavorite = newFavoriteStatus,
+                    version = folder.version + 1,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version,
+                    updatedAt = System.currentTimeMillis()
                 ).toEntity()
             )
         }

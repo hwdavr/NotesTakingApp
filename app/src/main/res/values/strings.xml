@@ -17,6 +17,7 @@
     <string name="folders_add_subfolder_action">Add Subfolder</string>
     <string name="folders_add_note_action">Add Note</string>
     <string name="folders_add_to_favorites_action">Add to Favorites</string>
+    <string name="folders_remove_from_favorites_action">Remove from Favorites</string>
     <string name="folders_move_to_action">Move to</string>
     <string name="folders_rename_action">Rename</string>
     <string name="folders_delete_action">Delete</string>

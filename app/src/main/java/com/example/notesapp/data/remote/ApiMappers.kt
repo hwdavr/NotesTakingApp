@@ -14,7 +14,8 @@ fun ApiItem.toFolderEntity(): FolderEntity = FolderEntity(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt?.toEpochMillis(),
     createdAt = createdAt.toEpochMillis(),
-    updatedAt = updatedAt.toEpochMillis()
+    updatedAt = updatedAt.toEpochMillis(),
+    isFavorite = isFavorite
 )
 
 fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
@@ -28,7 +29,8 @@ fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt?.toEpochMillis(),
     createdAt = createdAt.toEpochMillis(),
-    updatedAt = updatedAt.toEpochMillis()
+    updatedAt = updatedAt.toEpochMillis(),
+    isFavorite = isFavorite
 )
 
 private fun String.toEpochMillis(): Long = Instant.parse(this).toEpochMilli()

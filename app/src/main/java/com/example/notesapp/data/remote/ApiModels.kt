@@ -13,7 +13,8 @@ data class ApiItem(
     val lastSyncedVersion: Long,
     val deletedAt: String?,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val isFavorite: Boolean = false
 )
 
 data class MutationResultDto(
@@ -65,6 +66,12 @@ data class UpdateNoteContentRequest(
 )
 
 data class DeleteItemRequest(
+    val deviceId: String,
+    val lastSyncedVersion: Long
+)
+
+data class FavoriteItemRequest(
+    val isFavorite: Boolean,
     val deviceId: String,
     val lastSyncedVersion: Long
 )

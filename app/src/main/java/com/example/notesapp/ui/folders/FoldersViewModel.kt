@@ -110,10 +110,7 @@ open class FoldersViewModel @Inject constructor(
 
                 smartCounts.value = SmartCollectionCounts(
                     allNotes = noteRepository.getActiveNoteCount(),
-                    favorites = folders
-                        .firstOrNull { it.name.equals("Favorites", ignoreCase = true) }
-                        ?.let { favoriteFolder -> noteRepository.getActiveNoteCountForFolder(favoriteFolder.id) }
-                        ?: 0,
+                    favorites = noteRepository.getFavoriteNoteCount(),
                     archive = 0
                 )
 
@@ -189,6 +186,20 @@ open class FoldersViewModel @Inject constructor(
     fun deleteNote(note: Note) {
         viewModelScope.launch {
             noteRepository.delete(note)
+            refreshCounts()
+        }
+    }
+
+    fun addNoteToFavorites(note: Note) {
+        viewModelScope.launch {
+            noteRepository.toggleFavorite(note)
+            refreshCounts()
+        }
+    }
+
+    fun addFolderToFavorites(folder: Folder) {
+        viewModelScope.launch {
+            folderRepository.toggleFavorite(folder)
             refreshCounts()
         }
     }

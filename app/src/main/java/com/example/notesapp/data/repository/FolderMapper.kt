@@ -13,7 +13,8 @@ fun FolderEntity.toDomain(): Folder = Folder(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isFavorite = isFavorite
 )
 
 fun Folder.toEntity(): FolderEntity = FolderEntity(
@@ -26,5 +27,6 @@ fun Folder.toEntity(): FolderEntity = FolderEntity(
     lastSyncedVersion = lastSyncedVersion,
     deletedAt = deletedAt,
     createdAt = createdAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    isFavorite = isFavorite
 )

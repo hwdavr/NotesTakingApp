@@ -11,5 +11,6 @@ data class Note(
     val lastSyncedVersion: Long = 0,
     val deletedAt: Long? = null,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val isFavorite: Boolean = false
 )

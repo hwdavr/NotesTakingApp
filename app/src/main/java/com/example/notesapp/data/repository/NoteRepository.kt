@@ -6,6 +6,7 @@ import com.example.notesapp.data.remote.DeleteItemRequest
 import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
+import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.data.remote.UpdateNoteContentRequest
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.note.Note
@@ -35,6 +36,8 @@ class NoteRepositoryImpl @Inject constructor(
 
     override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
         noteDao.getActiveNoteCountForFolder(folderId)
+
+    override suspend fun getFavoriteNoteCount(): Int = noteDao.getFavoriteNoteCount()
 
     override suspend fun save(note: Note) {
         val existing = note.id.takeIf { it.isNotBlank() }?.let { noteDao.getNoteById(it)?.toDomain() }
@@ -119,6 +122,31 @@ class NoteRepositoryImpl @Inject constructor(
                     deviceId = deviceIdProvider.deviceId,
                     lastSyncedVersion = note.version,
                     deletedAt = System.currentTimeMillis()
+                ).toEntity()
+            )
+        }
+    }
+
+    override suspend fun toggleFavorite(note: Note) {
+        val newFavoriteStatus = !note.isFavorite
+        try {
+            api.favoriteItem(
+                note.id,
+                FavoriteItemRequest(
+                    isFavorite = newFavoriteStatus,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = note.version
+                )
+            )
+            syncCoordinator.syncAll()
+        } catch (_: Exception) {
+            noteDao.insert(
+                note.copy(
+                    isFavorite = newFavoriteStatus,
+                    version = note.version + 1,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = note.version,
+                    updatedAt = System.currentTimeMillis()
                 ).toEntity()
             )
         }

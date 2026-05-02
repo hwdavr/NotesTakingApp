@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -95,6 +96,8 @@ fun FoldersScreen(
         onRenameNote = viewModel::renameNote,
         onDeleteFolder = viewModel::deleteFolder,
         onDeleteNote = viewModel::deleteNote,
+        onAddToFavoritesFolder = viewModel::addFolderToFavorites,
+        onAddToFavoritesNote = viewModel::addNoteToFavorites,
         onAddNote = onAddNote,
         onOpenNote = onOpenNote,
         onOpenCollection = onOpenCollection,
@@ -114,6 +117,8 @@ fun FoldersScreenContent(
     onRenameNote: (Note, String) -> Unit,
     onDeleteFolder: (Folder) -> Unit,
     onDeleteNote: (Note) -> Unit,
+    onAddToFavoritesFolder: (Folder) -> Unit = {},
+    onAddToFavoritesNote: (Note) -> Unit = {},
     onAddNote: (String) -> Unit,
     onOpenNote: (String) -> Unit,
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
@@ -270,7 +275,10 @@ fun FoldersScreenContent(
             is QuickActionItem.FolderItem -> FolderItemActionsSheet(
                 folder = item.folder,
                 onDismiss = { selectedItemForQuickActions = null },
-                onAddToFavorites = { selectedItemForQuickActions = null },
+                onAddToFavorites = {
+                    onAddToFavoritesFolder(item.folder)
+                    selectedItemForQuickActions = null
+                },
                 onMoveTo = {
                     selectedItemForQuickActions = null
                     onMoveFolder(item.folder)
@@ -289,7 +297,10 @@ fun FoldersScreenContent(
             is QuickActionItem.NoteItem -> NoteItemActionsSheet(
                 note = item.note,
                 onDismiss = { selectedItemForQuickActions = null },
-                onAddToFavorites = { selectedItemForQuickActions = null },
+                onAddToFavorites = {
+                    onAddToFavoritesNote(item.note)
+                    selectedItemForQuickActions = null
+                },
                 onMoveTo = {
                     selectedItemForQuickActions = null
                     onMoveNote(item.note)
@@ -810,9 +821,13 @@ private fun FolderItemActionsSheet(
             HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
 
             SheetActionRow(
-                icon = Icons.Outlined.Star,
-                label = stringResource(R.string.folders_add_to_favorites_action),
-                onClick = onAddToFavorites
+                icon = if (folder.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                label = stringResource(
+                    if (folder.isFavorite) R.string.folders_remove_from_favorites_action
+                    else R.string.folders_add_to_favorites_action
+                ),
+                onClick = onAddToFavorites,
+                modifier = Modifier.testTag("add_to_favorites_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
@@ -885,9 +900,13 @@ private fun NoteItemActionsSheet(
             HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
 
             SheetActionRow(
-                icon = Icons.Outlined.Star,
-                label = stringResource(R.string.folders_add_to_favorites_action),
-                onClick = onAddToFavorites
+                icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                label = stringResource(
+                    if (note.isFavorite) R.string.folders_remove_from_favorites_action
+                    else R.string.folders_add_to_favorites_action
+                ),
+                onClick = onAddToFavorites,
+                modifier = Modifier.testTag("add_to_favorites_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
