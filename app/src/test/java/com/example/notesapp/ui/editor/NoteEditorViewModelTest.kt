@@ -63,6 +63,17 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     }
 
     @Test
+    fun `load without noteId after loading a note resets state`() = runTest {
+        viewModel.load("n1")
+        assertEquals("Title", viewModel.uiState.value.title)
+
+        viewModel.load(null)
+        val state = viewModel.uiState.value
+        assertEquals("", state.title)
+        assertEquals("", state.content)
+    }
+
+    @Test
     fun `onTitleChange updates state and schedules auto-save`() = runTest {
         viewModel.load("n1")
         viewModel.onTitleChange("New Title")

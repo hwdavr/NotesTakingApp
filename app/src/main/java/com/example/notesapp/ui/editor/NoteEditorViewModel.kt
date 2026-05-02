@@ -43,7 +43,7 @@ open class NoteEditorViewModel @Inject constructor(
             folderRepository.sync()
             val folders = folderRepository.getFolders().first()
             if (noteId.isNullOrBlank()) {
-                _uiState.value = _uiState.value.copy(
+                _uiState.value = NoteEditorUiState(
                     noteId = "note_${UUID.randomUUID()}",
                     availableFolders = folders,
                     folderId = folderId,

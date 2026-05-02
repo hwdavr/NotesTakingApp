@@ -21,39 +21,222 @@ Reproduce → Localize → Root Cause → Fix Plan → [Mandatory user review] �
 
 ## Required workflow
 
-### 1. Clarify & Plan
-- **MANDATORY**: Before writing any code, you MUST clarify the bug details, reproduction steps, and expected behavior with the user.
-- Apply the **karpathy-guidelines**: Don't assume. Surface any confusion or tradeoffs.
-- Generate a detailed implementation plan using an artifact file. Focus on surgical, minimal changes.
-- Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
+### 1. Understand the Bug
 
-### 2. Reproduce and Diagnose
+Collect and summarize:
+
+- bug description
+- expected behavior
+- actual behavior
+- affected platform
+- affected app version
+- affected user segment
+- affected screen or flow
+- frequency
+- severity
+- logs/screenshots/videos
+- backend/API dependency
+- recent related changes
+
+If information is missing, state assumptions.
+
+---
+---
+
+### 3. Classify the Bug
+
+Classify the bug as one or more of:
+
+- UI rendering issue
+- state management issue
+- API contract mismatch
+- mapper/model issue
+- business logic issue
+- navigation issue
+- concurrency/race condition
+- caching issue
+- session/auth issue
+- permission issue
+- platform-specific issue
+- backend dependency issue
+- release/configuration issue
+
+Use the classification to guide investigation.
+
+---
+
+### 4. Localize the Fault
+
+Inspect the relevant code path.
+
+Check:
+
+- UI component
+- ViewModel/state holder
+- use case
+- repository
+- API client
+- DTO/domain mapper
+- local cache/database
+- feature flag/config
+- navigation route
+- analytics/logging side effects
+
+Do not modify code until the likely fault area is identified.
+
+---
+
+### 5. API and Data Validation
+
+If API data is involved, compare:
+
+- expected API contract
+- actual API response
+- DTO model
+- domain mapper
+- UI model
+- nullability handling
+- enum handling
+- error handling
+- empty/partial data handling
+
+Identify whether the bug is caused by:
+
+- backend contract issue
+- mobile parsing issue
+- backward compatibility issue
+- invalid assumption in domain/UI layer
+
+---
+
+### 6. Root Cause Analysis
+
+Before fixing, write a concise root cause. 
+
+Use this format:
+
+```text
+Root cause:
+The bug happens because [specific code/data/state issue], triggered when [condition], causing [wrong behavior].
+```
+
+Avoid vague causes like:
+- "state issue"
+- "API issue"
+- "UI bug"
+- "race condition"
+
+Be specific.
+
+---
+
+### 7. Fix Strategy
+
+Choose the smallest safe fix.
+
+Prefer:
+- fixing the root cause
+- preserving existing behavior
+- adding defensive handling for malformed/partial data
+- improving state modeling if the bug is caused by ambiguous state
+- aligning mapper/domain behavior with API contract
+
+Avoid:
+- broad refactoring
+- unrelated cleanup
+- hardcoded patches
+- swallowing errors silently
+- changing public behavior without validation
+
+---
+
+### 8. Implementation Plan
+
+Before coding, provide:
+- root cause
+- proposed fix
+- files to modify
+- tests to add/update
+- risk areas
+- rollback considerations if relevant
+
+Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
+
+---
+
+### 9. Regression Test Strategy
+
+Add or update tests to prevent recurrence. 
 - Use the **Android test triage skill** to decide which layer the reproduction test belongs to.
 - Write a failing test that reproduces the bug before touching the application code.
 
-### 3. Implement the Fix
-- Follow the **karpathy-guidelines** to make surgical changes that directly address the root cause.
-- Do not engage in unrelated refactoring or "cleanups" unless strictly necessary for the fix.
+10. Verify Edge Cases
 
-### 4. Add or Update Tests
-- Ensure the failing reproduction test now passes.
-- Update any other affected tests to reflect the corrected behavior.
+Check whether the fix handles:
+- null data
+- empty data
+- partial data
+- unknown enum
+- slow network
+- timeout
+- retry
+- stale cache
+- logged-out/session expired state
+- app upgrade scenario
+- old backend response
+- new backend response
 
-### 5. Verification & Polish
-- Ensure the app builds: `./gradlew assembleDebug`.
-- Run all relevant tests to ensure no regressions were introduced:
-  - Local tests: `./gradlew testDebugUnitTest`.
-  - Instrumented tests: `./gradlew connectedDebugAndroidTest`.
+11. Security and Privacy Check
 
-## Rules
-- **Adhere to Karpathy Guidelines**: Bias toward caution over speed. Think before coding.
-- **Prevent Recurrence**: A bug fix must include a test that ensures the bug does not return.
-- **Keep changes focused**: Avoid unrelated refactoring.
-- **No flaky tests**: Avoid `Thread.sleep`. Use proper coroutine test dispatchers or idling resources.
+Ensure the fix does not:
+- expose sensitive data
+- log tokens or PII
+- weaken authentication/session handling
+- bypass validation incorrectly
+- introduce unsafe WebView/deep link behavior
+- change payment/security behavior without review
 
-## Report Result
-Return:
-1. Files created or updated.
-2. Summary of the root cause and the applied fix.
-3. Which skills were used (especially how karpathy-guidelines influenced the fix).
-4. Result of the test runs.
+12. Release Risk Review
+
+Before finalizing, assess:
+- whether this needs hotfix release
+- whether backend rollout is required
+- whether feature flag/config change is required
+- whether force update is required
+- whether old app versions are affected
+- whether monitoring is needed after release
+
+13. Final Validation
+
+Before completion:
+- run affected tests
+- run build
+- verify no unrelated changes
+- review diff
+- confirm the fix matches root cause
+- confirm regression test fails before fix and passes after fix where possible
+
+Final Output Format
+
+Always provide:
+- Bug summary
+- Reproduction or simulation path
+- Root cause
+- Fix strategy
+- Files changed or proposed
+- Tests added or proposed
+- Edge cases covered
+- Security/privacy considerations
+- Release risk
+- Remaining assumptions
+
+Stop Conditions
+
+Stop and ask for clarification only when:
+- the bug cannot be understood from available evidence
+- multiple root causes are equally likely and require product/backend input
+- the fix may change expected business behavior
+- the issue involves payment/auth/security-sensitive flow
+- production hotfix decision is required
+
+Otherwise, proceed with reasonable assumptions and state them clearly.
