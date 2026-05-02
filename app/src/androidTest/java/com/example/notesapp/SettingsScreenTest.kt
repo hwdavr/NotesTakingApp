@@ -47,8 +47,8 @@ class SettingsScreenTest {
         // Verify Account Section: single row with subtitle
         composeRule.onNodeWithTag("settings_account_section").assertIsDisplayed()
         composeRule.onNodeWithText("Account").assertIsDisplayed()
-        composeRule.onNodeWithText("Test Device").assertIsDisplayed()
-        // subtitle under Test Device (second occurrence of same text)
+        composeRule.onNodeWithText("Guest").assertIsDisplayed()
+        // subtitle under profile row (second occurrence of same text)
         composeRule.onAllNodesWithText("Unlimited Smart notes, no limits!")[1].assertIsDisplayed()
 
         // Verify General Section
@@ -65,5 +65,18 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Share").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Privacy Policy").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Terms of Use").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun settingsScreen_showsProfileEmailWhenProvided() {
+        composeRule.setContent {
+            SettingsScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                profileTitle = "user@example.com",
+                onLogout = {}
+            )
+        }
+
+        composeRule.onNodeWithText("user@example.com").assertIsDisplayed()
     }
 }

@@ -12,6 +12,7 @@ import com.example.notesapp.ui.settings.SettingsViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,7 +25,13 @@ class SettingsScreenIntegrationTest {
     val composeRule = createComposeRule()
 
     private val authManager = mockk<AuthManager>(relaxed = true)
-    private val viewModel = SettingsViewModel(authManager)
+    private val isLoggedIn = MutableStateFlow(true)
+    private val profileEmail = MutableStateFlow<String?>("user@example.com")
+    private val viewModel by lazy {
+        every { authManager.isLoggedIn } returns isLoggedIn
+        every { authManager.profileEmail } returns profileEmail
+        SettingsViewModel(authManager)
+    }
 
     // Screen Object abstraction
     private val settingsScreen = object {

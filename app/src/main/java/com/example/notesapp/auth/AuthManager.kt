@@ -1,6 +1,7 @@
 package com.example.notesapp.auth
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationException
@@ -12,6 +13,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.json.JSONObject
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,6 +32,9 @@ class AuthManager @Inject constructor(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
+    private val _profileEmail = MutableStateFlow<String?>(null)
+    val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
+
     init {
         checkSession()
     }
@@ -45,7 +51,8 @@ class AuthManager @Inject constructor(
             .start(activityContext, object : Callback<Credentials, AuthenticationException> {
                 override fun onSuccess(result: Credentials) {
                     Log.d(TAG, "Login successful!")
-                    tokenStorage.saveTokens(result.accessToken, result.refreshToken)
+                    tokenStorage.saveTokens(result.accessToken, result.refreshToken, result.idToken)
+                    _profileEmail.value = extractEmailFromIdToken(result.idToken)
                     _isLoggedIn.value = true
                     onSuccess()
                 }
@@ -67,6 +74,7 @@ class AuthManager @Inject constructor(
                 override fun onSuccess(result: Void?) {
                     Log.d(TAG, "Logout successful")
                     tokenStorage.clearTokens()
+                    _profileEmail.value = null
                     _isLoggedIn.value = false
                     onSuccess()
                 }
@@ -85,10 +93,23 @@ class AuthManager @Inject constructor(
         val accessToken = tokenStorage.getAccessToken()
         if (accessToken != null) {
             Log.d(TAG, "Session found")
+            _profileEmail.value = extractEmailFromIdToken(tokenStorage.getIdToken())
             _isLoggedIn.value = true
         } else {
             Log.d(TAG, "No session found")
+            _profileEmail.value = null
             _isLoggedIn.value = false
         }
+    }
+
+    private fun extractEmailFromIdToken(idToken: String?): String? {
+        if (idToken.isNullOrBlank()) return null
+        val parts = idToken.split(".")
+        if (parts.size < 2) return null
+
+        return runCatching {
+            val payload = Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+            JSONObject(String(payload, StandardCharsets.UTF_8)).optString("email").takeIf { it.isNotBlank() }
+        }.getOrNull()
     }
 }

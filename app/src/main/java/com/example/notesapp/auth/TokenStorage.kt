@@ -23,10 +23,11 @@ class TokenStorage @Inject constructor(
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun saveTokens(accessToken: String, refreshToken: String?) {
+    fun saveTokens(accessToken: String, refreshToken: String?, idToken: String? = null) {
         sharedPreferences.edit().apply {
             putString("access_token", accessToken)
             putString("refresh_token", refreshToken)
+            putString("id_token", idToken)
             apply()
         }
     }
@@ -39,10 +40,15 @@ class TokenStorage @Inject constructor(
         return sharedPreferences.getString("refresh_token", null)
     }
 
+    fun getIdToken(): String? {
+        return sharedPreferences.getString("id_token", null)
+    }
+
     fun clearTokens() {
         sharedPreferences.edit().apply {
             remove("access_token")
             remove("refresh_token")
+            remove("id_token")
             apply()
         }
     }
