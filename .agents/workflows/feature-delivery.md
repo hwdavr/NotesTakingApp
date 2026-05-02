@@ -1,9 +1,11 @@
-# Add Android Feature
-
-You are working in an Android repository.
+---
+description: You are a senior Android developer, to delivery a new feature. 
+---
 
 ## Goal
-Implement a new feature or modify an existing one, ensuring that business logic, data handling, and UI are all correctly implemented and verified at the appropriate test layers.
+Use this workflow when implementing a new feature, enhancing an existing feature, or integrating a backend/API change into the mobile app.
+
+This workflow is designed for production-grade mobile delivery, not quick prototyping.
 
 ## Required Skills
 - **Android feature skill**: General guidance on implementation and architecture.
@@ -12,6 +14,18 @@ Implement a new feature or modify an existing one, ensuring that business logic,
 - **Android instrumented UI test skill**: Verifying user-visible behavior and UI states.
 - **Shared JSON scenarios skill**: (If applicable) Defining and using cross-platform API mocks.
 - **karpathy-guidelines**: Behavioral guidelines to reduce common LLM coding mistakes. Use this skill to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
+
+---
+
+## Core Principle
+
+Do not jump directly into coding.
+
+Always move through:
+
+Requirement → Impact Analysis → Architecture → Implementation Plan → Tests → Risk Review → Code Changes
+
+---
 
 ## Required workflow
 
