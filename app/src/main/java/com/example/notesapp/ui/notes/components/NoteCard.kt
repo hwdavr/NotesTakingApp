@@ -30,7 +30,8 @@ fun NoteCard(
     meta: String,
     color: androidx.compose.ui.graphics.Color,
     onMoreClick: (() -> Unit)? = null,
-    moreActionsTestTag: String? = null
+    moreActionsTestTag: String? = null,
+    badgeTestTag: String? = null
 ) {
     Surface(
         modifier = Modifier
@@ -67,14 +68,23 @@ fun NoteCard(
                 }
             }
             Text(text = preview, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-            Text(
-                text = meta,
-                style = MaterialTheme.typography.labelMedium,
-                color = TextSecondary,
-                modifier = Modifier
-                    .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.55f), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
-            )
+            if (meta.isNotBlank()) {
+                Text(
+                    text = meta,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TextSecondary,
+                    modifier = Modifier
+                        .then(
+                            if (badgeTestTag != null) {
+                                Modifier.testTag(badgeTestTag)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.55f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
         }
     }
 }

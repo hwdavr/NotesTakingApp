@@ -81,7 +81,8 @@ open class HomeViewModel @Inject constructor(
                     id = note.id,
                     title = note.title,
                     preview = noteContentPreview(note.content),
-                    colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
+                    colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it },
+                    isFavorite = note.isFavorite
                 )
             },
             noteActions = filteredNotes.associateBy { it.id },

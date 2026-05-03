@@ -2,9 +2,11 @@ package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -104,6 +106,42 @@ class HomeScreenIntegrationTest {
         composeRule.onNodeWithText("Move to").assertIsDisplayed()
         composeRule.onNodeWithText("Rename").assertIsDisplayed()
         composeRule.onNodeWithText("Archive").assertIsDisplayed()
+    }
+
+    @Test
+    fun favoritingHomeNoteShowsFavoriteBadge() {
+        val viewModel = HomeViewModel(
+            noteRepository = FakeNoteRepository(
+                initialNotes = listOf(
+                    note(id = "note_001", title = "Project Plan", content = "Launch tasks", folderId = "work")
+                )
+            ),
+            folderRepository = FakeFolderRepository(
+                initialFolders = listOf(folder(id = "work", name = "Work"))
+            )
+        )
+
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                HomeNotesScreen(
+                    parentPadding = PaddingValues(0.dp),
+                    onAddNote = {},
+                    onOpenNote = {},
+                    viewModel = viewModel
+                )
+            }
+        }
+
+        screen.waitForNote("Project Plan")
+        composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertDoesNotExist()
+
+        screen.openNoteActions("note_001")
+        composeRule.onNodeWithText("Add to Favorites").performClick()
+
+        composeRule.waitUntil(10_000) {
+            composeRule.onAllNodesWithTag("home_note_favorite_badge_note_001").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertIsDisplayed()
     }
 
     private fun step(description: String, action: () -> Unit) {

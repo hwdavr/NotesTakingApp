@@ -186,12 +186,21 @@ fun HomeNotesScreenContent(
                                         preview = note.preview.ifBlank {
                                             stringResource(R.string.home_note_preview_fallback)
                                         },
-                                        meta = stringResource(R.string.home_note_meta),
+                                        meta = if (state.noteActions[note.id]?.isFavorite == true) {
+                                            stringResource(R.string.folders_stat_favorites)
+                                        } else {
+                                            ""
+                                        },
                                         color = cardColors[note.colorIndex],
                                         onMoreClick = {
                                             selectedNoteForQuickActions = state.noteActions[note.id]
                                         },
-                                        moreActionsTestTag = "home_note_more_actions_${note.id}"
+                                        moreActionsTestTag = "home_note_more_actions_${note.id}",
+                                        badgeTestTag = if (state.noteActions[note.id]?.isFavorite == true) {
+                                            "home_note_favorite_badge_${note.id}"
+                                        } else {
+                                            null
+                                        }
                                     )
                                 }
                             }
