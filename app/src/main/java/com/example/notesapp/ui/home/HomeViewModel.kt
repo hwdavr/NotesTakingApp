@@ -3,6 +3,7 @@ package com.example.notesapp.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.document.noteContentPreview
 import com.example.notesapp.ui.notes.NoteUiModel
@@ -31,6 +32,24 @@ open class HomeViewModel @Inject constructor(
 
     fun selectFolder(id: String) {
         selectedFolderId.value = id
+    }
+
+    fun renameNote(note: Note, newName: String) {
+        viewModelScope.launch {
+            noteRepository.save(note.copy(title = newName, updatedAt = System.currentTimeMillis()))
+        }
+    }
+
+    fun deleteNote(note: Note) {
+        viewModelScope.launch {
+            noteRepository.delete(note)
+        }
+    }
+
+    fun addNoteToFavorites(note: Note) {
+        viewModelScope.launch {
+            noteRepository.toggleFavorite(note)
+        }
     }
 
     open val uiState: StateFlow<HomeUiState> = combine(
@@ -65,6 +84,7 @@ open class HomeViewModel @Inject constructor(
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             },
+            noteActions = filteredNotes.associateBy { it.id },
             recentFolders = folders.map { folder ->
                 FolderUiModel(
                     id = folder.id,

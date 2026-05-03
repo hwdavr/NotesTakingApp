@@ -146,6 +146,9 @@ fun AppNavHost(
                     parentPadding = innerPadding,
                     onAddNote = { navController.navigate(Destinations.Editor.createRoute()) },
                     onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) },
+                    onMoveNote = { note ->
+                        navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, note.id))
+                    },
                     viewModel = hiltViewModel()
                 )
             }
@@ -270,5 +273,4 @@ fun AppNavHost(
         }
     }
 }
-
 

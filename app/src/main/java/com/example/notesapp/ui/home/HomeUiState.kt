@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.home
 
+import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.notes.NoteUiModel
 
 data class FolderUiModel(
@@ -11,6 +12,7 @@ data class FolderUiModel(
 
 data class HomeUiState(
     val recentNotes: List<NoteUiModel> = emptyList(),
+    val noteActions: Map<String, Note> = emptyMap(),
     val recentFolders: List<FolderUiModel> = emptyList(),
     val selectedFolderId: String = "all_notes",
     val isLoading: Boolean = false

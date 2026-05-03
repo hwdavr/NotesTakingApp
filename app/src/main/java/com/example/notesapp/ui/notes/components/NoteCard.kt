@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.notesapp.ui.theme.TextSecondary
@@ -26,7 +28,9 @@ fun NoteCard(
     title: String,
     preview: String,
     meta: String,
-    color: androidx.compose.ui.graphics.Color
+    color: androidx.compose.ui.graphics.Color,
+    onMoreClick: (() -> Unit)? = null,
+    moreActionsTestTag: String? = null
 ) {
     Surface(
         modifier = Modifier
@@ -47,7 +51,20 @@ fun NoteCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
-                Icon(Icons.Outlined.MoreHoriz, contentDescription = "More")
+                if (onMoreClick != null) {
+                    IconButton(
+                        onClick = onMoreClick,
+                        modifier = if (moreActionsTestTag != null) {
+                            Modifier.testTag(moreActionsTestTag)
+                        } else {
+                            Modifier
+                        }
+                    ) {
+                        Icon(Icons.Outlined.MoreHoriz, contentDescription = "More")
+                    }
+                } else {
+                    Icon(Icons.Outlined.MoreHoriz, contentDescription = "More")
+                }
             }
             Text(text = preview, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
             Text(

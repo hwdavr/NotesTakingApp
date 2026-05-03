@@ -10,22 +10,24 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,7 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.common.components.SearchHeader
+import com.example.notesapp.ui.folders.NoteItemActionsSheet
 import com.example.notesapp.ui.notes.components.NoteCard
 import com.example.notesapp.ui.theme.AccentBlue
 import com.example.notesapp.ui.theme.AccentMint
@@ -55,6 +60,7 @@ fun HomeNotesScreen(
     parentPadding: PaddingValues,
     onAddNote: () -> Unit,
     onOpenNote: (String) -> Unit,
+    onMoveNote: (Note) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,19 +69,32 @@ fun HomeNotesScreen(
         state = state,
         onAddNote = onAddNote,
         onOpenNote = onOpenNote,
-        onSelectFolder = viewModel::selectFolder
+        onSelectFolder = viewModel::selectFolder,
+        onAddToFavoritesNote = viewModel::addNoteToFavorites,
+        onRenameNote = viewModel::renameNote,
+        onDeleteNote = viewModel::deleteNote,
+        onMoveNote = onMoveNote
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeNotesScreenContent(
     parentPadding: PaddingValues,
     state: HomeUiState,
     onAddNote: () -> Unit,
     onOpenNote: (String) -> Unit,
-    onSelectFolder: (String) -> Unit
+    onSelectFolder: (String) -> Unit,
+    onAddToFavoritesNote: (Note) -> Unit = {},
+    onRenameNote: (Note, String) -> Unit = { _, _ -> },
+    onDeleteNote: (Note) -> Unit = {},
+    onMoveNote: (Note) -> Unit = {}
 ) {
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var selectedNoteForQuickActions by remember { mutableStateOf<Note?>(null) }
+    var noteToRename by remember { mutableStateOf<Note?>(null) }
+    var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
+    var noteToDelete by remember { mutableStateOf<Note?>(null) }
     val cardColors = remember { listOf(AccentYellow, AccentPink, AccentMint, AccentBlue) }
     val filteredNotes = remember(state.recentNotes, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -168,7 +187,11 @@ fun HomeNotesScreenContent(
                                             stringResource(R.string.home_note_preview_fallback)
                                         },
                                         meta = stringResource(R.string.home_note_meta),
-                                        color = cardColors[note.colorIndex]
+                                        color = cardColors[note.colorIndex],
+                                        onMoreClick = {
+                                            selectedNoteForQuickActions = state.noteActions[note.id]
+                                        },
+                                        moreActionsTestTag = "home_note_more_actions_${note.id}"
                                     )
                                 }
                             }
@@ -184,6 +207,100 @@ fun HomeNotesScreenContent(
                     .padding(end = 16.dp, bottom = 28.dp)
             )
         }
+    }
+
+    selectedNoteForQuickActions?.let { note ->
+        NoteItemActionsSheet(
+            note = note,
+            onDismiss = { selectedNoteForQuickActions = null },
+            onAddToFavorites = {
+                onAddToFavoritesNote(note)
+                selectedNoteForQuickActions = null
+            },
+            onMoveTo = {
+                selectedNoteForQuickActions = null
+                onMoveNote(note)
+            },
+            onRename = {
+                noteToRename = note
+                renameTextFieldValue = note.title
+                selectedNoteForQuickActions = null
+            },
+            onDelete = {
+                noteToDelete = note
+                selectedNoteForQuickActions = null
+            }
+        )
+    }
+
+    noteToRename?.let { note ->
+        AlertDialog(
+            onDismissRequest = {
+                noteToRename = null
+                renameTextFieldValue = ""
+            },
+            title = { Text(stringResource(R.string.folders_rename_note_title)) },
+            text = {
+                OutlinedTextField(
+                    value = renameTextFieldValue,
+                    onValueChange = { renameTextFieldValue = it },
+                    label = { Text(stringResource(R.string.folders_note_title_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().testTag("rename_text_field")
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (renameTextFieldValue.isNotBlank()) {
+                            onRenameNote(note, renameTextFieldValue)
+                            noteToRename = null
+                            renameTextFieldValue = ""
+                        }
+                    },
+                    modifier = Modifier.testTag("rename_confirm_button")
+                ) {
+                    Text(stringResource(R.string.folders_rename_action))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        noteToRename = null
+                        renameTextFieldValue = ""
+                    }
+                ) {
+                    Text(stringResource(R.string.folders_cancel_action))
+                }
+            }
+        )
+    }
+
+    noteToDelete?.let { note ->
+        AlertDialog(
+            onDismissRequest = { noteToDelete = null },
+            title = { Text(stringResource(R.string.folders_delete_note_confirm_title)) },
+            text = { Text(stringResource(R.string.folders_delete_confirm_text)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteNote(note)
+                        noteToDelete = null
+                    },
+                    modifier = Modifier.testTag("confirm_delete_button")
+                ) {
+                    Text(
+                        text = stringResource(R.string.folders_delete_action),
+                        color = Color(0xFFC44A4A)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { noteToDelete = null }) {
+                    Text(stringResource(R.string.folders_cancel_action))
+                }
+            }
+        )
     }
 }
 

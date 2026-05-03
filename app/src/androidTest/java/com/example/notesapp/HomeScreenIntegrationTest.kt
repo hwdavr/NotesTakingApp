@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -72,6 +73,39 @@ class HomeScreenIntegrationTest {
         }
     }
 
+    @Test
+    fun clickingNoteMoreActionsOpensFolderScreenNoteActionsSheet() {
+        val viewModel = HomeViewModel(
+            noteRepository = FakeNoteRepository(
+                initialNotes = listOf(
+                    note(id = "note_001", title = "Project Plan", content = "Launch tasks", folderId = "work")
+                )
+            ),
+            folderRepository = FakeFolderRepository(
+                initialFolders = listOf(folder(id = "work", name = "Work"))
+            )
+        )
+
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                HomeNotesScreen(
+                    parentPadding = PaddingValues(0.dp),
+                    onAddNote = {},
+                    onOpenNote = {},
+                    viewModel = viewModel
+                )
+            }
+        }
+
+        screen.waitForNote("Project Plan")
+        screen.openNoteActions("note_001")
+
+        composeRule.onNodeWithText("Add to Favorites").assertIsDisplayed()
+        composeRule.onNodeWithText("Move to").assertIsDisplayed()
+        composeRule.onNodeWithText("Rename").assertIsDisplayed()
+        composeRule.onNodeWithText("Archive").assertIsDisplayed()
+    }
+
     private fun step(description: String, action: () -> Unit) {
         action()
     }
@@ -96,6 +130,10 @@ private class HomeScreenRobot(
 
     fun selectFolder(name: String) {
         composeRule.onNodeWithText(name).performClick()
+    }
+
+    fun openNoteActions(noteId: String) {
+        composeRule.onNodeWithTag("home_note_more_actions_$noteId").performClick()
     }
 }
 

@@ -855,7 +855,7 @@ private fun FolderItemActionsSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoteItemActionsSheet(
+fun NoteItemActionsSheet(
     note: Note,
     onDismiss: () -> Unit,
     onAddToFavorites: () -> Unit,
