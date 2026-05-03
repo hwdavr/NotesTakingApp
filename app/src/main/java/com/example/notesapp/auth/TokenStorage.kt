@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TokenStorage @Inject constructor(
+open class TokenStorage @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val masterKey = MasterKey.Builder(context)
@@ -23,7 +23,7 @@ class TokenStorage @Inject constructor(
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
-    fun saveTokens(accessToken: String, refreshToken: String?, idToken: String? = null) {
+    open fun saveTokens(accessToken: String, refreshToken: String?, idToken: String? = null) {
         sharedPreferences.edit().apply {
             putString("access_token", accessToken)
             putString("refresh_token", refreshToken)
@@ -32,19 +32,19 @@ class TokenStorage @Inject constructor(
         }
     }
 
-    fun getAccessToken(): String? {
+    open fun getAccessToken(): String? {
         return sharedPreferences.getString("access_token", null)
     }
 
-    fun getRefreshToken(): String? {
+    open fun getRefreshToken(): String? {
         return sharedPreferences.getString("refresh_token", null)
     }
 
-    fun getIdToken(): String? {
+    open fun getIdToken(): String? {
         return sharedPreferences.getString("id_token", null)
     }
 
-    fun clearTokens() {
+    open fun clearTokens() {
         sharedPreferences.edit().apply {
             remove("access_token")
             remove("refresh_token")

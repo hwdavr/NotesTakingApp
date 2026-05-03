@@ -9,9 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.settings.SettingsScreen
 import com.example.notesapp.ui.settings.SettingsViewModel
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -24,14 +21,30 @@ class SettingsScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val authManager = mockk<AuthManager>(relaxed = true)
-    private val isLoggedIn = MutableStateFlow(true)
-    private val profileEmail = MutableStateFlow<String?>("user@example.com")
-    private val viewModel by lazy {
-        every { authManager.isLoggedIn } returns isLoggedIn
-        every { authManager.profileEmail } returns profileEmail
-        SettingsViewModel(authManager)
+    private class FakeAuthManager : AuthManager(
+        context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+        tokenStorage = object : com.example.notesapp.auth.TokenStorage(
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+        ) {
+            override fun saveTokens(accessToken: String, refreshToken: String?, idToken: String?) {}
+            override fun getAccessToken(): String? = null
+            override fun getRefreshToken(): String? = null
+            override fun getIdToken(): String? = null
+            override fun clearTokens() {}
+        }
+    ) {
+        override val isLoggedIn = MutableStateFlow(true)
+        override val profileEmail = MutableStateFlow<String?>("user@example.com")
+        var logoutCalled = false
+
+        override fun logout(activityContext: android.content.Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+            logoutCalled = true
+            onSuccess()
+        }
     }
+
+    private val authManager = FakeAuthManager()
+    private val viewModel = SettingsViewModel(authManager)
 
     // Screen Object abstraction
     private val settingsScreen = object {
@@ -46,7 +59,7 @@ class SettingsScreenIntegrationTest {
     fun clickingLogout_triggersAuthManagerLogoutAndCallback() {
         var logoutCallbackCalled = false
 
-        // Given: SettingsScreen is rendered with a mocked AuthManager
+        // Given: SettingsScreen is rendered with a FakeAuthManager
         step("Prepare SettingsScreen") {
             composeRule.setContent {
                 SettingsScreen(
@@ -59,25 +72,17 @@ class SettingsScreenIntegrationTest {
 
         // When: Logout button is clicked
         step("Click Logout") {
-            every { 
-                authManager.logout(any(), any(), any()) 
-            } answers {
-                val onSuccess = secondArg<() -> Unit>()
-                onSuccess()
-            }
-
             settingsScreen.clickLogout()
         }
 
         // Then: AuthManager.logout is called and UI callback is triggered
         step("Verify logout success") {
-            verify { authManager.logout(any(), any(), any()) }
+            assertTrue("AuthManager.logout should have been called", authManager.logoutCalled)
             assertTrue("Logout callback should have been called", logoutCallbackCalled)
         }
     }
 
     private fun step(description: String, action: () -> Unit) {
-        // Simple wrapper for business-readable test steps
         action()
     }
 }

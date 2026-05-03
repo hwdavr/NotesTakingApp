@@ -19,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AuthManager @Inject constructor(
+open class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenStorage: TokenStorage
 ) {
@@ -30,10 +30,10 @@ class AuthManager @Inject constructor(
     )
 
     private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+    open val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
     private val _profileEmail = MutableStateFlow<String?>(null)
-    val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
+    open val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
 
     init {
         checkSession()
@@ -67,7 +67,7 @@ class AuthManager @Inject constructor(
     /**
      * Launches the Auth0 web logout flow.
      */
-    fun logout(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    open fun logout(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
         WebAuthProvider.logout(account)
             .withScheme(context.getString(R.string.auth0_scheme))
             .start(activityContext, object : Callback<Void?, AuthenticationException> {

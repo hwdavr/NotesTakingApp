@@ -49,22 +49,14 @@ fun AppNavGraph(
                 onSuccess = onSuccess,
                 onError = onError
             )
-        },
-        homeViewModel = hiltViewModel(),
-        foldersViewModel = hiltViewModel(),
-        settingsViewModel = hiltViewModel(),
-        noteEditorViewModel = hiltViewModel()
+        }
     )
 }
 
 @Composable
 fun AppNavHost(
     authManager: AuthManager,
-    onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
-    homeViewModel: HomeViewModel,
-    foldersViewModel: FoldersViewModel,
-    settingsViewModel: SettingsViewModel,
-    noteEditorViewModel: NoteEditorViewModel
+    onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit
 ) {
     val navController = rememberNavController()
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
@@ -154,7 +146,7 @@ fun AppNavHost(
                     parentPadding = innerPadding,
                     onAddNote = { navController.navigate(Destinations.Editor.createRoute()) },
                     onOpenNote = { noteId -> navController.navigate(Destinations.Editor.createRoute(noteId)) },
-                    viewModel = homeViewModel
+                    viewModel = hiltViewModel()
                 )
             }
             composable(Destinations.Folders.route) { 
@@ -181,7 +173,7 @@ fun AppNavHost(
                     onMoveNote = { note ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, note.id))
                     },
-                    viewModel = foldersViewModel
+                    viewModel = hiltViewModel()
                 ) 
             }
             composable(
@@ -249,7 +241,7 @@ fun AppNavHost(
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    viewModel = settingsViewModel
+                    viewModel = hiltViewModel()
                 ) 
             }
             composable(
@@ -272,7 +264,7 @@ fun AppNavHost(
                     noteId = noteId,
                     folderId = folderId,
                     onBack = { navController.popBackStack() },
-                    viewModel = noteEditorViewModel
+                    viewModel = hiltViewModel()
                 )
             }
         }
