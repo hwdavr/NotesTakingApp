@@ -54,7 +54,8 @@ class NoteEditorRichDocumentScreenTest {
                 onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = {},
-                onSelectionChange = { _, _ -> }
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
             )
         }
 
@@ -100,7 +101,8 @@ class NoteEditorRichDocumentScreenTest {
                 onFolderSelected = {},
                 onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value },
                 onBlockFocused = {},
-                onSelectionChange = { _, _ -> }
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
             )
         }
 

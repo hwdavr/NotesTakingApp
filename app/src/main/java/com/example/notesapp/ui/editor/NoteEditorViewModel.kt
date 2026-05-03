@@ -213,7 +213,7 @@ open class NoteEditorViewModel @Inject constructor(
                         row
                     } else {
                         row.mapIndexed { cellPosition, cell ->
-                            if (cellPosition == cellIndex) listOf(RichText(value)) else cell
+                            if (cellPosition == cellIndex) listOf(RichText(value.replace("\n", " "))) else cell
                         }
                     }
                 }

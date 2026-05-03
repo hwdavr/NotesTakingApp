@@ -4,9 +4,11 @@ package com.example.notesapp.ui.editor
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -57,6 +60,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -585,42 +589,40 @@ private fun TableDocumentBlock(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
-        block.rows.forEachIndexed { rowIndex, row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                row.forEachIndexed { cellIndex, cell ->
-                    BasicTextField(
-                        value = cell.joinToString("") { it.text },
-                        onValueChange = { onCellChange(rowIndex, cellIndex, it) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag("editor_table_cell_${block.id}_${rowIndex}_$cellIndex"),
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                        decorationBox = { innerTextField ->
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                value = cell.joinToString("") { it.text },
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = true,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = remember { MutableInteractionSource() },
-                                colors = tableCellColors(),
-                                container = {
-                                    OutlinedTextFieldDefaults.ContainerBox(
-                                        enabled = true,
-                                        isError = false,
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        colors = tableCellColors(),
-                                        shape = RoundedCornerShape(0.dp)
-                                    )
-                                },
-                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color(0xFFD9E2FF), RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(4.dp))
+        ) {
+            block.rows.forEachIndexed { rowIndex, row ->
+                if (rowIndex > 0) {
+                    HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                ) {
+                    row.forEachIndexed { cellIndex, cell ->
+                        if (cellIndex > 0) {
+                            VerticalDivider(
+                                color = Color(0xFFD9E2FF),
+                                thickness = 1.dp
                             )
                         }
-                    )
+                        BasicTextField(
+                            value = cell.joinToString("") { it.text },
+                            onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                .testTag("editor_table_cell_${block.id}_${rowIndex}_$cellIndex"),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                            cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                            singleLine = true
+                        )
+                    }
                 }
             }
         }

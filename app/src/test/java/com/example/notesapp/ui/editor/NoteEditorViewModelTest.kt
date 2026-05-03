@@ -162,6 +162,19 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     }
 
     @Test
+    fun `updateTableCell strips newlines`() = runTest {
+        viewModel.load("n1")
+        viewModel.addTableBlock()
+        val tableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
+        
+        viewModel.updateTableCell(tableBlock.id, rowIndex = 1, cellIndex = 0, value = "Alice\nBob")
+
+        val updatedTableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
+        val cellText = updatedTableBlock.rows[1][0].joinToString("") { it.text }
+        assertEquals("Alice Bob", cellText)
+    }
+
+    @Test
     fun `delete calls repository delete`() = runTest {
         viewModel.load("n1")
         
