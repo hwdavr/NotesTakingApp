@@ -59,6 +59,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,6 +69,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.ui.editor.document.EditorBlock
+import com.example.notesapp.ui.editor.document.text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,7 +95,13 @@ fun NoteEditorScreen(
         onSave = { viewModel.save(onDone = onBack) },
         onDelete = { viewModel.delete(onDone = onBack) },
         onTitleChange = viewModel::onTitleChange,
-        onContentChange = viewModel::onContentChange,
+        onTextBlockChange = viewModel::onTextBlockChange,
+        onToggleMark = viewModel::toggleBlockMark,
+        onAddParagraph = viewModel::addParagraphBlock,
+        onAddImage = viewModel::addImageBlock,
+        onImageChange = viewModel::updateImageBlock,
+        onAddTable = viewModel::addTableBlock,
+        onTableCellChange = viewModel::updateTableCell,
         onFolderSelected = viewModel::onFolderSelected
     )
 }
@@ -106,7 +116,13 @@ fun NoteEditorScreenContent(
     onSave: () -> Unit,
     onDelete: () -> Unit,
     onTitleChange: (String) -> Unit,
-    onContentChange: (String) -> Unit,
+    onTextBlockChange: (String, String) -> Unit,
+    onToggleMark: (String, String) -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
+    onAddTable: () -> Unit,
+    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onFolderSelected: (String?) -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
@@ -118,6 +134,7 @@ fun NoteEditorScreenContent(
         selectedFolder = selectedFolder,
         title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
     )
+    val activeTextBlockId = state.document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
 
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
@@ -236,28 +253,24 @@ fun NoteEditorScreenContent(
                             singleLine = true
                         )
 
-                        OutlinedTextField(
-                            value = state.content,
-                            onValueChange = onContentChange,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            placeholder = {
-                                Text(stringResource(R.string.editor_content_placeholder))
-                            },
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 14.sp,
-                                color = Color(0xFF1F2A44),
-                                lineHeight = 20.sp
-                            ),
-                            colors = editorFieldColors()
+                        DocumentBlockList(
+                            blocks = state.document.blocks,
+                            onTextBlockChange = onTextBlockChange,
+                            onImageChange = onImageChange,
+                            onTableCellChange = onTableCellChange
                         )
                     }
                 }
             }
 
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
-            EditorBottomBar()
+            EditorBottomBar(
+                activeTextBlockId = activeTextBlockId,
+                onToggleMark = onToggleMark,
+                onAddParagraph = onAddParagraph,
+                onAddImage = onAddImage,
+                onAddTable = onAddTable
+            )
         }
 
         DropdownMenu(
@@ -278,6 +291,147 @@ fun NoteEditorScreenContent(
                         onDelete()
                     }
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DocumentBlockList(
+    blocks: List<EditorBlock>,
+    onTextBlockChange: (String, String) -> Unit,
+    onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
+    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("rich_document_blocks"),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        blocks.forEach { block ->
+            when (block) {
+                is EditorBlock.TextBlock -> TextDocumentBlock(
+                    block = block,
+                    onChange = { onTextBlockChange(block.id, it) }
+                )
+                is EditorBlock.ImageBlock -> ImageDocumentBlock(
+                    block = block,
+                    onUrlChange = { onImageChange(block.id, it, null) },
+                    onCaptionChange = { onImageChange(block.id, null, it) }
+                )
+                is EditorBlock.TableBlock -> TableDocumentBlock(
+                    block = block,
+                    onCellChange = { row, cell, value -> onTableCellChange(block.id, row, cell, value) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextDocumentBlock(
+    block: EditorBlock.TextBlock,
+    onChange: (String) -> Unit
+) {
+    val isBold = block.children.any { "bold" in it.marks }
+    val isItalic = block.children.any { "italic" in it.marks }
+    OutlinedTextField(
+        value = block.text(),
+        onValueChange = onChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("editor_text_block_${block.id}"),
+        placeholder = {
+            Text(stringResource(R.string.editor_content_placeholder))
+        },
+        textStyle = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = if (block.type == "heading") 22.sp else 14.sp,
+            color = Color(0xFF1F2A44),
+            fontWeight = if (block.type == "heading" || isBold) FontWeight.Bold else FontWeight.Normal,
+            fontStyle = if (isItalic) FontStyle.Italic else FontStyle.Normal,
+            lineHeight = if (block.type == "heading") 28.sp else 20.sp
+        ),
+        leadingIcon = if (block.type == "bulleted") {
+            { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
+        } else {
+            null
+        },
+        colors = editorFieldColors(),
+        minLines = 1
+    )
+}
+
+@Composable
+private fun ImageDocumentBlock(
+    block: EditorBlock.ImageBlock,
+    onUrlChange: (String) -> Unit,
+    onCaptionChange: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("editor_image_block_${block.id}"),
+        color = Color(0xFFF4F7FF),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
+                Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
+            }
+            OutlinedTextField(
+                value = block.url,
+                onValueChange = onUrlChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Image URL") },
+                singleLine = true,
+                colors = editorFieldColors()
+            )
+            OutlinedTextField(
+                value = block.caption,
+                onValueChange = onCaptionChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Caption") },
+                singleLine = true,
+                colors = editorFieldColors()
+            )
+        }
+    }
+}
+
+@Composable
+private fun TableDocumentBlock(
+    block: EditorBlock.TableBlock,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("editor_table_block_${block.id}"),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
+        block.rows.forEachIndexed { rowIndex, row ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                row.forEachIndexed { cellIndex, cell ->
+                    OutlinedTextField(
+                        value = cell.joinToString("") { it.text },
+                        onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("editor_table_cell_${block.id}_${rowIndex}_$cellIndex"),
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                        colors = editorFieldColors(),
+                        singleLine = true
+                    )
+                }
             }
         }
     }
@@ -341,7 +495,13 @@ private fun EditorTopBar(
 }
 
 @Composable
-private fun EditorBottomBar() {
+private fun EditorBottomBar(
+    activeTextBlockId: String?,
+    onToggleMark: (String, String) -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onAddTable: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -351,14 +511,44 @@ private fun EditorBottomBar() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF))
-        Text("Aa", color = Color(0xFF6E7BFF), fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+        IconButton(onClick = onAddParagraph, modifier = Modifier.testTag("editor_add_paragraph")) {
+            Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF))
+        }
+        Text(
+            "B",
+            modifier = Modifier
+                .clickable { activeTextBlockId?.let { onToggleMark(it, "bold") } }
+                .testTag("editor_bold_action"),
+            color = Color(0xFF6E7BFF),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Text(
+            "I",
+            modifier = Modifier
+                .clickable { activeTextBlockId?.let { onToggleMark(it, "italic") } }
+                .testTag("editor_italic_action"),
+            color = Color(0xFF6E7BFF),
+            fontSize = 16.sp,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Bold
+        )
         Icon(Icons.Outlined.CheckBox, contentDescription = null, tint = Color(0xFF1F2A44))
         Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
-        Text("@", color = Color(0xFF1F2A44), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(
+            "Table",
+            modifier = Modifier
+                .clickable(onClick = onAddTable)
+                .testTag("editor_add_table"),
+            color = Color(0xFF1F2A44),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+        )
         Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = Color(0xFF7281A7))
         Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF7281A7))
-        Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF7281A7))
+        IconButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
+            Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF7281A7))
+        }
         Icon(Icons.Outlined.AttachFile, contentDescription = null, tint = Color(0xFF7281A7))
     }
 }

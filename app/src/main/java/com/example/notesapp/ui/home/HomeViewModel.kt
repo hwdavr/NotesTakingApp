@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.document.noteContentPreview
 import com.example.notesapp.ui.notes.NoteUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -60,7 +61,7 @@ open class HomeViewModel @Inject constructor(
                 NoteUiModel(
                     id = note.id,
                     title = note.title,
-                    preview = note.content,
+                    preview = noteContentPreview(note.content),
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             },

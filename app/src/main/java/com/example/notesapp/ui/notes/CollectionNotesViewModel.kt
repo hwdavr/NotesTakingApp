@@ -7,6 +7,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.document.noteContentPreview
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -142,7 +143,7 @@ private fun Note.toUiModel(): NoteUiModel =
     NoteUiModel(
         id = id,
         title = title,
-        preview = content,
+        preview = noteContentPreview(content),
         colorIndex = id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
     )
 

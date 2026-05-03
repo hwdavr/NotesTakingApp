@@ -4,6 +4,7 @@ import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.document.EditorBlock
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -12,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -93,8 +95,70 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         var called = false
         viewModel.save { called = true }
         
-        coVerify { noteRepository.save(match { it.content == "New Content" }) }
+        coVerify {
+            noteRepository.save(match {
+                val json = JSONObject(it.content)
+                json.getJSONArray("blocks").getJSONObject(0).getJSONArray("children").getJSONObject(0).getString("text") == "New Content"
+            })
+        }
         assertTrue(called)
+    }
+
+    @Test
+    fun `addImageBlock adds image block and saves structured json`() = runTest {
+        viewModel.load("n1")
+        viewModel.addImageBlock()
+        val imageBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.ImageBlock>().first()
+        viewModel.updateImageBlock(imageBlock.id, url = "https://cdn.example.com/image.png", caption = "My image")
+
+        viewModel.save {}
+
+        coVerify {
+            noteRepository.save(match {
+                val blocks = JSONObject(it.content).getJSONArray("blocks")
+                (0 until blocks.length()).any { index ->
+                    val block = blocks.getJSONObject(index)
+                    block.getString("type") == "image" &&
+                        block.getString("url") == "https://cdn.example.com/image.png" &&
+                        block.getString("caption") == "My image"
+                }
+            })
+        }
+    }
+
+    @Test
+    fun `onTextBlockChange splits newline into separate text blocks`() = runTest {
+        viewModel.load("n1")
+        val firstBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+
+        viewModel.onTextBlockChange(firstBlock.id, "First line\nSecond line")
+
+        val textBlocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, textBlocks.size)
+        assertEquals(firstBlock.id, textBlocks[0].id)
+        assertEquals("First line", textBlocks[0].children.joinToString("") { it.text })
+        assertEquals("Second line", textBlocks[1].children.joinToString("") { it.text })
+    }
+
+    @Test
+    fun `addTableBlock updates table cell and saves structured json`() = runTest {
+        viewModel.load("n1")
+        viewModel.addTableBlock()
+        val tableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
+        viewModel.updateTableCell(tableBlock.id, rowIndex = 1, cellIndex = 0, value = "Alice")
+
+        viewModel.save {}
+
+        coVerify {
+            noteRepository.save(match {
+                val blocks = JSONObject(it.content).getJSONArray("blocks")
+                (0 until blocks.length()).any { index ->
+                    val block = blocks.getJSONObject(index)
+                    block.getString("type") == "table" &&
+                        block.getJSONArray("rows").getJSONArray(1).getJSONArray(0).getJSONObject(0).getString("text") == "Alice"
+                }
+            })
+        }
     }
 
     @Test

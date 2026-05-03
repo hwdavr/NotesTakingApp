@@ -3,6 +3,7 @@ package com.example.notesapp.ui.notes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.document.noteContentPreview
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,8 +34,9 @@ class NotesViewModel @Inject constructor(
             notes
         } else {
             notes.filter {
+                val preview = noteContentPreview(it.content)
                 it.title.contains(query, ignoreCase = true) ||
-                    it.content.contains(query, ignoreCase = true)
+                    preview.contains(query, ignoreCase = true)
             }
         }
         NotesUiState(
@@ -43,7 +45,7 @@ class NotesViewModel @Inject constructor(
                 NoteUiModel(
                     id = note.id,
                     title = note.title,
-                    preview = note.content,
+                    preview = noteContentPreview(note.content),
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
                 )
             }

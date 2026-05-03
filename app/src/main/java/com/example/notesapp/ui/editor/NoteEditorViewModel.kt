@@ -6,6 +6,11 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.document.EditorBlock
+import com.example.notesapp.ui.editor.document.NoteDocument
+import com.example.notesapp.ui.editor.document.RichText
+import com.example.notesapp.ui.editor.document.newBlockId
+import com.example.notesapp.ui.editor.document.parseMarkdownTextBlock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -20,12 +25,15 @@ import javax.inject.Inject
 data class NoteEditorUiState(
     val noteId: String? = null,
     val title: String = "",
-    val content: String = "",
+    val document: NoteDocument = NoteDocument.empty(),
     val folderId: String? = null,
     val availableFolders: List<Folder> = emptyList(),
     val createdAt: Long = 0L,
     val isLoaded: Boolean = false
-)
+) {
+    val content: String
+        get() = document.toPlainText()
+}
 
 @HiltViewModel
 open class NoteEditorViewModel @Inject constructor(
@@ -57,7 +65,7 @@ open class NoteEditorViewModel @Inject constructor(
                 NoteEditorUiState(
                     noteId = note.id,
                     title = note.title,
-                    content = note.content,
+                    document = NoteDocument.fromContent(note.content).ensureEditableTextBlock(),
                     folderId = note.folderId,
                     availableFolders = folders,
                     createdAt = note.createdAt,
@@ -79,8 +87,87 @@ open class NoteEditorViewModel @Inject constructor(
     }
 
     fun onContentChange(value: String) {
-        _uiState.value = _uiState.value.copy(content = value)
+        val current = _uiState.value
+        val blocks = current.document.blocks
+        val firstTextIndex = blocks.indexOfFirst { it is EditorBlock.TextBlock }
+        val updatedBlocks = if (firstTextIndex >= 0) {
+            blocks.mapIndexed { index, block ->
+                if (index == firstTextIndex && block is EditorBlock.TextBlock) {
+                    parseMarkdownTextBlock(id = block.id, text = value)
+                } else {
+                    block
+                }
+            }
+        } else {
+            listOf(parseMarkdownTextBlock(text = value)) + blocks
+        }
+        _uiState.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
         scheduleAutoSave()
+    }
+
+    fun onTextBlockChange(blockId: String, value: String) {
+        if (value.contains('\n')) {
+            splitTextBlock(blockId, value)
+            return
+        }
+        updateBlock(blockId) { block ->
+            if (block is EditorBlock.TextBlock) parseMarkdownTextBlock(id = block.id, text = value) else block
+        }
+    }
+
+    fun toggleBlockMark(blockId: String, mark: String) {
+        updateBlock(blockId) { block ->
+            if (block !is EditorBlock.TextBlock) return@updateBlock block
+            val hasMark = block.children.any { mark in it.marks }
+            block.copy(
+                children = block.children.map { child ->
+                    val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
+                    child.copy(marks = marks)
+                }
+            )
+        }
+    }
+
+    fun addParagraphBlock() {
+        appendBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
+    }
+
+    fun addImageBlock() {
+        appendBlock(EditorBlock.ImageBlock())
+    }
+
+    fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
+        updateBlock(blockId) { block ->
+            if (block is EditorBlock.ImageBlock) {
+                block.copy(
+                    url = url ?: block.url,
+                    caption = caption ?: block.caption
+                )
+            } else {
+                block
+            }
+        }
+    }
+
+    fun addTableBlock() {
+        appendBlock(EditorBlock.TableBlock())
+    }
+
+    fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
+        updateBlock(blockId) { block ->
+            if (block !is EditorBlock.TableBlock) return@updateBlock block
+            block.copy(
+                rows = block.rows.mapIndexed { rowPosition, row ->
+                    if (rowPosition != rowIndex) {
+                        row
+                    } else {
+                        row.mapIndexed { cellPosition, cell ->
+                            if (cellPosition == cellIndex) listOf(RichText(value)) else cell
+                        }
+                    }
+                }
+            )
+        }
     }
 
     fun onFolderSelected(folderId: String?) {
@@ -106,7 +193,7 @@ open class NoteEditorViewModel @Inject constructor(
         val note = Note(
             id = noteId,
             title = current.title.ifBlank { "Untitled note" },
-            content = current.content,
+            content = current.document.toJsonString(),
             folderId = current.folderId,
             sortKey = now.toString(),
             deviceId = "",
@@ -143,7 +230,7 @@ open class NoteEditorViewModel @Inject constructor(
                 Note(
                     id = current.noteId.orEmpty(),
                     title = current.title,
-                    content = current.content,
+                    content = current.document.toJsonString(),
                     folderId = current.folderId,
                     sortKey = "",
                     version = 0,
@@ -154,5 +241,45 @@ open class NoteEditorViewModel @Inject constructor(
             )
             onDone()
         }
+    }
+
+    private fun appendBlock(block: EditorBlock) {
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            document = current.document.copy(blocks = current.document.blocks + block)
+        )
+        scheduleAutoSave()
+    }
+
+    private fun updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            document = current.document.copy(
+                blocks = current.document.blocks.map { block ->
+                    if (block.id == blockId) transform(block) else block
+                }
+            )
+        )
+        scheduleAutoSave()
+    }
+
+    private fun splitTextBlock(blockId: String, value: String) {
+        val current = _uiState.value
+        val lines = value.split('\n')
+        val updatedBlocks = current.document.blocks.flatMap { block ->
+            if (block.id == blockId && block is EditorBlock.TextBlock) {
+                lines.mapIndexed { index, line ->
+                    parseMarkdownTextBlock(
+                        id = if (index == 0) block.id else newBlockId(),
+                        text = line
+                    )
+                }
+            } else {
+                listOf(block)
+            }
+        }
+
+        _uiState.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
+        scheduleAutoSave()
     }
 }
