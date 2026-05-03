@@ -1,3 +1,7 @@
+---
+description: Implement or update the Android UI to match the provided screenshot.
+---
+
 # Create Android UI from screenshot and verify it
 
 You are working in an Android repository.

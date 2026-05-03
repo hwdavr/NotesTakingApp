@@ -49,7 +49,8 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {}
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {}
             )
         }
 
@@ -86,7 +87,8 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = { addedTable = true },
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {}
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {}
             )
         }
 

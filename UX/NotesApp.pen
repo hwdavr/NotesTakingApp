@@ -5867,10 +5867,10 @@
     {
       "type": "frame",
       "id": "rV49f",
-      "x": 1536,
-      "y": -16,
-      "name": "Note Edit - Click Result",
-      "width": 390,
+      "x": -212,
+      "y": 981,
+      "name": "Note Edit - Bottom Bar",
+      "width": 602,
       "height": 844,
       "fill": "#FFFFFF",
       "layout": "vertical",
@@ -5980,46 +5980,6 @@
                   "gap": 18,
                   "alignItems": "center",
                   "children": [
-                    {
-                      "type": "icon_font",
-                      "id": "Jhrt6",
-                      "name": "undoIcon",
-                      "width": 21,
-                      "height": 21,
-                      "iconFontName": "undo-2",
-                      "iconFontFamily": "lucide",
-                      "fill": "$--muted-foreground"
-                    },
-                    {
-                      "type": "icon_font",
-                      "id": "D0ZrC6",
-                      "name": "redoIcon",
-                      "width": 21,
-                      "height": 21,
-                      "iconFontName": "redo-2",
-                      "iconFontFamily": "lucide",
-                      "fill": "$--muted-foreground"
-                    },
-                    {
-                      "type": "icon_font",
-                      "id": "qLWcg",
-                      "name": "lockIcon",
-                      "width": 21,
-                      "height": 21,
-                      "iconFontName": "share-2",
-                      "iconFontFamily": "lucide",
-                      "fill": "$--foreground"
-                    },
-                    {
-                      "type": "text",
-                      "id": "ZTWTA",
-                      "name": "updateText",
-                      "fill": "$--primary",
-                      "content": "Done",
-                      "fontFamily": "Inter",
-                      "fontSize": 16,
-                      "fontWeight": "700"
-                    },
                     {
                       "type": "icon_font",
                       "id": "xBO69",
@@ -6182,7 +6142,8 @@
                       "content": "Infinity App is getting convoluted over time with both new and legacy services and components. This note keeps the update decision concise for release review.",
                       "lineHeight": 1.42,
                       "fontFamily": "Inter",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -6204,7 +6165,8 @@
                       "content": "1. Timeline and tasks: the Mulesoft certificate expires in mid-June. The force update should be prepared before the end of May, with copy reviewed by product and support.",
                       "lineHeight": 1.45,
                       "fontFamily": "Inter",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -6222,105 +6184,788 @@
               "type": "frame",
               "id": "sIEsT",
               "name": "bottomBar",
+              "clip": true,
+              "width": "fill_container",
+              "height": 60,
+              "fill": "#FFFFFF",
+              "gap": 8,
+              "padding": [
+                6,
+                10
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "dei6S",
+                  "name": "scrollViewport",
+                  "clip": true,
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "N5JCUO",
+                      "name": "actionStrip",
+                      "height": "fill_container",
+                      "gap": 8,
+                      "padding": [
+                        0,
+                        2
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "flVq5",
+                          "name": "action/add",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "$--accent",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Zg0Qc",
+                              "name": "addBtn",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "circle-plus",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--primary"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RMxgG",
+                          "name": "action/format",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#EAF1FF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "fNSQW",
+                              "name": "formatText",
+                              "fill": "#4F65FF",
+                              "content": "Aa",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "V1CtQj",
+                          "name": "action/checklist",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "hLK2j",
+                              "name": "checkBox",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "square-check",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "zsEVc",
+                          "name": "action/link",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "L1o8w",
+                              "name": "linkIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "link",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "ycDtA",
+                          "name": "action/mention",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xOoYL",
+                              "name": "mentionIcon",
+                              "fill": "$--foreground",
+                              "content": "@",
+                              "fontFamily": "Inter",
+                              "fontSize": 20,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "NFSR4",
+                          "name": "action/smile",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "kWrSO",
+                              "name": "smileIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "smile",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--muted-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "C0IRR",
+                          "name": "fixed/undo",
+                          "width": 28,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Jhrt6",
+                              "name": "undoIcon",
+                              "width": 21,
+                              "height": 21,
+                              "iconFontName": "undo-2",
+                              "iconFontFamily": "lucide",
+                              "fill": "#7281A7"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "JxjGC",
+                          "name": "fixed/redo",
+                          "width": 28,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "D0ZrC6",
+                              "name": "redoIcon",
+                              "width": 21,
+                              "height": 21,
+                              "iconFontName": "redo-2",
+                              "iconFontFamily": "lucide",
+                              "fill": "#7281A7"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "xJTC0",
+                          "name": "action/camera",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "TCM7h",
+                              "name": "cameraIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "camera",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--muted-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "pszbo",
+                          "name": "action/image",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "durkp",
+                              "name": "imageIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "image",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--muted-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "A0rQEG",
+                          "name": "action/mic",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "Mhz92",
+                              "name": "micIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "mic",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--muted-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Tr3Cv",
+                          "name": "action/table",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "ueRAN",
+                              "name": "tableIcon",
+                              "width": 20,
+                              "height": 20,
+                              "iconFontName": "table-2",
+                              "iconFontFamily": "lucide",
+                              "fill": "$--muted-foreground"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SqMVX",
+                  "name": "scrollHint",
+                  "width": 24,
+                  "height": "fill_container",
+                  "fill": "#FFFFFF",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "DYQFg",
+                      "name": "overflowChevron",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "chevron-right",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "fjIGe",
+      "x": 906,
+      "y": 981,
+      "name": "Note Edit - Text Format",
+      "width": 390,
+      "height": 844,
+      "fill": "#FFFFFF",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "cZmg2",
+          "name": "status",
+          "width": "fill_container",
+          "height": 62,
+          "fill": "#FFFFFF",
+          "padding": [
+            10,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "rmqiD",
+              "name": "time",
+              "fill": "$--foreground",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "pDiSr",
+              "name": "icons",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon_font",
+                  "id": "F48HI",
+                  "name": "sig",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "signal",
+                  "iconFontFamily": "lucide",
+                  "fill": "$--foreground"
+                },
+                {
+                  "type": "icon_font",
+                  "id": "H6LPyh",
+                  "name": "wifi",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontName": "wifi",
+                  "iconFontFamily": "lucide",
+                  "fill": "$--foreground"
+                },
+                {
+                  "type": "icon_font",
+                  "id": "yfFKR",
+                  "name": "bat",
+                  "width": 18,
+                  "height": 18,
+                  "iconFontName": "battery-full",
+                  "iconFontFamily": "lucide",
+                  "fill": "$--foreground"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N6xK6u",
+          "name": "editorChrome",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$--background",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "UFCEU",
+              "name": "topBar",
               "width": "fill_container",
               "height": 56,
               "fill": "#FFFFFF",
               "padding": [
                 0,
-                14
+                16
               ],
               "justifyContent": "space_between",
               "alignItems": "center",
               "children": [
                 {
                   "type": "icon_font",
-                  "id": "Zg0Qc",
-                  "name": "addBtn",
+                  "id": "gaBWQ",
+                  "name": "checkIcon",
                   "width": 22,
                   "height": 22,
-                  "iconFontName": "circle-plus",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--primary"
-                },
-                {
-                  "type": "text",
-                  "id": "fNSQW",
-                  "name": "formatText",
-                  "fill": "$--primary",
-                  "content": "Aa",
-                  "fontFamily": "Inter",
-                  "fontSize": 16,
-                  "fontWeight": "800"
-                },
-                {
-                  "type": "icon_font",
-                  "id": "hLK2j",
-                  "name": "checkBox",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "square-check",
+                  "iconFontName": "chevron-left",
                   "iconFontFamily": "lucide",
                   "fill": "$--foreground"
                 },
                 {
-                  "type": "icon_font",
-                  "id": "L1o8w",
-                  "name": "linkIcon",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "link",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--foreground"
+                  "type": "frame",
+                  "id": "mBGTz",
+                  "name": "rightTools",
+                  "gap": 18,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "BNHTW",
+                      "name": "moreIcon",
+                      "width": 22,
+                      "height": 22,
+                      "iconFontName": "ellipsis",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--foreground"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "rectangle",
+              "id": "e2usr2",
+              "name": "sepTop",
+              "fill": "$--border",
+              "width": "fill_container",
+              "height": 1
+            },
+            {
+              "type": "frame",
+              "id": "xoUiC",
+              "name": "doc",
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$--background",
+              "layout": "vertical",
+              "gap": 10,
+              "padding": [
+                12,
+                16,
+                14,
+                16
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rXNEG",
+                  "name": "breadcrumb",
+                  "width": "fill_container",
+                  "fill": "$--accent",
+                  "cornerRadius": 8,
+                  "gap": 8,
+                  "padding": [
+                    8,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "m5pAnq",
+                      "name": "bcIcon",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontName": "folder",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "AaTPO",
+                      "name": "bcText",
+                      "fill": "$--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Notes / Product / Force update strategy",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
                 },
                 {
-                  "type": "text",
-                  "id": "xOoYL",
-                  "name": "mentionIcon",
-                  "fill": "$--foreground",
-                  "content": "@",
-                  "fontFamily": "Inter",
-                  "fontSize": 20,
-                  "fontWeight": "700"
+                  "type": "frame",
+                  "id": "YsrBr",
+                  "name": "documentPage",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "$--border"
+                  },
+                  "layout": "vertical",
+                  "gap": 12,
+                  "padding": [
+                    18,
+                    16
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HW6DH",
+                      "name": "docTitle",
+                      "fill": "$--foreground",
+                      "content": "Force update strategy",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "D6jdpf",
+                      "name": "toc",
+                      "width": "fill_container",
+                      "fill": "$--accent",
+                      "cornerRadius": 8,
+                      "gap": 12,
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "LvRv3",
+                          "name": "tocIcon",
+                          "width": 16,
+                          "height": 16,
+                          "iconFontName": "list-tree",
+                          "iconFontFamily": "lucide",
+                          "fill": "$--foreground"
+                        },
+                        {
+                          "type": "text",
+                          "id": "oEutY",
+                          "name": "tocText",
+                          "fill": "$--foreground",
+                          "content": "Document outline",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "I6Xfoj",
+                      "name": "overview",
+                      "fill": "$--foreground",
+                      "content": "Overview",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "l2ynSg",
+                      "name": "para",
+                      "fill": "$--card-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Infinity App is getting convoluted over time with both new and legacy services and components. This note keeps the update decision concise for release review.",
+                      "lineHeight": 1.42,
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "f1qn2Q",
+                      "name": "subhead",
+                      "fill": "$--foreground",
+                      "content": "Regular force update",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "flbbT",
+                      "name": "body",
+                      "fill": "$--card-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "1. Timeline and tasks: the Mulesoft certificate expires in mid-June. The force update should be prepared before the end of May, with copy reviewed by product and support.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "rectangle",
+              "id": "d6aNFb",
+              "name": "sepBottom",
+              "fill": "$--border",
+              "width": "fill_container",
+              "height": 1
+            },
+            {
+              "type": "frame",
+              "id": "XRi3D",
+              "name": "compactFormatBar",
+              "width": "fill_container",
+              "height": 52,
+              "fill": "#FFFFFF",
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#00000014",
+                "offset": {
+                  "x": 0,
+                  "y": -2
                 },
+                "blur": 10
+              },
+              "layout": "vertical",
+              "children": [
                 {
-                  "type": "icon_font",
-                  "id": "kWrSO",
-                  "name": "smileIcon",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "smile",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--muted-foreground"
-                },
-                {
-                  "type": "icon_font",
-                  "id": "TCM7h",
-                  "name": "cameraIcon",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "camera",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--muted-foreground"
-                },
-                {
-                  "type": "icon_font",
-                  "id": "durkp",
-                  "name": "imageIcon",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "image",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--muted-foreground"
-                },
-                {
-                  "type": "icon_font",
-                  "id": "COYU5",
-                  "name": "paperIcon",
-                  "width": 20,
-                  "height": 20,
-                  "iconFontName": "paperclip",
-                  "iconFontFamily": "lucide",
-                  "fill": "$--muted-foreground"
+                  "type": "frame",
+                  "id": "WYcXS",
+                  "name": "formatRow",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#FFFFFF",
+                  "gap": 12,
+                  "padding": [
+                    6,
+                    12
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Q3H8h",
+                      "name": "styleA",
+                      "fill": "$--foreground",
+                      "content": "Body",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "A1EPB",
+                      "name": "bold",
+                      "fill": "$--primary",
+                      "content": "B",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "900"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lgWVe",
+                      "name": "italic",
+                      "fill": "$--primary",
+                      "content": "I",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "800",
+                      "fontStyle": "italic"
+                    },
+                    {
+                      "type": "text",
+                      "id": "v5XIn",
+                      "name": "underline",
+                      "fill": "$--foreground",
+                      "content": "U",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "rPQpk",
+                      "name": "strike",
+                      "fill": "$--muted-foreground",
+                      "content": "S",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "khxjM",
+                      "name": "linkFmt",
+                      "width": 17,
+                      "height": 17,
+                      "iconFontName": "link",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--foreground"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "VU71q",
+                      "name": "codeFmt",
+                      "width": 17,
+                      "height": 17,
+                      "iconFontName": "code",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--foreground"
+                    },
+                    {
+                      "type": "text",
+                      "id": "PtL27",
+                      "name": "formula",
+                      "fill": "$--muted-foreground",
+                      "content": "fx",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "icon_font",
+                      "id": "XI4OT",
+                      "name": "collapseIcon",
+                      "width": 18,
+                      "height": 18,
+                      "iconFontName": "keyboard-off",
+                      "iconFontFamily": "lucide",
+                      "fill": "$--muted-foreground"
+                    }
+                  ]
                 }
               ]
             }

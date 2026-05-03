@@ -29,7 +29,8 @@ data class NoteEditorUiState(
     val folderId: String? = null,
     val availableFolders: List<Folder> = emptyList(),
     val createdAt: Long = 0L,
-    val isLoaded: Boolean = false
+    val isLoaded: Boolean = false,
+    val isFormattingToolbarVisible: Boolean = false
 ) {
     val content: String
         get() = document.toPlainText()
@@ -43,6 +44,12 @@ open class NoteEditorViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
+
+    fun toggleFormattingToolbar() {
+        _uiState.value = _uiState.value.copy(
+            isFormattingToolbarVisible = !_uiState.value.isFormattingToolbarVisible
+        )
+    }
 
     private var autoSaveJob: Job? = null
 

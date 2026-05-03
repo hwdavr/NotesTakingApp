@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,8 +33,12 @@ import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.TextFields
+import androidx.compose.material.icons.outlined.KeyboardHide
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -102,7 +107,8 @@ fun NoteEditorScreen(
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
         onTableCellChange = viewModel::updateTableCell,
-        onFolderSelected = viewModel::onFolderSelected
+        onFolderSelected = viewModel::onFolderSelected,
+        onToggleFormattingToolbar = viewModel::toggleFormattingToolbar
     )
 }
 
@@ -123,7 +129,8 @@ fun NoteEditorScreenContent(
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onFolderSelected: (String?) -> Unit
+    onFolderSelected: (String?) -> Unit,
+    onToggleFormattingToolbar: () -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
@@ -266,10 +273,12 @@ fun NoteEditorScreenContent(
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
             EditorBottomBar(
                 activeTextBlockId = activeTextBlockId,
+                isFormattingToolbarVisible = state.isFormattingToolbarVisible,
                 onToggleMark = onToggleMark,
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
-                onAddTable = onAddTable
+                onAddTable = onAddTable,
+                onToggleFormattingToolbar = onToggleFormattingToolbar
             )
         }
 
@@ -497,7 +506,32 @@ private fun EditorTopBar(
 @Composable
 private fun EditorBottomBar(
     activeTextBlockId: String?,
+    isFormattingToolbarVisible: Boolean,
     onToggleMark: (String, String) -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onAddTable: () -> Unit,
+    onToggleFormattingToolbar: () -> Unit
+) {
+    if (isFormattingToolbarVisible) {
+        FormattingBottomBar(
+            activeTextBlockId = activeTextBlockId,
+            onToggleMark = onToggleMark,
+            onHideToolbar = onToggleFormattingToolbar
+        )
+    } else {
+        DefaultBottomBar(
+            onToggleFormattingToolbar = onToggleFormattingToolbar,
+            onAddParagraph = onAddParagraph,
+            onAddImage = onAddImage,
+            onAddTable = onAddTable
+        )
+    }
+}
+
+@Composable
+private fun DefaultBottomBar(
+    onToggleFormattingToolbar: () -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit
@@ -507,49 +541,156 @@ private fun EditorBottomBar(
             .fillMaxWidth()
             .height(56.dp)
             .background(Color.White)
-            .padding(horizontal = 14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 4.dp)
+            .testTag("editor_default_bottom_bar"),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onAddParagraph, modifier = Modifier.testTag("editor_add_paragraph")) {
+        EditorBarButton(onClick = onAddParagraph) {
             Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF))
         }
-        Text(
-            "B",
+
+        Box(
             modifier = Modifier
-                .clickable { activeTextBlockId?.let { onToggleMark(it, "bold") } }
-                .testTag("editor_bold_action"),
-            color = Color(0xFF6E7BFF),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.ExtraBold
-        )
-        Text(
-            "I",
-            modifier = Modifier
-                .clickable { activeTextBlockId?.let { onToggleMark(it, "italic") } }
-                .testTag("editor_italic_action"),
-            color = Color(0xFF6E7BFF),
-            fontSize = 16.sp,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold
-        )
-        Icon(Icons.Outlined.CheckBox, contentDescription = null, tint = Color(0xFF1F2A44))
-        Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
-        Text(
-            "Table",
-            modifier = Modifier
-                .clickable(onClick = onAddTable)
-                .testTag("editor_add_table"),
-            color = Color(0xFF1F2A44),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = Color(0xFF7281A7))
-        Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF7281A7))
-        IconButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
+                .size(36.dp)
+                .background(Color(0xFFEAF1FF), RoundedCornerShape(8.dp))
+                .clickable(onClick = onToggleFormattingToolbar)
+                .testTag("editor_toggle_formatting"),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "Aa",
+                color = Color(0xFF6E7BFF),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.Outlined.CheckBox, contentDescription = null, tint = Color(0xFF1F2A44))
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
+        }
+        EditorBarButton(onClick = {}) {
+            Text("@", color = Color(0xFF1F2A44), fontWeight = FontWeight.Bold)
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.AutoMirrored.Outlined.Undo, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.AutoMirrored.Outlined.Redo, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = onAddImage) {
             Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF7281A7))
         }
-        Icon(Icons.Outlined.AttachFile, contentDescription = null, tint = Color(0xFF7281A7))
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.Outlined.Mic, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = onAddTable) {
+            Icon(Icons.Outlined.TableChart, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+        EditorBarButton(onClick = {}) {
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+    }
+}
+
+@Composable
+private fun FormattingBottomBar(
+    activeTextBlockId: String?,
+    onToggleMark: (String, String) -> Unit,
+    onHideToolbar: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(Color.White)
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 4.dp)
+            .testTag("editor_formatting_bottom_bar"),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        EditorBarButton(onClick = { /* Body click */ }, modifier = Modifier.padding(horizontal = 8.dp)) {
+            Text("Body", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 14.sp)
+        }
+
+        EditorBarButton(onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } }) {
+            Text(
+                "B",
+                modifier = Modifier.testTag("editor_bold_action"),
+                color = Color(0xFF6E7BFF),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+        }
+        EditorBarButton(onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } }) {
+            Text(
+                "I",
+                modifier = Modifier.testTag("editor_italic_action"),
+                color = Color(0xFF6E7BFF),
+                fontSize = 18.sp,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        EditorBarButton(onClick = { /* underline logic */ }) {
+            Text(
+                "U",
+                color = Color(0xFF1F2A44),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        EditorBarButton(onClick = { /* strikethrough logic */ }) {
+            Text(
+                "S",
+                color = Color(0xFF7281A7),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        EditorBarButton(onClick = { /* link logic */ }) {
+            Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
+        }
+
+        EditorBarButton(onClick = { /* code logic */ }) {
+            Text("<>", color = Color(0xFF1F2A44), fontWeight = FontWeight.Bold)
+        }
+
+        EditorBarButton(onClick = { /* formula logic */ }) {
+            Text("fx", color = Color(0xFF7281A7), fontWeight = FontWeight.Bold)
+        }
+
+        EditorBarButton(onClick = onHideToolbar, modifier = Modifier.testTag("editor_hide_formatting")) {
+            Icon(Icons.Outlined.KeyboardHide, contentDescription = null, tint = Color(0xFF7281A7))
+        }
+    }
+}
+
+@Composable
+private fun EditorBarButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .size(width = 40.dp, height = 48.dp)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
 
