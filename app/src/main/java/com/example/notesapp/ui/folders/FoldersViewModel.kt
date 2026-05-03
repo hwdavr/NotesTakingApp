@@ -111,7 +111,7 @@ open class FoldersViewModel @Inject constructor(
                 smartCounts.value = SmartCollectionCounts(
                     allNotes = noteRepository.getActiveNoteCount(),
                     favorites = noteRepository.getFavoriteNoteCount(),
-                    archive = 0
+                    archive = folderRepository.getArchivedFolderCount() + noteRepository.getArchivedNoteCount()
                 )
 
                 folderCounts.value = folders.associate { folder ->
@@ -158,26 +158,24 @@ open class FoldersViewModel @Inject constructor(
             val folders = folderRepository.getFolders().first()
             val notes = noteRepository.getActiveNotes().first()
 
-            val foldersToDelete = mutableListOf<Folder>()
-            val notesToDelete = mutableListOf<Note>()
+            val foldersToArchive = mutableListOf<Folder>()
+            val notesToArchive = mutableListOf<Note>()
 
             fun collectChildren(parentId: String) {
                 folders.filter { it.parentFolderId == parentId }.forEach { childFolder ->
-                    foldersToDelete.add(childFolder)
+                    foldersToArchive.add(childFolder)
                     collectChildren(childFolder.id)
                 }
                 notes.filter { it.folderId == parentId }.forEach { childNote ->
-                    notesToDelete.add(childNote)
+                    notesToArchive.add(childNote)
                 }
             }
 
-            foldersToDelete.add(folder)
+            foldersToArchive.add(folder)
             collectChildren(folder.id)
 
-            // Delete notes first
-            notesToDelete.forEach { noteRepository.delete(it) }
-            // Delete folders from bottom up
-            foldersToDelete.reversed().forEach { folderRepository.delete(it) }
+            notesToArchive.forEach { noteRepository.delete(it) }
+            foldersToArchive.reversed().forEach { folderRepository.delete(it) }
 
             refreshCounts()
         }

@@ -28,6 +28,11 @@ class FolderRepositoryImpl @Inject constructor(
     override fun getFolders(): Flow<List<Folder>> =
         folderDao.getFolders().map { list -> list.map { it.toDomain() } }
 
+    override fun getArchivedFolders(): Flow<List<Folder>> =
+        folderDao.getArchivedFolders().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getArchivedFolderCount(): Int = folderDao.getArchivedFolderCount()
+
     override suspend fun insert(folder: Folder) {
         val folderId = folder.id.ifBlank { "folder_${UUID.randomUUID()}" }
         try {

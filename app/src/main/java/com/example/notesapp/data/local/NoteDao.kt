@@ -13,6 +13,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE deletedAt IS NULL ORDER BY updatedAt DESC")
     fun getActiveNotes(): Flow<List<NoteEntity>>
 
+    @Query("SELECT * FROM notes WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC, updatedAt DESC")
+    fun getArchivedNotes(): Flow<List<NoteEntity>>
+
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")
     suspend fun getNoteById(id: String): NoteEntity?
 
@@ -27,6 +30,9 @@ interface NoteDao {
 
     @Query("SELECT COUNT(*) FROM notes WHERE isFavorite = 1 AND deletedAt IS NULL")
     suspend fun getFavoriteNoteCount(): Int
+
+    @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NOT NULL")
+    suspend fun getArchivedNoteCount(): Int
 
     @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
     fun searchNotes(query: String): Flow<List<NoteEntity>>

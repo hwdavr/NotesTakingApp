@@ -40,9 +40,13 @@ class FoldersViewModelTest : BaseViewModelTest() {
     @Before
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(testFolders)
+        every { folderRepository.getArchivedFolders() } returns flowOf(emptyList())
         every { noteRepository.getActiveNotes() } returns flowOf(testNotes)
+        every { noteRepository.getArchivedNotes() } returns flowOf(emptyList())
         coEvery { noteRepository.getActiveNoteCount() } returns 1
         coEvery { noteRepository.getActiveNoteCountForFolder(any()) } returns 1
+        coEvery { noteRepository.getArchivedNoteCount() } returns 2
+        coEvery { folderRepository.getArchivedFolderCount() } returns 1
 
         viewModel = FoldersViewModel(folderRepository, noteRepository)
     }
@@ -104,5 +108,15 @@ class FoldersViewModelTest : BaseViewModelTest() {
         val folder = testFolders[0]
         viewModel.addFolderToFavorites(folder)
         coVerify { folderRepository.toggleFavorite(folder) }
+    }
+
+    @Test
+    fun `archive count reflects archived folders and notes`() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.uiState.value.smartCounts.archive)
     }
 }

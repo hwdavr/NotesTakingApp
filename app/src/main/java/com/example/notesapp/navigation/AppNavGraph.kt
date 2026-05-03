@@ -34,7 +34,6 @@ import com.example.notesapp.ui.home.HomeViewModel
 import com.example.notesapp.ui.moveto.MoveToScreen
 import com.example.notesapp.ui.moveto.MoveToViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
-import com.example.notesapp.ui.notes.CollectionNotesViewModel
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 
 @Composable
@@ -54,7 +53,6 @@ fun AppNavGraph(
         homeViewModel = hiltViewModel(),
         foldersViewModel = hiltViewModel(),
         settingsViewModel = hiltViewModel(),
-        collectionNotesViewModel = hiltViewModel(),
         noteEditorViewModel = hiltViewModel()
     )
 }
@@ -66,7 +64,6 @@ fun AppNavHost(
     homeViewModel: HomeViewModel,
     foldersViewModel: FoldersViewModel,
     settingsViewModel: SettingsViewModel,
-    collectionNotesViewModel: CollectionNotesViewModel,
     noteEditorViewModel: NoteEditorViewModel
 ) {
     val navController = rememberNavController()
@@ -241,7 +238,7 @@ fun AppNavHost(
                     onOpenNote = { noteId ->
                         navController.navigate(Destinations.Editor.createRoute(noteId = noteId))
                     },
-                    viewModel = collectionNotesViewModel
+                    viewModel = hiltViewModel()
                 )
             }
             composable(Destinations.Settings.route) { 
@@ -281,6 +278,5 @@ fun AppNavHost(
         }
     }
 }
-
 
 

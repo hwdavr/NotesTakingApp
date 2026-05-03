@@ -29,6 +29,9 @@ class NoteRepositoryImpl @Inject constructor(
     override fun getActiveNotes(): Flow<List<Note>> =
         noteDao.getActiveNotes().map { list -> list.map { it.toDomain() } }
 
+    override fun getArchivedNotes(): Flow<List<Note>> =
+        noteDao.getArchivedNotes().map { list -> list.map { it.toDomain() } }
+
     override suspend fun getNoteById(id: String): Note? =
         noteDao.getNoteById(id)?.toDomain()
 
@@ -38,6 +41,8 @@ class NoteRepositoryImpl @Inject constructor(
         noteDao.getActiveNoteCountForFolder(folderId)
 
     override suspend fun getFavoriteNoteCount(): Int = noteDao.getFavoriteNoteCount()
+
+    override suspend fun getArchivedNoteCount(): Int = noteDao.getArchivedNoteCount()
 
     override suspend fun save(note: Note) {
         val existing = note.id.takeIf { it.isNotBlank() }?.let { noteDao.getNoteById(it)?.toDomain() }

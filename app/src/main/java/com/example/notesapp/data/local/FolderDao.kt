@@ -11,8 +11,14 @@ interface FolderDao {
     @Query("SELECT * FROM folders WHERE deletedAt IS NULL ORDER BY sortKey ASC, name ASC")
     fun getFolders(): Flow<List<FolderEntity>>
 
+    @Query("SELECT * FROM folders WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC, updatedAt DESC")
+    fun getArchivedFolders(): Flow<List<FolderEntity>>
+
     @Query("SELECT COUNT(*) FROM folders")
     suspend fun getFolderCount(): Int
+
+    @Query("SELECT COUNT(*) FROM folders WHERE deletedAt IS NOT NULL")
+    suspend fun getArchivedFolderCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(folder: FolderEntity)

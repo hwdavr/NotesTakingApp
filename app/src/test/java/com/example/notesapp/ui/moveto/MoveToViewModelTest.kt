@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -132,6 +133,8 @@ private class FakeMoveFolderRepository(
     var movedFolder: Pair<String, String?>? = null
 
     override fun getFolders(): Flow<List<Folder>> = folders
+    override fun getArchivedFolders(): Flow<List<Folder>> = flowOf(emptyList())
+    override suspend fun getArchivedFolderCount(): Int = 0
 
     override suspend fun insert(folder: Folder) = Unit
 
@@ -153,6 +156,7 @@ private class FakeMoveNoteRepository(
     var movedNote: Pair<String, String?>? = null
 
     override fun getActiveNotes(): Flow<List<Note>> = notes
+    override fun getArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
 
     override suspend fun getNoteById(id: String): Note? =
         notes.value.firstOrNull { it.id == id }
@@ -163,6 +167,7 @@ private class FakeMoveNoteRepository(
         notes.value.count { it.folderId == folderId }
 
     override suspend fun getFavoriteNoteCount(): Int = notes.value.count { it.isFavorite }
+    override suspend fun getArchivedNoteCount(): Int = 0
 
     override suspend fun save(note: Note) = Unit
 

@@ -159,8 +159,8 @@ class FoldersScreenTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun deleteFolder_showsConfirmationDialog_andDeletesOnConfirm() {
-        var deletedFolder: Folder? = null
+    fun archiveFolder_showsConfirmationDialog_andArchivesOnConfirm() {
+        var archivedFolder: Folder? = null
         val folder = Folder(id = "f1", name = "Test Folder", createdAt = 0, updatedAt = 0)
         val state = FoldersUiState(
             treeItems = listOf(FolderTreeItem.FolderItem(folder, 0, 0, false))
@@ -169,14 +169,14 @@ class FoldersScreenTest {
         composeRule.setContent {
             TestFoldersScreen(
                 state = state,
-                onDeleteFolder = { deletedFolder = it }
+                onDeleteFolder = { archivedFolder = it }
             )
         }
 
         // 1. Open more actions for folder f1
         composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
 
-        // 2. Wait for and click delete in the action sheet
+        // 2. Wait for and click archive in the action sheet
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag("delete_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
@@ -184,16 +184,16 @@ class FoldersScreenTest {
 
         // 3. Verify confirmation dialog is displayed
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithText("Delete Folder", ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText("Archive Folder", ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithText("Delete Folder", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithText("Archive Folder", ignoreCase = true).assertIsDisplayed()
         
-        // 4. Click Delete in the confirmation dialog
+        // 4. Click Archive in the confirmation dialog
         composeRule.onNodeWithTag("confirm_delete_button").performClick()
 
         // 5. Verify onDeleteFolder was called
         composeRule.waitForIdle()
-        assertEquals(folder, deletedFolder)
+        assertEquals(folder, archivedFolder)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

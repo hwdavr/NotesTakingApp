@@ -22,10 +22,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CheckBox
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material.icons.outlined.Link
@@ -269,7 +269,7 @@ fun NoteEditorScreenContent(
                     text = { Text(stringResource(R.string.editor_delete_action)) },
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.Delete,
+                            imageVector = Icons.Outlined.Archive,
                             contentDescription = null
                         )
                     },

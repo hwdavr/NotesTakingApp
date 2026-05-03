@@ -34,6 +34,14 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         Note(id = "n2", title = "Note 2", content = "Content 2", folderId = "f2", sortKey = "2", deviceId = "dev", createdAt = 0, updatedAt = 0)
     )
 
+    private val archivedFolders = listOf(
+        Folder(id = "af1", name = "Archived Folder", sortKey = "3", deviceId = "dev", createdAt = 0, updatedAt = 0, deletedAt = 10)
+    )
+
+    private val archivedNotes = listOf(
+        Note(id = "an1", title = "Archived Note", content = "Archived content", folderId = "af1", sortKey = "3", deviceId = "dev", createdAt = 0, updatedAt = 0, deletedAt = 10)
+    )
+
     private fun createViewModel(type: String = "all", folderId: String? = null, label: String? = null): CollectionNotesViewModel {
         val savedStateHandle = SavedStateHandle().apply {
             set("type", type)
@@ -41,7 +49,9 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
             set("label", label)
         }
         every { folderRepository.getFolders() } returns flowOf(testFolders)
+        every { folderRepository.getArchivedFolders() } returns flowOf(archivedFolders)
         every { noteRepository.getActiveNotes() } returns flowOf(testNotes)
+        every { noteRepository.getArchivedNotes() } returns flowOf(archivedNotes)
         
         return CollectionNotesViewModel(folderRepository, noteRepository, savedStateHandle)
     }
@@ -75,5 +85,20 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         
         val noteItem = state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().first()
         assertEquals("n1", noteItem.note.id)
+    }
+
+    @Test
+    fun `uiState with type archive shows archived folders and notes`() = runTest {
+        val viewModel = createViewModel(type = "archive", label = "Archive")
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isLoading)
+        assertEquals(1, state.items.filterIsInstance<CollectionItemUiModel.FolderItem>().size)
+        assertEquals(1, state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().size)
+        assertEquals("Archived Folder", state.items.filterIsInstance<CollectionItemUiModel.FolderItem>().first().name)
+        assertEquals("Archived Note", state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().first().note.title)
     }
 }

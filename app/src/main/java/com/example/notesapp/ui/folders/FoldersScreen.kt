@@ -22,9 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.StickyNote2
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.CreateNewFolder
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Folder
@@ -842,7 +842,7 @@ private fun FolderItemActionsSheet(
                 modifier = Modifier.testTag("rename_item_action")
             )
             SheetActionRow(
-                icon = Icons.Outlined.Delete,
+                icon = Icons.Outlined.Archive,
                 label = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
                 iconTint = Color(0xFFC44A4A),
@@ -921,7 +921,7 @@ private fun NoteItemActionsSheet(
                 modifier = Modifier.testTag("rename_item_action")
             )
             SheetActionRow(
-                icon = Icons.Outlined.Delete,
+                icon = Icons.Outlined.Archive,
                 label = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
                 iconTint = Color(0xFFC44A4A),

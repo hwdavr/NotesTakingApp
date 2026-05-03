@@ -47,48 +47,71 @@ open class CollectionNotesViewModel @Inject constructor(
 
     open val uiState: StateFlow<CollectionNotesUiState> = combine(
         folderRepository.getFolders(),
-        noteRepository.getActiveNotes()
-    ) { folders, notes ->
-            val items = when (type) {
-                "folder" -> buildFolderCollectionItems(
-                    folders = folders,
-                    notes = notes,
-                    parentFolderId = folderId
-                )
-                "favorites" -> {
-                    val favFolders = folders.filter { it.isFavorite }.map { folder ->
-                        CollectionItemUiModel.FolderItem(
-                            id = folder.id,
-                            name = folder.name,
-                            noteCount = notes.count { it.folderId == folder.id }
-                        )
-                    }
-                    val favNotes = notes.filter { it.isFavorite }.map { note ->
-                        CollectionItemUiModel.NoteItem(note = note.toUiModel())
-                    }
-                    favFolders + favNotes
-                }
-                "archive" -> emptyList()
-                else -> notes.map { note ->
-                    CollectionItemUiModel.NoteItem(
-                        note = note.toUiModel()
+        noteRepository.getActiveNotes(),
+        folderRepository.getArchivedFolders(),
+        noteRepository.getArchivedNotes()
+    ) { folders, notes, archivedFolders, archivedNotes ->
+        val items = when (type) {
+            "folder" -> buildFolderCollectionItems(
+                folders = folders,
+                notes = notes,
+                parentFolderId = folderId
+            )
+            "favorites" -> {
+                val favFolders = folders.filter { it.isFavorite }.map { folder ->
+                    CollectionItemUiModel.FolderItem(
+                        id = folder.id,
+                        name = folder.name,
+                        noteCount = notes.count { it.folderId == folder.id }
                     )
                 }
+                val favNotes = notes.filter { it.isFavorite }.map { note ->
+                    CollectionItemUiModel.NoteItem(note = note.toUiModel())
+                }
+                favFolders + favNotes
             }
-
-            CollectionNotesUiState(
-                isLoading = false,
-                label = label,
-                type = type,
-                folderId = folderId,
-                items = items
+            "archive" -> buildArchivedCollectionItems(
+                folders = archivedFolders,
+                notes = archivedNotes
             )
+            else -> notes.map { note ->
+                CollectionItemUiModel.NoteItem(
+                    note = note.toUiModel()
+                )
+            }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = CollectionNotesUiState(isLoading = true)
+
+        CollectionNotesUiState(
+            isLoading = false,
+            label = label,
+            type = type,
+            folderId = folderId,
+            items = items
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = CollectionNotesUiState(isLoading = true)
+    )
+}
+
+private fun buildArchivedCollectionItems(
+    folders: List<Folder>,
+    notes: List<Note>
+): List<CollectionItemUiModel> {
+    val archivedFolders = folders.map { folder ->
+        CollectionItemUiModel.FolderItem(
+            id = folder.id,
+            name = folder.name,
+            noteCount = notes.count { it.folderId == folder.id }
+        )
+    }
+
+    val archivedNotes = notes.map { note ->
+        CollectionItemUiModel.NoteItem(note = note.toUiModel())
+    }
+
+    return archivedFolders + archivedNotes
 }
 
 private fun buildFolderCollectionItems(
