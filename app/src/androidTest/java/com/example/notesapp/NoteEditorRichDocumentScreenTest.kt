@@ -12,6 +12,8 @@ import com.example.notesapp.ui.editor.NoteEditorUiState
 import com.example.notesapp.ui.editor.document.EditorBlock
 import com.example.notesapp.ui.editor.document.NoteDocument
 import com.example.notesapp.ui.editor.document.RichText
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +52,9 @@ class NoteEditorRichDocumentScreenTest {
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
                 onFolderSelected = {},
-                onToggleFormattingToolbar = {}
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> }
             )
         }
 
@@ -65,17 +69,23 @@ class NoteEditorRichDocumentScreenTest {
         var addedImage = false
         var addedTable = false
         var toggledBold = false
+        val isFormattingVisible = mutableStateOf(false)
 
         composeRule.setContent {
-            NoteEditorScreenContent(
-                parentPadding = PaddingValues(0.dp),
-                noteId = "note_1",
-                state = NoteEditorUiState(
+            val state = remember {
+                NoteEditorUiState(
                     noteId = "note_1",
                     title = "Title",
                     document = NoteDocument(blocks = listOf(EditorBlock.TextBlock(id = "text_1"))),
-                    isLoaded = true
-                ),
+                    isLoaded = true,
+                    isFormattingToolbarVisible = isFormattingVisible.value
+                )
+            }.copy(isFormattingToolbarVisible = isFormattingVisible.value)
+
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = state,
                 onBack = {},
                 onSave = {},
                 onDelete = {},
@@ -88,13 +98,16 @@ class NoteEditorRichDocumentScreenTest {
                 onAddTable = { addedTable = true },
                 onTableCellChange = { _, _, _, _ -> },
                 onFolderSelected = {},
-                onToggleFormattingToolbar = {}
+                onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value },
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> }
             )
         }
 
-        composeRule.onNodeWithTag("editor_bold_action").performClick()
         composeRule.onNodeWithTag("editor_add_image").performClick()
         composeRule.onNodeWithTag("editor_add_table").performClick()
+        composeRule.onNodeWithTag("editor_toggle_formatting").performClick()
+        composeRule.onNodeWithTag("editor_bold_action").performClick()
 
         assertTrue(toggledBold)
         assertTrue(addedImage)

@@ -72,6 +72,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.ui.editor.document.EditorBlock
@@ -108,7 +114,9 @@ fun NoteEditorScreen(
         onAddTable = viewModel::addTableBlock,
         onTableCellChange = viewModel::updateTableCell,
         onFolderSelected = viewModel::onFolderSelected,
-        onToggleFormattingToolbar = viewModel::toggleFormattingToolbar
+        onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
+        onBlockFocused = viewModel::setFocusedBlock,
+        onSelectionChange = viewModel::updateSelection
     )
 }
 
@@ -130,7 +138,9 @@ fun NoteEditorScreenContent(
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onFolderSelected: (String?) -> Unit,
-    onToggleFormattingToolbar: () -> Unit
+    onToggleFormattingToolbar: () -> Unit,
+    onBlockFocused: (String?) -> Unit,
+    onSelectionChange: (Int, Int) -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
@@ -141,7 +151,7 @@ fun NoteEditorScreenContent(
         selectedFolder = selectedFolder,
         title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
     )
-    val activeTextBlockId = state.document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
+    val activeTextBlockId = state.focusedBlockId ?: state.document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
 
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
@@ -169,8 +179,8 @@ fun NoteEditorScreenContent(
                     .weight(1f)
                     .fillMaxWidth()
                     .background(Color(0xFFF4F7FF))
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 ExposedDropdownMenuBox(
                     expanded = folderMenuExpanded,
@@ -241,8 +251,8 @@ fun NoteEditorScreenContent(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp, vertical = 18.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         OutlinedTextField(
                             value = state.title,
@@ -264,7 +274,9 @@ fun NoteEditorScreenContent(
                             blocks = state.document.blocks,
                             onTextBlockChange = onTextBlockChange,
                             onImageChange = onImageChange,
-                            onTableCellChange = onTableCellChange
+                            onTableCellChange = onTableCellChange,
+                            onBlockFocused = onBlockFocused,
+                            onSelectionChange = onSelectionChange
                         )
                     }
                 }
@@ -310,19 +322,23 @@ private fun DocumentBlockList(
     blocks: List<EditorBlock>,
     onTextBlockChange: (String, String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
-    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit
+    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onBlockFocused: (String?) -> Unit,
+    onSelectionChange: (Int, Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("rich_document_blocks"),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         blocks.forEach { block ->
             when (block) {
                 is EditorBlock.TextBlock -> TextDocumentBlock(
                     block = block,
-                    onChange = { onTextBlockChange(block.id, it) }
+                    onChange = { onTextBlockChange(block.id, it) },
+                    onFocus = { onBlockFocused(block.id) },
+                    onSelectionChange = onSelectionChange
                 )
                 is EditorBlock.ImageBlock -> ImageDocumentBlock(
                     block = block,
@@ -341,15 +357,35 @@ private fun DocumentBlockList(
 @Composable
 private fun TextDocumentBlock(
     block: EditorBlock.TextBlock,
-    onChange: (String) -> Unit
+    onChange: (String) -> Unit,
+    onFocus: () -> Unit,
+    onSelectionChange: (Int, Int) -> Unit
 ) {
-    val isBold = block.children.any { "bold" in it.marks }
-    val isItalic = block.children.any { "italic" in it.marks }
+    var textFieldValue by remember(block.id) {
+        mutableStateOf(TextFieldValue(block.toAnnotatedString()))
+    }
+
+    val currentAnnotatedText = block.toAnnotatedString()
+    if (textFieldValue.annotatedString != currentAnnotatedText) {
+        textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
+    }
+
     OutlinedTextField(
-        value = block.text(),
-        onValueChange = onChange,
+        value = textFieldValue,
+        onValueChange = {
+            val selectionChanged = textFieldValue.selection != it.selection
+            val textChanged = textFieldValue.text != it.text
+            textFieldValue = it
+            if (textChanged) {
+                onChange(it.text)
+            }
+            if (selectionChanged) {
+                onSelectionChange(it.selection.start, it.selection.end)
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
+            .onFocusChanged { if (it.isFocused) onFocus() }
             .testTag("editor_text_block_${block.id}"),
         placeholder = {
             Text(stringResource(R.string.editor_content_placeholder))
@@ -357,9 +393,8 @@ private fun TextDocumentBlock(
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontSize = if (block.type == "heading") 22.sp else 14.sp,
             color = Color(0xFF1F2A44),
-            fontWeight = if (block.type == "heading" || isBold) FontWeight.Bold else FontWeight.Normal,
-            fontStyle = if (isItalic) FontStyle.Italic else FontStyle.Normal,
-            lineHeight = if (block.type == "heading") 28.sp else 20.sp
+            lineHeight = if (block.type == "heading") 28.sp else 20.sp,
+            fontWeight = if (block.type == "heading") FontWeight.Bold else FontWeight.Normal
         ),
         leadingIcon = if (block.type == "bulleted") {
             { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
@@ -369,6 +404,22 @@ private fun TextDocumentBlock(
         colors = editorFieldColors(),
         minLines = 1
     )
+}
+
+private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
+    return buildAnnotatedString {
+        children.forEach { child ->
+            withStyle(
+                SpanStyle(
+                    fontWeight = if ("bold" in child.marks) FontWeight.Bold else FontWeight.Normal,
+                    fontStyle = if ("italic" in child.marks) FontStyle.Italic else FontStyle.Normal,
+                    background = if ("code" in child.marks) Color(0xFFF4F7FF) else Color.Transparent
+                )
+            ) {
+                append(child.text)
+            }
+        }
+    }
 }
 
 @Composable
@@ -421,13 +472,13 @@ private fun TableDocumentBlock(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("editor_table_block_${block.id}"),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
         block.rows.forEachIndexed { rowIndex, row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 row.forEachIndexed { cellIndex, cell ->
                     OutlinedTextField(
@@ -547,7 +598,7 @@ private fun DefaultBottomBar(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        EditorBarButton(onClick = onAddParagraph) {
+        EditorBarButton(onClick = onAddParagraph, modifier = Modifier.testTag("editor_add_paragraph")) {
             Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF))
         }
 
@@ -588,13 +639,13 @@ private fun DefaultBottomBar(
         EditorBarButton(onClick = {}) {
             Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF7281A7))
         }
-        EditorBarButton(onClick = onAddImage) {
+        EditorBarButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
             Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF7281A7))
         }
         EditorBarButton(onClick = {}) {
             Icon(Icons.Outlined.Mic, contentDescription = null, tint = Color(0xFF7281A7))
         }
-        EditorBarButton(onClick = onAddTable) {
+        EditorBarButton(onClick = onAddTable, modifier = Modifier.testTag("editor_add_table")) {
             Icon(Icons.Outlined.TableChart, contentDescription = null, tint = Color(0xFF7281A7))
         }
         EditorBarButton(onClick = {}) {

@@ -11,6 +11,7 @@ import com.example.notesapp.ui.editor.document.NoteDocument
 import com.example.notesapp.ui.editor.document.RichText
 import com.example.notesapp.ui.editor.document.newBlockId
 import com.example.notesapp.ui.editor.document.parseMarkdownTextBlock
+import com.example.notesapp.ui.editor.document.text
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -30,7 +31,10 @@ data class NoteEditorUiState(
     val availableFolders: List<Folder> = emptyList(),
     val createdAt: Long = 0L,
     val isLoaded: Boolean = false,
-    val isFormattingToolbarVisible: Boolean = false
+    val isFormattingToolbarVisible: Boolean = false,
+    val focusedBlockId: String? = null,
+    val selectionStart: Int = 0,
+    val selectionEnd: Int = 0
 ) {
     val content: String
         get() = document.toPlainText()
@@ -48,6 +52,17 @@ open class NoteEditorViewModel @Inject constructor(
     fun toggleFormattingToolbar() {
         _uiState.value = _uiState.value.copy(
             isFormattingToolbarVisible = !_uiState.value.isFormattingToolbarVisible
+        )
+    }
+
+    fun setFocusedBlock(blockId: String?) {
+        _uiState.value = _uiState.value.copy(focusedBlockId = blockId)
+    }
+
+    fun updateSelection(start: Int, end: Int) {
+        _uiState.value = _uiState.value.copy(
+            selectionStart = start,
+            selectionEnd = end
         )
     }
 
@@ -123,15 +138,44 @@ open class NoteEditorViewModel @Inject constructor(
     }
 
     fun toggleBlockMark(blockId: String, mark: String) {
+        val state = _uiState.value
+        val start = state.selectionStart
+        val end = state.selectionEnd
+
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TextBlock) return@updateBlock block
-            val hasMark = block.children.any { mark in it.marks }
-            block.copy(
-                children = block.children.map { child ->
-                    val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
-                    child.copy(marks = marks)
-                }
-            )
+            
+            val text = block.text()
+            if (start == end || start < 0 || end > text.length) {
+                // If no selection, toggle for the whole block as before
+                val hasMark = block.children.any { mark in it.marks }
+                return@updateBlock block.copy(
+                    children = block.children.map { child ->
+                        val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
+                        child.copy(marks = marks)
+                    }
+                )
+            }
+
+            // If there's a selection, insert markdown markers
+            val marker = when(mark) {
+                "bold" -> "**"
+                "italic" -> "*"
+                "code" -> "`"
+                else -> ""
+            }
+            if (marker.isEmpty()) return@updateBlock block
+
+            val selectedText = text.substring(start, end)
+            val newText = if (selectedText.startsWith(marker) && selectedText.endsWith(marker)) {
+                // Remove markers if already present
+                text.substring(0, start) + selectedText.substring(marker.length, selectedText.length - marker.length) + text.substring(end)
+            } else {
+                // Add markers
+                text.substring(0, start) + marker + selectedText + marker + text.substring(end)
+            }
+            
+            parseMarkdownTextBlock(id = block.id, text = newText)
         }
     }
 

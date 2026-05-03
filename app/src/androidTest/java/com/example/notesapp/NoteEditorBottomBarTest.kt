@@ -44,7 +44,9 @@ class NoteEditorBottomBarTest {
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
                 onFolderSelected = {},
-                onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value }
+                onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value },
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> }
             )
         }
 
