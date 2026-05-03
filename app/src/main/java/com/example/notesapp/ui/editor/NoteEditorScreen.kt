@@ -1,4 +1,6 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.notesapp.ui.editor
+
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
@@ -20,6 +22,16 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AddCircle
@@ -77,7 +89,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.graphics.SolidColor
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.ui.editor.document.EditorBlock
@@ -116,7 +130,8 @@ fun NoteEditorScreen(
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
-        onSelectionChange = viewModel::updateSelection
+        onSelectionChange = viewModel::updateSelection,
+        onDeleteBlock = viewModel::deleteBlock
     )
 }
 
@@ -140,7 +155,8 @@ fun NoteEditorScreenContent(
     onFolderSelected: (String?) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
-    onSelectionChange: (Int, Int) -> Unit
+    onSelectionChange: (Int, Int) -> Unit,
+    onDeleteBlock: (String) -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var moreMenuExpanded by remember { mutableStateOf(false) }
@@ -259,7 +275,10 @@ fun NoteEditorScreenContent(
                             onValueChange = onTitleChange,
                             modifier = Modifier.fillMaxWidth(),
                             placeholder = {
-                                Text(stringResource(R.string.editor_title_placeholder))
+                                Text(
+                                    text = stringResource(R.string.editor_title_placeholder),
+                                    color = Color(0xFFAAB8C2)
+                                )
                             },
                             textStyle = MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
@@ -276,7 +295,9 @@ fun NoteEditorScreenContent(
                             onImageChange = onImageChange,
                             onTableCellChange = onTableCellChange,
                             onBlockFocused = onBlockFocused,
-                            onSelectionChange = onSelectionChange
+                            onSelectionChange = onSelectionChange,
+                            onDeleteBlock = onDeleteBlock,
+                            focusedBlockId = state.focusedBlockId
                         )
                     }
                 }
@@ -324,8 +345,18 @@ private fun DocumentBlockList(
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onBlockFocused: (String?) -> Unit,
-    onSelectionChange: (Int, Int) -> Unit
+    onSelectionChange: (Int, Int) -> Unit,
+    onDeleteBlock: (String) -> Unit,
+    focusedBlockId: String?
 ) {
+    val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
+
+    LaunchedEffect(focusedBlockId) {
+        focusedBlockId?.let { id ->
+            focusRequesters[id]?.requestFocus()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -333,12 +364,15 @@ private fun DocumentBlockList(
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         blocks.forEach { block ->
+            val focusRequester = focusRequesters.getOrPut(block.id) { FocusRequester() }
             when (block) {
                 is EditorBlock.TextBlock -> TextDocumentBlock(
                     block = block,
                     onChange = { onTextBlockChange(block.id, it) },
                     onFocus = { onBlockFocused(block.id) },
-                    onSelectionChange = onSelectionChange
+                    onSelectionChange = onSelectionChange,
+                    onDelete = { onDeleteBlock(block.id) },
+                    focusRequester = focusRequester
                 )
                 is EditorBlock.ImageBlock -> ImageDocumentBlock(
                     block = block,
@@ -359,7 +393,9 @@ private fun TextDocumentBlock(
     block: EditorBlock.TextBlock,
     onChange: (String) -> Unit,
     onFocus: () -> Unit,
-    onSelectionChange: (Int, Int) -> Unit
+    onSelectionChange: (Int, Int) -> Unit,
+    onDelete: () -> Unit,
+    focusRequester: FocusRequester
 ) {
     var textFieldValue by remember(block.id) {
         mutableStateOf(TextFieldValue(block.toAnnotatedString()))
@@ -370,7 +406,7 @@ private fun TextDocumentBlock(
         textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
     }
 
-    OutlinedTextField(
+    BasicTextField(
         value = textFieldValue,
         onValueChange = {
             val selectionChanged = textFieldValue.selection != it.selection
@@ -385,24 +421,56 @@ private fun TextDocumentBlock(
         },
         modifier = Modifier
             .fillMaxWidth()
+            .focusRequester(focusRequester)
             .onFocusChanged { if (it.isFocused) onFocus() }
+            .onPreviewKeyEvent { event ->
+                if (event.key == Key.Backspace && textFieldValue.text.isEmpty()) {
+                    onDelete()
+                    true
+                } else {
+                    false
+                }
+            }
             .testTag("editor_text_block_${block.id}"),
-        placeholder = {
-            Text(stringResource(R.string.editor_content_placeholder))
-        },
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontSize = if (block.type == "heading") 22.sp else 14.sp,
             color = Color(0xFF1F2A44),
             lineHeight = if (block.type == "heading") 28.sp else 20.sp,
             fontWeight = if (block.type == "heading") FontWeight.Bold else FontWeight.Normal
         ),
-        leadingIcon = if (block.type == "bulleted") {
-            { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
-        } else {
-            null
-        },
-        colors = editorFieldColors(),
-        minLines = 1
+        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+        decorationBox = { innerTextField ->
+            OutlinedTextFieldDefaults.DecorationBox(
+                value = textFieldValue.text,
+                innerTextField = innerTextField,
+                enabled = true,
+                singleLine = false,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = remember { MutableInteractionSource() },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.editor_content_placeholder),
+                        color = Color(0xFFAAB8C2)
+                    )
+                },
+                leadingIcon = if (block.type == "bulleted") {
+                    { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
+                } else {
+                    null
+                },
+                colors = editorFieldColors(),
+                container = {
+                    OutlinedTextFieldDefaults.ContainerBox(
+                        enabled = true,
+                        isError = false,
+                        interactionSource = remember { MutableInteractionSource() },
+                        colors = editorFieldColors(),
+                        shape = OutlinedTextFieldDefaults.shape
+                    )
+                },
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+            )
+        }
     )
 }
 
@@ -443,21 +511,63 @@ private fun ImageDocumentBlock(
                 Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
                 Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
             }
-            OutlinedTextField(
+            BasicTextField(
                 value = block.url,
                 onValueChange = onUrlChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Image URL") },
-                singleLine = true,
-                colors = editorFieldColors()
+                textStyle = MaterialTheme.typography.bodyMedium,
+                cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                decorationBox = { innerTextField ->
+                    OutlinedTextFieldDefaults.DecorationBox(
+                        value = block.url,
+                        innerTextField = innerTextField,
+                        enabled = true,
+                        singleLine = true,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = remember { MutableInteractionSource() },
+                        placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
+                        colors = editorFieldColors(),
+                        container = {
+                            OutlinedTextFieldDefaults.ContainerBox(
+                                enabled = true,
+                                isError = false,
+                                interactionSource = remember { MutableInteractionSource() },
+                                colors = editorFieldColors(),
+                                shape = OutlinedTextFieldDefaults.shape
+                            )
+                        },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             )
-            OutlinedTextField(
+            BasicTextField(
                 value = block.caption,
                 onValueChange = onCaptionChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Caption") },
-                singleLine = true,
-                colors = editorFieldColors()
+                textStyle = MaterialTheme.typography.bodyMedium,
+                cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                decorationBox = { innerTextField ->
+                    OutlinedTextFieldDefaults.DecorationBox(
+                        value = block.caption,
+                        innerTextField = innerTextField,
+                        enabled = true,
+                        singleLine = true,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = remember { MutableInteractionSource() },
+                        placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
+                        colors = editorFieldColors(),
+                        container = {
+                            OutlinedTextFieldDefaults.ContainerBox(
+                                enabled = true,
+                                isError = false,
+                                interactionSource = remember { MutableInteractionSource() },
+                                colors = editorFieldColors(),
+                                shape = OutlinedTextFieldDefaults.shape
+                            )
+                        },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             )
         }
     }
@@ -472,24 +582,44 @@ private fun TableDocumentBlock(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("editor_table_block_${block.id}"),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
         block.rows.forEachIndexed { rowIndex, row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 row.forEachIndexed { cellIndex, cell ->
-                    OutlinedTextField(
+                    BasicTextField(
                         value = cell.joinToString("") { it.text },
                         onValueChange = { onCellChange(rowIndex, cellIndex, it) },
                         modifier = Modifier
                             .weight(1f)
                             .testTag("editor_table_cell_${block.id}_${rowIndex}_$cellIndex"),
                         textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                        colors = editorFieldColors(),
-                        singleLine = true
+                        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                        decorationBox = { innerTextField ->
+                            OutlinedTextFieldDefaults.DecorationBox(
+                                value = cell.joinToString("") { it.text },
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = remember { MutableInteractionSource() },
+                                colors = tableCellColors(),
+                                container = {
+                                    OutlinedTextFieldDefaults.ContainerBox(
+                                        enabled = true,
+                                        isError = false,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        colors = tableCellColors(),
+                                        shape = RoundedCornerShape(0.dp)
+                                    )
+                                },
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                            )
+                        }
                     )
                 }
             }
@@ -753,6 +883,17 @@ private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
     disabledBorderColor = Color.Transparent,
+    cursorColor = Color(0xFF6E7BFF)
+)
+
+@Composable
+private fun tableCellColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    focusedBorderColor = Color(0xFF6E7BFF),
+    unfocusedBorderColor = Color(0xFFD9E2FF),
+    disabledBorderColor = Color(0xFFD9E2FF),
     cursorColor = Color(0xFF6E7BFF)
 )
 

@@ -317,20 +317,49 @@ open class NoteEditorViewModel @Inject constructor(
     private fun splitTextBlock(blockId: String, value: String) {
         val current = _uiState.value
         val lines = value.split('\n')
+        var nextFocusId: String? = null
+        
         val updatedBlocks = current.document.blocks.flatMap { block ->
             if (block.id == blockId && block is EditorBlock.TextBlock) {
-                lines.mapIndexed { index, line ->
+                val newBlocks = lines.mapIndexed { index, line ->
                     parseMarkdownTextBlock(
                         id = if (index == 0) block.id else newBlockId(),
                         text = line
                     )
                 }
+                nextFocusId = newBlocks.lastOrNull()?.id
+                newBlocks
             } else {
                 listOf(block)
             }
         }
 
-        _uiState.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
+        _uiState.value = current.copy(
+            document = current.document.copy(blocks = updatedBlocks),
+            focusedBlockId = nextFocusId ?: current.focusedBlockId
+        )
+        scheduleAutoSave()
+    }
+
+    fun deleteBlock(blockId: String) {
+        val current = _uiState.value
+        val blocks = current.document.blocks
+        if (blocks.size <= 1) return
+        
+        val index = blocks.indexOfFirst { it.id == blockId }
+        if (index == -1) return
+
+        val nextFocusId = if (index > 0) {
+            blocks[index - 1].id
+        } else {
+            blocks[index + 1].id
+        }
+
+        val updatedBlocks = blocks.filter { it.id != blockId }
+        _uiState.value = current.copy(
+            document = current.document.copy(blocks = updatedBlocks),
+            focusedBlockId = nextFocusId
+        )
         scheduleAutoSave()
     }
 }
