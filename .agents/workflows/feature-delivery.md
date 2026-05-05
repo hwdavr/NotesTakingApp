@@ -155,7 +155,7 @@ Include:
 - test changes
 - migration or compatibility handling
 
-Do not start implementation until the plan is clear.
+Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
 
 ---
 
