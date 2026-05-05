@@ -1,6 +1,8 @@
 package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,8 +14,6 @@ import com.example.notesapp.ui.editor.NoteEditorUiState
 import com.example.notesapp.ui.editor.document.EditorBlock
 import com.example.notesapp.ui.editor.document.NoteDocument
 import com.example.notesapp.ui.editor.document.RichText
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test

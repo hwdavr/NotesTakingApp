@@ -1,21 +1,24 @@
 package com.example.notesapp.ui.editor.document
 
+import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.UUID
 
-private const val DocumentVersion = 1
+private const val DOCUMENT_VERSION = 1
 
 data class NoteDocument(
-    val version: Int = DocumentVersion,
+    val version: Int = DOCUMENT_VERSION,
     val blocks: List<EditorBlock> = listOf(EditorBlock.TextBlock())
 ) {
     fun toJsonString(): String {
         val json = JSONObject()
             .put("version", version)
-            .put("blocks", JSONArray().also { array ->
-                blocks.forEach { array.put(it.toJson()) }
-            })
+            .put(
+                "blocks",
+                JSONArray().also { array ->
+                    blocks.forEach { array.put(it.toJson()) }
+                }
+            )
         return json.toString()
     }
 
@@ -47,7 +50,7 @@ data class NoteDocument(
                     }
                 }.orEmpty()
                 NoteDocument(
-                    version = json.optInt("version", DocumentVersion),
+                    version = json.optInt("version", DOCUMENT_VERSION),
                     blocks = blocks.ifEmpty { listOf(EditorBlock.TextBlock()) }
                 )
             }.getOrElse {
@@ -90,8 +93,7 @@ data class RichText(
     val marks: List<String> = emptyList()
 )
 
-fun noteContentPreview(content: String): String =
-    NoteDocument.fromContent(content).toPlainText().ifBlank { content }
+fun noteContentPreview(content: String): String = NoteDocument.fromContent(content).toPlainText().ifBlank { content }
 
 fun newBlockId(): String = "b_${UUID.randomUUID()}"
 
@@ -194,16 +196,15 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
     }
 }
 
-private fun List<RichText>.toRichTextJson(): JSONArray =
-    JSONArray().also { array ->
-        forEach { richText ->
-            array.put(
-                JSONObject()
-                    .put("text", richText.text)
-                    .put("marks", JSONArray().also { marks -> richText.marks.forEach(marks::put) })
-            )
-        }
+private fun List<RichText>.toRichTextJson(): JSONArray = JSONArray().also { array ->
+    forEach { richText ->
+        array.put(
+            JSONObject()
+                .put("text", richText.text)
+                .put("marks", JSONArray().also { marks -> richText.marks.forEach(marks::put) })
+        )
     }
+}
 
 private fun JSONArray?.toRichTextList(): List<RichText> {
     if (this == null || length() == 0) return listOf(RichText(""))
@@ -217,14 +218,15 @@ private fun JSONArray?.toRichTextList(): List<RichText> {
     }.ifEmpty { listOf(RichText("")) }
 }
 
-private fun List<List<List<RichText>>>.toRowsJson(): JSONArray =
-    JSONArray().also { rowsArray ->
-        forEach { row ->
-            rowsArray.put(JSONArray().also { rowArray ->
+private fun List<List<List<RichText>>>.toRowsJson(): JSONArray = JSONArray().also { rowsArray ->
+    forEach { row ->
+        rowsArray.put(
+            JSONArray().also { rowArray ->
                 row.forEach { cell -> rowArray.put(cell.toRichTextJson()) }
-            })
-        }
+            }
+        )
     }
+}
 
 private fun JSONArray?.toRows(): List<List<List<RichText>>> {
     if (this == null || length() == 0) return defaultTableRows()

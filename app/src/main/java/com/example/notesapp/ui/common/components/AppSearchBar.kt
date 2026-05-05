@@ -18,12 +18,7 @@ import com.example.notesapp.ui.theme.SurfaceCard
 import com.example.notesapp.ui.theme.TextSecondary
 
 @Composable
-fun AppSearchBar(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier
-) {
+fun AppSearchBar(value: String, onValueChange: (String) -> Unit, placeholder: String, modifier: Modifier = Modifier) {
     TextField(
         value = value,
         onValueChange = onValueChange,

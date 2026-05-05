@@ -41,7 +41,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(emptyList())
         coEvery { noteRepository.getNoteById("n1") } returns testNote
-        
+
         viewModel = NoteEditorViewModel(noteRepository, folderRepository)
     }
 
@@ -79,9 +79,9 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     fun `onTitleChange updates state and schedules auto-save`() = runTest {
         viewModel.load("n1")
         viewModel.onTitleChange("New Title")
-        
+
         assertEquals("New Title", viewModel.uiState.value.title)
-        
+
         // Wait for auto-save (2000ms delay in code)
         advanceTimeBy(2001)
         coVerify { noteRepository.save(match { it.title == "New Title" }) }
@@ -91,15 +91,18 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     fun `save calls repository save`() = runTest {
         viewModel.load("n1")
         viewModel.onContentChange("New Content")
-        
+
         var called = false
         viewModel.save { called = true }
-        
+
         coVerify {
-            noteRepository.save(match {
-                val json = JSONObject(it.content)
-                json.getJSONArray("blocks").getJSONObject(0).getJSONArray("children").getJSONObject(0).getString("text") == "New Content"
-            })
+            noteRepository.save(
+                match {
+                    val json = JSONObject(it.content)
+                    json.getJSONArray("blocks").getJSONObject(0)
+                        .getJSONArray("children").getJSONObject(0).getString("text") == "New Content"
+                }
+            )
         }
         assertTrue(called)
     }
@@ -114,15 +117,17 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.save {}
 
         coVerify {
-            noteRepository.save(match {
-                val blocks = JSONObject(it.content).getJSONArray("blocks")
-                (0 until blocks.length()).any { index ->
-                    val block = blocks.getJSONObject(index)
-                    block.getString("type") == "image" &&
-                        block.getString("url") == "https://cdn.example.com/image.png" &&
-                        block.getString("caption") == "My image"
+            noteRepository.save(
+                match {
+                    val blocks = JSONObject(it.content).getJSONArray("blocks")
+                    (0 until blocks.length()).any { index ->
+                        val block = blocks.getJSONObject(index)
+                        block.getString("type") == "image" &&
+                            block.getString("url") == "https://cdn.example.com/image.png" &&
+                            block.getString("caption") == "My image"
+                    }
                 }
-            })
+            )
         }
     }
 
@@ -150,14 +155,17 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.save {}
 
         coVerify {
-            noteRepository.save(match {
-                val blocks = JSONObject(it.content).getJSONArray("blocks")
-                (0 until blocks.length()).any { index ->
-                    val block = blocks.getJSONObject(index)
-                    block.getString("type") == "table" &&
-                        block.getJSONArray("rows").getJSONArray(1).getJSONArray(0).getJSONObject(0).getString("text") == "Alice"
+            noteRepository.save(
+                match {
+                    val blocks = JSONObject(it.content).getJSONArray("blocks")
+                    (0 until blocks.length()).any { index ->
+                        val block = blocks.getJSONObject(index)
+                        block.getString("type") == "table" &&
+                            block.getJSONArray("rows").getJSONArray(1).getJSONArray(0)
+                                .getJSONObject(0).getString("text") == "Alice"
+                    }
                 }
-            })
+            )
         }
     }
 
@@ -166,10 +174,12 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.load("n1")
         viewModel.addTableBlock()
         val tableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
-        
+
         viewModel.updateTableCell(tableBlock.id, rowIndex = 1, cellIndex = 0, value = "Alice\nBob")
 
-        val updatedTableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
+        val updatedTableBlock = viewModel.uiState.value.document.blocks
+            .filterIsInstance<EditorBlock.TableBlock>()
+            .first()
         val cellText = updatedTableBlock.rows[1][0].joinToString("") { it.text }
         assertEquals("Alice Bob", cellText)
     }
@@ -177,10 +187,10 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `delete calls repository delete`() = runTest {
         viewModel.load("n1")
-        
+
         var called = false
         viewModel.delete { called = true }
-        
+
         coVerify { noteRepository.delete(match { it.id == "n1" }) }
         assertTrue(called)
     }

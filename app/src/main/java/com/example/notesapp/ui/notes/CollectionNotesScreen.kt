@@ -9,12 +9,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -166,12 +164,8 @@ fun CollectionNotesScreenContent(
     }
 }
 
-
 @Composable
-private fun CollectionTopBar(
-    title: String,
-    onBack: () -> Unit
-) {
+private fun CollectionTopBar(title: String, onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,11 +190,7 @@ private fun CollectionTopBar(
 }
 
 @Composable
-private fun CollectionHeaderRow(
-    label: String,
-    count: Int,
-    icon: ImageVector
-) {
+private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -245,10 +235,7 @@ private fun CollectionHeaderRow(
 }
 
 @Composable
-private fun CollectionFolderCard(
-    folder: CollectionItemUiModel.FolderItem,
-    onClick: () -> Unit
-) {
+private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -301,10 +288,7 @@ private fun CollectionFolderCard(
 }
 
 @Composable
-private fun CollectionNoteCard(
-    note: NoteUiModel,
-    onClick: () -> Unit
-) {
+private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -340,10 +324,7 @@ private fun CollectionNoteCard(
 }
 
 @Composable
-private fun CollectionAddButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun CollectionAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         modifier = modifier,

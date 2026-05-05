@@ -10,10 +10,10 @@ import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.settings.SettingsScreen
 import com.example.notesapp.ui.settings.SettingsViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Assert.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenIntegrationTest {
@@ -37,7 +37,11 @@ class SettingsScreenIntegrationTest {
         override val profileEmail = MutableStateFlow<String?>("user@example.com")
         var logoutCalled = false
 
-        override fun logout(activityContext: android.content.Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        override fun logout(
+            activityContext: android.content.Context,
+            onSuccess: () -> Unit,
+            onError: (String) -> Unit
+        ) {
             logoutCalled = true
             onSuccess()
         }
@@ -49,7 +53,7 @@ class SettingsScreenIntegrationTest {
     // Screen Object abstraction
     private val settingsScreen = object {
         val logoutButton = composeRule.onNodeWithText("Logout")
-        
+
         fun clickLogout() {
             logoutButton.performClick()
         }

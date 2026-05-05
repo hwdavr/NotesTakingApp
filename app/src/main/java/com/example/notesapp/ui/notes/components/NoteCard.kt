@@ -81,7 +81,10 @@ fun NoteCard(
                                 Modifier
                             }
                         )
-                        .background(androidx.compose.ui.graphics.Color.White.copy(alpha = 0.55f), RoundedCornerShape(12.dp))
+                        .background(
+                            androidx.compose.ui.graphics.Color.White.copy(alpha = 0.55f),
+                            RoundedCornerShape(12.dp)
+                        )
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }

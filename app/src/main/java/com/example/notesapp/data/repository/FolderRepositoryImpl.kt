@@ -2,20 +2,20 @@ package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.remote.CreateFolderRequest
-import com.example.notesapp.data.sync.ItemsSyncCoordinator
-import com.example.notesapp.domain.folder.Folder
-import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.data.remote.DeleteItemRequest
+import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
-import com.example.notesapp.data.remote.FavoriteItemRequest
+import com.example.notesapp.data.sync.ItemsSyncCoordinator
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.util.DeviceIdProvider
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class FolderRepositoryImpl @Inject constructor(
@@ -25,8 +25,7 @@ class FolderRepositoryImpl @Inject constructor(
     private val deviceIdProvider: DeviceIdProvider
 ) : FolderRepository {
 
-    override fun getFolders(): Flow<List<Folder>> =
-        folderDao.getFolders().map { list -> list.map { it.toDomain() } }
+    override fun getFolders(): Flow<List<Folder>> = folderDao.getFolders().map { list -> list.map { it.toDomain() } }
 
     override fun getArchivedFolders(): Flow<List<Folder>> =
         folderDao.getArchivedFolders().map { list -> list.map { it.toDomain() } }

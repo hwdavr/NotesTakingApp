@@ -313,13 +313,8 @@ fun HomeNotesScreenContent(
     }
 }
 
-
 @Composable
-private fun FolderChipsRow(
-    items: List<FolderUiModel>,
-    selectedId: String,
-    onSelect: (String) -> Unit
-) {
+private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSelect: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -354,12 +349,7 @@ private fun FolderChipsRow(
 }
 
 @Composable
-private fun FolderPill(
-    id: String,
-    name: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
+private fun FolderPill(id: String, name: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
@@ -378,10 +368,7 @@ private fun FolderPill(
 }
 
 @Composable
-private fun EmptyNotesState(
-    modifier: Modifier = Modifier,
-    searchActive: Boolean
-) {
+private fun EmptyNotesState(modifier: Modifier = Modifier, searchActive: Boolean) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -397,10 +384,7 @@ private fun EmptyNotesState(
 }
 
 @Composable
-private fun HomeAddButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun HomeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         modifier = modifier,

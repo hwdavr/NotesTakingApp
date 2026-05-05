@@ -8,39 +8,31 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.notesapp.ui.editor.NoteEditorScreen
-import com.example.notesapp.ui.editor.NoteEditorViewModel
-import com.example.notesapp.ui.folders.FoldersScreen
-import com.example.notesapp.ui.folders.FoldersViewModel
-import com.example.notesapp.ui.settings.SettingsScreen
-import com.example.notesapp.ui.settings.SettingsViewModel
-
-import androidx.compose.runtime.collectAsState
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
+import com.example.notesapp.ui.editor.NoteEditorScreen
+import com.example.notesapp.ui.folders.FoldersScreen
 import com.example.notesapp.ui.home.HomeNotesScreen
-import com.example.notesapp.ui.home.HomeViewModel
 import com.example.notesapp.ui.moveto.MoveToScreen
 import com.example.notesapp.ui.moveto.MoveToViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
+import com.example.notesapp.ui.settings.SettingsScreen
 
 @Composable
-fun AppNavGraph(
-    authManager: AuthManager, 
-    activity: Context
-) {
+fun AppNavGraph(authManager: AuthManager, activity: Context) {
     AppNavHost(
         authManager = authManager,
         onLogin = { onSuccess, onError ->
@@ -54,16 +46,13 @@ fun AppNavGraph(
 }
 
 @Composable
-fun AppNavHost(
-    authManager: AuthManager,
-    onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit
-) {
+fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit) {
     val navController = rememberNavController()
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
-    
+
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
-    
+
     val authRoutes = listOf(Destinations.Onboarding.route)
     val showBottomBar = isLoggedIn &&
         currentRoute?.startsWith("editor") != true &&
@@ -111,9 +100,9 @@ fun AppNavHost(
             // Auth Flow
             composable(Destinations.Onboarding.route) {
                 OnboardingScreen(
-                    onLoginClick = { 
+                    onLoginClick = {
                         onLogin(
-                            { 
+                            {
                                 authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
@@ -124,9 +113,9 @@ fun AppNavHost(
                             }
                         )
                     },
-                    onSignupClick = { 
+                    onSignupClick = {
                         onLogin(
-                            { 
+                            {
                                 authError = null
                                 navController.navigate(Destinations.Notes.route) {
                                     popUpTo(Destinations.Onboarding.route) { inclusive = true }
@@ -152,10 +141,10 @@ fun AppNavHost(
                     viewModel = hiltViewModel()
                 )
             }
-            composable(Destinations.Folders.route) { 
+            composable(Destinations.Folders.route) {
                 FoldersScreen(
                     parentPadding = innerPadding,
-                    onAddNote = { folderId -> 
+                    onAddNote = { folderId ->
                         navController.navigate(Destinations.Editor.createRoute(folderId = folderId))
                     },
                     onOpenNote = { noteId ->
@@ -171,13 +160,15 @@ fun AppNavHost(
                         )
                     },
                     onMoveFolder = { folder ->
-                        navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_FOLDER, folder.id))
+                        navController.navigate(
+                            Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_FOLDER, folder.id)
+                        )
                     },
                     onMoveNote = { note ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, note.id))
                     },
                     viewModel = hiltViewModel()
-                ) 
+                )
             }
             composable(
                 route = Destinations.MoveTo.route,
@@ -236,7 +227,7 @@ fun AppNavHost(
                     viewModel = hiltViewModel()
                 )
             }
-            composable(Destinations.Settings.route) { 
+            composable(Destinations.Settings.route) {
                 SettingsScreen(
                     parentPadding = innerPadding,
                     onLogoutSuccess = {
@@ -245,7 +236,7 @@ fun AppNavHost(
                         }
                     },
                     viewModel = hiltViewModel()
-                ) 
+                )
             }
             composable(
                 route = Destinations.Editor.route,
@@ -273,4 +264,3 @@ fun AppNavHost(
         }
     }
 }
-

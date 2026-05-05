@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -7,6 +7,8 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("org.jlleitschuh.gradle.ktlint")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 val localProperties = Properties()
@@ -31,7 +33,7 @@ android {
 
         manifestPlaceholders["auth0Domain"] = "@string/auth0_domain"
         manifestPlaceholders["auth0Scheme"] = "@string/auth0_scheme"
-        
+
         resValue("string", "auth0_client_id", "\"$auth0ClientId\"")
         resValue("string", "auth0_audience", "\"$auth0Audience\"")
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
@@ -68,6 +70,44 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/LICENSE-notice.md"
         }
+    }
+
+    lint {
+        abortOnError = true
+        warningsAsErrors = false
+        checkDependencies = true
+        htmlReport = true
+        htmlOutput = file("${project.layout.buildDirectory.get()}/reports/lint/lint-results.html")
+        xmlReport = true
+        xmlOutput = file("${project.layout.buildDirectory.get()}/reports/lint/lint-results.xml")
+        // Uncomment below to add baselines for gradual adoption:
+        // baseline = file("lint-baseline.xml")
+    }
+}
+
+ktlint {
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+    filter {
+        exclude("**/generated/**")
+    }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
+    // Uncomment below to add baselines for gradual adoption:
+    // baseline = file("detekt-baseline.xml")
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        txt.required.set(true)
+        sarif.required.set(true)
     }
 }
 

@@ -29,22 +29,13 @@ interface NotesApiService {
     suspend fun createNote(@Body request: CreateNoteRequest): ApiItem
 
     @PATCH("v1/items/{itemID}/rename")
-    suspend fun renameItem(
-        @Path("itemID") itemId: String,
-        @Body request: RenameItemRequest
-    ): MutationResultDto
+    suspend fun renameItem(@Path("itemID") itemId: String, @Body request: RenameItemRequest): MutationResultDto
 
     @PATCH("v1/items/{itemID}/move")
-    suspend fun moveItem(
-        @Path("itemID") itemId: String,
-        @Body request: MoveItemRequest
-    ): MutationResultDto
+    suspend fun moveItem(@Path("itemID") itemId: String, @Body request: MoveItemRequest): MutationResultDto
 
     @PATCH("v1/items/{itemID}/reorder")
-    suspend fun reorderItem(
-        @Path("itemID") itemId: String,
-        @Body request: ReorderItemRequest
-    ): MutationResultDto
+    suspend fun reorderItem(@Path("itemID") itemId: String, @Body request: ReorderItemRequest): MutationResultDto
 
     @PATCH("v1/notes/{itemID}/content")
     suspend fun updateNoteContent(
@@ -53,14 +44,8 @@ interface NotesApiService {
     ): MutationResultDto
 
     @PATCH("v1/items/{itemID}/favorite")
-    suspend fun favoriteItem(
-        @Path("itemID") itemId: String,
-        @Body request: FavoriteItemRequest
-    ): MutationResultDto
+    suspend fun favoriteItem(@Path("itemID") itemId: String, @Body request: FavoriteItemRequest): MutationResultDto
 
     @HTTP(method = "DELETE", path = "v1/items/{itemID}", hasBody = true)
-    suspend fun deleteItem(
-        @Path("itemID") itemId: String,
-        @Body request: DeleteItemRequest
-    ): MutationResultDto
+    suspend fun deleteItem(@Path("itemID") itemId: String, @Body request: DeleteItemRequest): MutationResultDto
 }

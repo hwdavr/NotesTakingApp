@@ -23,8 +23,26 @@ class NotesViewModelTest : BaseViewModelTest() {
     private lateinit var viewModel: NotesViewModel
 
     private val testNotes = listOf(
-        Note(id = "n1", title = "Alpha", content = "Content 1", folderId = null, sortKey = "1", deviceId = "dev", createdAt = 0, updatedAt = 0),
-        Note(id = "n2", title = "Beta", content = "Content 2", folderId = null, sortKey = "2", deviceId = "dev", createdAt = 0, updatedAt = 0)
+        Note(
+            id = "n1",
+            title = "Alpha",
+            content = "Content 1",
+            folderId = null,
+            sortKey = "1",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0
+        ),
+        Note(
+            id = "n2",
+            title = "Beta",
+            content = "Content 2",
+            folderId = null,
+            sortKey = "2",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0
+        )
     )
 
     @Before
@@ -38,7 +56,7 @@ class NotesViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(2, state.notes.size)
@@ -49,9 +67,9 @@ class NotesViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.onSearchChanged("Alpha")
-        
+
         val state = viewModel.uiState.value
         assertEquals(1, state.notes.size)
         assertEquals("Alpha", state.notes[0].title)
@@ -62,9 +80,9 @@ class NotesViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.onSearchChanged("Content 2")
-        
+
         val state = viewModel.uiState.value
         assertEquals(1, state.notes.size)
         assertEquals("Beta", state.notes[0].title)

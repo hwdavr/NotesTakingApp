@@ -1,20 +1,31 @@
 package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.ui.folders.*
-import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.folders.FolderTreeItem
+import com.example.notesapp.ui.folders.FoldersScreenContent
+import com.example.notesapp.ui.folders.FoldersUiState
+import com.example.notesapp.ui.folders.SmartCollectionCounts
+import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -178,7 +189,10 @@ class FoldersScreenTest {
 
         // 2. Wait for and click archive in the action sheet
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("delete_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "delete_item_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("delete_item_action", useUnmergedTree = true).performClick()
 
@@ -187,7 +201,7 @@ class FoldersScreenTest {
             composeRule.onAllNodesWithText("Archive Folder", ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithText("Archive Folder", ignoreCase = true).assertIsDisplayed()
-        
+
         // 4. Click Archive in the confirmation dialog
         composeRule.onNodeWithTag("confirm_delete_button").performClick()
 
@@ -217,7 +231,10 @@ class FoldersScreenTest {
 
         // 2. Click Rename in the action sheet
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("rename_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "rename_item_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("rename_item_action", useUnmergedTree = true).performClick()
 
@@ -226,7 +243,7 @@ class FoldersScreenTest {
             composeRule.onAllNodesWithText("Rename Folder", ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithText("Rename Folder", ignoreCase = true).assertIsDisplayed()
-        
+
         composeRule.onNodeWithTag("rename_text_field").performTextReplacement("New Name")
 
         // 4. Click Rename confirm
@@ -258,7 +275,10 @@ class FoldersScreenTest {
 
         // 2. Click Rename in the action sheet
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("rename_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "rename_item_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("rename_item_action", useUnmergedTree = true).performClick()
 
@@ -267,7 +287,7 @@ class FoldersScreenTest {
             composeRule.onAllNodesWithText("Rename Note", ignoreCase = true).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithText("Rename Note", ignoreCase = true).assertIsDisplayed()
-        
+
         composeRule.onNodeWithTag("rename_text_field").performTextReplacement("New Note")
 
         // 4. Click Rename confirm
@@ -296,7 +316,10 @@ class FoldersScreenTest {
 
         composeRule.onNodeWithTag("note_more_actions_n1").performClick()
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "add_to_favorites_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
 
@@ -322,7 +345,10 @@ class FoldersScreenTest {
 
         composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "add_to_favorites_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
 

@@ -14,14 +14,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.notesapp.ui.theme.LavenderPrimary
 import com.example.notesapp.ui.theme.SurfaceCard
@@ -49,16 +47,16 @@ fun FolderRow(
     ) {
         Row(
             modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically, 
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Icon(Icons.Outlined.Folder, contentDescription = null, tint = TextPrimary)
             Text(text = name, color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
         }
-        
+
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(text = count, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-            
+
             if (onAddClick != null) {
                 Surface(
                     onClick = onAddClick,

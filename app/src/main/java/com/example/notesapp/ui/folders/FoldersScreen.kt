@@ -9,18 +9,17 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.StickyNote2
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -32,7 +31,6 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -505,12 +503,7 @@ private fun CollectionStats(
 }
 
 @Composable
-private fun CollectionStatRow(
-    icon: ImageVector,
-    label: String,
-    count: Int,
-    onClick: () -> Unit
-) {
+private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -667,12 +660,7 @@ private fun FolderTreeRow(
 }
 
 @Composable
-private fun NoteTreeRow(
-    note: Note,
-    depth: Int,
-    onClick: () -> Unit,
-    onQuickActions: () -> Unit
-) {
+private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActions: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -823,8 +811,11 @@ private fun FolderItemActionsSheet(
             SheetActionRow(
                 icon = if (folder.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                 label = stringResource(
-                    if (folder.isFavorite) R.string.folders_remove_from_favorites_action
-                    else R.string.folders_add_to_favorites_action
+                    if (folder.isFavorite) {
+                        R.string.folders_remove_from_favorites_action
+                    } else {
+                        R.string.folders_add_to_favorites_action
+                    }
                 ),
                 onClick = onAddToFavorites,
                 modifier = Modifier.testTag("add_to_favorites_action")
@@ -902,8 +893,11 @@ fun NoteItemActionsSheet(
             SheetActionRow(
                 icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                 label = stringResource(
-                    if (note.isFavorite) R.string.folders_remove_from_favorites_action
-                    else R.string.folders_add_to_favorites_action
+                    if (note.isFavorite) {
+                        R.string.folders_remove_from_favorites_action
+                    } else {
+                        R.string.folders_add_to_favorites_action
+                    }
                 ),
                 onClick = onAddToFavorites,
                 modifier = Modifier.testTag("add_to_favorites_action")
@@ -967,10 +961,7 @@ private fun SheetActionRow(
 }
 
 @Composable
-private fun HomeStyleFab(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun HomeStyleFab(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         modifier = modifier,

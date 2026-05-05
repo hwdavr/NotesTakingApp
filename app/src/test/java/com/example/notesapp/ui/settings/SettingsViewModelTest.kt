@@ -7,9 +7,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertEquals
 
 class SettingsViewModelTest : BaseViewModelTest() {
 
@@ -30,9 +30,9 @@ class SettingsViewModelTest : BaseViewModelTest() {
         val context: Context = mockk()
         val onSuccess: () -> Unit = {}
         val onError: (String) -> Unit = {}
-        
+
         viewModel.logout(context, onSuccess, onError)
-        
+
         verify { authManager.logout(context, any(), any()) }
     }
 

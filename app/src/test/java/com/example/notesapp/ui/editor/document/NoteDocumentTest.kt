@@ -55,6 +55,11 @@ class NoteDocumentTest {
         assertEquals("paragraph", blocks.getJSONObject(0).getString("type"))
         assertEquals("image", blocks.getJSONObject(1).getString("type"))
         assertEquals("table", blocks.getJSONObject(2).getString("type"))
-        assertEquals("Alice", blocks.getJSONObject(2).getJSONArray("rows").getJSONArray(1).getJSONArray(0).getJSONObject(0).getString("text"))
+        assertEquals(
+            "Alice",
+            blocks.getJSONObject(
+                2
+            ).getJSONArray("rows").getJSONArray(1).getJSONArray(0).getJSONObject(0).getString("text")
+        )
     }
 }

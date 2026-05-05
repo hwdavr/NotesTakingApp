@@ -8,13 +8,13 @@ import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.document.noteContentPreview
 import com.example.notesapp.ui.notes.NoteUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 open class HomeViewModel @Inject constructor(
@@ -98,9 +98,9 @@ open class HomeViewModel @Inject constructor(
             isLoading = false
         )
     }
-.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = HomeUiState(isLoading = true)
-    )
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = HomeUiState(isLoading = true)
+        )
 }

@@ -177,10 +177,7 @@ private fun MoveToTopBar(onBack: () -> Unit) {
 }
 
 @Composable
-private fun MoveToSearchBox(
-    value: String,
-    onValueChange: (String) -> Unit
-) {
+private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -224,13 +221,7 @@ private fun MoveToSearchBox(
 }
 
 @Composable
-private fun MoveDestinationRow(
-    name: String,
-    depth: Int,
-    isRoot: Boolean,
-    testTag: String,
-    onClick: () -> Unit
-) {
+private fun MoveDestinationRow(name: String, depth: Int, isRoot: Boolean, testTag: String, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()

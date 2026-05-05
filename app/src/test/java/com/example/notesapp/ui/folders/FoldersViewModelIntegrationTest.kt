@@ -2,8 +2,8 @@ package com.example.notesapp.ui.folders
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.domain.folder.Folder
-import com.example.notesapp.ui.folders.FolderTreeItem
-import com.example.notesapp.ui.folders.FoldersViewModel
+import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -13,8 +13,6 @@ import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
@@ -25,18 +23,18 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
     fun `test add folder and sync updates UI state using shared scenario`() = runTest {
         val scenarioFile = File("../sharedContracts/test-scenarios/folder_add_001.json")
         val jsonObject = JSONObject(scenarioFile.readText())
-        
+
         val apiMocks = jsonObject.getJSONArray("apiMocks")
 
         // In FoldersViewModel init, folderRepository.sync() is called -> hits /v1/items
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
-        
+
         viewModel = FoldersViewModel(folderRepository, noteRepository)
-        
+
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
         }
-        
+
         advanceUntilIdle() // let init sync finish
 
         // Now enqueue the mock responses for the addFolder action
@@ -57,17 +55,17 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         // Perform the action
         viewModel.addFolder("Work")
-        
+
         // Let the coroutine start and make the first network request
         advanceUntilIdle()
 
         // Wait for network requests to be processed
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // init sync
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // add folder
-        
+
         // Let the coroutine proceed to syncAll()
         advanceUntilIdle()
-        
+
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync request
 
         // Process final response
@@ -82,10 +80,10 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         val expectedFirstItemName = expectedUi.getJSONArray("items").getJSONObject(0).getString("name")
 
         assertEquals(expectedItemCount, uiState.treeItems.size)
-        
+
         val firstTreeItem = uiState.treeItems[0] as FolderTreeItem.FolderItem
         assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
-        
+
         collectJob.cancel()
     }
 
@@ -97,7 +95,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         // Initial sync (empty)
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
-        
+
         viewModel = FoldersViewModel(folderRepository, noteRepository)
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
@@ -107,11 +105,15 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         val folderId = "folder_1"
         val initialFolder = Folder(id = folderId, name = "Old Name", createdAt = 0, updatedAt = 0)
-        
+
         // Enqueue for insert (not part of the rename scenario itself, but needed for setup)
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("""{"id":"$folderId","name":"Old Name","type":"folder","version":1}"""))
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(
+                200
+            ).setBody("""{"id":"$folderId","name":"Old Name","type":"folder","version":1}""")
+        )
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]")) // sync after insert
-        
+
         folderRepository.insert(initialFolder)
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // insert
@@ -139,7 +141,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // rename PATCH
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // follow-up sync
 
-        waitUntil { 
+        waitUntil {
             val item = viewModel.uiState.value.treeItems.firstOrNull() as? FolderTreeItem.FolderItem
             item?.folder?.name == "New Name"
         }
@@ -150,7 +152,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         val firstTreeItem = uiState.treeItems[0] as FolderTreeItem.FolderItem
         assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
-        
+
         collectJob.cancel()
     }
 
@@ -162,7 +164,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         // Initial sync (empty)
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
-        
+
         viewModel = FoldersViewModel(folderRepository, noteRepository)
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
@@ -172,24 +174,32 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         // 1. Setup: Add folder f1
         val folderId = "f1"
-        mockWebServer.enqueue(MockResponse().setResponseCode(201).setBody("""
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(201).setBody(
+                """
             {
                 "id": "$folderId", "userId": "u1", "type": "folder", "parentId": null, "name": "Delete Me",
                 "content": "", "sortKey": "a0", "version": 1, "deviceId": "dev", "lastSyncedVersion": 1,
                 "createdAt": "2026-04-26T10:00:00Z", "updatedAt": "2026-04-26T10:00:00Z"
             }
-        """.trimIndent()))
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("""
+                """.trimIndent()
+            )
+        )
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """
             [{
                 "id": "$folderId", "userId": "u1", "type": "folder", "parentId": null, "name": "Delete Me",
                 "content": "", "sortKey": "a0", "version": 1, "deviceId": "dev", "lastSyncedVersion": 1,
                 "createdAt": "2026-04-26T10:00:00Z", "updatedAt": "2026-04-26T10:00:00Z"
             }]
-        """.trimIndent()))
-        
+                """.trimIndent()
+            )
+        )
+
         viewModel.addFolder("Delete Me")
         advanceUntilIdle()
-        
+
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // create
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync
 
@@ -218,7 +228,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
         waitUntil { viewModel.uiState.value.treeItems.isEmpty() }
         assertEquals(0, viewModel.uiState.value.treeItems.size)
-        
+
         collectJob.cancel()
     }
 }

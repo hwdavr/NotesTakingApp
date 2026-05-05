@@ -8,8 +8,8 @@ import com.example.notesapp.domain.note.NoteRepository
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -31,8 +31,26 @@ class HomeViewModelTest : BaseViewModelTest() {
     )
 
     private val testNotes = listOf(
-        Note(id = "n1", title = "Note 1", content = "Content 1", folderId = "f1", sortKey = "1", deviceId = "dev", createdAt = 0, updatedAt = 0),
-        Note(id = "n2", title = "Fav Note", content = "Fav Content", folderId = "f2", sortKey = "2", deviceId = "dev", createdAt = 0, updatedAt = 0)
+        Note(
+            id = "n1",
+            title = "Note 1",
+            content = "Content 1",
+            folderId = "f1",
+            sortKey = "1",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0
+        ),
+        Note(
+            id = "n2",
+            title = "Fav Note",
+            content = "Fav Content",
+            folderId = "f2",
+            sortKey = "2",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0
+        )
     )
 
     @Before
@@ -48,7 +66,7 @@ class HomeViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(2, state.recentNotes.size)
@@ -61,9 +79,9 @@ class HomeViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.selectFolder("f1")
-        
+
         val state = viewModel.uiState.value
         assertEquals("f1", state.selectedFolderId)
         assertEquals(1, state.recentNotes.size)
@@ -75,9 +93,9 @@ class HomeViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.selectFolder("favorites")
-        
+
         val state = viewModel.uiState.value
         assertEquals("favorites", state.selectedFolderId)
         assertEquals(1, state.recentNotes.size)

@@ -2,6 +2,8 @@ package com.example.notesapp.ui.editor
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.data.local.NoteEntity
+import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -11,8 +13,6 @@ import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
@@ -62,7 +62,7 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
             ]
         """.trimIndent()
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(initialNoteJson))
-        
+
         // Request 2: auto-save patch
         val patchMock = apiMocks.getJSONObject(0)
         mockWebServer.enqueue(
@@ -70,7 +70,7 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setResponseCode(patchMock.getInt("status"))
                 .setBody(patchMock.getJSONObject("response").toString())
         )
-        
+
         // Request 3: post-save sync
         val syncMock = apiMocks.getJSONObject(1)
         mockWebServer.enqueue(
@@ -84,7 +84,7 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         viewModel.load("note_001")
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)
-        
+
         // Wait for the load operation to complete
         waitUntil { viewModel.uiState.value.isLoaded }
 
@@ -99,21 +99,21 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         // 6. Advance time to trigger auto-save (delay is 2000ms)
         advanceTimeBy(3000)
         advanceUntilIdle()
-        
+
         // 7. Wait for patch request
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)
-        
+
         // Wait for post-save sync request (the Repository calls syncAll after patch)
         waitUntil { mockWebServer.requestCount == 3 }
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)
-        
+
         // Wait for the DAO to be updated by the sync operation
         waitUntil { fakeNoteDao.getNoteById("note_001")?.content == newContent }
 
         // 9. Final assertions
         val uiState = viewModel.uiState.value
         assertEquals(newContent, uiState.content)
-        
+
         // Verify DAO was updated
         val noteInDao = fakeNoteDao.getNoteById("note_001")
         assertEquals(newContent, noteInDao?.content)

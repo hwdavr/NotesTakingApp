@@ -58,20 +58,16 @@ class FakeNoteRepository(
     override fun getActiveNotes(): Flow<List<Note>> = notes.map { list -> list.filter { it.deletedAt == null } }
     override fun getArchivedNotes(): Flow<List<Note>> = notes.map { list -> list.filter { it.deletedAt != null } }
 
-    override suspend fun getNoteById(id: String): Note? =
-        notes.value.firstOrNull { it.id == id }
+    override suspend fun getNoteById(id: String): Note? = notes.value.firstOrNull { it.id == id }
 
-    override suspend fun getActiveNoteCount(): Int =
-        notes.value.count { it.deletedAt == null }
+    override suspend fun getActiveNoteCount(): Int = notes.value.count { it.deletedAt == null }
 
     override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
         notes.value.count { it.folderId == folderId && it.deletedAt == null }
 
-    override suspend fun getFavoriteNoteCount(): Int =
-        notes.value.count { it.isFavorite && it.deletedAt == null }
+    override suspend fun getFavoriteNoteCount(): Int = notes.value.count { it.isFavorite && it.deletedAt == null }
 
-    override suspend fun getArchivedNoteCount(): Int =
-        notes.value.count { it.deletedAt != null }
+    override suspend fun getArchivedNoteCount(): Int = notes.value.count { it.deletedAt != null }
 
     override suspend fun save(note: Note) {
         notes.value = notes.value

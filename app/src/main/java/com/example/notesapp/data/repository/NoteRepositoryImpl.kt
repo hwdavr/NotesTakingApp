@@ -3,20 +3,20 @@ package com.example.notesapp.data.repository
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.remote.CreateNoteRequest
 import com.example.notesapp.data.remote.DeleteItemRequest
+import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
-import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.data.remote.UpdateNoteContentRequest
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.util.DeviceIdProvider
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
 class NoteRepositoryImpl @Inject constructor(
@@ -32,8 +32,7 @@ class NoteRepositoryImpl @Inject constructor(
     override fun getArchivedNotes(): Flow<List<Note>> =
         noteDao.getArchivedNotes().map { list -> list.map { it.toDomain() } }
 
-    override suspend fun getNoteById(id: String): Note? =
-        noteDao.getNoteById(id)?.toDomain()
+    override suspend fun getNoteById(id: String): Note? = noteDao.getNoteById(id)?.toDomain()
 
     override suspend fun getActiveNoteCount(): Int = noteDao.getActiveNoteCount()
 

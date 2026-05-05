@@ -113,17 +113,16 @@ class MoveToViewModelTest : BaseViewModelTest() {
         notes: List<Note> = emptyList(),
         folderRepository: FakeMoveFolderRepository = FakeMoveFolderRepository(folders),
         noteRepository: FakeMoveNoteRepository = FakeMoveNoteRepository(notes)
-    ): MoveToViewModel =
-        MoveToViewModel(
-            folderRepository = folderRepository,
-            noteRepository = noteRepository,
-            savedStateHandle = SavedStateHandle(
-                mapOf(
-                    "itemType" to itemType,
-                    "itemId" to itemId
-                )
+    ): MoveToViewModel = MoveToViewModel(
+        folderRepository = folderRepository,
+        noteRepository = noteRepository,
+        savedStateHandle = SavedStateHandle(
+            mapOf(
+                "itemType" to itemType,
+                "itemId" to itemId
             )
         )
+    )
 }
 
 private class FakeMoveFolderRepository(
@@ -158,8 +157,7 @@ private class FakeMoveNoteRepository(
     override fun getActiveNotes(): Flow<List<Note>> = notes
     override fun getArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
 
-    override suspend fun getNoteById(id: String): Note? =
-        notes.value.firstOrNull { it.id == id }
+    override suspend fun getNoteById(id: String): Note? = notes.value.firstOrNull { it.id == id }
 
     override suspend fun getActiveNoteCount(): Int = notes.value.size
 
@@ -180,21 +178,19 @@ private class FakeMoveNoteRepository(
     override suspend fun sync() = Unit
 }
 
-private fun folder(id: String, name: String, parentFolderId: String? = null): Folder =
-    Folder(
-        id = id,
-        name = name,
-        parentFolderId = parentFolderId,
-        createdAt = 0,
-        updatedAt = 0
-    )
+private fun folder(id: String, name: String, parentFolderId: String? = null): Folder = Folder(
+    id = id,
+    name = name,
+    parentFolderId = parentFolderId,
+    createdAt = 0,
+    updatedAt = 0
+)
 
-private fun note(id: String, title: String, folderId: String?): Note =
-    Note(
-        id = id,
-        title = title,
-        content = "",
-        folderId = folderId,
-        createdAt = 0,
-        updatedAt = 0
-    )
+private fun note(id: String, title: String, folderId: String?): Note = Note(
+    id = id,
+    title = title,
+    content = "",
+    folderId = folderId,
+    createdAt = 0,
+    updatedAt = 0
+)

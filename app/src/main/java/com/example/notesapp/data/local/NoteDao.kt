@@ -1,7 +1,6 @@
 package com.example.notesapp.data.local
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -34,7 +33,10 @@ interface NoteDao {
     @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NOT NULL")
     suspend fun getArchivedNoteCount(): Int
 
-    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
+    @Query(
+        "SELECT * FROM notes WHERE title LIKE '%' || :query || '%' " +
+            "OR content LIKE '%' || :query || '%' ORDER BY updatedAt DESC"
+    )
     fun searchNotes(query: String): Flow<List<NoteEntity>>
 
     @Query("SELECT COUNT(*) FROM notes")

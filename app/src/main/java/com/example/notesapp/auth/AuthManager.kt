@@ -10,24 +10,27 @@ import com.auth0.android.provider.WebAuthProvider
 import com.auth0.android.result.Credentials
 import com.example.notesapp.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.nio.charset.StandardCharsets
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
-import java.nio.charset.StandardCharsets
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 open class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenStorage: TokenStorage
 ) {
-    private val TAG = "AuthManager"
     private val account = Auth0(
         context.getString(R.string.auth0_client_id),
         context.getString(R.string.auth0_domain)
     )
+
+    companion object {
+        private const val TAG = "AuthManager"
+    }
 
     private val _isLoggedIn = MutableStateFlow(false)
     open val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
@@ -48,20 +51,23 @@ open class AuthManager @Inject constructor(
             .withScheme(context.getString(R.string.auth0_scheme))
             .withScope("openid profile email offline_access")
             .withAudience(context.getString(R.string.auth0_audience))
-            .start(activityContext, object : Callback<Credentials, AuthenticationException> {
-                override fun onSuccess(result: Credentials) {
-                    Log.d(TAG, "Login successful!")
-                    tokenStorage.saveTokens(result.accessToken, result.refreshToken, result.idToken)
-                    _profileEmail.value = extractEmailFromIdToken(result.idToken)
-                    _isLoggedIn.value = true
-                    onSuccess()
-                }
+            .start(
+                activityContext,
+                object : Callback<Credentials, AuthenticationException> {
+                    override fun onSuccess(result: Credentials) {
+                        Log.d(TAG, "Login successful!")
+                        tokenStorage.saveTokens(result.accessToken, result.refreshToken, result.idToken)
+                        _profileEmail.value = extractEmailFromIdToken(result.idToken)
+                        _isLoggedIn.value = true
+                        onSuccess()
+                    }
 
-                override fun onFailure(error: AuthenticationException) {
-                    Log.e(TAG, "Login failed: ${error.getDescription()}", error)
-                    onError(error.getDescription())
+                    override fun onFailure(error: AuthenticationException) {
+                        Log.e(TAG, "Login failed: ${error.getDescription()}", error)
+                        onError(error.getDescription())
+                    }
                 }
-            })
+            )
     }
 
     /**
@@ -70,20 +76,23 @@ open class AuthManager @Inject constructor(
     open fun logout(activityContext: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
         WebAuthProvider.logout(account)
             .withScheme(context.getString(R.string.auth0_scheme))
-            .start(activityContext, object : Callback<Void?, AuthenticationException> {
-                override fun onSuccess(result: Void?) {
-                    Log.d(TAG, "Logout successful")
-                    tokenStorage.clearTokens()
-                    _profileEmail.value = null
-                    _isLoggedIn.value = false
-                    onSuccess()
-                }
+            .start(
+                activityContext,
+                object : Callback<Void?, AuthenticationException> {
+                    override fun onSuccess(result: Void?) {
+                        Log.d(TAG, "Logout successful")
+                        tokenStorage.clearTokens()
+                        _profileEmail.value = null
+                        _isLoggedIn.value = false
+                        onSuccess()
+                    }
 
-                override fun onFailure(error: AuthenticationException) {
-                    Log.e(TAG, "Logout failed: ${error.getDescription()}", error)
-                    onError(error.getDescription())
+                    override fun onFailure(error: AuthenticationException) {
+                        Log.e(TAG, "Logout failed: ${error.getDescription()}", error)
+                        onError(error.getDescription())
+                    }
                 }
-            })
+            )
     }
 
     /**

@@ -10,13 +10,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.folders.FoldersScreenContent
+import com.example.notesapp.ui.folders.FoldersUiState
 import com.example.notesapp.ui.home.HomeNotesScreenContent
 import com.example.notesapp.ui.home.HomeUiState
 import com.example.notesapp.ui.onboarding.OnboardingScreen
-import com.example.notesapp.ui.folders.FoldersScreenContent
-import com.example.notesapp.ui.folders.FoldersUiState
-import com.example.notesapp.domain.folder.Folder
-import com.example.notesapp.domain.note.Note
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,10 +55,10 @@ class NavigationTest {
 
         // Onboarding Screen should be visible
         composeRule.onNodeWithText("Save and share notes", ignoreCase = true).assertIsDisplayed()
-        
+
         // Navigate to Home
         composeRule.onNodeWithText("Log in", ignoreCase = true).performClick()
-        
+
         // Home Screen should be visible
         composeRule.onNodeWithText("Recent folders", ignoreCase = true).assertIsDisplayed()
     }
@@ -96,7 +96,7 @@ class NavigationTest {
                     )
                 }
             }
-            
+
             navController.navigate("folders")
         }
 

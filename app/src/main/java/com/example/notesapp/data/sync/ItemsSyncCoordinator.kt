@@ -3,9 +3,9 @@ package com.example.notesapp.data.sync
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.remote.NotesApiService
+import com.example.notesapp.data.remote.UpdateNoteContentRequest
 import com.example.notesapp.data.remote.toFolderEntity
 import com.example.notesapp.data.remote.toNoteEntity
-import com.example.notesapp.data.remote.UpdateNoteContentRequest
 import com.example.notesapp.util.DeviceIdProvider
 import javax.inject.Inject
 import javax.inject.Singleton

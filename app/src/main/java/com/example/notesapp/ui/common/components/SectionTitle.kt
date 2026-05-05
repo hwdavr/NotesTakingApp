@@ -10,10 +10,7 @@ import androidx.compose.ui.Modifier
 import com.example.notesapp.ui.theme.TextSecondary
 
 @Composable
-fun SectionTitle(
-    title: String,
-    actionLabel: String? = null
-) {
+fun SectionTitle(title: String, actionLabel: String? = null) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween

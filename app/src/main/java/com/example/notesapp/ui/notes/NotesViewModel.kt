@@ -5,13 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.document.noteContentPreview
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(

@@ -8,13 +8,13 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class MoveToFolderDestination(
     val id: String?,
@@ -121,13 +121,12 @@ class MoveToViewModel @Inject constructor(
             setOf(movingFolder.id) + collectDescendantFolderIds(folders, movingFolder.id)
         }
 
-        fun build(parentId: String?, depth: Int): List<MoveToFolderDestination> =
-            folders
-                .filter { it.parentFolderId == parentId && it.id !in invalidIds }
-                .flatMap { folder ->
-                    listOf(MoveToFolderDestination(folder.id, folder.name, depth)) +
-                        build(folder.id, depth + 1)
-                }
+        fun build(parentId: String?, depth: Int): List<MoveToFolderDestination> = folders
+            .filter { it.parentFolderId == parentId && it.id !in invalidIds }
+            .flatMap { folder ->
+                listOf(MoveToFolderDestination(folder.id, folder.name, depth)) +
+                    build(folder.id, depth + 1)
+            }
 
         return build(parentId = null, depth = 0)
     }

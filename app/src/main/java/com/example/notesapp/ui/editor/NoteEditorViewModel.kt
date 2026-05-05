@@ -13,6 +13,8 @@ import com.example.notesapp.ui.editor.document.newBlockId
 import com.example.notesapp.ui.editor.document.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.document.text
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +22,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.UUID
-import javax.inject.Inject
 
 data class NoteEditorUiState(
     val noteId: String? = null,
@@ -144,7 +144,7 @@ open class NoteEditorViewModel @Inject constructor(
 
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TextBlock) return@updateBlock block
-            
+
             val text = block.text()
             if (start == end || start < 0 || end > text.length) {
                 // If no selection, toggle for the whole block as before
@@ -158,7 +158,7 @@ open class NoteEditorViewModel @Inject constructor(
             }
 
             // If there's a selection, insert markdown markers
-            val marker = when(mark) {
+            val marker = when (mark) {
                 "bold" -> "**"
                 "italic" -> "*"
                 "code" -> "`"
@@ -169,12 +169,14 @@ open class NoteEditorViewModel @Inject constructor(
             val selectedText = text.substring(start, end)
             val newText = if (selectedText.startsWith(marker) && selectedText.endsWith(marker)) {
                 // Remove markers if already present
-                text.substring(0, start) + selectedText.substring(marker.length, selectedText.length - marker.length) + text.substring(end)
+                text.substring(0, start) +
+                    selectedText.substring(marker.length, selectedText.length - marker.length) +
+                    text.substring(end)
             } else {
                 // Add markers
                 text.substring(0, start) + marker + selectedText + marker + text.substring(end)
             }
-            
+
             parseMarkdownTextBlock(id = block.id, text = newText)
         }
     }
@@ -252,7 +254,7 @@ open class NoteEditorViewModel @Inject constructor(
             updatedAt = now
         )
         noteRepository.save(note)
-        
+
         // Update state with generated ID and createdAt to avoid duplicate creations
         _uiState.value = _uiState.value.copy(
             noteId = noteId,
@@ -318,7 +320,7 @@ open class NoteEditorViewModel @Inject constructor(
         val current = _uiState.value
         val lines = value.split('\n')
         var nextFocusId: String? = null
-        
+
         val updatedBlocks = current.document.blocks.flatMap { block ->
             if (block.id == blockId && block is EditorBlock.TextBlock) {
                 val newBlocks = lines.mapIndexed { index, line ->
@@ -345,7 +347,7 @@ open class NoteEditorViewModel @Inject constructor(
         val current = _uiState.value
         val blocks = current.document.blocks
         if (blocks.size <= 1) return
-        
+
         val index = blocks.indexOfFirst { it.id == blockId }
         if (index == -1) return
 

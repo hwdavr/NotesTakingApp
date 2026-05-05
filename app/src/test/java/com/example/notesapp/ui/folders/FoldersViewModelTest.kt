@@ -34,7 +34,16 @@ class FoldersViewModelTest : BaseViewModelTest() {
     )
 
     private val testNotes = listOf(
-        Note(id = "n1", title = "Note 1", content = "Content 1", folderId = "1", sortKey = "1", deviceId = "dev", createdAt = 0, updatedAt = 0)
+        Note(
+            id = "n1",
+            title = "Note 1",
+            content = "Content 1",
+            folderId = "1",
+            sortKey = "1",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0
+        )
     )
 
     @Before
@@ -56,7 +65,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         val state = viewModel.uiState.value
         assertEquals(2, state.treeItems.filterIsInstance<FolderTreeItem.FolderItem>().size)
         assertEquals(1, state.treeItems.filterIsInstance<FolderTreeItem.NoteItem>().size)
@@ -67,9 +76,9 @@ class FoldersViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.onSearchChanged("Note 1")
-        
+
         val state = viewModel.uiState.value
         assertTrue(state.isSearchActive)
         assertEquals(1, state.treeItems.size)

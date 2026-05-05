@@ -1,10 +1,10 @@
 package com.example.notesapp.data.remote
 
 import com.example.notesapp.auth.TokenStorage
-import okhttp3.Interceptor
-import okhttp3.Response
 import javax.inject.Inject
 import javax.inject.Singleton
+import okhttp3.Interceptor
+import okhttp3.Response
 
 @Singleton
 class AuthInterceptor @Inject constructor(

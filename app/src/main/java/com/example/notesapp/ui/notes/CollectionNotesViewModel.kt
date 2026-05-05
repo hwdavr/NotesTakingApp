@@ -9,11 +9,11 @@ import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.document.noteContentPreview
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 sealed class CollectionItemUiModel {
     data class FolderItem(
@@ -96,10 +96,7 @@ open class CollectionNotesViewModel @Inject constructor(
     )
 }
 
-private fun buildArchivedCollectionItems(
-    folders: List<Folder>,
-    notes: List<Note>
-): List<CollectionItemUiModel> {
+private fun buildArchivedCollectionItems(folders: List<Folder>, notes: List<Note>): List<CollectionItemUiModel> {
     val archivedFolders = folders.map { folder ->
         CollectionItemUiModel.FolderItem(
             id = folder.id,
@@ -139,13 +136,12 @@ private fun buildFolderCollectionItems(
     return childFolders + childNotes
 }
 
-private fun Note.toUiModel(): NoteUiModel =
-    NoteUiModel(
-        id = id,
-        title = title,
-        preview = noteContentPreview(content),
-        colorIndex = id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
-    )
+private fun Note.toUiModel(): NoteUiModel = NoteUiModel(
+    id = id,
+    title = title,
+    preview = noteContentPreview(content),
+    colorIndex = id.hashCode().mod(4).let { if (it < 0) it + 4 else it }
+)
 
 private fun defaultLabel(type: String): String = when (type) {
     "favorites" -> "Favorites"

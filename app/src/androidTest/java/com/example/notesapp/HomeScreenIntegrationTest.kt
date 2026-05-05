@@ -1,12 +1,12 @@
 package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -175,21 +175,19 @@ private class HomeScreenRobot(
     }
 }
 
-private fun folder(id: String, name: String, parentFolderId: String? = null): Folder =
-    Folder(
-        id = id,
-        name = name,
-        parentFolderId = parentFolderId,
-        createdAt = 0,
-        updatedAt = 0
-    )
+private fun folder(id: String, name: String, parentFolderId: String? = null): Folder = Folder(
+    id = id,
+    name = name,
+    parentFolderId = parentFolderId,
+    createdAt = 0,
+    updatedAt = 0
+)
 
-private fun note(id: String, title: String, content: String, folderId: String?): Note =
-    Note(
-        id = id,
-        title = title,
-        content = content,
-        folderId = folderId,
-        createdAt = 0,
-        updatedAt = 0
-    )
+private fun note(id: String, title: String, content: String, folderId: String?): Note = Note(
+    id = id,
+    title = title,
+    content = content,
+    folderId = folderId,
+    createdAt = 0,
+    updatedAt = 0
+)

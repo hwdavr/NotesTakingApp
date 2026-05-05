@@ -7,6 +7,7 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class SmartCollectionCounts(
     val allNotes: Int = 0,
@@ -54,7 +54,11 @@ open class FoldersViewModel @Inject constructor(
     private val allNotes = noteRepository.getActiveNotes()
 
     open val uiState: StateFlow<FoldersUiState> = combine(
-        allFolders, allNotes, searchQuery, smartCounts, folderCounts
+        allFolders,
+        allNotes,
+        searchQuery,
+        smartCounts,
+        folderCounts
     ) { folders, notes, query, counts, perFolderCounts ->
         val items = if (query.isBlank()) {
             buildTree(folders, notes, null, 0, perFolderCounts)

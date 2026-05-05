@@ -10,8 +10,10 @@ class FakeNoteDao : NoteDao {
     override fun getActiveNotes() = notesFlow.map { it.filter { note -> note.deletedAt == null } }
     override fun getArchivedNotes() = notesFlow.map { it.filter { note -> note.deletedAt != null } }
     override suspend fun getNoteById(id: String) = notesFlow.value.find { it.id == id }
-    override fun getNotesByFolder(folderId: String) = notesFlow.map { list -> list.filter { it.folderId == folderId && it.deletedAt == null } }
-    override suspend fun getActiveNoteCountForFolder(folderId: String) = notesFlow.value.count { it.folderId == folderId && it.deletedAt == null }
+    override fun getNotesByFolder(folderId: String) =
+        notesFlow.map { list -> list.filter { it.folderId == folderId && it.deletedAt == null } }
+    override suspend fun getActiveNoteCountForFolder(folderId: String) =
+        notesFlow.value.count { it.folderId == folderId && it.deletedAt == null }
     override suspend fun getActiveNoteCount() = notesFlow.value.count { it.deletedAt == null }
     override suspend fun getFavoriteNoteCount() = notesFlow.value.count { it.isFavorite && it.deletedAt == null }
     override suspend fun getArchivedNoteCount() = notesFlow.value.count { it.deletedAt != null }
