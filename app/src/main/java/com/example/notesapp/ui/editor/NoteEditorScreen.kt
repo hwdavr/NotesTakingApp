@@ -93,9 +93,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
-import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.common.components.NoteItemActionsSheet
+import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.document.EditorBlock
 import com.example.notesapp.ui.editor.document.text
 
@@ -340,7 +339,7 @@ fun NoteEditorScreenContent(
                 updatedAt = System.currentTimeMillis(),
                 isFavorite = state.isFavorite
             )
-            NoteItemActionsSheet(
+            EditorNoteActionsSheet(
                 note = currentNote,
                 onDismiss = { showNoteActionsSheet = false },
                 onAddToFavorites = {
