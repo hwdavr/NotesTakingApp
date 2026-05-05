@@ -874,17 +874,6 @@ private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
     cursorColor = Color(0xFF6E7BFF)
 )
 
-@Composable
-private fun tableCellColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    disabledContainerColor = Color.Transparent,
-    focusedBorderColor = Color(0xFF6E7BFF),
-    unfocusedBorderColor = Color(0xFFD9E2FF),
-    disabledBorderColor = Color(0xFFD9E2FF),
-    cursorColor = Color(0xFF6E7BFF)
-)
-
 private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, title: String): String {
     if (selectedFolder == null) {
         return "Notes / $title"

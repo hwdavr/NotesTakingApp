@@ -35,8 +35,8 @@ class ItemsSyncCoordinator @Inject constructor(
                             )
                         )
                         hasUpdates = true
-                    } catch (e: Exception) {
-                        // Ignore and keep local version for next sync
+                    } catch (ignored: Exception) {
+                        // Keep local version for next sync if API call fails
                     }
                 }
             }

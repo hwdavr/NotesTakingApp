@@ -323,7 +323,6 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
     ) {
         // All Notes Pill
         FolderPill(
-            id = "all_notes",
             name = stringResource(R.string.folders_stat_all_notes),
             isSelected = selectedId == "all_notes",
             onClick = { onSelect("all_notes") }
@@ -331,7 +330,6 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
 
         // Favorites Pill
         FolderPill(
-            id = "favorites",
             name = stringResource(R.string.folders_stat_favorites),
             isSelected = selectedId == "favorites",
             onClick = { onSelect("favorites") }
@@ -339,7 +337,6 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
 
         items.filter { !it.name.equals("Favorites", ignoreCase = true) }.forEach { folder ->
             FolderPill(
-                id = folder.id,
                 name = folder.name,
                 isSelected = selectedId == folder.id,
                 onClick = { onSelect(folder.id) }
@@ -349,7 +346,7 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
 }
 
 @Composable
-private fun FolderPill(id: String, name: String, isSelected: Boolean, onClick: () -> Unit) {
+private fun FolderPill(name: String, isSelected: Boolean, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),

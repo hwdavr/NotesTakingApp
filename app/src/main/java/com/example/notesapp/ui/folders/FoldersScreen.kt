@@ -68,10 +68,6 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.common.components.SearchHeader
 
-sealed class QuickActionItem {
-    data class FolderItem(val folder: Folder) : QuickActionItem()
-    data class NoteItem(val note: Note) : QuickActionItem()
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
