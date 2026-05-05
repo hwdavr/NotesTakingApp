@@ -47,8 +47,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.common.components.NoteItemActionsSheet
 import com.example.notesapp.ui.common.components.SearchHeader
-import com.example.notesapp.ui.folders.NoteItemActionsSheet
 import com.example.notesapp.ui.notes.components.NoteCard
 import com.example.notesapp.ui.theme.AccentBlue
 import com.example.notesapp.ui.theme.AccentMint

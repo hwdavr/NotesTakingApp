@@ -194,4 +194,19 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         coVerify { noteRepository.delete(match { it.id == "n1" }) }
         assertTrue(called)
     }
+
+    @Test
+    fun `rename preserves isFavorite status`() = runTest {
+        val favoriteNote = testNote.copy(isFavorite = true)
+        coEvery { noteRepository.getNoteById("n1") } returns favoriteNote
+
+        viewModel.load("n1")
+        assertTrue(viewModel.uiState.value.isFavorite)
+
+        viewModel.rename("Renamed Title")
+
+        coVerify {
+            noteRepository.save(match { it.title == "Renamed Title" && it.isFavorite })
+        }
+    }
 }

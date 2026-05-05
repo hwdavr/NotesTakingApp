@@ -34,7 +34,8 @@ data class NoteEditorUiState(
     val isFormattingToolbarVisible: Boolean = false,
     val focusedBlockId: String? = null,
     val selectionStart: Int = 0,
-    val selectionEnd: Int = 0
+    val selectionEnd: Int = 0,
+    val isFavorite: Boolean = false
 ) {
     val content: String
         get() = document.toPlainText()
@@ -91,6 +92,7 @@ open class NoteEditorViewModel @Inject constructor(
                     folderId = note.folderId,
                     availableFolders = folders,
                     createdAt = note.createdAt,
+                    isFavorite = note.isFavorite,
                     isLoaded = true
                 )
             } else {
@@ -106,6 +108,23 @@ open class NoteEditorViewModel @Inject constructor(
     fun onTitleChange(value: String) {
         _uiState.value = _uiState.value.copy(title = value)
         scheduleAutoSave()
+    }
+
+    fun rename(newName: String) {
+        _uiState.value = _uiState.value.copy(title = newName)
+        viewModelScope.launch {
+            saveInternally()
+        }
+    }
+
+    fun toggleFavorite() {
+        val current = _uiState.value
+        val newFavorite = !current.isFavorite
+        _uiState.value = current.copy(isFavorite = newFavorite)
+        viewModelScope.launch {
+            val note = noteRepository.getNoteById(current.noteId ?: return@launch) ?: return@launch
+            noteRepository.save(note.copy(isFavorite = newFavorite, updatedAt = System.currentTimeMillis()))
+        }
     }
 
     fun onContentChange(value: String) {
@@ -251,7 +270,8 @@ open class NoteEditorViewModel @Inject constructor(
             sortKey = now.toString(),
             deviceId = "",
             createdAt = if (current.createdAt == 0L) now else current.createdAt,
-            updatedAt = now
+            updatedAt = now,
+            isFavorite = current.isFavorite
         )
         noteRepository.save(note)
 

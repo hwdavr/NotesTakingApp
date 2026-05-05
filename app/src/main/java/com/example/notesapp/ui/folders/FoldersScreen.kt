@@ -66,7 +66,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.common.components.NoteItemActionsSheet
 import com.example.notesapp.ui.common.components.SearchHeader
+import com.example.notesapp.ui.common.components.SheetActionRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -840,121 +842,6 @@ private fun FolderItemActionsSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NoteItemActionsSheet(
-    note: Note,
-    onDismiss: () -> Unit,
-    onAddToFavorites: () -> Unit,
-    onMoveTo: () -> Unit,
-    onRename: () -> Unit,
-    onDelete: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = Color.White,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Description,
-                    contentDescription = null,
-                    tint = Color(0xFF5F6770),
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = note.title.ifBlank { "Untitled Note" },
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
-                        color = Color(0xFF2F343A)
-                    )
-                )
-            }
-
-            HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
-
-            SheetActionRow(
-                icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                label = stringResource(
-                    if (note.isFavorite) {
-                        R.string.folders_remove_from_favorites_action
-                    } else {
-                        R.string.folders_add_to_favorites_action
-                    }
-                ),
-                onClick = onAddToFavorites,
-                modifier = Modifier.testTag("add_to_favorites_action")
-            )
-            SheetActionRow(
-                icon = Icons.Outlined.Folder,
-                label = stringResource(R.string.folders_move_to_action),
-                onClick = onMoveTo,
-                modifier = Modifier.testTag("move_item_action")
-            )
-            SheetActionRow(
-                icon = Icons.Outlined.Edit,
-                label = stringResource(R.string.folders_rename_action),
-                onClick = onRename,
-                modifier = Modifier.testTag("rename_item_action")
-            )
-            SheetActionRow(
-                icon = Icons.Outlined.Archive,
-                label = stringResource(R.string.folders_delete_action),
-                onClick = onDelete,
-                iconTint = Color(0xFFC44A4A),
-                textColor = Color(0xFFC44A4A)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SheetActionRow(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    iconTint: Color = Color(0xFF4C5560),
-    textColor: Color = Color(0xFF2F343A)
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(18.dp)
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = textColor
-            )
-        )
-    }
-}
 
 @Composable
 private fun HomeStyleFab(onClick: () -> Unit, modifier: Modifier = Modifier) {

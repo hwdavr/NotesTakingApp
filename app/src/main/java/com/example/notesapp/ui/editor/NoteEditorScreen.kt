@@ -42,6 +42,8 @@ import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TableChart
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -92,6 +94,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.common.components.NoteItemActionsSheet
 import com.example.notesapp.ui.editor.document.EditorBlock
 import com.example.notesapp.ui.editor.document.text
 
@@ -102,6 +106,7 @@ fun NoteEditorScreen(
     noteId: String?,
     folderId: String? = null,
     onBack: () -> Unit,
+    onMoveNote: (String) -> Unit,
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -118,6 +123,9 @@ fun NoteEditorScreen(
         onSave = { viewModel.save(onDone = onBack) },
         onDelete = { viewModel.delete(onDone = onBack) },
         onTitleChange = viewModel::onTitleChange,
+        onRename = viewModel::rename,
+        onToggleFavorite = viewModel::toggleFavorite,
+        onMoveNote = { state.noteId?.let { onMoveNote(it) } },
         onTextBlockChange = viewModel::onTextBlockChange,
         onToggleMark = viewModel::toggleBlockMark,
         onAddParagraph = viewModel::addParagraphBlock,
@@ -143,6 +151,9 @@ fun NoteEditorScreenContent(
     onSave: () -> Unit,
     onDelete: () -> Unit,
     onTitleChange: (String) -> Unit,
+    onRename: (String) -> Unit,
+    onToggleFavorite: () -> Unit,
+    onMoveNote: () -> Unit,
     onTextBlockChange: (String, String) -> Unit,
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
@@ -157,7 +168,9 @@ fun NoteEditorScreenContent(
     onDeleteBlock: (String) -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
-    var moreMenuExpanded by remember { mutableStateOf(false) }
+    var showNoteActionsSheet by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renameTextFieldValue by remember { mutableStateOf("") }
 
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
     val breadcrumbText = buildBreadcrumb(
@@ -184,7 +197,7 @@ fun NoteEditorScreenContent(
             EditorTopBar(
                 onBack = onBack,
                 onSave = onSave,
-                onMore = { moreMenuExpanded = true }
+                onMore = { showNoteActionsSheet = true }
             )
 
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
@@ -314,25 +327,71 @@ fun NoteEditorScreenContent(
             )
         }
 
-        DropdownMenu(
-            expanded = moreMenuExpanded,
-            onDismissRequest = { moreMenuExpanded = false }
-        ) {
-            if (!noteId.isNullOrBlank()) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.editor_delete_action)) },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Archive,
-                            contentDescription = null
-                        )
-                    },
-                    onClick = {
-                        moreMenuExpanded = false
-                        onDelete()
+        if (showNoteActionsSheet) {
+            val currentNote = Note(
+                id = state.noteId.orEmpty(),
+                title = state.title,
+                content = state.document.toJsonString(),
+                folderId = state.folderId,
+                sortKey = "",
+                version = 0,
+                deviceId = "",
+                createdAt = state.createdAt,
+                updatedAt = System.currentTimeMillis(),
+                isFavorite = state.isFavorite
+            )
+            NoteItemActionsSheet(
+                note = currentNote,
+                onDismiss = { showNoteActionsSheet = false },
+                onAddToFavorites = {
+                    onToggleFavorite()
+                    showNoteActionsSheet = false
+                },
+                onMoveTo = {
+                    showNoteActionsSheet = false
+                    onMoveNote()
+                },
+                onRename = {
+                    showNoteActionsSheet = false
+                    renameTextFieldValue = state.title
+                    showRenameDialog = true
+                },
+                onDelete = {
+                    showNoteActionsSheet = false
+                    onDelete()
+                }
+            )
+        }
+
+        if (showRenameDialog) {
+            AlertDialog(
+                onDismissRequest = { showRenameDialog = false },
+                title = { Text(stringResource(R.string.folders_rename_note_title)) },
+                text = {
+                    OutlinedTextField(
+                        value = renameTextFieldValue,
+                        onValueChange = { renameTextFieldValue = it },
+                        label = { Text(stringResource(R.string.folders_note_title_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onRename(renameTextFieldValue)
+                            showRenameDialog = false
+                        }
+                    ) {
+                        Text(stringResource(R.string.folders_create_action))
                     }
-                )
-            }
+                },
+                dismissButton = {
+                    Button(onClick = { showRenameDialog = false }) {
+                        Text(stringResource(R.string.folders_cancel_action))
+                    }
+                }
+            )
         }
     }
 }

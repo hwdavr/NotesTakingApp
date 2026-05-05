@@ -258,6 +258,9 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     noteId = noteId,
                     folderId = folderId,
                     onBack = { navController.popBackStack() },
+                    onMoveNote = { id ->
+                        navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, id))
+                    },
                     viewModel = hiltViewModel()
                 )
             }
