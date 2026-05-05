@@ -32,6 +32,39 @@ data class NoteDocument(
         }
     }.trim()
 
+    fun toMarkdown(): String = blocks.joinToString("\n\n") { block ->
+        when (block) {
+            is EditorBlock.TextBlock -> {
+                val prefix = when (block.type) {
+                    "heading" -> "# "
+                    "bulleted" -> "- "
+                    else -> ""
+                }
+                val content = block.children.joinToString("") { richText ->
+                    var text = richText.text
+                    if ("bold" in richText.marks) text = "**$text**"
+                    if ("italic" in richText.marks) text = "*$text*"
+                    if ("code" in richText.marks) text = "`$text`"
+                    text
+                }
+                "$prefix$content"
+            }
+            is EditorBlock.ImageBlock -> {
+                "![${block.caption}](${block.url})"
+            }
+            is EditorBlock.TableBlock -> {
+                val header = block.rows.firstOrNull()?.joinToString(" | ") { cell ->
+                    cell.joinToString("") { it.text }
+                } ?: ""
+                val divider = block.rows.firstOrNull()?.joinToString(" | ") { "---" } ?: ""
+                val body = block.rows.drop(1).joinToString("\n") { row ->
+                    "| " + row.joinToString(" | ") { cell -> cell.joinToString("") { it.text } } + " |"
+                }
+                "| $header |\n| $divider |\n$body"
+            }
+        }
+    }.trim()
+
     fun ensureEditableTextBlock(): NoteDocument {
         if (blocks.any { it is EditorBlock.TextBlock }) return this
         return copy(blocks = listOf(EditorBlock.TextBlock()) + blocks)

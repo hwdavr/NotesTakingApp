@@ -93,6 +93,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.document.EditorBlock
@@ -106,6 +107,7 @@ fun NoteEditorScreen(
     folderId: String? = null,
     onBack: () -> Unit,
     onMoveNote: (String) -> Unit,
+    onExportNote: (String) -> Unit,
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -125,6 +127,7 @@ fun NoteEditorScreen(
         onRename = viewModel::rename,
         onToggleFavorite = viewModel::toggleFavorite,
         onMoveNote = { state.noteId?.let { onMoveNote(it) } },
+        onExportNote = { state.noteId?.let { onExportNote(it) } },
         onTextBlockChange = viewModel::onTextBlockChange,
         onToggleMark = viewModel::toggleBlockMark,
         onAddParagraph = viewModel::addParagraphBlock,
@@ -153,6 +156,7 @@ fun NoteEditorScreenContent(
     onRename: (String) -> Unit,
     onToggleFavorite: () -> Unit,
     onMoveNote: () -> Unit,
+    onExportNote: () -> Unit,
     onTextBlockChange: (String, String) -> Unit,
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
@@ -358,6 +362,10 @@ fun NoteEditorScreenContent(
                 onDelete = {
                     showNoteActionsSheet = false
                     onDelete()
+                },
+                onExport = {
+                    showNoteActionsSheet = false
+                    onExportNote()
                 }
             )
         }

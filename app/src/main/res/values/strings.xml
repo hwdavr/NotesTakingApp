@@ -66,4 +66,12 @@
     <string name="editor_done">Done</string>
     <string name="editor_delete_action">Archive</string>
     <string name="editor_untitled_note">Untitled note</string>
+    <string name="editor_export_action">Export</string>
+    <string name="export_title">Export Note</string>
+    <string name="export_format_label">Select Format</string>
+    <string name="export_markdown">Markdown (.md)</string>
+    <string name="export_pdf">PDF (.pdf)</string>
+    <string name="export_button">Export</string>
+    <string name="export_success">Note exported successfully!</string>
+    <string name="export_error">Failed to export note.</string>
 </resources>

@@ -24,4 +24,7 @@ sealed class Destinations(val route: String) {
             return "editor?$notePart$folderPart"
         }
     }
+    data object ExportNote : Destinations("exportNote/{noteId}") {
+        fun createRoute(noteId: String): String = "exportNote/$noteId"
+    }
 }

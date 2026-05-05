@@ -11,6 +11,7 @@ import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.util.NoteExporter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Binds
@@ -81,5 +82,9 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideNotesApiService(retrofit: Retrofit): NotesApiService = retrofit.create(NotesApiService::class.java)
+
+        @Provides
+        @Singleton
+        fun provideNoteExporter(@ApplicationContext context: Context): NoteExporter = NoteExporter(context)
     }
 }

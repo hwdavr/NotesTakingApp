@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,7 +45,8 @@ fun EditorNoteActionsSheet(
     onAddToFavorites: () -> Unit,
     onMoveTo: () -> Unit,
     onRename: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onExport: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -105,6 +107,12 @@ fun EditorNoteActionsSheet(
                 label = stringResource(R.string.folders_rename_action),
                 onClick = onRename,
                 modifier = Modifier.testTag("rename_item_action")
+            )
+            SheetActionRow(
+                icon = Icons.Outlined.FileDownload,
+                label = stringResource(R.string.editor_export_action),
+                onClick = onExport,
+                modifier = Modifier.testTag("export_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Archive,

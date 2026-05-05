@@ -28,6 +28,7 @@ import com.example.notesapp.ui.home.HomeNotesScreen
 import com.example.notesapp.ui.moveto.MoveToScreen
 import com.example.notesapp.ui.moveto.MoveToViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
+import com.example.notesapp.ui.editor.export.ExportNoteScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
 import com.example.notesapp.ui.settings.SettingsScreen
 
@@ -261,7 +262,26 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     onMoveNote = { id ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, id))
                     },
+                    onExportNote = { id ->
+                        navController.navigate(Destinations.ExportNote.createRoute(id))
+                    },
                     viewModel = hiltViewModel()
+                )
+            }
+            composable(
+                route = Destinations.ExportNote.route,
+                arguments = listOf(
+                    navArgument("noteId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
+                ExportNoteScreen(
+                    parentPadding = innerPadding,
+                    noteId = noteId,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
