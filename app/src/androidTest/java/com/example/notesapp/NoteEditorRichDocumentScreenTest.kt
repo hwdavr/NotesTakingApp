@@ -73,15 +73,13 @@ class NoteEditorRichDocumentScreenTest {
         val isFormattingVisible = mutableStateOf(false)
 
         composeRule.setContent {
-            val state = remember {
-                NoteEditorUiState(
-                    noteId = "note_1",
-                    title = "Title",
-                    document = NoteDocument(blocks = listOf(EditorBlock.TextBlock(id = "text_1"))),
-                    isLoaded = true,
-                    isFormattingToolbarVisible = isFormattingVisible.value
-                )
-            }.copy(isFormattingToolbarVisible = isFormattingVisible.value)
+            val state = NoteEditorUiState(
+                noteId = "note_1",
+                title = "Title",
+                document = NoteDocument(blocks = listOf(EditorBlock.TextBlock(id = "text_1"))),
+                isLoaded = true,
+                isFormattingToolbarVisible = isFormattingVisible.value
+            )
 
             NoteEditorScreenContent(
                 parentPadding = PaddingValues(0.dp),

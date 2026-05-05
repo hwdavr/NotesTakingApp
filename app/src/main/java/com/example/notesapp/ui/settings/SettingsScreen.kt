@@ -23,11 +23,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.IosShare
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.SmartToy
@@ -133,7 +133,7 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
                 )
                 SettingsDivider()
                 SettingRowItem(
-                    icon = Icons.Outlined.Logout,
+                    icon = Icons.AutoMirrored.Outlined.Logout,
                     iconBackground = Color(0xFFFFEBEE),
                     iconTint = Color(0xFFD32F2F),
                     title = "Logout",

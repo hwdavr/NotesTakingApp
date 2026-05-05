@@ -926,9 +926,9 @@ private fun SheetActionRow(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     iconTint: Color = Color(0xFF4C5560),
-    textColor: Color = Color(0xFF2F343A),
-    modifier: Modifier = Modifier
+    textColor: Color = Color(0xFF2F343A)
 ) {
     Row(
         modifier = modifier

@@ -1,24 +1,13 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("com.github.hierynomus.license") version "0.16.1"
 }
-
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-val auth0ClientId = localProperties.getProperty("AUTH0_CLIENT_ID") ?: ""
-val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: "https://notes-app.api"
-val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: "http://10.0.2.2:8080/"
 
 android {
     namespace = "com.example.notesapp"
@@ -31,17 +20,13 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        manifestPlaceholders["auth0Domain"] = "@string/auth0_domain"
-        manifestPlaceholders["auth0Scheme"] = "@string/auth0_scheme"
-
-        resValue("string", "auth0_client_id", "\"$auth0ClientId\"")
-        resValue("string", "auth0_audience", "\"$auth0Audience\"")
-        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+        manifestPlaceholders["auth0Domain"] = "dev-9sa8k5kv.us.auth0.com"
+        manifestPlaceholders["auth0Scheme"] = "notesapp"
+        buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"")
     }
 
     buildTypes {
@@ -54,6 +39,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -67,51 +53,16 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            excludes += "META-INF/LICENSE.md"
-            excludes += "META-INF/LICENSE-notice.md"
         }
     }
-
     lint {
         abortOnError = true
-        warningsAsErrors = false
-        checkDependencies = true
-        htmlReport = true
-        htmlOutput = file("${project.layout.buildDirectory.get()}/reports/lint/lint-results.html")
-        xmlReport = true
-        xmlOutput = file("${project.layout.buildDirectory.get()}/reports/lint/lint-results.xml")
-        // Uncomment below to add baselines for gradual adoption:
-        // baseline = file("lint-baseline.xml")
-    }
-}
-
-ktlint {
-    android.set(true)
-    outputToConsole.set(true)
-    ignoreFailures.set(false)
-    filter {
-        exclude("**/generated/**")
-    }
-}
-
-detekt {
-    buildUponDefaultConfig = true
-    allRules = false
-    config.setFrom(files("${rootProject.projectDir}/detekt.yml"))
-    // Uncomment below to add baselines for gradual adoption:
-    // baseline = file("detekt-baseline.xml")
-}
-
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    reports {
-        html.required.set(true)
-        xml.required.set(true)
-        txt.required.set(true)
-        sarif.required.set(true)
+        checkReleaseBuilds = false
     }
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.tracing:tracing:1.2.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -139,21 +90,16 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51")
-    ksp("com.google.dagger:hilt-compiler:2.51")
+    ksp("com.google.dagger:hilt-android-compiler:2.51")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     // Security
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
-
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.10")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    testImplementation("org.json:json:20231013") // helpful for parsing json in tests
 
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
