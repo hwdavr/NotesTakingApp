@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.AlertDialog
@@ -98,6 +99,12 @@ import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.document.EditorBlock
 import com.example.notesapp.ui.editor.document.text
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import androidx.compose.animation.core.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.filled.Error
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -418,7 +425,10 @@ private fun DocumentBlockList(
 
     LaunchedEffect(focusedBlockId) {
         focusedBlockId?.let { id ->
-            focusRequesters[id]?.requestFocus()
+            val block = blocks.find { it.id == id }
+            if (block is EditorBlock.TextBlock) {
+                focusRequesters[id]?.requestFocus()
+            }
         }
     }
 
@@ -442,7 +452,8 @@ private fun DocumentBlockList(
                 is EditorBlock.ImageBlock -> ImageDocumentBlock(
                     block = block,
                     onUrlChange = { onImageChange(block.id, it, null) },
-                    onCaptionChange = { onImageChange(block.id, null, it) }
+                    onCaptionChange = { onImageChange(block.id, null, it) },
+                    onDelete = { onDeleteBlock(block.id) }
                 )
                 is EditorBlock.TableBlock -> TableDocumentBlock(
                     block = block,
@@ -559,7 +570,8 @@ private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
 private fun ImageDocumentBlock(
     block: EditorBlock.ImageBlock,
     onUrlChange: (String) -> Unit,
-    onCaptionChange: (String) -> Unit
+    onCaptionChange: (String) -> Unit,
+    onDelete: () -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -568,72 +580,127 @@ private fun ImageDocumentBlock(
         color = Color(0xFFF4F7FF),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
-                Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
+                    Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
+                }
+
+                if (block.url.isNotBlank()) {
+                    SubcomposeAsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(block.url)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = block.caption.ifBlank { "Image" },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .testTag("editor_image_preview_${block.id}"),
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            ShimmerEffect()
+                        },
+                        error = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(0xFFFDE7E9)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Error,
+                                    contentDescription = "Error loading image",
+                                    tint = Color(0xFFC0392B)
+                                )
+                            }
+                        }
+                    )
+                }
+
+                BasicTextField(
+                    value = block.url,
+                    onValueChange = onUrlChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = block.url,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember { MutableInteractionSource() },
+                            placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
+                            colors = editorFieldColors(),
+                            container = {
+                                OutlinedTextFieldDefaults.ContainerBox(
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    colors = editorFieldColors(),
+                                    shape = OutlinedTextFieldDefaults.shape
+                                )
+                            },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                )
+                BasicTextField(
+                    value = block.caption,
+                    onValueChange = onCaptionChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = block.caption,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember { MutableInteractionSource() },
+                            placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
+                            colors = editorFieldColors(),
+                            container = {
+                                OutlinedTextFieldDefaults.ContainerBox(
+                                    enabled = true,
+                                    isError = false,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    colors = editorFieldColors(),
+                                    shape = OutlinedTextFieldDefaults.shape
+                                )
+                            },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                )
             }
-            BasicTextField(
-                value = block.url,
-                onValueChange = onUrlChange,
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                decorationBox = { innerTextField ->
-                    OutlinedTextFieldDefaults.DecorationBox(
-                        value = block.url,
-                        innerTextField = innerTextField,
-                        enabled = true,
-                        singleLine = true,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = remember { MutableInteractionSource() },
-                        placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
-                        colors = editorFieldColors(),
-                        container = {
-                            OutlinedTextFieldDefaults.ContainerBox(
-                                enabled = true,
-                                isError = false,
-                                interactionSource = remember { MutableInteractionSource() },
-                                colors = editorFieldColors(),
-                                shape = OutlinedTextFieldDefaults.shape
-                            )
-                        },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            )
-            BasicTextField(
-                value = block.caption,
-                onValueChange = onCaptionChange,
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                decorationBox = { innerTextField ->
-                    OutlinedTextFieldDefaults.DecorationBox(
-                        value = block.caption,
-                        innerTextField = innerTextField,
-                        enabled = true,
-                        singleLine = true,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = remember { MutableInteractionSource() },
-                        placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
-                        colors = editorFieldColors(),
-                        container = {
-                            OutlinedTextFieldDefaults.ContainerBox(
-                                enabled = true,
-                                isError = false,
-                                interactionSource = remember { MutableInteractionSource() },
-                                colors = editorFieldColors(),
-                                shape = OutlinedTextFieldDefaults.shape
-                            )
-                        },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            )
+
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+                    .testTag("editor_image_block_delete_${block.id}")
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Delete Image",
+                    tint = Color(0xFF7281A7),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
@@ -863,19 +930,23 @@ private fun FormattingBottomBar(
             Text("Body", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 14.sp)
         }
 
-        EditorBarButton(onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } }) {
+        EditorBarButton(
+            onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } },
+            modifier = Modifier.testTag("editor_bold_action")
+        ) {
             Text(
                 "B",
-                modifier = Modifier.testTag("editor_bold_action"),
                 color = Color(0xFF6E7BFF),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold
             )
         }
-        EditorBarButton(onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } }) {
+        EditorBarButton(
+            onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } },
+            modifier = Modifier.testTag("editor_italic_action")
+        ) {
             Text(
                 "I",
-                modifier = Modifier.testTag("editor_italic_action"),
                 color = Color(0xFF6E7BFF),
                 fontSize = 18.sp,
                 fontStyle = FontStyle.Italic,
@@ -959,4 +1030,25 @@ private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, titl
         append(" / ")
         append(title)
     }
+}
+
+@Composable
+private fun ShimmerEffect() {
+    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 0.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .background(Color(0xFFEAF1FF).copy(alpha = alpha))
+    )
 }

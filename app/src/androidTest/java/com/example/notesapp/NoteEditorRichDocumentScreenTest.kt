@@ -44,6 +44,10 @@ class NoteEditorRichDocumentScreenTest {
                 onSave = {},
                 onDelete = {},
                 onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
                 onTextBlockChange = { _, _ -> },
                 onToggleMark = { _, _ -> },
                 onAddParagraph = {},
@@ -66,6 +70,47 @@ class NoteEditorRichDocumentScreenTest {
     }
 
     @Test
+    fun imageBlock_deleteButton_triggersCallback() {
+        var deletedBlockId: String? = null
+        val document = NoteDocument(
+            blocks = listOf(
+                EditorBlock.ImageBlock(id = "image_1", url = "https://example.com/image.png")
+            )
+        )
+
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = NoteEditorUiState(noteId = "note_1", title = "Title", document = document, isLoaded = true),
+                onBack = {},
+                onSave = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = { deletedBlockId = it }
+            )
+        }
+
+        composeRule.onNodeWithTag("editor_image_block_delete_image_1").performClick()
+        assertTrue(deletedBlockId == "image_1")
+    }
+
+    @Test
     fun editorToolbarActions_triggerCallbacks() {
         var addedImage = false
         var addedTable = false
@@ -78,7 +123,8 @@ class NoteEditorRichDocumentScreenTest {
                 title = "Title",
                 document = NoteDocument(blocks = listOf(EditorBlock.TextBlock(id = "text_1"))),
                 isLoaded = true,
-                isFormattingToolbarVisible = isFormattingVisible.value
+                isFormattingToolbarVisible = isFormattingVisible.value,
+                focusedBlockId = "text_1"
             )
 
             NoteEditorScreenContent(
@@ -89,6 +135,10 @@ class NoteEditorRichDocumentScreenTest {
                 onSave = {},
                 onDelete = {},
                 onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
                 onTextBlockChange = { _, _ -> },
                 onToggleMark = { blockId, mark -> toggledBold = blockId == "text_1" && mark == "bold" },
                 onAddParagraph = {},
@@ -109,8 +159,8 @@ class NoteEditorRichDocumentScreenTest {
         composeRule.onNodeWithTag("editor_toggle_formatting").performClick()
         composeRule.onNodeWithTag("editor_bold_action").performClick()
 
-        assertTrue(toggledBold)
-        assertTrue(addedImage)
-        assertTrue(addedTable)
+        assertTrue("addedImage failed", addedImage)
+        assertTrue("addedTable failed", addedTable)
+        assertTrue("toggledBold failed", toggledBold)
     }
 }
