@@ -1,4 +1,14 @@
 import java.util.Properties
+import java.io.FileInputStream
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val auth0ClientId = localProperties.getProperty("AUTH0_CLIENT_ID") ?: "p6v6qY6V6qY6V6qY6V6qY6V6qY6V6qY6"
+val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: "https://api.example.com/"
+val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: "https://api.example.com/"
 
 plugins {
     id("com.android.application")
@@ -26,7 +36,9 @@ android {
         }
         manifestPlaceholders["auth0Domain"] = "dev-9sa8k5kv.us.auth0.com"
         manifestPlaceholders["auth0Scheme"] = "notesapp"
-        buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"")
+        resValue("string", "auth0_client_id", auth0ClientId)
+        resValue("string", "auth0_audience", auth0Audience)
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {

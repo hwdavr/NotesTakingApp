@@ -2,8 +2,6 @@
     <string name="app_name">NotesTakingApp</string>
     <string name="auth0_scheme">notesapp</string>
     <string name="auth0_domain">dev-9sa8k5kv.us.auth0.com</string>
-    <string name="auth0_client_id">p6v6qY6V6qY6V6qY6V6qY6V6qY6V6qY6</string>
-    <string name="auth0_audience">https://api.example.com/</string>
     
     <string name="folders_empty_state">Your folders will appear here once they are created.</string>
     <string name="folders_search_placeholder">Search your notes&#8230;</string>
