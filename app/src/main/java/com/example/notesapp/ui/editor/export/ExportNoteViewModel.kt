@@ -56,10 +56,12 @@ class ExportNoteViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isExporting = true, error = null)
             
             try {
-                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    when (format) {
-                        ExportFormat.Markdown -> noteExporter.exportToMarkdown(note, outputStream)
-                        ExportFormat.PDF -> noteExporter.exportToPdf(note, outputStream)
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                        when (format) {
+                            ExportFormat.Markdown -> noteExporter.exportToMarkdown(note, outputStream)
+                            ExportFormat.PDF -> noteExporter.exportToPdf(note, outputStream)
+                        }
                     }
                 }
                 _uiState.value = _uiState.value.copy(isExporting = false, exportSuccess = true)
