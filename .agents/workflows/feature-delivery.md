@@ -11,7 +11,7 @@ This workflow is designed for production-grade mobile delivery, not quick protot
 
 ## Core Principle
 
-Do not jump directly into coding.
+Do not jump directly into coding. Implementation Plan MUST be approved before coding. 
 
 Always move through:
 
@@ -155,7 +155,7 @@ Include:
 - test changes
 - migration or compatibility handling
 
-Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
+**CRITICAL RULE: You MUST stop and present the implementation plan to the user here. You MUST wait for their explicit approval before generating any code or making any file modifications. Do not proceed to the next steps or write any code until the user explicitly approves the plan.**
 
 ---
 
@@ -194,57 +194,14 @@ If new API responses are involved:
 ### 10. Testing Strategy
 
 Define and implement tests according to impact. Prefer writing the failing test first for new logic, bug fixes, and behavior changes.
-- Use automation tests including unit test, integration test, UI test as much as possible instead of manual testing. 
-- Any View Model test involves API request, generate a integration test with MockWebServer, use **Shared JSON scenarios skill** to load mocks if they are available, otherwise, generate one using the skill. Don't create mock response data in the test cases.
-
-#### Unit Tests
-
-Use unit tests for:
-
-- ViewModel 
-- use cases
-- domain rules
-- mappers
-- validators
-- formatting logic
-- error mapping
-
-#### Integration Tests
-
-Use integration-style tests for:
-
-- API response to UI state, good for cross platform testing with shared JSON scenarios
-- business rules across multiple layers
-- loading/success/error transition
-- retry behavior
-- empty state handling
-
-#### UI Tests
-
-Use UI tests when:
-
-- UI behavior is important
-- multiple UI states must be verified
-- regression risk is high
-- the feature affects core user journeys
-
-For Compose UI tests:
-
-- test rendering from fake/mock state
-- test user interaction
-- test important text, buttons, and navigation triggers
-- avoid testing implementation details
-
-#### End-to-End Tests
-
-Use E2E tests only for:
-
-- critical business flows
-- payment/login/session flows
-- high-risk production paths
-- flows where backend integration risk is high
-
----
+- Use the **Android test triage skill** to decide the minimum test layers needed for the change.
+- Follow the golden rule from triage: always test at the lowest layer that gives enough confidence.
+- Prefer automation tests including unit tests, integration tests, and UI tests over manual testing when deterministic coverage is possible.
+- Separate unit test and integration test into different classes. Only integration tests involving multiple layers should be put into integration test classes, and the class name must end with `IntegrationTest`. Otherwise, just create the unit test class, and put the test cases in their respective layer. Make sure unit test covers view model and domain classes are at least 95%.
+- If an API is involved, create at least one integration test.
+- If an API is used by a ViewModel function, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts the ViewModel-exposed `UiState` against `expected.ui`.
+- If an API is used only by domain/repository/use case logic without directly changing UI state, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts `expected.domain`.
+- Do not create mock response data inline in test cases when a shared JSON scenario should be used.
 
 ### 11. Cross-Platform Consistency
 
@@ -345,14 +302,13 @@ Always provide:
 
 ## Stop Conditions
 
-Stop and ask for clarification only when:
+You MUST stop and wait for user input in the following situations:
 
-- Mandatory user review after step 7
-- the requirement is contradictory
-- the API contract is missing and cannot be inferred
-- the change may break existing production users
-- security/payment/auth behavior is ambiguous
-- the implementation requires choosing between major architecture options
+1. **Mandatory Plan Review (ALWAYS APPLIES):** After completing Step 7, you MUST stop. You are STRICTLY FORBIDDEN from writing any code, using file editing tools, or proceeding further until the user explicitly approves the implementation plan.
+2. The requirement is contradictory.
+3. The API contract is missing and cannot be inferred.
+4. The change may break existing production users.
+5. Security/payment/auth behavior is ambiguous.
+6. The implementation requires choosing between major architecture options.
 
-
-Otherwise, proceed with reasonable assumptions and state them clearly.
+For conditions 2-6, state your questions clearly. Even if conditions 2-6 do not apply, you MUST STILL STOP for condition 1 (Mandatory Plan Review). Do not proceed to write code under any circumstances without user approval of the plan.

@@ -25,18 +25,7 @@ Choose the lightest UI test that gives enough confidence.
 - **Naming:** `<ScreenName>Test.kt`.
 - **Example:** `FoldersScreenTest.kt`.
 
-### 2. Compose UI Integration Test
-**Goal:** Verify the wiring between the UI, ViewModel, and Repository.
-- **Use for:** Ensuring that clicking a button triggers a ViewModel action that eventually updates the UI state (e.g., after a network call).
-- **Rule:** Use `createComposeRule()` (NOT `createAndroidComposeRule`).
-- **Setup:**
-    - Use a real `ViewModel` (manually instantiated with mocked dependencies to avoid Hilt overhead).
-    - Mock Repositories or use `MockWebServer`.
-    - Verify the end-to-end flow within the presentation layer.
-- **Naming:** `<ScreenName>IntegrationTest.kt`.
-- **Example:** `SettingsScreenIntegrationTest.kt`.
-
-### 3. Navigation / Multi-screen Test
+### 2. Navigation / Multi-screen Test
 **Goal:** Verify navigation transitions between screens.
 - **Use for:** Ensuring deep links or button clicks navigate to the correct destination.
 - **Rule:** Use `createComposeRule()` or `createAndroidComposeRule` if an Activity is strictly required.
@@ -49,26 +38,6 @@ To ensure tests are stable and avoid Hilt-related process crashes:
 - **Wrapper Pattern:** Create a "Stateless" content Composable and a "Stateful" wrapper that connects it to the ViewModel.
 - **In Tests:** Only test the "Stateless" content or provide a manually instantiated ViewModel to the "Stateful" wrapper.
 
-## Compose UI integration test flow
-```
-Mock API response (MockWebServer / Mock Repository)
-    ↓
-Repository / Data Source
-    ↓
-ViewModel
-    ↓
-UiState (observed by UI)
-    ↓
-Compose UI
-    ↓
-Assert visible behavior
-```
-
-## Shared JSON scenario usage
-When a shared scenario file exists:
-- use apiMocks to control inputs
-- assert expected.ui for visible outcomes
-
 ## General Rules
 - **Avoid Hilt in UI tests** where possible; manual dependency injection is faster and more stable for unit/integration tests.
 - **Use step { } blocks** (via Kaspresso or custom wrapper) for business-readable steps.
@@ -76,6 +45,7 @@ When a shared scenario file exists:
 - **Do not use Thread.sleep**; use `composeRule.waitUntil` or `composeRule.waitForIdle`.
 - **Mocked data only**: Do not use real production backends.
 - **Keep one main business scenario per test.**
+- Prefer `app/src/test` for ViewModel + repository + mocked backend verification; use `app/src/androidTest` only when actual rendering, gestures, or navigation must be verified.
 
 ## Good assertions
 - Screen shown
@@ -83,5 +53,4 @@ When a shared scenario file exists:
 - Button visible or enabled
 - Empty/error state shown
 - Destination screen shown after click (for navigation tests)
-
 

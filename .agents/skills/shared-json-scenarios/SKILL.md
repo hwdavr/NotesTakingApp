@@ -10,11 +10,11 @@ Use this skill when defining or consuming cross-platform test scenarios shared b
 ## Purpose
 A shared JSON scenario is the contract for:
 - API mocking
-- expected domain behavior
-- expected UI behavior
+- expected.domain behavior when validating repository/use case/domain outputs
+- expected.ui behavior when validating ViewModel-driven UI state
 
 ## Recommended shape
-Each scenario should contain:
+Each scenario may contain:
 - id
 - description
 - apiMocks
@@ -72,8 +72,11 @@ Each scenario should contain:
 ```
 
 ## Rule by layer
-- integration tests should consume expected.domain
-- instrumented UI tests should consume expected.ui
+- each API should have at least one integration test
+- if an API is used by a ViewModel function, create an integration test backed by a shared JSON scenario and assert the ViewModel-exposed `UiState` against `expected.ui`
+- if an API is used only by domain/repository/use case logic without directly changing UI state, create an integration test backed by a shared JSON scenario and assert `expected.domain`
+- instrumented UI tests may also consume `expected.ui` when Android runtime behavior must be verified
+- a shared scenario may contain both `expected.domain` and `expected.ui`, but each test should assert the layer it owns
 - do not force every UI detail into the shared contract
 - keep expectations logical, not pixel-perfect
 
@@ -90,3 +93,5 @@ Each scenario should contain:
 - exact spacing
 - platform-specific widget classes
 - fragile UI hierarchy assumptions
+
+

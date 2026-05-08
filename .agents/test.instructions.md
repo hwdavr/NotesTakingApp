@@ -36,8 +36,15 @@ Use integration tests for:
 All Viewmodel integration tests should inherit from **BaseViewModelIntegrationTest**.
 
 ### Naming for Unit Tests and Integration tests
-- Use **<Class>Test.kt** naming convention for Unit Tests.
-- Use **<Class>IntegrationTest.kt** for Integration Tests.
+- Only integration tests involving multiple layers should be put into integration test classes, and the class name must end with **IntegrationTest** (e.g., `<Class>IntegrationTest.kt`).
+- Otherwise, just create the unit test class ending with **Test** (e.g., `<Class>Test.kt`), and put the test cases in their respective layer.
+
+### Shared JSON scenario rule
+- each API should have at least one integration test
+- if an API is used by a ViewModel function, create an integration test backed by a shared JSON scenario and assert the ViewModel-exposed `UiState` against `expected.ui`
+- if an API is used only by domain/repository/use case logic without directly changing UI state, create an integration test backed by a shared JSON scenario and assert `expected.domain`
+- a shared scenario may contain both `expected.domain` and `expected.ui`, but each test should assert the layer it owns
+
 
 ## Must cover when relevant
 - success response
@@ -49,7 +56,9 @@ All Viewmodel integration tests should inherit from **BaseViewModelIntegrationTe
 - retry or fallback behavior
 
 ## Rules
-- no UI assertions
+- no rendered UI assertions; assert `UiState` instead
 - deterministic only
 - one main scenario per test
 - prefer this layer before adding UI tests
+- make sure view model and domain classes are at least 95% covered
+

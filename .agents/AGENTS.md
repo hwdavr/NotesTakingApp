@@ -21,7 +21,7 @@ When working in this project:
 - make deterministic validation part of the normal flow
 - do not rely on “it should work” without verification when verification is available
 - Don't repeat things that were already done. Create utilities for common tasks.
-- Don't assume anything that is not explicitly stated.
+- for any workflow, do generate your implementation plan in the corresponding workflow file first and get it approved by the user before making changes. Assumptions must be explicitly stated in the implementation plan.
 
 ## Current project shape
 
@@ -102,7 +102,9 @@ After meaningful code changes, prefer running:
 If lint or additional checks are added later, include them in the normal validation flow.
 
 ### When touching UI
-If a change affects screen behavior or navigation, also verify at least one of:
+If a change affects screen behavior or navigation, first verify with the lightest check that gives enough confidence. Prefer previews and `app/src/test` where possible, and use `app/src/androidTest` only when real UI rendering, gestures, or navigation must be verified.
+
+Also verify at least one of:
 - preview still renders sensibly
 - screenshot/snapshot test passes, if available
 - UI automation/instrumented test passes, if available
@@ -168,6 +170,7 @@ Use for:
 - reducers / UiState mapping
 - mappers
 - formatting / fallback logic
+- rule: make sure view model and domain classes are at least 95% covered
 
 ### 2. Integration tests (primary)
 Use for:
@@ -180,11 +183,12 @@ Use for:
 
 ### 3. Instrumented UI tests
 Use for:
-- mocked data to UI rendering
-- loading / empty / error / success states
-- user interaction
+- Compose rendering that must be verified in Android runtime
+- user interaction that depends on real UI behavior
 - navigation
 - critical multi-screen flows
+
+Avoid using this layer for ViewModel + repository + mocked backend verification when the same behavior can be covered in `app/src/test`.
 
 ## Shared JSON scenarios
 This repository uses shared JSON scenario files as a cross-platform contract for Android and iOS.
@@ -195,8 +199,10 @@ Each scenario may contain:
 - expected.ui
 
 Rules:
-- integration tests consume expected.domain
-- instrumented UI tests consume expected.ui
+- each API should have at least one integration test
+- if an API is used by a ViewModel function, the shared-scenario integration test in `app/src/test` should assert the ViewModel-exposed `UiState` against `expected.ui`
+- if an API is used only by domain/repository/use case logic without directly changing UI state, the shared-scenario integration test in `app/src/test` should assert `expected.domain`
+- instrumented UI tests may also consume `expected.ui` when Android runtime behavior must be verified
 - do not duplicate scenario logic outside the JSON unless necessary
 
 ## AI-generated UI verification
@@ -205,11 +211,11 @@ When AI modifies UI code, verification should happen in this order:
 1. fast checks
 - compile
 - lint
-- relevant unit tests
+- relevant unit tests or integration tests in `app/src/test`
 
-2. Android-native UI behavior verification
-- instrumented UI tests with mocked data
-- verify user-visible behavior
+2. targeted UI verification when needed
+- preview or light Compose test for isolated rendering
+- instrumented UI test only when Android runtime behavior, gestures, or navigation must be verified
 
 3. visual verification
 - screenshot or snapshot verification when layout or visual presentation changed
@@ -270,3 +276,7 @@ If this app eventually needs Android/iOS parity testing as part of a broader pro
 - clear behavioral contracts
 
 Cross-platform Appium-style parity should be a thin outer layer, not the primary Android verification layer.
+
+
+
+

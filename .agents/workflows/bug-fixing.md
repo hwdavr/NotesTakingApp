@@ -11,7 +11,7 @@ This workflow prioritizes root-cause analysis over quick patching.
 
 ## Core Principle
 
-Do not fix symptoms first.
+Do not fix symptoms first. Fix Plan MUST be generated and approved before coding. 
 
 Always move through:
 
