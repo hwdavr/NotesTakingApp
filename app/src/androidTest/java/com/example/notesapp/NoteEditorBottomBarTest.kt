@@ -17,8 +17,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NoteEditorBottomBarTest {
 
-    @get:Rule
-    val composeRule = createComposeRule()
+    @get:Rule val composeRule = createComposeRule()
 
     @Test
     fun bottomBar_togglesBetweenDefaultAndFormatting() {
@@ -26,33 +25,36 @@ class NoteEditorBottomBarTest {
 
         composeRule.setContent {
             NoteEditorScreenContent(
-                parentPadding = PaddingValues(0.dp),
-                noteId = "note_1",
-                state = NoteEditorUiState(
+                    parentPadding = PaddingValues(0.dp),
                     noteId = "note_1",
-                    isFormattingToolbarVisible = isFormattingVisible.value,
-                    isLoaded = true
-                ),
-                onBack = {},
-                onSave = {},
-                onDelete = {},
-                onTitleChange = {},
-                onRename = {},
-                onToggleFavorite = {},
-                onMoveNote = {},
-                onExportNote = {},
-                onTextBlockChange = { _, _ -> },
-                onToggleMark = { _, _ -> },
-                onAddParagraph = {},
-                onAddImage = {},
-                onImageChange = { _, _, _ -> },
-                onAddTable = {},
-                onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
-                onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value },
-                onBlockFocused = {},
-                onSelectionChange = { _, _ -> },
-                onDeleteBlock = {}
+                    state =
+                            NoteEditorUiState(
+                                    noteId = "note_1",
+                                    isFormattingToolbarVisible = isFormattingVisible.value,
+                                    isLoaded = true
+                            ),
+                    onBack = {},
+                    onShareNote = { _ -> },
+                    onDelete = {},
+                    onTitleChange = {},
+                    onRename = {},
+                    onToggleFavorite = {},
+                    onMoveNote = {},
+                    onExportNote = {},
+                    onTextBlockChange = { _, _ -> },
+                    onToggleMark = { _, _ -> },
+                    onAddParagraph = {},
+                    onAddImage = {},
+                    onImageChange = { _, _, _ -> },
+                    onAddTable = {},
+                    onTableCellChange = { _, _, _, _ -> },
+                    onFolderSelected = {},
+                    onToggleFormattingToolbar = {
+                        isFormattingVisible.value = !isFormattingVisible.value
+                    },
+                    onBlockFocused = {},
+                    onSelectionChange = { _, _ -> },
+                    onDeleteBlock = {}
             )
         }
 

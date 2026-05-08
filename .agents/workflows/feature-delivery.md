@@ -194,8 +194,8 @@ If new API responses are involved:
 ### 10. Testing Strategy
 
 Define and implement tests according to impact. Prefer writing the failing test first for new logic, bug fixes, and behavior changes.
-- Use automation test including unit test, integration test, UI test as much as possible instead of manual testing. 
-- Use **Shared JSON scenarios skill** to load mocks if they are available, otherwise, generate one using the skill. Don't create mock response data in the test cases.
+- Use automation tests including unit test, integration test, UI test as much as possible instead of manual testing. 
+- Any View Model test involves API request, generate a integration test with MockWebServer, use **Shared JSON scenarios skill** to load mocks if they are available, otherwise, generate one using the skill. Don't create mock response data in the test cases.
 
 #### Unit Tests
 
@@ -353,5 +353,6 @@ Stop and ask for clarification only when:
 - the change may break existing production users
 - security/payment/auth behavior is ambiguous
 - the implementation requires choosing between major architecture options
+
 
 Otherwise, proceed with reasonable assumptions and state them clearly.

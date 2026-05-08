@@ -30,6 +30,8 @@ import com.example.notesapp.ui.moveto.MoveToViewModel
 import com.example.notesapp.ui.notes.CollectionNotesScreen
 import com.example.notesapp.ui.editor.export.ExportNoteScreen
 import com.example.notesapp.ui.onboarding.OnboardingScreen
+import com.example.notesapp.ui.share.ShareInviteScreen
+import com.example.notesapp.ui.share.SharedUsersScreen
 import com.example.notesapp.ui.settings.SettingsScreen
 
 @Composable
@@ -59,6 +61,8 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         currentRoute?.startsWith("editor") != true &&
         currentRoute?.startsWith("collectionNotes") != true &&
         currentRoute?.startsWith("moveTo") != true &&
+        currentRoute?.startsWith("sharedUsers") != true &&
+        currentRoute?.startsWith("shareInvite") != true &&
         currentRoute !in authRoutes
 
     var authError by remember { mutableStateOf<String?>(null) }
@@ -259,6 +263,9 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     noteId = noteId,
                     folderId = folderId,
                     onBack = { navController.popBackStack() },
+                    onShareNote = { title ->
+                        navController.navigate(Destinations.SharedUsers.createRoute(title))
+                    },
                     onMoveNote = { id ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, id))
                     },
@@ -281,6 +288,28 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                 ExportNoteScreen(
                     parentPadding = innerPadding,
                     noteId = noteId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Destinations.SharedUsers.route,
+                arguments = listOf(
+                    navArgument("noteTitle") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                SharedUsersScreen(
+                    parentPadding = innerPadding,
+                    noteTitle = backStackEntry.arguments?.getString("noteTitle").orEmpty(),
+                    onBack = { navController.popBackStack() },
+                    onShareToNewUser = { navController.navigate(Destinations.ShareInvite.route) }
+                )
+            }
+            composable(Destinations.ShareInvite.route) {
+                ShareInviteScreen(
+                    parentPadding = innerPadding,
                     onBack = { navController.popBackStack() }
                 )
             }

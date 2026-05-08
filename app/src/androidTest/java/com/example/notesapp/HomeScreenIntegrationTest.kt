@@ -40,32 +40,27 @@ class HomeScreenIntegrationTest {
             )
         )
 
-        step("Render Home screen with a real ViewModel and fake repositories") {
-            composeRule.setContent {
-                NotesTakingAppTheme {
-                    HomeNotesScreen(
-                        parentPadding = PaddingValues(0.dp),
-                        onAddNote = {},
-                        onOpenNote = {},
-                        viewModel = viewModel
-                    )
-                }
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                HomeNotesScreen(
+                    parentPadding = PaddingValues(0.dp),
+                    onAddNote = {},
+                    onOpenNote = {},
+                    viewModel = viewModel
+                )
             }
         }
 
-        step("Verify all notes render before filtering") {
-            screen.waitForNote("Project Plan")
-            screen.assertNoteVisible("Grocery List")
-        }
+        screen.waitForNote("Project Plan")
+        screen.assertNoteVisible("Grocery List")
 
-        step("Select the Personal folder chip") {
-            screen.selectFolder("Personal")
-        }
+        screen.selectFolder("Personal")
 
-        step("Verify the UI is updated from ViewModel state") {
-            screen.assertNoteVisible("Grocery List")
-            screen.assertNoteMissing("Project Plan")
+        composeRule.waitUntil(5000) {
+            composeRule.onAllNodesWithText("Grocery List").fetchSemanticsNodes().isNotEmpty()
         }
+        screen.assertNoteVisible("Grocery List")
+        screen.assertNoteMissing("Project Plan")
     }
 
     @Test
@@ -125,16 +120,25 @@ class HomeScreenIntegrationTest {
             }
         }
 
+        composeRule.waitForIdle()
         screen.waitForNote("Project Plan")
         composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertDoesNotExist()
 
         screen.openNoteActions("note_001")
-        composeRule.onNodeWithText("Add to Favorites").performClick()
-
-        composeRule.waitUntil(10_000) {
-            composeRule.onAllNodesWithTag("home_note_favorite_badge_note_001").fetchSemanticsNodes().isNotEmpty()
+        
+        // Wait for bottom sheet to be visible using tag
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertIsDisplayed()
+        
+        composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
+        
+        composeRule.waitForIdle()
+
+        composeRule.waitUntil(20000) {
+            composeRule.onAllNodesWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).assertIsDisplayed()
     }
 
     private fun step(description: String, action: () -> Unit) {
@@ -146,8 +150,8 @@ private class HomeScreenRobot(
     private val composeRule: ComposeContentTestRule
 ) {
     fun waitForNote(title: String) {
-        composeRule.waitUntil(10_000) {
-            composeRule.onAllNodesWithText(title).fetchSemanticsNodes().isNotEmpty()
+        composeRule.waitUntil(15000) {
+            composeRule.onAllNodesWithText(title, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
     }
 

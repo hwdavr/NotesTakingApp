@@ -1,5 +1,7 @@
 package com.example.notesapp.ui.home
 
+import android.util.Log
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.FolderRepository
@@ -100,7 +102,7 @@ open class HomeViewModel @Inject constructor(
     }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(15_000),
             initialValue = HomeUiState(isLoading = true)
         )
 }

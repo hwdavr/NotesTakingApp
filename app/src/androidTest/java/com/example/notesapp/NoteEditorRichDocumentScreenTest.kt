@@ -1,12 +1,18 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.NoteEditorScreenContent
@@ -41,7 +47,7 @@ class NoteEditorRichDocumentScreenTest {
                 noteId = "note_1",
                 state = NoteEditorUiState(noteId = "note_1", title = "Title", document = document, isLoaded = true),
                 onBack = {},
-                onSave = {},
+                onShareNote = { _ -> },
                 onDelete = {},
                 onTitleChange = {},
                 onRename = {},
@@ -84,7 +90,7 @@ class NoteEditorRichDocumentScreenTest {
                 noteId = "note_1",
                 state = NoteEditorUiState(noteId = "note_1", title = "Title", document = document, isLoaded = true),
                 onBack = {},
-                onSave = {},
+                onShareNote = { _ -> },
                 onDelete = {},
                 onTitleChange = {},
                 onRename = {},
@@ -132,7 +138,7 @@ class NoteEditorRichDocumentScreenTest {
                 noteId = "note_1",
                 state = state,
                 onBack = {},
-                onSave = {},
+                onShareNote = { _ -> },
                 onDelete = {},
                 onTitleChange = {},
                 onRename = {},
@@ -155,8 +161,22 @@ class NoteEditorRichDocumentScreenTest {
         }
 
         composeRule.onNodeWithTag("editor_add_image").performClick()
+        
+        // Scroll to the table button and click it
+        composeRule.onNodeWithTag("editor_default_bottom_bar")
+            .performScrollToNode(hasTestTag("editor_add_table"))
         composeRule.onNodeWithTag("editor_add_table").performClick()
+        
+        // Scroll back to the toggle button
+        composeRule.onNodeWithTag("editor_default_bottom_bar")
+            .performScrollToNode(hasTestTag("editor_toggle_formatting"))
         composeRule.onNodeWithTag("editor_toggle_formatting").performClick()
+        
+        // Wait for formatting toolbar to be visible
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("editor_bold_action").fetchSemanticsNodes().isNotEmpty()
+        }
+        
         composeRule.onNodeWithTag("editor_bold_action").performClick()
 
         assertTrue("addedImage failed", addedImage)

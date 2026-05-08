@@ -57,34 +57,26 @@ class CollectionNotesScreenIntegrationTest {
             )
         )
 
-        step("Render collection screen with real ViewModel and fake repositories") {
-            composeRule.setContent {
-                NotesTakingAppTheme {
-                    CollectionNotesScreen(
-                        parentPadding = PaddingValues(0.dp),
-                        onBack = {},
-                        onAddNote = {},
-                        onOpenCollection = { _, _, _ -> },
-                        onOpenNote = { openedNoteId = it },
-                        viewModel = viewModel
-                    )
-                }
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                CollectionNotesScreen(
+                    parentPadding = PaddingValues(0.dp),
+                    onBack = {},
+                    onAddNote = {},
+                    onOpenCollection = { _, _, _ -> },
+                    onOpenNote = { openedNoteId = it },
+                    viewModel = viewModel
+                )
             }
         }
 
-        step("Verify folder and note children from repository state render") {
-            screen.waitForItem("Archive Drafts")
-            screen.assertItemVisible("My Note")
-            screen.assertItemVisible("Updated content")
-        }
+        screen.waitForItem("Archive Drafts")
+        screen.assertItemVisible("My Note")
+        screen.assertItemVisible("Updated content")
 
-        step("Open the visible note") {
-            screen.openItem("My Note")
-        }
+        screen.openItem("My Note")
 
-        step("Assert note navigation callback receives the note id") {
-            assertEquals("note_001", openedNoteId)
-        }
+        assertEquals("note_001", openedNoteId)
     }
 
     @Test

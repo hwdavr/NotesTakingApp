@@ -2,6 +2,7 @@ package com.example.notesapp
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -52,10 +53,11 @@ class SettingsScreenIntegrationTest {
 
     // Screen Object abstraction
     private val settingsScreen = object {
-        val logoutButton = composeRule.onNodeWithText("Logout")
-
         fun clickLogout() {
-            logoutButton.performClick()
+            composeRule.waitUntil(10000) {
+                composeRule.onAllNodesWithText("Logout").fetchSemanticsNodes().isNotEmpty()
+            }
+            composeRule.onNodeWithText("Logout").performClick()
         }
     }
 

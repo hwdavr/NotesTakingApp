@@ -41,7 +41,6 @@ Collect and summarize:
 If information is missing, state assumptions.
 
 ---
----
 
 ### 3. Classify the Bug
 
@@ -170,7 +169,9 @@ Add or update tests to prevent recurrence.
 - Use the **Android test triage skill** to decide which layer the reproduction test belongs to.
 - Write a failing test that reproduces the bug before touching the application code.
 
-10. Verify Edge Cases
+---
+
+### 10. Verify Edge Cases
 
 Check whether the fix handles:
 - null data
@@ -186,7 +187,9 @@ Check whether the fix handles:
 - old backend response
 - new backend response
 
-11. Security and Privacy Check
+---
+
+### 11. Security and Privacy Check
 
 Ensure the fix does not:
 - expose sensitive data
@@ -196,7 +199,9 @@ Ensure the fix does not:
 - introduce unsafe WebView/deep link behavior
 - change payment/security behavior without review
 
-12. Release Risk Review
+---
+
+### 12. Release Risk Review
 
 Before finalizing, assess:
 - whether this needs hotfix release
@@ -206,7 +211,9 @@ Before finalizing, assess:
 - whether old app versions are affected
 - whether monitoring is needed after release
 
-13. Final Validation
+---
+
+### 13. Final Validation
 
 Before completion:
 - run affected tests
@@ -216,7 +223,9 @@ Before completion:
 - confirm the fix matches root cause
 - confirm regression test fails before fix and passes after fix where possible
 
-Final Output Format
+---
+
+### Final Output Format
 
 Always provide:
 - Bug summary
@@ -230,7 +239,9 @@ Always provide:
 - Release risk
 - Remaining assumptions
 
-Stop Conditions
+---
+
+### Stop Conditions
 
 Stop and ask for clarification only when:
 - the bug cannot be understood from available evidence
@@ -238,5 +249,6 @@ Stop and ask for clarification only when:
 - the fix may change expected business behavior
 - the issue involves payment/auth/security-sensitive flow
 - production hotfix decision is required
+
 
 Otherwise, proceed with reasonable assumptions and state them clearly.

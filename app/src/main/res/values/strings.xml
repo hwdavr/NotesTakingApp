@@ -65,6 +65,13 @@
     <string name="editor_delete_action">Archive</string>
     <string name="editor_untitled_note">Untitled note</string>
     <string name="editor_export_action">Export</string>
+    <string name="shared_users_title">Shared users</string>
+    <string name="shared_users_section_title">People with access</string>
+    <string name="shared_users_cta">Share to new user</string>
+    <string name="share_invite_title">Share to new user</string>
+    <string name="share_invite_email_label">Email</string>
+    <string name="share_invite_permissions_label">Permissions</string>
+    <string name="share_invite_cta">Invite</string>
     <string name="export_title">Export Note</string>
     <string name="export_format_label">Select Format</string>
     <string name="export_markdown">Markdown (.md)</string>

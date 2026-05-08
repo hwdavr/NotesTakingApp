@@ -27,4 +27,9 @@ sealed class Destinations(val route: String) {
     data object ExportNote : Destinations("exportNote/{noteId}") {
         fun createRoute(noteId: String): String = "exportNote/$noteId"
     }
+    data object SharedUsers : Destinations("sharedUsers?noteTitle={noteTitle}") {
+        fun createRoute(noteTitle: String): String =
+            "sharedUsers?noteTitle=${Uri.encode(noteTitle)}"
+    }
+    data object ShareInvite : Destinations("shareInvite")
 }

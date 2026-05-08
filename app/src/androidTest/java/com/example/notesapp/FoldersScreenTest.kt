@@ -5,6 +5,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -245,7 +248,12 @@ class FoldersScreenTest {
         composeRule.onNodeWithText("Rename Folder", ignoreCase = true).assertIsDisplayed()
 
         composeRule.onNodeWithTag("rename_text_field").performTextReplacement("New Name")
-
+        
+        // Wait for dialog to be fully interactive
+        composeRule.waitUntil(5000) {
+            composeRule.onAllNodesWithTag("rename_confirm_button").fetchSemanticsNodes().isNotEmpty()
+        }
+        
         // 4. Click Rename confirm
         composeRule.onNodeWithTag("rename_confirm_button").performClick()
 
@@ -289,7 +297,11 @@ class FoldersScreenTest {
         composeRule.onNodeWithText("Rename Note", ignoreCase = true).assertIsDisplayed()
 
         composeRule.onNodeWithTag("rename_text_field").performTextReplacement("New Note")
-
+ 
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag("rename_confirm_button").fetchSemanticsNodes().isNotEmpty()
+        }
+        
         // 4. Click Rename confirm
         composeRule.onNodeWithTag("rename_confirm_button").performClick()
 
