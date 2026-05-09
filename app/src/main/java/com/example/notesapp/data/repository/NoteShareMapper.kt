@@ -32,12 +32,12 @@ fun NoteShareDto.toEntity(): NoteShareEntity = NoteShareEntity(
     updatedAt = Instant.parse(updatedAt).toEpochMilli()
 )
 fun NoteShareAccessRole.toApiValue(): String = when (this) {
-    NoteShareAccessRole.READ_ONLY -> "read_only"
-    NoteShareAccessRole.FULL_ACCESS -> "full_access"
+    NoteShareAccessRole.VIEWER -> "read_only"
+    NoteShareAccessRole.EDITOR -> "full_access"
 }
 private fun String.toDomainAccessRole(): NoteShareAccessRole = when (this) {
-    "full_access" -> NoteShareAccessRole.FULL_ACCESS
-    else -> NoteShareAccessRole.READ_ONLY
+    "full_access" -> NoteShareAccessRole.EDITOR
+    else -> NoteShareAccessRole.VIEWER
 }
 private fun String.toDomainStatus(): NoteShareStatus = when (this) {
     "active" -> NoteShareStatus.ACTIVE

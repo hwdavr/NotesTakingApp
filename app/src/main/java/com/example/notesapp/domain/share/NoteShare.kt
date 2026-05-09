@@ -1,8 +1,8 @@
 package com.example.notesapp.domain.share
 
 enum class NoteShareAccessRole {
-    READ_ONLY,
-    FULL_ACCESS
+    VIEWER,
+    EDITOR
 }
 enum class NoteShareStatus {
     PENDING,

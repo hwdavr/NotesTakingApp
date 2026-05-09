@@ -8,8 +8,8 @@ import java.util.Locale
 
 enum class AccessRole {
     OWNER,
-    FULL_ACCESS,
-    READ_ONLY
+    EDITOR,
+    VIEWER
 }
 
 enum class ManageAccessPermission {
@@ -61,8 +61,8 @@ internal fun buildSharedUserUiModels(ownerEmail: String?, shares: List<NoteShare
                 initials = deriveInitials(share.email, share.displayName),
                 accentColor = accentColorFor(share.email),
                 role = when (share.accessRole) {
-                    NoteShareAccessRole.FULL_ACCESS -> AccessRole.FULL_ACCESS
-                    NoteShareAccessRole.READ_ONLY -> AccessRole.READ_ONLY
+                    NoteShareAccessRole.EDITOR -> AccessRole.EDITOR
+                    NoteShareAccessRole.VIEWER -> AccessRole.VIEWER
                 },
                 isPending = share.status == NoteShareStatus.PENDING
             )
@@ -88,14 +88,14 @@ internal fun buildManageAccessUserUiModels(
 }
 
 internal fun ManageAccessPermission.toNoteShareAccessRole(): NoteShareAccessRole = when (this) {
-    ManageAccessPermission.VIEWER -> NoteShareAccessRole.READ_ONLY
-    ManageAccessPermission.EDITOR -> NoteShareAccessRole.FULL_ACCESS
-    ManageAccessPermission.DELETE -> NoteShareAccessRole.READ_ONLY
+    ManageAccessPermission.VIEWER -> NoteShareAccessRole.VIEWER
+    ManageAccessPermission.EDITOR -> NoteShareAccessRole.EDITOR
+    ManageAccessPermission.DELETE -> NoteShareAccessRole.VIEWER
 }
 
 private fun NoteShareAccessRole.toManageAccessPermission(): ManageAccessPermission = when (this) {
-    NoteShareAccessRole.READ_ONLY -> ManageAccessPermission.VIEWER
-    NoteShareAccessRole.FULL_ACCESS -> ManageAccessPermission.EDITOR
+    NoteShareAccessRole.VIEWER -> ManageAccessPermission.VIEWER
+    NoteShareAccessRole.EDITOR -> ManageAccessPermission.EDITOR
 }
 
 internal fun isValidInviteEmail(email: String): Boolean {

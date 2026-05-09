@@ -80,10 +80,10 @@ fun ShareInviteScreen(
         onEmailChange = viewModel::onEmailChange,
         onPermissionSelected = { permissionId ->
             viewModel.onRoleSelected(
-                if (permissionId == PermissionIds.READ_ONLY) {
-                    NoteShareAccessRole.READ_ONLY
+                if (permissionId == PermissionIds.VIEWER) {
+                    NoteShareAccessRole.VIEWER
                 } else {
-                    NoteShareAccessRole.FULL_ACCESS
+                    NoteShareAccessRole.EDITOR
                 }
             )
         },
@@ -263,25 +263,25 @@ private fun PermissionOptionRow(
     }
 }
 private object PermissionIds {
-    const val READ_ONLY = "read_only"
-    const val FULL_ACCESS = "full_access"
+    const val VIEWER = "viewer"
+    const val EDITOR = "editor"
 }
 @Composable
 private fun invitePermissions(): List<InvitePermissionUiModel> = listOf(
     InvitePermissionUiModel(
-        id = PermissionIds.READ_ONLY,
+        id = PermissionIds.VIEWER,
         title = stringResource(R.string.share_invite_read_only_title),
         subtitle = stringResource(R.string.share_invite_read_only_subtitle)
     ),
     InvitePermissionUiModel(
-        id = PermissionIds.FULL_ACCESS,
+        id = PermissionIds.EDITOR,
         title = stringResource(R.string.share_invite_full_access_title),
         subtitle = stringResource(R.string.share_invite_full_access_subtitle)
     )
 )
 private fun NoteShareAccessRole.toPermissionId(): String = when (this) {
-    NoteShareAccessRole.READ_ONLY -> PermissionIds.READ_ONLY
-    NoteShareAccessRole.FULL_ACCESS -> PermissionIds.FULL_ACCESS
+    NoteShareAccessRole.VIEWER -> PermissionIds.VIEWER
+    NoteShareAccessRole.EDITOR -> PermissionIds.EDITOR
 }
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -291,10 +291,10 @@ private fun ShareInviteScreenPreview() {
             parentPadding = PaddingValues(),
             email = "new.user@example.com",
             permissions = listOf(
-                InvitePermissionUiModel("read_only", "Read only", "Can view but not edit"),
-                InvitePermissionUiModel("full_access", "Full access", "Can view and edit")
+                InvitePermissionUiModel("viewer", "Viewer", "Can view but not edit"),
+                InvitePermissionUiModel("editor", "Editor", "Can view and edit")
             ),
-            selectedPermissionId = "full_access",
+            selectedPermissionId = "editor",
             errorMessageRes = null,
             isInviteEnabled = true,
             onEmailChange = {},

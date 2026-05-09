@@ -23,7 +23,7 @@ class ShareUiModelsTest {
                     userId = "auth0|user1",
                     email = "editor@example.com",
                     displayName = "Editor User",
-                    accessRole = NoteShareAccessRole.FULL_ACCESS,
+                    accessRole = NoteShareAccessRole.EDITOR,
                     status = NoteShareStatus.ACTIVE,
                     invitedByUserId = "auth0|owner",
                     createdAt = 1L,
@@ -35,7 +35,7 @@ class ShareUiModelsTest {
                     userId = null,
                     email = "viewer@example.com",
                     displayName = null,
-                    accessRole = NoteShareAccessRole.READ_ONLY,
+                    accessRole = NoteShareAccessRole.VIEWER,
                     status = NoteShareStatus.PENDING,
                     invitedByUserId = "auth0|owner",
                     createdAt = 2L,
@@ -46,8 +46,8 @@ class ShareUiModelsTest {
         assertEquals(3, users.size)
         assertEquals(AccessRole.OWNER, users[0].role)
         assertEquals("owner@example.com", users[0].email)
-        assertEquals(AccessRole.FULL_ACCESS, users[1].role)
-        assertEquals(AccessRole.READ_ONLY, users[2].role)
+        assertEquals(AccessRole.EDITOR, users[1].role)
+        assertEquals(AccessRole.VIEWER, users[2].role)
         assertTrue(users[2].isPending)
     }
     @Test

@@ -29,7 +29,7 @@ class NoteShareMapperTest {
         assertEquals(entity.userId, domain.userId)
         assertEquals(entity.email, domain.email)
         assertEquals(entity.displayName, domain.displayName)
-        assertEquals(NoteShareAccessRole.FULL_ACCESS, domain.accessRole)
+        assertEquals(NoteShareAccessRole.EDITOR, domain.accessRole)
         assertEquals(NoteShareStatus.ACTIVE, domain.status)
         assertEquals(entity.invitedByUserId, domain.invitedByUserId)
         assertEquals(entity.createdAt, domain.createdAt)
@@ -51,7 +51,7 @@ class NoteShareMapperTest {
             updatedAt = 2000L
         )
         val domain = entity.toDomain()
-        assertEquals(NoteShareAccessRole.READ_ONLY, domain.accessRole)
+        assertEquals(NoteShareAccessRole.VIEWER, domain.accessRole)
         assertEquals(NoteShareStatus.PENDING, domain.status)
     }
 
@@ -84,7 +84,7 @@ class NoteShareMapperTest {
 
     @Test
     fun `toApiValue maps access roles correctly`() {
-        assertEquals("read_only", NoteShareAccessRole.READ_ONLY.toApiValue())
-        assertEquals("full_access", NoteShareAccessRole.FULL_ACCESS.toApiValue())
+        assertEquals("read_only", NoteShareAccessRole.VIEWER.toApiValue())
+        assertEquals("full_access", NoteShareAccessRole.EDITOR.toApiValue())
     }
 }

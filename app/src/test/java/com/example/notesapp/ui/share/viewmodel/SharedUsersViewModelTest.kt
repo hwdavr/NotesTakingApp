@@ -43,7 +43,7 @@ class SharedUsersViewModelTest : BaseViewModelTest() {
         userId = "user1",
         email = "user@example.com",
         displayName = "User One",
-        accessRole = NoteShareAccessRole.READ_ONLY,
+        accessRole = NoteShareAccessRole.VIEWER,
         status = NoteShareStatus.ACTIVE,
         invitedByUserId = "me",
         createdAt = 0L,

@@ -216,12 +216,6 @@ fun ManageAccessScreenContent(
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
-                Spacer(modifier = Modifier.size(8.dp))
-                Icon(
-                    imageVector = Icons.Outlined.Done,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
             }
         }
     }

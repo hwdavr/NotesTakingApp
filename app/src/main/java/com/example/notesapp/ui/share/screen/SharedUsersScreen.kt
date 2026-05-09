@@ -313,18 +313,18 @@ private fun SharedUserRow(user: SharedUserUiModel) {
 private fun AccessRolePill(role: AccessRole) {
     val backgroundColor = when (role) {
         AccessRole.OWNER -> Color(0xFFEFF3FF)
-        AccessRole.FULL_ACCESS -> Color(0xFFF1EEFF)
-        AccessRole.READ_ONLY -> Color(0xFFFFF7ED)
+        AccessRole.EDITOR -> Color(0xFFF1EEFF)
+        AccessRole.VIEWER -> Color(0xFFFFF7ED)
     }
     val textColor = when (role) {
         AccessRole.OWNER -> Color(0xFF4C6FFF)
-        AccessRole.FULL_ACCESS -> Color(0xFF6E4CFF)
-        AccessRole.READ_ONLY -> Color(0xFFF59E0B)
+        AccessRole.EDITOR -> Color(0xFF6E4CFF)
+        AccessRole.VIEWER -> Color(0xFFF59E0B)
     }
     val textRes = when (role) {
         AccessRole.OWNER -> R.string.shared_users_role_owner
-        AccessRole.FULL_ACCESS -> R.string.shared_users_role_full_access
-        AccessRole.READ_ONLY -> R.string.shared_users_role_read_only
+        AccessRole.EDITOR -> R.string.shared_users_role_full_access
+        AccessRole.VIEWER -> R.string.shared_users_role_read_only
     }
     Surface(
         color = backgroundColor,
@@ -362,7 +362,7 @@ private fun SharedUsersScreenPreview() {
                     email = "hannah.lee@example.com",
                     initials = "HL",
                     accentColor = Color(0xFF2DB7A3),
-                    role = AccessRole.FULL_ACCESS,
+                    role = AccessRole.EDITOR,
                     isPending = false
                 )
             ),

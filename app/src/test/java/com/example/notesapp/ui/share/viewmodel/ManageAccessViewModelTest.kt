@@ -41,7 +41,7 @@ class ManageAccessViewModelTest : BaseViewModelTest() {
                 userId = "user1",
                 email = "ben@example.com",
                 displayName = "Ben Lee",
-                accessRole = NoteShareAccessRole.FULL_ACCESS,
+                accessRole = NoteShareAccessRole.EDITOR,
                 status = NoteShareStatus.ACTIVE,
                 invitedByUserId = "owner",
                 createdAt = 0L,
@@ -53,7 +53,7 @@ class ManageAccessViewModelTest : BaseViewModelTest() {
                 userId = "user2",
                 email = "clara@example.com",
                 displayName = "Clara Wong",
-                accessRole = NoteShareAccessRole.READ_ONLY,
+                accessRole = NoteShareAccessRole.VIEWER,
                 status = NoteShareStatus.ACTIVE,
                 invitedByUserId = "owner",
                 createdAt = 0L,
@@ -118,7 +118,7 @@ class ManageAccessViewModelTest : BaseViewModelTest() {
         advanceUntilIdle()
 
         coVerify {
-            noteShareRepository.updateNoteShareRole(noteId, "share1", NoteShareAccessRole.READ_ONLY)
+            noteShareRepository.updateNoteShareRole(noteId, "share1", NoteShareAccessRole.VIEWER)
         }
         coVerify {
             noteShareRepository.deleteNoteShare(noteId, "share2")
@@ -131,7 +131,7 @@ class ManageAccessViewModelTest : BaseViewModelTest() {
     @Test
     fun `confirmChanges failure shows error`() = runTest {
         coEvery {
-            noteShareRepository.updateNoteShareRole(noteId, "share1", NoteShareAccessRole.READ_ONLY)
+            noteShareRepository.updateNoteShareRole(noteId, "share1", NoteShareAccessRole.VIEWER)
         } throws Exception("failed")
 
         viewModel.load(noteId)

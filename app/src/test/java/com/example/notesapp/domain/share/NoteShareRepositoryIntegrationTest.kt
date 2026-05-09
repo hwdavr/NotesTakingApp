@@ -30,10 +30,10 @@ class NoteShareRepositoryIntegrationTest : BaseViewModelIntegrationTest() {
         val shares = noteShareRepository.observeNoteShares("note_001").first()
         assertEquals(2, shares.size)
         assertEquals("share_001", shares[0].id)
-        assertEquals(NoteShareAccessRole.FULL_ACCESS, shares[0].accessRole)
+        assertEquals(NoteShareAccessRole.EDITOR, shares[0].accessRole)
         assertEquals(NoteShareStatus.ACTIVE, shares[0].status)
         assertEquals("share_002", shares[1].id)
-        assertEquals(NoteShareAccessRole.READ_ONLY, shares[1].accessRole)
+        assertEquals(NoteShareAccessRole.VIEWER, shares[1].accessRole)
         assertEquals(NoteShareStatus.PENDING, shares[1].status)
     }
     @Test
@@ -49,7 +49,7 @@ class NoteShareRepositoryIntegrationTest : BaseViewModelIntegrationTest() {
         val created = noteShareRepository.inviteNoteShare(
             noteId = "note_001",
             email = "invitee@example.com",
-            accessRole = NoteShareAccessRole.READ_ONLY
+            accessRole = NoteShareAccessRole.VIEWER
         )
         val shares = noteShareRepository.observeNoteShares("note_001").first()
         assertEquals("share_003", created.id)

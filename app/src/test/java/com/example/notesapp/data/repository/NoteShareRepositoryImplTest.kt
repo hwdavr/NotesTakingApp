@@ -52,7 +52,7 @@ class NoteShareRepositoryImplTest {
 
         assertEquals(1, result.size)
         assertEquals("share1", result[0].id)
-        assertEquals(NoteShareAccessRole.READ_ONLY, result[0].accessRole)
+        assertEquals(NoteShareAccessRole.VIEWER, result[0].accessRole)
         assertEquals(NoteShareStatus.PENDING, result[0].status)
     }
 
@@ -97,7 +97,7 @@ class NoteShareRepositoryImplTest {
         coEvery { api.createNoteShare("n1", any()) } returns apiShare
         coEvery { dao.insert(any()) } returns Unit
 
-        val result = repository.inviteNoteShare("n1", "new@test.com", NoteShareAccessRole.FULL_ACCESS)
+        val result = repository.inviteNoteShare("n1", "new@test.com", NoteShareAccessRole.EDITOR)
 
         coVerify { api.createNoteShare("n1", CreateNoteShareRequest("new@test.com", "full_access")) }
         coVerify { dao.insert(match { it.id == "share2" }) }
@@ -121,11 +121,11 @@ class NoteShareRepositoryImplTest {
         coEvery { api.updateNoteShare("n1", "share1", any()) } returns apiShare
         coEvery { dao.insert(any()) } returns Unit
 
-        val result = repository.updateNoteShareRole("n1", "share1", NoteShareAccessRole.FULL_ACCESS)
+        val result = repository.updateNoteShareRole("n1", "share1", NoteShareAccessRole.EDITOR)
 
         coVerify { api.updateNoteShare("n1", "share1", UpdateNoteShareRequest("full_access")) }
         coVerify { dao.insert(match { it.id == "share1" && it.accessRole == "full_access" }) }
-        assertEquals(NoteShareAccessRole.FULL_ACCESS, result.accessRole)
+        assertEquals(NoteShareAccessRole.EDITOR, result.accessRole)
     }
 
     @Test

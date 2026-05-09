@@ -49,8 +49,8 @@ class ShareInviteViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `onRoleSelected updates state`() {
-        viewModel.onRoleSelected(NoteShareAccessRole.READ_ONLY)
-        assertEquals(NoteShareAccessRole.READ_ONLY, viewModel.uiState.value.selectedRole)
+        viewModel.onRoleSelected(NoteShareAccessRole.VIEWER)
+        assertEquals(NoteShareAccessRole.VIEWER, viewModel.uiState.value.selectedRole)
     }
 
     @Test
@@ -73,7 +73,7 @@ class ShareInviteViewModelTest : BaseViewModelTest() {
         
         assertEquals(1, events.size)
         assertEquals(ShareInviteEvent.InviteSucceeded, events[0])
-        coVerify { noteShareRepository.inviteNoteShare("note1", "valid@example.com", NoteShareAccessRole.FULL_ACCESS) }
+        coVerify { noteShareRepository.inviteNoteShare("note1", "valid@example.com", NoteShareAccessRole.EDITOR) }
         assertFalse(viewModel.uiState.value.isSubmitting)
         job.cancel()
     }

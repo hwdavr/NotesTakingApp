@@ -21,7 +21,7 @@ import retrofit2.HttpException
 data class ShareInviteUiState(
     val noteId: String = "",
     val email: String = "",
-    val selectedRole: NoteShareAccessRole = NoteShareAccessRole.FULL_ACCESS,
+    val selectedRole: NoteShareAccessRole = NoteShareAccessRole.EDITOR,
     val isSubmitting: Boolean = false,
     val errorMessageRes: Int? = null
 ) {
