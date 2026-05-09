@@ -5,6 +5,8 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.*
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.FakeFolderRepository
+import com.example.notesapp.FakeNoteRepository
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.home.viewmodel.HomeViewModel

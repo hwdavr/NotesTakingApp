@@ -61,6 +61,7 @@ class SharedUsersViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isLoading = true, errorMessageRes = null) }
                 noteShareRepository.refreshNoteShares(noteId)
+                _uiState.update { it.copy(isLoading = false) }
             } catch (_: Exception) {
                 _uiState.update {
                     it.copy(

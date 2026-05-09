@@ -1,6 +1,7 @@
 package com.example.notesapp.ui.share.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ fun SharedUsersScreen(
     parentPadding: PaddingValues,
     noteId: String,
     onBack: () -> Unit,
+    onManageAccess: () -> Unit,
     onShareToNewUser: () -> Unit,
     viewModel: SharedUsersViewModel = hiltViewModel()
 ) {
@@ -76,6 +78,7 @@ fun SharedUsersScreen(
         isLoading = state.isLoading,
         errorMessageRes = state.errorMessageRes,
         onBack = onBack,
+        onManageAccess = onManageAccess,
         onShareToNewUser = onShareToNewUser
     )
 }
@@ -87,6 +90,7 @@ fun SharedUsersScreenContent(
     isLoading: Boolean,
     errorMessageRes: Int?,
     onBack: () -> Unit,
+    onManageAccess: () -> Unit,
     onShareToNewUser: () -> Unit
 ) {
     val collaboratorCount = users.count { it.role != AccessRole.OWNER }
@@ -128,12 +132,27 @@ fun SharedUsersScreenContent(
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.testTag("shared_users_note_title")
                             )
-                            Text(
-                                text = stringResource(R.string.shared_users_section_title),
-                                color = SharedUsersTextSecondary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.shared_users_section_title),
+                                    color = SharedUsersTextSecondary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = stringResource(R.string.shared_users_manage_access),
+                                    color = SharedUsersPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier
+                                        .clickable(onClick = onManageAccess)
+                                        .testTag("shared_users_manage_access")
+                                )
+                            }
                             if (errorMessageRes != null) {
                                 Text(
                                     text = stringResource(errorMessageRes),
@@ -350,6 +369,7 @@ private fun SharedUsersScreenPreview() {
             isLoading = false,
             errorMessageRes = null,
             onBack = {},
+            onManageAccess = {},
             onShareToNewUser = {}
         )
     }

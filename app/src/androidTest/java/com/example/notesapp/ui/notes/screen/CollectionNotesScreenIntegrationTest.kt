@@ -10,6 +10,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.FakeFolderRepository
+import com.example.notesapp.FakeNoteRepository
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.notes.viewmodel.CollectionNotesViewModel

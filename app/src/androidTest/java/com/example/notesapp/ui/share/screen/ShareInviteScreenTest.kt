@@ -61,6 +61,7 @@ class ShareInviteScreenTest {
                 isLoading = false,
                 errorMessageRes = null,
                 onBack = {},
+                onManageAccess = {},
                 onShareToNewUser = { clicked = true }
             )
         }

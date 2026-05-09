@@ -11,6 +11,13 @@ enum class AccessRole {
     FULL_ACCESS,
     READ_ONLY
 }
+
+enum class ManageAccessPermission {
+    VIEWER,
+    EDITOR,
+    DELETE
+}
+
 data class SharedUserUiModel(
     val id: String,
     val name: String,
@@ -20,6 +27,18 @@ data class SharedUserUiModel(
     val role: AccessRole,
     val isPending: Boolean
 )
+
+data class ManageAccessUserUiModel(
+    val id: String,
+    val name: String,
+    val email: String,
+    val initials: String,
+    val accentColor: Color,
+    val currentPermission: ManageAccessPermission,
+    val selectedPermission: ManageAccessPermission,
+    val isPending: Boolean
+)
+
 internal fun buildSharedUserUiModels(ownerEmail: String?, shares: List<NoteShare>): List<SharedUserUiModel> {
     val ownerRow = ownerEmail?.let {
         SharedUserUiModel(
@@ -50,6 +69,35 @@ internal fun buildSharedUserUiModels(ownerEmail: String?, shares: List<NoteShare
         }
     return listOfNotNull(ownerRow) + collaboratorRows
 }
+
+internal fun buildManageAccessUserUiModels(
+    shares: List<NoteShare>,
+    selectedPermissions: Map<String, ManageAccessPermission> = emptyMap()
+): List<ManageAccessUserUiModel> = shares.map { share ->
+    val currentPermission = share.accessRole.toManageAccessPermission()
+    ManageAccessUserUiModel(
+        id = share.id,
+        name = deriveDisplayName(share.email, share.displayName),
+        email = share.email,
+        initials = deriveInitials(share.email, share.displayName),
+        accentColor = accentColorFor(share.email),
+        currentPermission = currentPermission,
+        selectedPermission = selectedPermissions[share.id] ?: currentPermission,
+        isPending = share.status == NoteShareStatus.PENDING
+    )
+}
+
+internal fun ManageAccessPermission.toNoteShareAccessRole(): NoteShareAccessRole = when (this) {
+    ManageAccessPermission.VIEWER -> NoteShareAccessRole.READ_ONLY
+    ManageAccessPermission.EDITOR -> NoteShareAccessRole.FULL_ACCESS
+    ManageAccessPermission.DELETE -> NoteShareAccessRole.READ_ONLY
+}
+
+private fun NoteShareAccessRole.toManageAccessPermission(): ManageAccessPermission = when (this) {
+    NoteShareAccessRole.READ_ONLY -> ManageAccessPermission.VIEWER
+    NoteShareAccessRole.FULL_ACCESS -> ManageAccessPermission.EDITOR
+}
+
 internal fun isValidInviteEmail(email: String): Boolean {
     val normalized = email.trim()
     if (normalized.isBlank()) return false

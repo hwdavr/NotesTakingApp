@@ -67,6 +67,7 @@
     <string name="editor_export_action">Export</string>
     <string name="shared_users_title">Shared users</string>
     <string name="shared_users_section_title">People with access</string>
+    <string name="shared_users_manage_access">Manage access</string>
     <string name="shared_users_cta">Share to new user</string>
     <string name="shared_users_role_owner">Owner</string>
     <string name="shared_users_role_full_access">Full access</string>
@@ -74,6 +75,12 @@
     <string name="shared_users_status_pending">Pending</string>
     <string name="shared_users_empty_state">No collaborators yet.</string>
     <string name="shared_users_error">Unable to load shared users.</string>
+    <string name="manage_access_title">Manage Access</string>
+    <string name="manage_access_confirm">Confirm</string>
+    <string name="manage_access_viewer">Viewer</string>
+    <string name="manage_access_editor">Editor</string>
+    <string name="manage_access_delete">Delete</string>
+    <string name="manage_access_error">Unable to update access right now.</string>
     <string name="share_invite_title">Share to new user</string>
     <string name="share_invite_email_label">Email</string>
     <string name="share_invite_permissions_label">Permissions</string>

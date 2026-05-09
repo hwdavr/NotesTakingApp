@@ -26,6 +26,7 @@ import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
+import com.example.notesapp.ui.share.screen.ManageAccessScreen
 import com.example.notesapp.ui.notes.screen.CollectionNotesScreen
 import com.example.notesapp.ui.notes.screen.MoveToScreen
 import com.example.notesapp.ui.notes.viewmodel.MoveToViewModel
@@ -59,6 +60,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         currentRoute?.startsWith("collectionNotes") != true &&
         currentRoute?.startsWith("moveTo") != true &&
         currentRoute?.startsWith("sharedUsers") != true &&
+        currentRoute?.startsWith("manageAccess") != true &&
         currentRoute?.startsWith("shareInvite") != true &&
         currentRoute !in authRoutes
     var authError by remember { mutableStateOf<String?>(null) }
@@ -298,7 +300,24 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     parentPadding = innerPadding,
                     noteId = noteId,
                     onBack = { navController.popBackStack() },
+                    onManageAccess = { navController.navigate(Destinations.ManageAccess.createRoute(noteId)) },
                     onShareToNewUser = { navController.navigate(Destinations.ShareInvite.createRoute(noteId)) }
+                )
+            }
+            composable(
+                route = Destinations.ManageAccess.route,
+                arguments = listOf(
+                    navArgument("noteId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                ManageAccessScreen(
+                    parentPadding = innerPadding,
+                    noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
+                    onBack = { navController.popBackStack() },
+                    onConfirmSuccess = { navController.popBackStack() }
                 )
             }
             composable(
