@@ -160,6 +160,13 @@ kover {
                 )
             }
         }
-        total { log { onCheck = true } }
+        total { 
+            log { onCheck = true } 
+            verify {
+                rule("Overall coverage") {
+                    bound { minValue = 80 }
+                }
+            }
+        }
     }
 }

@@ -197,7 +197,7 @@ Define and implement tests according to impact. Prefer writing the failing test 
 - Use the **Android test triage skill** to decide the minimum test layers needed for the change.
 - Follow the golden rule from triage: always test at the lowest layer that gives enough confidence.
 - Prefer automation tests including unit tests, integration tests, and UI tests over manual testing when deterministic coverage is possible.
-- Separate unit test and integration test into different classes. Only integration tests involving multiple layers should be put into integration test classes, and the class name must end with `IntegrationTest`. Otherwise, just create the unit test class, and put the test cases in their respective layer. Make sure unit test covers view model and domain classes are at least 95%.
+- Use the **Android unit test skill** to implement unit and integration tests. Ensure **90% coverage** for all new ViewModels and Domain classes, and follow the naming conventions (`*Test.kt` vs `*IntegrationTest.kt`).
 - If an API is involved, create at least one integration test.
 - If an API is used by a ViewModel function, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts the ViewModel-exposed `UiState` against `expected.ui`.
 - If an API is used only by domain/repository/use case logic without directly changing UI state, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts `expected.domain`.
@@ -273,6 +273,7 @@ Before completion:
 - Ensure the app builds: `./gradlew assembleDebug`.
 - Run all relevant tests:
   - Local tests: `./gradlew testDebugUnitTest`.
+  - Coverage: Run `./gradlew :app:koverHtmlReportDebug` and verify the coverage meets the **android-unit-test skill** requirements (Overall 80%, New classes 90%).
   - Instrumented tests: `./gradlew connectedDebugAndroidTest`.
 - Verify UI fidelity if a design was provided.
 - For UI changes, apply the **Android UI verification skill** with the cheapest reliable checks first.
