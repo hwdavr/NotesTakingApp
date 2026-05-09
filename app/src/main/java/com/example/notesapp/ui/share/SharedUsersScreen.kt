@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,17 +20,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.PersonAddAlt1
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +44,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 
@@ -50,30 +55,26 @@ internal val SharedUsersPrimary = Color(0xFF4C6FFF)
 internal val SharedUsersTextPrimary = Color(0xFF1F2A44)
 internal val SharedUsersTextSecondary = Color(0xFF7281A7)
 
-enum class AccessRole {
-    OWNER, EDITOR, VIEWER
-}
-
-data class SharedUserUiModel(
-    val id: String,
-    val name: String,
-    val email: String,
-    val initials: String,
-    val accentColor: Color,
-    val role: AccessRole
-)
-
 @Composable
 fun SharedUsersScreen(
     parentPadding: PaddingValues,
-    noteTitle: String,
+    noteId: String,
     onBack: () -> Unit,
-    onShareToNewUser: () -> Unit
+    onShareToNewUser: () -> Unit,
+    viewModel: SharedUsersViewModel = hiltViewModel()
 ) {
+    val state = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(noteId) {
+        viewModel.load(noteId)
+    }
+
     SharedUsersScreenContent(
         parentPadding = parentPadding,
-        noteTitle = noteTitle.ifBlank { stringResource(R.string.editor_untitled_note) },
-        users = sampleSharedUsers(),
+        noteTitle = state.noteTitle.ifBlank { stringResource(R.string.editor_untitled_note) },
+        users = state.users,
+        isLoading = state.isLoading,
+        errorMessageRes = state.errorMessageRes,
         onBack = onBack,
         onShareToNewUser = onShareToNewUser
     )
@@ -84,11 +85,17 @@ fun SharedUsersScreenContent(
     parentPadding: PaddingValues,
     noteTitle: String,
     users: List<SharedUserUiModel>,
+    isLoading: Boolean,
+    errorMessageRes: Int?,
     onBack: () -> Unit,
     onShareToNewUser: () -> Unit
 ) {
+    val collaboratorCount = users.count { it.role != AccessRole.OWNER }
+
     Scaffold(
-        containerColor = SharedUsersBackground
+        modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
+        containerColor = SharedUsersBackground,
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -130,11 +137,46 @@ fun SharedUsersScreenContent(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
+                            if (errorMessageRes != null) {
+                                Text(
+                                    text = stringResource(errorMessageRes),
+                                    color = Color(0xFFC44A4A),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
 
-                    items(users, key = { it.id }) { user ->
-                        SharedUserRow(user = user)
+                    if (isLoading) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = SharedUsersPrimary,
+                                    modifier = Modifier.testTag("shared_users_loading")
+                                )
+                            }
+                        }
+                    } else {
+                        items(users, key = { it.id }) { user ->
+                            SharedUserRow(user = user)
+                        }
+
+                        if (collaboratorCount == 0) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.shared_users_empty_state),
+                                    color = SharedUsersTextSecondary,
+                                    fontSize = 13.sp,
+                                    modifier = Modifier.testTag("shared_users_empty_state")
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -144,6 +186,8 @@ fun SharedUsersScreenContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .navigationBarsPadding()
+                    .imePadding()
                     .fillMaxWidth()
                     .height(56.dp)
                     .testTag("shared_users_cta"),
@@ -242,6 +286,14 @@ private fun SharedUserRow(user: SharedUserUiModel) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                if (user.isPending) {
+                    Text(
+                        text = stringResource(R.string.shared_users_status_pending),
+                        color = SharedUsersPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
 
             AccessRolePill(role = user.role)
@@ -253,18 +305,18 @@ private fun SharedUserRow(user: SharedUserUiModel) {
 private fun AccessRolePill(role: AccessRole) {
     val backgroundColor = when (role) {
         AccessRole.OWNER -> Color(0xFFEFF3FF)
-        AccessRole.EDITOR -> Color(0xFFF1EEFF)
-        AccessRole.VIEWER -> Color(0xFFFFF7ED)
+        AccessRole.FULL_ACCESS -> Color(0xFFF1EEFF)
+        AccessRole.READ_ONLY -> Color(0xFFFFF7ED)
     }
     val textColor = when (role) {
         AccessRole.OWNER -> Color(0xFF4C6FFF)
-        AccessRole.EDITOR -> Color(0xFF6E4CFF)
-        AccessRole.VIEWER -> Color(0xFFF59E0B)
+        AccessRole.FULL_ACCESS -> Color(0xFF6E4CFF)
+        AccessRole.READ_ONLY -> Color(0xFFF59E0B)
     }
-    val text = when (role) {
-        AccessRole.OWNER -> "Owner"
-        AccessRole.EDITOR -> "Editor"
-        AccessRole.VIEWER -> "Viewer"
+    val textRes = when (role) {
+        AccessRole.OWNER -> R.string.shared_users_role_owner
+        AccessRole.FULL_ACCESS -> R.string.shared_users_role_full_access
+        AccessRole.READ_ONLY -> R.string.shared_users_role_read_only
     }
 
     Surface(
@@ -272,7 +324,7 @@ private fun AccessRolePill(role: AccessRole) {
         shape = RoundedCornerShape(12.dp)
     ) {
         Text(
-            text = text,
+            text = stringResource(textRes),
             color = textColor,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
@@ -281,33 +333,6 @@ private fun AccessRolePill(role: AccessRole) {
     }
 }
 
-private fun sampleSharedUsers(): List<SharedUserUiModel> = listOf(
-    SharedUserUiModel(
-        id = "hannah",
-        name = "Hannah Lee",
-        email = "hannah.lee@example.com",
-        initials = "HL",
-        accentColor = Color(0xFF6E7BFF),
-        role = AccessRole.OWNER
-    ),
-    SharedUserUiModel(
-        id = "marcus",
-        name = "Marcus Chen",
-        email = "marcus.chen@example.com",
-        initials = "MC",
-        accentColor = Color(0xFF2DB7A3),
-        role = AccessRole.EDITOR
-    ),
-    SharedUserUiModel(
-        id = "priya",
-        name = "Priya Nair",
-        email = "priya.nair@example.com",
-        initials = "PN",
-        accentColor = Color(0xFFF59E0B),
-        role = AccessRole.VIEWER
-    )
-)
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun SharedUsersScreenPreview() {
@@ -315,7 +340,28 @@ private fun SharedUsersScreenPreview() {
         SharedUsersScreenContent(
             parentPadding = PaddingValues(),
             noteTitle = "Force update strategy",
-            users = sampleSharedUsers(),
+            users = listOf(
+                SharedUserUiModel(
+                    id = "owner",
+                    name = "Owner User",
+                    email = "owner@example.com",
+                    initials = "OU",
+                    accentColor = Color(0xFF6E7BFF),
+                    role = AccessRole.OWNER,
+                    isPending = false
+                ),
+                SharedUserUiModel(
+                    id = "share_1",
+                    name = "Hannah Lee",
+                    email = "hannah.lee@example.com",
+                    initials = "HL",
+                    accentColor = Color(0xFF2DB7A3),
+                    role = AccessRole.FULL_ACCESS,
+                    isPending = false
+                )
+            ),
+            isLoading = false,
+            errorMessageRes = null,
             onBack = {},
             onShareToNewUser = {}
         )

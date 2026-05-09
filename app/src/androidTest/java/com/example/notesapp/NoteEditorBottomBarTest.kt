@@ -34,7 +34,7 @@ class NoteEditorBottomBarTest {
                                     isLoaded = true
                             ),
                     onBack = {},
-                    onShareNote = { _ -> },
+                    onShareRequested = {},
                     onDelete = {},
                     onTitleChange = {},
                     onRename = {},

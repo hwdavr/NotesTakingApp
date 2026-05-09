@@ -290,6 +290,14 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
 
+    fun shareCurrentNote(onReady: (String) -> Unit) {
+        autoSaveJob?.cancel()
+        viewModelScope.launch {
+            saveInternally()
+            _uiState.value.noteId?.let(onReady)
+        }
+    }
+
     fun delete(onDone: () -> Unit) {
         val current = _uiState.value
         // If not saved yet, just finish

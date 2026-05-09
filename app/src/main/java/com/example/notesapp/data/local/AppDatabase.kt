@@ -6,13 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [NoteEntity::class, FolderEntity::class],
-    version = 3,
+    entities = [NoteEntity::class, FolderEntity::class, NoteShareEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun folderDao(): FolderDao
+    abstract fun noteShareDao(): NoteShareDao
 
     companion object {
         @Volatile

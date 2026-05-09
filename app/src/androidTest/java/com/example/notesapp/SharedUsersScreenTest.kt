@@ -34,9 +34,12 @@ class SharedUsersScreenTest {
                         email = "hannah.lee@example.com",
                         initials = "HL",
                         accentColor = Color(0xFF6E7BFF),
-                        role = AccessRole.OWNER
+                        role = AccessRole.OWNER,
+                        isPending = false
                     )
                 ),
+                isLoading = false,
+                errorMessageRes = null,
                 onBack = {},
                 onShareToNewUser = {}
             )

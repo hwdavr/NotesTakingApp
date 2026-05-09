@@ -1,0 +1,75 @@
+{
+  "id": "note_shares_list_001",
+  "description": "Lists collaborators and pending invites for a note. Owner is added locally by the client and is not returned by the API.",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/v1/notes/note_001/shares",
+      "status": 200,
+      "response": [
+        {
+          "id": "share_001",
+          "noteId": "note_001",
+          "userId": "auth0|hannah",
+          "email": "hannah.lee@example.com",
+          "displayName": "Hannah Lee",
+          "accessRole": "full_access",
+          "status": "active",
+          "invitedByUserId": "auth0|owner",
+          "createdAt": "2026-05-09T10:00:00Z",
+          "updatedAt": "2026-05-09T10:00:00Z"
+        },
+        {
+          "id": "share_002",
+          "noteId": "note_001",
+          "userId": null,
+          "email": "new.user@example.com",
+          "displayName": null,
+          "accessRole": "read_only",
+          "status": "pending",
+          "invitedByUserId": "auth0|owner",
+          "createdAt": "2026-05-09T11:00:00Z",
+          "updatedAt": "2026-05-09T11:00:00Z"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "domain": {
+      "shareCount": 2,
+      "shares": [
+        {
+          "id": "share_001",
+          "email": "hannah.lee@example.com",
+          "accessRole": "full_access",
+          "status": "active"
+        },
+        {
+          "id": "share_002",
+          "email": "new.user@example.com",
+          "accessRole": "read_only",
+          "status": "pending"
+        }
+      ]
+    },
+    "ui": {
+      "screen": "shared_users",
+      "itemCountExcludingOwner": 2,
+      "items": [
+        {
+          "id": "share_001",
+          "email": "hannah.lee@example.com",
+          "roleLabel": "Full access",
+          "statusLabel": "Active"
+        },
+        {
+          "id": "share_002",
+          "email": "new.user@example.com",
+          "roleLabel": "Read only",
+          "statusLabel": "Pending"
+        }
+      ]
+    }
+  },
+  "tags": ["notes", "sharing", "list"]
+}

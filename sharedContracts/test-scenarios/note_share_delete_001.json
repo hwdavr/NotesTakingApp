@@ -1,0 +1,22 @@
+{
+  "id": "note_share_delete_001",
+  "description": "Deletes a collaborator share from a note.",
+  "apiMocks": [
+    {
+      "method": "DELETE",
+      "path": "/v1/notes/note_001/shares/share_002",
+      "status": 204,
+      "response": ""
+    }
+  ],
+  "expected": {
+    "domain": {
+      "deletedShareId": "share_002"
+    },
+    "ui": {
+      "screen": "shared_users",
+      "removedShareId": "share_002"
+    }
+  },
+  "tags": ["notes", "sharing", "delete"]
+}

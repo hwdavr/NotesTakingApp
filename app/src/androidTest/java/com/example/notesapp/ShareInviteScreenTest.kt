@@ -41,6 +41,8 @@ class ShareInviteScreenTest {
                     )
                 ),
                 selectedPermissionId = "full_access",
+                errorMessageRes = null,
+                isInviteEnabled = true,
                 onEmailChange = {},
                 onPermissionSelected = {},
                 onBack = {},
@@ -64,6 +66,8 @@ class ShareInviteScreenTest {
                 parentPadding = PaddingValues(0.dp),
                 noteTitle = "Force update strategy",
                 users = emptyList(),
+                isLoading = false,
+                errorMessageRes = null,
                 onBack = {},
                 onShareToNewUser = { clicked = true }
             )

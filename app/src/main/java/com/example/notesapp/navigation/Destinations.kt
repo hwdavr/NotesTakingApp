@@ -27,9 +27,10 @@ sealed class Destinations(val route: String) {
     data object ExportNote : Destinations("exportNote/{noteId}") {
         fun createRoute(noteId: String): String = "exportNote/$noteId"
     }
-    data object SharedUsers : Destinations("sharedUsers?noteTitle={noteTitle}") {
-        fun createRoute(noteTitle: String): String =
-            "sharedUsers?noteTitle=${Uri.encode(noteTitle)}"
+    data object SharedUsers : Destinations("sharedUsers/{noteId}") {
+        fun createRoute(noteId: String): String = "sharedUsers/${Uri.encode(noteId)}"
     }
-    data object ShareInvite : Destinations("shareInvite")
+    data object ShareInvite : Destinations("shareInvite/{noteId}") {
+        fun createRoute(noteId: String): String = "shareInvite/${Uri.encode(noteId)}"
+    }
 }

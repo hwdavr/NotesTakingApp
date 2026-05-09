@@ -3,9 +3,11 @@ package com.example.notesapp.base
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
+import com.example.notesapp.data.repository.NoteShareRepositoryImpl
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.fakes.FakeFolderDao
 import com.example.notesapp.fakes.FakeNoteDao
+import com.example.notesapp.fakes.FakeNoteShareDao
 import com.example.notesapp.util.DeviceIdProvider
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -34,9 +36,11 @@ abstract class BaseViewModelIntegrationTest {
     protected lateinit var apiService: NotesApiService
     protected lateinit var fakeNoteDao: FakeNoteDao
     protected lateinit var fakeFolderDao: FakeFolderDao
+    protected lateinit var fakeNoteShareDao: FakeNoteShareDao
     protected lateinit var syncCoordinator: ItemsSyncCoordinator
     protected lateinit var folderRepository: FolderRepositoryImpl
     protected lateinit var noteRepository: NoteRepositoryImpl
+    protected lateinit var noteShareRepository: NoteShareRepositoryImpl
     protected val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -57,6 +61,7 @@ abstract class BaseViewModelIntegrationTest {
 
         fakeFolderDao = FakeFolderDao()
         fakeNoteDao = FakeNoteDao()
+        fakeNoteShareDao = FakeNoteShareDao()
 
         val fakeDeviceIdProvider = mockk<DeviceIdProvider>()
         every { fakeDeviceIdProvider.deviceId } returns "test_device"
@@ -65,6 +70,7 @@ abstract class BaseViewModelIntegrationTest {
 
         folderRepository = FolderRepositoryImpl(fakeFolderDao, apiService, syncCoordinator, fakeDeviceIdProvider)
         noteRepository = NoteRepositoryImpl(fakeNoteDao, apiService, syncCoordinator, fakeDeviceIdProvider)
+        noteShareRepository = NoteShareRepositoryImpl(fakeNoteShareDao, apiService)
     }
 
     @After

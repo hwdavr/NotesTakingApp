@@ -75,3 +75,25 @@ data class FavoriteItemRequest(
     val deviceId: String,
     val lastSyncedVersion: Long
 )
+
+data class NoteShareDto(
+    val id: String,
+    val noteId: String,
+    val userId: String?,
+    val email: String,
+    val displayName: String?,
+    val accessRole: String,
+    val status: String,
+    val invitedByUserId: String,
+    val createdAt: String,
+    val updatedAt: String
+)
+
+data class CreateNoteShareRequest(
+    val email: String,
+    val accessRole: String
+)
+
+data class UpdateNoteShareRequest(
+    val accessRole: String
+)

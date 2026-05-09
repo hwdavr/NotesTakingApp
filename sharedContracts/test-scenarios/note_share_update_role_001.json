@@ -1,0 +1,35 @@
+{
+  "id": "note_share_update_role_001",
+  "description": "Updates an existing collaborator from read-only to full access.",
+  "apiMocks": [
+    {
+      "method": "PATCH",
+      "path": "/v1/notes/note_001/shares/share_002",
+      "status": 200,
+      "response": {
+        "id": "share_002",
+        "noteId": "note_001",
+        "userId": "auth0|invitee",
+        "email": "invitee@example.com",
+        "displayName": "Invitee User",
+        "accessRole": "full_access",
+        "status": "active",
+        "invitedByUserId": "auth0|owner",
+        "createdAt": "2026-05-09T12:00:00Z",
+        "updatedAt": "2026-05-09T13:00:00Z"
+      }
+    }
+  ],
+  "expected": {
+    "domain": {
+      "shareId": "share_002",
+      "accessRole": "full_access",
+      "status": "active"
+    },
+    "ui": {
+      "screen": "shared_users",
+      "updatedRoleLabel": "Full access"
+    }
+  },
+  "tags": ["notes", "sharing", "update"]
+}

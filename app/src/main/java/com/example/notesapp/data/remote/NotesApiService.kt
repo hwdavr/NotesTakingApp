@@ -48,4 +48,26 @@ interface NotesApiService {
 
     @HTTP(method = "DELETE", path = "v1/items/{itemID}", hasBody = true)
     suspend fun deleteItem(@Path("itemID") itemId: String, @Body request: DeleteItemRequest): MutationResultDto
+
+    @GET("v1/notes/{itemID}/shares")
+    suspend fun listNoteShares(@Path("itemID") itemId: String): List<NoteShareDto>
+
+    @POST("v1/notes/{itemID}/shares")
+    suspend fun createNoteShare(
+        @Path("itemID") itemId: String,
+        @Body request: CreateNoteShareRequest
+    ): NoteShareDto
+
+    @PATCH("v1/notes/{itemID}/shares/{shareID}")
+    suspend fun updateNoteShare(
+        @Path("itemID") itemId: String,
+        @Path("shareID") shareId: String,
+        @Body request: UpdateNoteShareRequest
+    ): NoteShareDto
+
+    @HTTP(method = "DELETE", path = "v1/notes/{itemID}/shares/{shareID}", hasBody = false)
+    suspend fun deleteNoteShare(
+        @Path("itemID") itemId: String,
+        @Path("shareID") shareId: String
+    )
 }

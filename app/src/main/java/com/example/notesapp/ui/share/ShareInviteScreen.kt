@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,17 +20,15 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,9 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.domain.share.NoteShareAccessRole
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
-import androidx.compose.material3.Icon
 
 data class InvitePermissionUiModel(
     val id: String,
@@ -52,34 +53,43 @@ data class InvitePermissionUiModel(
 @Composable
 fun ShareInviteScreen(
     parentPadding: PaddingValues,
-    onBack: () -> Unit
+    noteId: String,
+    onBack: () -> Unit,
+    onInviteSuccess: () -> Unit,
+    viewModel: ShareInviteViewModel = hiltViewModel()
 ) {
-    var email by rememberSaveable { mutableStateOf("new.user@example.com") }
-    var selectedPermissionId by rememberSaveable { mutableStateOf("full_access") }
-    val permissions = remember {
-        listOf(
-            InvitePermissionUiModel(
-                id = "read_only",
-                title = "Read only",
-                subtitle = "Can view but not edit"
-            ),
-            InvitePermissionUiModel(
-                id = "full_access",
-                title = "Full access",
-                subtitle = "Can view and edit"
-            )
-        )
+    val state = viewModel.uiState.collectAsStateWithLifecycle().value
+
+    LaunchedEffect(noteId) {
+        viewModel.load(noteId)
+    }
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            if (event is ShareInviteEvent.InviteSucceeded) {
+                onInviteSuccess()
+            }
+        }
     }
 
     ShareInviteScreenContent(
         parentPadding = parentPadding,
-        email = email,
-        permissions = permissions,
-        selectedPermissionId = selectedPermissionId,
-        onEmailChange = { email = it },
-        onPermissionSelected = { selectedPermissionId = it },
+        email = state.email,
+        permissions = invitePermissions(),
+        selectedPermissionId = state.selectedRole.toPermissionId(),
+        errorMessageRes = state.errorMessageRes,
+        isInviteEnabled = state.isInviteEnabled,
+        onEmailChange = viewModel::onEmailChange,
+        onPermissionSelected = { permissionId ->
+            viewModel.onRoleSelected(
+                if (permissionId == PermissionIds.READ_ONLY) {
+                    NoteShareAccessRole.READ_ONLY
+                } else {
+                    NoteShareAccessRole.FULL_ACCESS
+                }
+            )
+        },
         onBack = onBack,
-        onInvite = {}
+        onInvite = viewModel::invite
     )
 }
 
@@ -89,13 +99,17 @@ fun ShareInviteScreenContent(
     email: String,
     permissions: List<InvitePermissionUiModel>,
     selectedPermissionId: String,
+    errorMessageRes: Int?,
+    isInviteEnabled: Boolean,
     onEmailChange: (String) -> Unit,
     onPermissionSelected: (String) -> Unit,
     onBack: () -> Unit,
     onInvite: () -> Unit
 ) {
     Scaffold(
-        containerColor = SharedUsersBackground
+        modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
+        containerColor = SharedUsersBackground,
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -148,6 +162,15 @@ fun ShareInviteScreenContent(
                                 cursorColor = SharedUsersPrimary
                             )
                         )
+                        if (errorMessageRes != null) {
+                            Text(
+                                text = stringResource(errorMessageRes),
+                                color = Color(0xFFC44A4A),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.testTag("share_invite_error")
+                            )
+                        }
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -171,16 +194,21 @@ fun ShareInviteScreenContent(
 
             Button(
                 onClick = onInvite,
+                enabled = isInviteEnabled,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .navigationBarsPadding()
+                    .imePadding()
                     .fillMaxWidth()
                     .height(56.dp)
                     .testTag("share_invite_cta"),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SharedUsersPrimary,
-                    contentColor = Color.White
+                    contentColor = Color.White,
+                    disabledContainerColor = Color(0xFFAAB8C2),
+                    disabledContentColor = Color.White
                 )
             ) {
                 Text(
@@ -242,6 +270,30 @@ private fun PermissionOptionRow(
     }
 }
 
+private object PermissionIds {
+    const val READ_ONLY = "read_only"
+    const val FULL_ACCESS = "full_access"
+}
+
+@Composable
+private fun invitePermissions(): List<InvitePermissionUiModel> = listOf(
+    InvitePermissionUiModel(
+        id = PermissionIds.READ_ONLY,
+        title = stringResource(R.string.share_invite_read_only_title),
+        subtitle = stringResource(R.string.share_invite_read_only_subtitle)
+    ),
+    InvitePermissionUiModel(
+        id = PermissionIds.FULL_ACCESS,
+        title = stringResource(R.string.share_invite_full_access_title),
+        subtitle = stringResource(R.string.share_invite_full_access_subtitle)
+    )
+)
+
+private fun NoteShareAccessRole.toPermissionId(): String = when (this) {
+    NoteShareAccessRole.READ_ONLY -> PermissionIds.READ_ONLY
+    NoteShareAccessRole.FULL_ACCESS -> PermissionIds.FULL_ACCESS
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun ShareInviteScreenPreview() {
@@ -254,6 +306,8 @@ private fun ShareInviteScreenPreview() {
                 InvitePermissionUiModel("full_access", "Full access", "Can view and edit")
             ),
             selectedPermissionId = "full_access",
+            errorMessageRes = null,
+            isInviteEnabled = true,
             onEmailChange = {},
             onPermissionSelected = {},
             onBack = {},

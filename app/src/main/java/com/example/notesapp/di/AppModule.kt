@@ -5,12 +5,15 @@ import com.example.notesapp.BuildConfig
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
+import com.example.notesapp.data.local.NoteShareDao
 import com.example.notesapp.data.remote.AuthInterceptor
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
+import com.example.notesapp.data.repository.NoteShareRepositoryImpl
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.util.NoteExporter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -38,6 +41,10 @@ abstract class AppModule {
     @Singleton
     abstract fun bindFolderRepository(impl: FolderRepositoryImpl): FolderRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
+
     companion object {
 
         @Provides
@@ -49,6 +56,9 @@ abstract class AppModule {
 
         @Provides
         fun provideFolderDao(database: AppDatabase): FolderDao = database.folderDao()
+
+        @Provides
+        fun provideNoteShareDao(database: AppDatabase): NoteShareDao = database.noteShareDao()
 
         @Provides
         @Singleton

@@ -263,8 +263,8 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     noteId = noteId,
                     folderId = folderId,
                     onBack = { navController.popBackStack() },
-                    onShareNote = { title ->
-                        navController.navigate(Destinations.SharedUsers.createRoute(title))
+                    onShareNote = { sharedNoteId ->
+                        navController.navigate(Destinations.SharedUsers.createRoute(sharedNoteId))
                     },
                     onMoveNote = { id ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, id))
@@ -294,23 +294,34 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
             composable(
                 route = Destinations.SharedUsers.route,
                 arguments = listOf(
-                    navArgument("noteTitle") {
+                    navArgument("noteId") {
                         type = NavType.StringType
                         defaultValue = ""
                     }
                 )
             ) { backStackEntry ->
+                val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
                 SharedUsersScreen(
                     parentPadding = innerPadding,
-                    noteTitle = backStackEntry.arguments?.getString("noteTitle").orEmpty(),
+                    noteId = noteId,
                     onBack = { navController.popBackStack() },
-                    onShareToNewUser = { navController.navigate(Destinations.ShareInvite.route) }
+                    onShareToNewUser = { navController.navigate(Destinations.ShareInvite.createRoute(noteId)) }
                 )
             }
-            composable(Destinations.ShareInvite.route) {
+            composable(
+                route = Destinations.ShareInvite.route,
+                arguments = listOf(
+                    navArgument("noteId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
                 ShareInviteScreen(
                     parentPadding = innerPadding,
-                    onBack = { navController.popBackStack() }
+                    noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
+                    onBack = { navController.popBackStack() },
+                    onInviteSuccess = { navController.popBackStack() }
                 )
             }
         }

@@ -125,7 +125,7 @@ fun NoteEditorScreen(
             noteId = noteId,
             state = state,
             onBack = onBack,
-            onShareNote = onShareNote,
+            onShareRequested = { viewModel.shareCurrentNote(onShareNote) },
             onDelete = { viewModel.delete(onDone = onBack) },
             onTitleChange = viewModel::onTitleChange,
             onRename = viewModel::rename,
@@ -154,7 +154,7 @@ fun NoteEditorScreenContent(
         noteId: String?,
         state: NoteEditorUiState,
         onBack: () -> Unit,
-        onShareNote: (String) -> Unit,
+        onShareRequested: () -> Unit,
         onDelete: () -> Unit,
         onTitleChange: (String) -> Unit,
         onRename: (String) -> Unit,
@@ -186,7 +186,6 @@ fun NoteEditorScreenContent(
                     selectedFolder = selectedFolder,
                     title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
             )
-    val shareTitle = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
     val activeTextBlockId =
             state.focusedBlockId
                     ?: state.document
@@ -210,7 +209,7 @@ fun NoteEditorScreenContent(
         ) {
             EditorTopBar(
                     onBack = onBack,
-                    onShare = { onShareNote(shareTitle) },
+                    onShare = onShareRequested,
                     onMore = { showNoteActionsSheet = true }
             )
 

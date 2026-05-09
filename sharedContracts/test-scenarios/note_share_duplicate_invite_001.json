@@ -1,0 +1,24 @@
+{
+  "id": "note_share_duplicate_invite_001",
+  "description": "Duplicate invite on the same note and email returns a conflict.",
+  "apiMocks": [
+    {
+      "method": "POST",
+      "path": "/v1/notes/note_001/shares",
+      "status": 409,
+      "response": "share already exists"
+    }
+  ],
+  "expected": {
+    "domain": {
+      "errorCode": 409
+    },
+    "ui": {
+      "screen": "share_invite",
+      "inviteSucceeded": false,
+      "errorVisible": true,
+      "errorMessage": "User already has access to this note."
+    }
+  },
+  "tags": ["notes", "sharing", "conflict"]
+}
