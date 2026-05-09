@@ -12,6 +12,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -46,46 +47,47 @@ open class FoldersViewModel @Inject constructor(
     private val folderCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     private val allFolders = folderRepository.getFolders()
     private val allNotes = noteRepository.getActiveNotes()
-    open val uiState: StateFlow<FoldersUiState> = combine(
-        allFolders,
-        allNotes,
-        searchQuery,
-        smartCounts,
-        folderCounts
-    ) { folders, notes, query, counts, perFolderCounts ->
-        val items = if (query.isBlank()) {
-            buildTree(folders, notes, null, 0, perFolderCounts)
-        } else {
-            val matchingFolders = folders
-                .filter { it.name.contains(query, ignoreCase = true) }
-                .map {
-                    FolderTreeItem.FolderItem(
-                        folder = it,
-                        depth = 0,
-                        noteCount = perFolderCounts[it.id] ?: 0,
-                        hasChildren = folders.any { child -> child.parentFolderId == it.id } ||
-                            notes.any { note -> note.folderId == it.id }
-                    )
-                }
-            val matchingNotes = notes
-                .filter {
-                    it.title.contains(query, ignoreCase = true) ||
-                        it.content.contains(query, ignoreCase = true)
-                }
-                .map { FolderTreeItem.NoteItem(it, 0) }
-            matchingFolders + matchingNotes
-        }
-        FoldersUiState(
-            smartCounts = counts,
-            treeItems = items,
-            isSearchActive = query.isNotBlank()
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = FoldersUiState()
-    )
+    private val _uiState = MutableStateFlow(FoldersUiState())
+    open val uiState: StateFlow<FoldersUiState> = _uiState.asStateFlow()
+
     init {
+        viewModelScope.launch {
+            combine(
+                allFolders,
+                allNotes,
+                searchQuery,
+                smartCounts,
+                folderCounts
+            ) { folders, notes, query, counts, perFolderCounts ->
+                val items = if (query.isBlank()) {
+                    buildTree(folders, notes, null, 0, perFolderCounts)
+                } else {
+                    val matchingFolders = folders
+                        .filter { it.name.contains(query, ignoreCase = true) }
+                        .map {
+                            FolderTreeItem.FolderItem(
+                                folder = it,
+                                depth = 0,
+                                noteCount = perFolderCounts[it.id] ?: 0,
+                                hasChildren = folders.any { child -> child.parentFolderId == it.id } ||
+                                    notes.any { note -> note.folderId == it.id }
+                            )
+                        }
+                    val matchingNotes = notes
+                        .filter {
+                            it.title.contains(query, ignoreCase = true) ||
+                                it.content.contains(query, ignoreCase = true)
+                        }
+                        .map { FolderTreeItem.NoteItem(it, 0) }
+                    matchingFolders + matchingNotes
+                }
+                FoldersUiState(
+                    smartCounts = counts,
+                    treeItems = items,
+                    isSearchActive = query.isNotBlank()
+                )
+            }.collect { _uiState.value = it }
+        }
         viewModelScope.launch {
             folderRepository.sync()
         }

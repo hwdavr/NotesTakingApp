@@ -1,7 +1,5 @@
 package com.example.notesapp.ui.notes.viewmodel
 
-import com.example.notesapp.ui.notes.viewmodel.MoveToViewModel
-
 import androidx.lifecycle.SavedStateHandle
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.Folder

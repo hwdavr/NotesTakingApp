@@ -3,9 +3,9 @@ package com.example.notesapp.util
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
-import com.example.notesapp.ui.editor.mapper.EditorBlock
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date

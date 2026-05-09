@@ -13,8 +13,8 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
 import java.io.OutputStream
 
 class NoteExporter(private val context: Context) {

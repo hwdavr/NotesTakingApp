@@ -1,12 +1,15 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
+
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
-val auth0ClientId = localProperties.getProperty("AUTH0_CLIENT_ID") ?: "p6v6qY6V6qY6V6qY6V6qY6V6qY6V6qY6"
+
+val auth0ClientId =
+        localProperties.getProperty("AUTH0_CLIENT_ID") ?: ""
 val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: "https://api.example.com/"
 val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: "https://api.example.com/"
 
@@ -32,9 +35,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        vectorDrawables { useSupportLibrary = true }
         manifestPlaceholders["auth0Domain"] = "dev-9sa8k5kv.us.auth0.com"
         manifestPlaceholders["auth0Scheme"] = "notesapp"
         resValue("string", "auth0_client_id", auth0ClientId)
@@ -46,8 +47,8 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
             )
         }
     }
@@ -56,9 +57,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -74,6 +73,11 @@ android {
     lint {
         abortOnError = true
         checkReleaseBuilds = false
+    }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 }
 
@@ -118,7 +122,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.robolectric:robolectric:4.12.2")
+    testImplementation("androidx.test:core:1.6.1")
     testImplementation("org.json:json:20240303")
+    testImplementation("androidx.test.ext:junit:1.2.1")
 
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
@@ -132,29 +139,27 @@ dependencies {
 kover {
     reports {
         filters {
-            includes {
-                classes(
-                    "com.example.notesapp.domain.*",
-                    "com.example.notesapp.data.*",
-                    "com.example.notesapp.util.*",
-                    "com.example.notesapp.auth.*",
-                    "com.example.notesapp.ui.*.viewmodel.*",
-                    "com.example.notesapp.ui.*.mapper.*",
-                    "com.example.notesapp.ui.*.model.*"
-                )
-            }
             excludes {
                 classes(
-                    "com.example.notesapp.ui.*.screen.*",
-                    "com.example.notesapp.ui.*.navigation.*",
-                    "com.example.notesapp.ui.*.components.*"
+                        "com.example.notesapp.MainActivity",
+                        "com.example.notesapp.NotesApplication",
+                        "com.example.notesapp.auth.*",
+                        "com.example.notesapp.ui.*.screen.*",
+                        "com.example.notesapp.navigation.*",
+                        "com.example.notesapp.ui.*.components.*",
+                        "com.example.notesapp.ui.theme.*",
+                        "*_Impl",
+                        "*_Impl$*",
+                        "*_Factory",
+                        "*_Factory$*",
+                        "*_HiltModules*",
+                        "*Hilt_*",
+                        "*_MembersInjector",
+                        "com.example.notesapp.di.*",
+                        "com.example.notesapp.data.local.AppDatabase*"
                 )
             }
         }
-        total {
-            log {
-                onCheck = true
-            }
-        }
+        total { log { onCheck = true } }
     }
 }

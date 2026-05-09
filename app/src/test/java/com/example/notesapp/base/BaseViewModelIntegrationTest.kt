@@ -40,7 +40,7 @@ abstract class BaseViewModelIntegrationTest {
     protected lateinit var folderRepository: FolderRepositoryImpl
     protected lateinit var noteRepository: NoteRepositoryImpl
     protected lateinit var noteShareRepository: NoteShareRepositoryImpl
-    protected val testDispatcher = StandardTestDispatcher()
+    protected val testDispatcher = kotlinx.coroutines.test.UnconfinedTestDispatcher()
     @Before
     fun baseSetup() {
         Dispatchers.setMain(testDispatcher)

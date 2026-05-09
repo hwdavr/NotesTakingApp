@@ -1,6 +1,5 @@
 package com.example.notesapp.ui.editor.mapper
 
-
 import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
