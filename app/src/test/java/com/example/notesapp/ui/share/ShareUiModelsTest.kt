@@ -3,13 +3,15 @@ package com.example.notesapp.ui.share
 import com.example.notesapp.domain.share.NoteShare
 import com.example.notesapp.domain.share.NoteShareAccessRole
 import com.example.notesapp.domain.share.NoteShareStatus
+import com.example.notesapp.ui.share.model.AccessRole
+import com.example.notesapp.ui.share.model.buildSharedUserUiModels
+import com.example.notesapp.ui.share.model.isValidInviteEmail
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ShareUiModelsTest {
-
     @Test
     fun `buildSharedUserUiModels prepends owner and maps collaborator roles`() {
         val users = buildSharedUserUiModels(
@@ -41,7 +43,6 @@ class ShareUiModelsTest {
                 )
             )
         )
-
         assertEquals(3, users.size)
         assertEquals(AccessRole.OWNER, users[0].role)
         assertEquals("owner@example.com", users[0].email)
@@ -49,7 +50,6 @@ class ShareUiModelsTest {
         assertEquals(AccessRole.READ_ONLY, users[2].role)
         assertTrue(users[2].isPending)
     }
-
     @Test
     fun `isValidInviteEmail accepts standard email and rejects invalid values`() {
         assertTrue(isValidInviteEmail("invitee@example.com"))

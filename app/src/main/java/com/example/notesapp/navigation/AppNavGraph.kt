@@ -22,17 +22,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
-import com.example.notesapp.ui.editor.NoteEditorScreen
-import com.example.notesapp.ui.folders.FoldersScreen
-import com.example.notesapp.ui.home.HomeNotesScreen
-import com.example.notesapp.ui.moveto.MoveToScreen
-import com.example.notesapp.ui.moveto.MoveToViewModel
-import com.example.notesapp.ui.notes.CollectionNotesScreen
 import com.example.notesapp.ui.editor.export.ExportNoteScreen
-import com.example.notesapp.ui.onboarding.OnboardingScreen
-import com.example.notesapp.ui.share.ShareInviteScreen
-import com.example.notesapp.ui.share.SharedUsersScreen
-import com.example.notesapp.ui.settings.SettingsScreen
+import com.example.notesapp.ui.editor.screen.NoteEditorScreen
+import com.example.notesapp.ui.folders.screen.FoldersScreen
+import com.example.notesapp.ui.home.screen.HomeNotesScreen
+import com.example.notesapp.ui.notes.screen.CollectionNotesScreen
+import com.example.notesapp.ui.notes.screen.MoveToScreen
+import com.example.notesapp.ui.notes.viewmodel.MoveToViewModel
+import com.example.notesapp.ui.onboarding.screen.OnboardingScreen
+import com.example.notesapp.ui.settings.screen.SettingsScreen
+import com.example.notesapp.ui.share.screen.ShareInviteScreen
+import com.example.notesapp.ui.share.screen.SharedUsersScreen
 
 @Composable
 fun AppNavGraph(authManager: AuthManager, activity: Context) {
@@ -47,15 +47,12 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
         }
     )
 }
-
 @Composable
 fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit) {
     val navController = rememberNavController()
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
-
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
-
     val authRoutes = listOf(Destinations.Onboarding.route)
     val showBottomBar = isLoggedIn &&
         currentRoute?.startsWith("editor") != true &&
@@ -64,16 +61,13 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         currentRoute?.startsWith("sharedUsers") != true &&
         currentRoute?.startsWith("shareInvite") != true &&
         currentRoute !in authRoutes
-
     var authError by remember { mutableStateOf<String?>(null) }
-
     if (authError != null) {
         ErrorDialog(
             message = authError!!,
             onDismiss = { authError = null }
         )
     }
-
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -133,7 +127,6 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                     }
                 )
             }
-
             // Main Flow
             composable(Destinations.Notes.route) {
                 HomeNotesScreen(

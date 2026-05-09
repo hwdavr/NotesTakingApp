@@ -11,7 +11,6 @@ data class BottomNavItem(
     val route: String,
     val icon: ImageVector
 )
-
 val bottomNavItems = listOf(
     BottomNavItem("Home", Destinations.Notes.route, Icons.AutoMirrored.Outlined.StickyNote2),
     BottomNavItem("Folders", Destinations.Folders.route, Icons.Outlined.Folder),

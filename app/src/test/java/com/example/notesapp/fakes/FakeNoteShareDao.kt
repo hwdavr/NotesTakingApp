@@ -7,17 +7,14 @@ import kotlinx.coroutines.flow.map
 
 class FakeNoteShareDao : NoteShareDao {
     private val sharesFlow = MutableStateFlow<List<NoteShareEntity>>(emptyList())
-
     override fun observeByNoteId(noteId: String) =
         sharesFlow.map { shares -> shares.filter { it.noteId == noteId }.sortedBy { it.updatedAt } }
-
     override suspend fun insert(noteShare: NoteShareEntity) {
         val newList = sharesFlow.value.toMutableList()
         newList.removeIf { it.id == noteShare.id }
         newList.add(noteShare)
         sharesFlow.value = newList
     }
-
     override suspend fun insertAll(noteShares: List<NoteShareEntity>) {
         val newList = sharesFlow.value.toMutableList()
         noteShares.forEach { share ->
@@ -26,11 +23,9 @@ class FakeNoteShareDao : NoteShareDao {
         }
         sharesFlow.value = newList
     }
-
     override suspend fun clearByNoteId(noteId: String) {
         sharesFlow.value = sharesFlow.value.filterNot { it.noteId == noteId }
     }
-
     override suspend fun deleteById(shareId: String) {
         sharesFlow.value = sharesFlow.value.filterNot { it.id == shareId }
     }

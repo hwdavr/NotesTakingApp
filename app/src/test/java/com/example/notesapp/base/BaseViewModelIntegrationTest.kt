@@ -31,7 +31,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseViewModelIntegrationTest {
-
     protected lateinit var mockWebServer: MockWebServer
     protected lateinit var apiService: NotesApiService
     protected lateinit var fakeNoteDao: FakeNoteDao
@@ -42,14 +41,11 @@ abstract class BaseViewModelIntegrationTest {
     protected lateinit var noteRepository: NoteRepositoryImpl
     protected lateinit var noteShareRepository: NoteShareRepositoryImpl
     protected val testDispatcher = StandardTestDispatcher()
-
     @Before
     fun baseSetup() {
         Dispatchers.setMain(testDispatcher)
-
         mockWebServer = MockWebServer()
         mockWebServer.start()
-
         val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
         val client = OkHttpClient.Builder().build()
         apiService = Retrofit.Builder()
@@ -58,27 +54,21 @@ abstract class BaseViewModelIntegrationTest {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(NotesApiService::class.java)
-
         fakeFolderDao = FakeFolderDao()
         fakeNoteDao = FakeNoteDao()
         fakeNoteShareDao = FakeNoteShareDao()
-
         val fakeDeviceIdProvider = mockk<DeviceIdProvider>()
         every { fakeDeviceIdProvider.deviceId } returns "test_device"
-
         syncCoordinator = ItemsSyncCoordinator(apiService, fakeFolderDao, fakeNoteDao, fakeDeviceIdProvider)
-
         folderRepository = FolderRepositoryImpl(fakeFolderDao, apiService, syncCoordinator, fakeDeviceIdProvider)
         noteRepository = NoteRepositoryImpl(fakeNoteDao, apiService, syncCoordinator, fakeDeviceIdProvider)
         noteShareRepository = NoteShareRepositoryImpl(fakeNoteShareDao, apiService)
     }
-
     @After
     fun baseTeardown() {
         mockWebServer.shutdown()
         Dispatchers.resetMain()
     }
-
     protected suspend fun TestScope.waitUntil(timeoutMs: Long = 5000, condition: suspend () -> Boolean) {
         val startTime = System.currentTimeMillis()
         while (!condition()) {

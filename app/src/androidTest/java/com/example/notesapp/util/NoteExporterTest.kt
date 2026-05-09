@@ -3,24 +3,22 @@ package com.example.notesapp.util
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.editor.document.EditorBlock
-import com.example.notesapp.ui.editor.document.NoteDocument
-import com.example.notesapp.ui.editor.document.RichText
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
+import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.EditorBlock
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NoteExporterTest {
-
     @Test
     fun testExportToPdfWithTableAndImage() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val noteExporter = NoteExporter(context)
-        
         val content = NoteDocument(
             blocks = listOf(
                 EditorBlock.TextBlock(type = "heading", children = listOf(RichText("Test Heading"))),
@@ -34,7 +32,6 @@ class NoteExporterTest {
                 EditorBlock.ImageBlock(url = "android.resource://com.example.notesapp/drawable/ic_launcher_foreground", caption = "Test Image")
             )
         ).toJsonString()
-        
         val note = Note(
             id = "test-id",
             title = "Test Note",
@@ -43,15 +40,11 @@ class NoteExporterTest {
             createdAt = System.currentTimeMillis(),
             updatedAt = System.currentTimeMillis()
         )
-        
         val outputFile = File(context.cacheDir, "test_export.pdf")
         val outputStream = FileOutputStream(outputFile)
-        
         noteExporter.exportToPdf(note, outputStream)
-        
         assertTrue("PDF file should exist", outputFile.exists())
         assertTrue("PDF file should not be empty", outputFile.length() > 0)
-        
         // Cleanup
         outputFile.delete()
     }

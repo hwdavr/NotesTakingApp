@@ -27,21 +27,16 @@ open class AuthManager @Inject constructor(
         context.getString(R.string.auth0_client_id),
         context.getString(R.string.auth0_domain)
     )
-
     companion object {
         private const val TAG = "AuthManager"
     }
-
     private val _isLoggedIn = MutableStateFlow(false)
     open val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
-
     private val _profileEmail = MutableStateFlow<String?>(null)
     open val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
-
     init {
         checkSession()
     }
-
     /**
      * Launches the Auth0 web login flow.
      */
@@ -61,7 +56,6 @@ open class AuthManager @Inject constructor(
                         _isLoggedIn.value = true
                         onSuccess()
                     }
-
                     override fun onFailure(error: AuthenticationException) {
                         Log.e(TAG, "Login failed: ${error.getDescription()}", error)
                         onError(error.getDescription())
@@ -69,7 +63,6 @@ open class AuthManager @Inject constructor(
                 }
             )
     }
-
     /**
      * Launches the Auth0 web logout flow.
      */
@@ -86,7 +79,6 @@ open class AuthManager @Inject constructor(
                         _isLoggedIn.value = false
                         onSuccess()
                     }
-
                     override fun onFailure(error: AuthenticationException) {
                         Log.e(TAG, "Logout failed: ${error.getDescription()}", error)
                         onError(error.getDescription())
@@ -94,7 +86,6 @@ open class AuthManager @Inject constructor(
                 }
             )
     }
-
     /**
      * Checks if a valid access token exists in secure storage.
      */
@@ -110,12 +101,10 @@ open class AuthManager @Inject constructor(
             _isLoggedIn.value = false
         }
     }
-
     private fun extractEmailFromIdToken(idToken: String?): String? {
         if (idToken.isNullOrBlank()) return null
         val parts = idToken.split(".")
         if (parts.size < 2) return null
-
         return runCatching {
             val payload = Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
             JSONObject(String(payload, StandardCharsets.UTF_8)).optString("email").takeIf { it.isNotBlank() }

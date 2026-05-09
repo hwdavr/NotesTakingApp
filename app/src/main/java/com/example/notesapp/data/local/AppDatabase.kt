@@ -14,11 +14,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun folderDao(): FolderDao
     abstract fun noteShareDao(): NoteShareDao
-
     companion object {
         @Volatile
         private var instance: AppDatabase? = null
-
         fun getInstance(context: Context): AppDatabase {
             return instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(

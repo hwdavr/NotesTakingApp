@@ -12,7 +12,6 @@ private val LightColors = lightColorScheme(
     onBackground = TextPrimary,
     onSurface = TextPrimary
 )
-
 @Composable
 fun NotesTakingAppTheme(content: @Composable () -> Unit) {
     MaterialTheme(

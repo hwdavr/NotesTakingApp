@@ -17,6 +17,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.github.hierynomus.license") version "0.16.1"
+    id("org.jetbrains.kotlinx.kover")
 }
 
 android {
@@ -117,6 +118,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("org.json:json:20240303")
 
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
@@ -125,4 +127,34 @@ dependencies {
     androidTestImplementation("io.mockk:mockk-android:1.13.10")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+kover {
+    reports {
+        filters {
+            includes {
+                classes(
+                    "com.example.notesapp.domain.*",
+                    "com.example.notesapp.data.*",
+                    "com.example.notesapp.util.*",
+                    "com.example.notesapp.auth.*",
+                    "com.example.notesapp.ui.*.viewmodel.*",
+                    "com.example.notesapp.ui.*.mapper.*",
+                    "com.example.notesapp.ui.*.model.*"
+                )
+            }
+            excludes {
+                classes(
+                    "com.example.notesapp.ui.*.screen.*",
+                    "com.example.notesapp.ui.*.navigation.*",
+                    "com.example.notesapp.ui.*.components.*"
+                )
+            }
+        }
+        total {
+            log {
+                onCheck = true
+            }
+        }
+    }
 }

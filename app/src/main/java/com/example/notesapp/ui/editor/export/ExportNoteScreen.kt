@@ -63,28 +63,23 @@ fun ExportNoteScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    
     val successMessage = stringResource(R.string.export_success)
     val errorMessage = stringResource(R.string.export_error)
-
     LaunchedEffect(noteId) {
         viewModel.loadNote(noteId)
     }
-
     LaunchedEffect(state.exportSuccess) {
         if (state.exportSuccess) {
             snackbarHostState.showSnackbar(successMessage)
             viewModel.resetStatus()
         }
     }
-
     LaunchedEffect(state.error) {
         state.error?.let {
             snackbarHostState.showSnackbar(errorMessage)
             viewModel.resetStatus()
         }
     }
-
     // SAF Launcher
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument(
@@ -93,7 +88,6 @@ fun ExportNoteScreen(
     ) { uri ->
         uri?.let { viewModel.exportToUri(it) }
     }
-
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         topBar = {
@@ -127,9 +121,7 @@ fun ExportNoteScreen(
                         color = Color(0xFF1F2A44)
                     )
                 )
-                
                 Spacer(modifier = Modifier.height(32.dp))
-                
                 Text(
                     text = stringResource(R.string.export_format_label),
                     modifier = Modifier.align(Alignment.Start),
@@ -138,27 +130,21 @@ fun ExportNoteScreen(
                         color = Color(0xFF7281A7)
                     )
                 )
-                
                 Spacer(modifier = Modifier.height(16.dp))
-                
                 FormatOption(
                     title = stringResource(R.string.export_markdown),
                     icon = Icons.Outlined.Description,
                     selected = state.selectedFormat == ExportFormat.Markdown,
                     onClick = { viewModel.selectFormat(ExportFormat.Markdown) }
                 )
-                
                 Spacer(modifier = Modifier.height(12.dp))
-                
                 FormatOption(
                     title = stringResource(R.string.export_pdf),
                     icon = Icons.Outlined.PictureAsPdf,
                     selected = state.selectedFormat == ExportFormat.PDF,
                     onClick = { viewModel.selectFormat(ExportFormat.PDF) }
                 )
-                
                 Spacer(modifier = Modifier.weight(1f))
-                
                 Button(
                     onClick = { 
                         val extension = if (state.selectedFormat == ExportFormat.Markdown) ".md" else ".pdf"
@@ -194,7 +180,6 @@ fun ExportNoteScreen(
         }
     }
 }
-
 @Composable
 private fun FormatOption(
     title: String,
@@ -204,7 +189,6 @@ private fun FormatOption(
 ) {
     val borderColor = if (selected) Color(0xFF6E7BFF) else Color(0xFFEAF1FF)
     val backgroundColor = if (selected) Color(0xFFF0F4FF) else Color.White
-    
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -231,7 +215,6 @@ private fun FormatOption(
                     modifier = Modifier.size(24.dp)
                 )
             }
-            
             Text(
                 text = title,
                 modifier = Modifier.weight(1f),
@@ -240,7 +223,6 @@ private fun FormatOption(
                     color = Color(0xFF1F2A44)
                 )
             )
-            
             if (selected) {
                 Icon(
                     imageVector = Icons.Outlined.CheckCircle,

@@ -20,7 +20,6 @@ class ItemsSyncCoordinator @Inject constructor(
     suspend fun syncAll() {
         val initialItems = api.listItems(includeDeleted = true)
         var hasUpdates = false
-
         for (apiItem in initialItems) {
             if (apiItem.type == "note") {
                 val localNote = noteDao.getNoteById(apiItem.id)
@@ -41,11 +40,9 @@ class ItemsSyncCoordinator @Inject constructor(
                 }
             }
         }
-
         val items = if (hasUpdates) api.listItems(includeDeleted = true) else initialItems
         val folders = items.filter { it.type == "folder" }.map { it.toFolderEntity() }
         val notes = items.filter { it.type == "note" }.map { it.toNoteEntity() }
-
         folderDao.clearAll()
         noteDao.clearAll()
         folderDao.insertAll(folders)

@@ -13,18 +13,15 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.editor.document.EditorBlock
-import com.example.notesapp.ui.editor.document.NoteDocument
+import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.EditorBlock
 import java.io.OutputStream
 
 class NoteExporter(private val context: Context) {
-
-
     private val pageWidth = 595
     private val pageHeight = 842
     private val margin = 50f
     private val contentWidth = pageWidth - 2 * margin
-
     fun exportToMarkdown(note: Note, outputStream: OutputStream) {
         val document = NoteDocument.fromContent(note.content)
         val markdown = "# ${note.title}\n\n${document.toMarkdown()}"
@@ -32,11 +29,9 @@ class NoteExporter(private val context: Context) {
             it.write(markdown.toByteArray())
         }
     }
-
     fun exportToPdf(note: Note, outputStream: OutputStream) {
         val document = NoteDocument.fromContent(note.content)
         val pdfDocument = PdfDocument()
-
         val renderer = PdfRenderer(context, pdfDocument, pageWidth, pageHeight, margin)
         val paint = Paint().apply {
             color = Color.BLACK
@@ -48,21 +43,18 @@ class NoteExporter(private val context: Context) {
             style = Paint.Style.STROKE
             strokeWidth = 1f
         }
-
         // Title
         textPaint.textSize = 24f
         textPaint.isFakeBoldText = true
         val titleLayout = StaticLayout.Builder.obtain(note.title, 0, note.title.length, textPaint, contentWidth.toInt())
             .setAlignment(Layout.Alignment.ALIGN_NORMAL)
             .build()
-        
         renderer.ensureSpace(titleLayout.height.toFloat())
         renderer.canvas.save()
         renderer.canvas.translate(margin, renderer.currentY)
         titleLayout.draw(renderer.canvas)
         renderer.canvas.restore()
         renderer.currentY += titleLayout.height + 20f
-
         // Blocks
         for (block in document.blocks) {
             when (block) {
@@ -72,16 +64,13 @@ class NoteExporter(private val context: Context) {
                         renderer.currentY += 10f
                         continue
                     }
-
                     textPaint.isFakeBoldText = block.type == "heading"
                     textPaint.textSize = if (block.type == "heading") 18f else 12f
-                    
                     val prefix = if (block.type == "bulleted") "• " else ""
                     val fullText = prefix + text
                     val layout = StaticLayout.Builder.obtain(fullText, 0, fullText.length, textPaint, contentWidth.toInt())
                         .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                         .build()
-                    
                     renderer.ensureSpace(layout.height.toFloat())
                     renderer.canvas.save()
                     renderer.canvas.translate(margin, renderer.currentY)
@@ -96,7 +85,6 @@ class NoteExporter(private val context: Context) {
                         android.util.Log.e("NoteExporter", "Failed to load image: ${block.url}", e)
                         null
                     }
-                    
                     if (bitmap != null && bitmap.width > 0 && bitmap.height > 0) {
                         val scale = contentWidth / bitmap.width
                         val h = bitmap.height * scale
@@ -104,7 +92,6 @@ class NoteExporter(private val context: Context) {
                         val destRect = RectF(margin, renderer.currentY, margin + contentWidth, renderer.currentY + h)
                         renderer.canvas.drawBitmap(bitmap, null, destRect, paint)
                         renderer.currentY += h + 10f
-                        
                         if (block.caption.isNotBlank()) {
                             textPaint.textSize = 10f
                             textPaint.isFakeBoldText = false
@@ -139,9 +126,7 @@ class NoteExporter(private val context: Context) {
                 }
             }
         }
-
         pdfDocument.finishPage(renderer.currentPage)
-
         try {
             pdfDocument.writeTo(outputStream)
         } finally {
@@ -149,11 +134,9 @@ class NoteExporter(private val context: Context) {
             outputStream.close()
         }
     }
-
     private fun loadBitmap(url: String): Bitmap? {
         if (url.isBlank()) return null
         val uri = Uri.parse(url)
-        
         val inputStream = try {
             when {
                 uri.scheme?.startsWith("http") == true -> {
@@ -175,12 +158,10 @@ class NoteExporter(private val context: Context) {
             android.util.Log.e("NoteExporter", "Could not open stream for $url", e)
             null
         }
-
         return inputStream?.use {
             BitmapFactory.decodeStream(it)
         }
     }
-
     private fun renderTable(
         block: EditorBlock.TableBlock,
         renderer: PdfRenderer,
@@ -191,12 +172,10 @@ class NoteExporter(private val context: Context) {
         if (rows.isEmpty()) return
         val colCount = rows.maxOf { it.size }
         if (colCount == 0) return
-        
         val colWidth = contentWidth / colCount
         val cellPadding = 5f
         textPaint.textSize = 10f
         textPaint.isFakeBoldText = false
-
         for (row in rows) {
             // Calculate row height
             val layouts = row.map { cell ->
@@ -206,15 +185,12 @@ class NoteExporter(private val context: Context) {
                     .build()
             }
             val rowHeight = (layouts.maxOfOrNull { it.height } ?: 0) + 2 * cellPadding
-            
             renderer.ensureSpace(rowHeight)
-            
             // Draw row cells
             for ((index, layout) in layouts.withIndex()) {
                 val x = margin + index * colWidth
                 // Cell border
                 renderer.canvas.drawRect(x, renderer.currentY, x + colWidth, renderer.currentY + rowHeight, borderPaint)
-                
                 // Cell text
                 renderer.canvas.save()
                 renderer.canvas.translate(x + cellPadding, renderer.currentY + cellPadding)
@@ -225,7 +201,6 @@ class NoteExporter(private val context: Context) {
         }
         renderer.currentY += 10f
     }
-
     private class PdfRenderer(
         val context: Context,
         val pdfDocument: PdfDocument,
@@ -238,11 +213,9 @@ class NoteExporter(private val context: Context) {
         lateinit var canvas: Canvas
         var currentY = margin
         val contentWidth = pageWidth - 2 * margin
-
         init {
             startNextPage()
         }
-
         fun startNextPage() {
             if (::currentPage.isInitialized) {
                 pdfDocument.finishPage(currentPage)
@@ -251,7 +224,6 @@ class NoteExporter(private val context: Context) {
             canvas = currentPage.canvas
             currentY = margin
         }
-
         fun ensureSpace(height: Float) {
             if (currentY + height > pageHeight - margin) {
                 startNextPage()

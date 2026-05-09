@@ -7,8 +7,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.home.HomeNotesScreen
-import com.example.notesapp.ui.home.HomeViewModel
+import com.example.notesapp.ui.home.screen.HomeNotesScreen
+import com.example.notesapp.ui.home.viewmodel.HomeViewModel
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -17,12 +17,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class HomeScreenIntegrationTest {
-
     @get:Rule
     val composeRule = createComposeRule()
-
     private val screen = HomeScreenRobot(composeRule)
-
     @Test
     fun selectingFolderChipUpdatesRenderedNotesThroughViewModel() {
         val viewModel = HomeViewModel(
@@ -39,7 +36,6 @@ class HomeScreenIntegrationTest {
                 )
             )
         )
-
         composeRule.setContent {
             NotesTakingAppTheme {
                 HomeNotesScreen(
@@ -50,19 +46,15 @@ class HomeScreenIntegrationTest {
                 )
             }
         }
-
         screen.waitForNote("Project Plan")
         screen.assertNoteVisible("Grocery List")
-
         screen.selectFolder("Personal")
-
         composeRule.waitUntil(5000) {
             composeRule.onAllNodesWithText("Grocery List").fetchSemanticsNodes().isNotEmpty()
         }
         screen.assertNoteVisible("Grocery List")
         screen.assertNoteMissing("Project Plan")
     }
-
     @Test
     fun clickingNoteMoreActionsOpensFolderScreenNoteActionsSheet() {
         val viewModel = HomeViewModel(
@@ -75,7 +67,6 @@ class HomeScreenIntegrationTest {
                 initialFolders = listOf(folder(id = "work", name = "Work"))
             )
         )
-
         composeRule.setContent {
             NotesTakingAppTheme {
                 HomeNotesScreen(
@@ -86,16 +77,13 @@ class HomeScreenIntegrationTest {
                 )
             }
         }
-
         screen.waitForNote("Project Plan")
         screen.openNoteActions("note_001")
-
         composeRule.onNodeWithText("Add to Favorites").assertIsDisplayed()
         composeRule.onNodeWithText("Move to").assertIsDisplayed()
         composeRule.onNodeWithText("Rename").assertIsDisplayed()
         composeRule.onNodeWithText("Archive").assertIsDisplayed()
     }
-
     @Test
     fun favoritingHomeNoteShowsFavoriteBadge() {
         val viewModel = HomeViewModel(
@@ -108,7 +96,6 @@ class HomeScreenIntegrationTest {
                 initialFolders = listOf(folder(id = "work", name = "Work"))
             )
         )
-
         composeRule.setContent {
             NotesTakingAppTheme {
                 HomeNotesScreen(
@@ -119,33 +106,25 @@ class HomeScreenIntegrationTest {
                 )
             }
         }
-
         composeRule.waitForIdle()
         screen.waitForNote("Project Plan")
         composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertDoesNotExist()
-
         screen.openNoteActions("note_001")
-        
         // Wait for bottom sheet to be visible using tag
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
-        
         composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
-        
         composeRule.waitForIdle()
-
         composeRule.waitUntil(20000) {
             composeRule.onAllNodesWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).assertIsDisplayed()
     }
-
     private fun step(description: String, action: () -> Unit) {
         action()
     }
 }
-
 private class HomeScreenRobot(
     private val composeRule: ComposeContentTestRule
 ) {
@@ -154,24 +133,19 @@ private class HomeScreenRobot(
             composeRule.onAllNodesWithText(title, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
     }
-
     fun assertNoteVisible(title: String) {
         composeRule.onNodeWithText(title).assertIsDisplayed()
     }
-
     fun assertNoteMissing(title: String) {
         assertTrue(composeRule.onAllNodesWithText(title).fetchSemanticsNodes().isEmpty())
     }
-
     fun selectFolder(name: String) {
         composeRule.onNodeWithText(name).performClick()
     }
-
     fun openNoteActions(noteId: String) {
         composeRule.onNodeWithTag("home_note_more_actions_$noteId").performClick()
     }
 }
-
 private fun folder(id: String, name: String, parentFolderId: String? = null): Folder = Folder(
     id = id,
     name = name,
@@ -179,7 +153,6 @@ private fun folder(id: String, name: String, parentFolderId: String? = null): Fo
     createdAt = 0,
     updatedAt = 0
 )
-
 private fun note(id: String, title: String, content: String, folderId: String?): Note = Note(
     id = id,
     title = title,

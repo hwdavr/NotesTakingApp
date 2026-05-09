@@ -24,14 +24,10 @@ class FolderRepositoryImpl @Inject constructor(
     private val syncCoordinator: ItemsSyncCoordinator,
     private val deviceIdProvider: DeviceIdProvider
 ) : FolderRepository {
-
     override fun getFolders(): Flow<List<Folder>> = folderDao.getFolders().map { list -> list.map { it.toDomain() } }
-
     override fun getArchivedFolders(): Flow<List<Folder>> =
         folderDao.getArchivedFolders().map { list -> list.map { it.toDomain() } }
-
     override suspend fun getArchivedFolderCount(): Int = folderDao.getArchivedFolderCount()
-
     override suspend fun insert(folder: Folder) {
         val folderId = folder.id.ifBlank { "folder_${UUID.randomUUID()}" }
         try {
@@ -56,7 +52,6 @@ class FolderRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun update(folder: Folder) {
         try {
             api.renameItem(
@@ -77,7 +72,6 @@ class FolderRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun move(folder: Folder, parentFolderId: String?) {
         try {
             api.moveItem(
@@ -101,7 +95,6 @@ class FolderRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun delete(folder: Folder) {
         try {
             api.deleteItem(
@@ -123,7 +116,6 @@ class FolderRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun toggleFavorite(folder: Folder) {
         val newFavoriteStatus = !folder.isFavorite
         try {
@@ -148,7 +140,6 @@ class FolderRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun sync() {
         try {
             syncCoordinator.syncAll()

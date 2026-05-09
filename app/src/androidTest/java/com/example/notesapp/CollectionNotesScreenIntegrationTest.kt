@@ -12,8 +12,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.notes.CollectionNotesScreen
-import com.example.notesapp.ui.notes.CollectionNotesViewModel
+import com.example.notesapp.ui.notes.screen.CollectionNotesScreen
+import com.example.notesapp.ui.notes.viewmodel.CollectionNotesViewModel
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -22,12 +22,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CollectionNotesScreenIntegrationTest {
-
     @get:Rule
     val composeRule = createComposeRule()
-
     private val screen = CollectionNotesScreenRobot(composeRule)
-
     @Test
     fun folderCollectionRendersRepositoryChildrenAndOpensNote() {
         var openedNoteId: String? = null
@@ -56,7 +53,6 @@ class CollectionNotesScreenIntegrationTest {
                 )
             )
         )
-
         composeRule.setContent {
             NotesTakingAppTheme {
                 CollectionNotesScreen(
@@ -69,16 +65,12 @@ class CollectionNotesScreenIntegrationTest {
                 )
             }
         }
-
         screen.waitForItem("Archive Drafts")
         screen.assertItemVisible("My Note")
         screen.assertItemVisible("Updated content")
-
         screen.openItem("My Note")
-
         assertEquals("note_001", openedNoteId)
     }
-
     @Test
     fun archiveCollectionRendersArchivedFoldersAndNotes() {
         val viewModel = CollectionNotesViewModel(
@@ -106,7 +98,6 @@ class CollectionNotesScreenIntegrationTest {
                 )
             )
         )
-
         step("Render archive collection screen with real ViewModel and fake repositories") {
             composeRule.setContent {
                 NotesTakingAppTheme {
@@ -121,19 +112,16 @@ class CollectionNotesScreenIntegrationTest {
                 }
             }
         }
-
         step("Verify archived folder and note render") {
             screen.waitForItem("Archived Folder")
             screen.assertItemVisible("Archived Note")
             screen.assertItemVisible("Archived content")
         }
     }
-
     private fun step(description: String, action: () -> Unit) {
         action()
     }
 }
-
 private class CollectionNotesScreenRobot(
     private val composeRule: ComposeContentTestRule
 ) {
@@ -142,16 +130,13 @@ private class CollectionNotesScreenRobot(
             composeRule.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty()
         }
     }
-
     fun assertItemVisible(text: String) {
         composeRule.onNodeWithText(text).assertIsDisplayed()
     }
-
     fun openItem(text: String) {
         composeRule.onNodeWithText(text).performClick()
     }
 }
-
 private fun testFolder(id: String, name: String, parentFolderId: String? = null, deletedAt: Long? = null): Folder =
     Folder(
         id = id,
@@ -161,7 +146,6 @@ private fun testFolder(id: String, name: String, parentFolderId: String? = null,
         createdAt = 0,
         updatedAt = 0
     )
-
 private fun testNote(id: String, title: String, content: String, folderId: String?, deletedAt: Long? = null): Note =
     Note(
         id = id,

@@ -11,7 +11,6 @@ class DeviceIdProvider @Inject constructor(
     @ApplicationContext context: Context
 ) {
     private val preferences = context.getSharedPreferences("device_identity", Context.MODE_PRIVATE)
-
     val deviceId: String by lazy {
         preferences.getString("device_id", null) ?: run {
             val value = "android_${UUID.randomUUID()}"

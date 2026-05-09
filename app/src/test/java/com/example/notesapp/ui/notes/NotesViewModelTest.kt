@@ -3,6 +3,7 @@ package com.example.notesapp.ui.notes
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.notes.viewmodel.NotesViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,10 +19,8 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotesViewModelTest : BaseViewModelTest() {
-
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private lateinit var viewModel: NotesViewModel
-
     private val testNotes = listOf(
         Note(
             id = "n1",
@@ -44,45 +43,36 @@ class NotesViewModelTest : BaseViewModelTest() {
             updatedAt = 0
         )
     )
-
     @Before
     fun setup() {
         every { noteRepository.getActiveNotes() } returns flowOf(testNotes)
         viewModel = NotesViewModel(noteRepository)
     }
-
     @Test
     fun `uiState initially shows all notes`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(2, state.notes.size)
     }
-
     @Test
     fun `onSearchChanged filters notes by title`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         viewModel.onSearchChanged("Alpha")
-
         val state = viewModel.uiState.value
         assertEquals(1, state.notes.size)
         assertEquals("Alpha", state.notes[0].title)
     }
-
     @Test
     fun `onSearchChanged filters notes by content`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         viewModel.onSearchChanged("Content 2")
-
         val state = viewModel.uiState.value
         assertEquals(1, state.notes.size)
         assertEquals("Beta", state.notes[0].title)

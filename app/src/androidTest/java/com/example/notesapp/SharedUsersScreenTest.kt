@@ -8,19 +8,17 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.ui.share.AccessRole
-import com.example.notesapp.ui.share.SharedUserUiModel
-import com.example.notesapp.ui.share.SharedUsersScreenContent
+import com.example.notesapp.ui.share.model.AccessRole
+import com.example.notesapp.ui.share.model.SharedUserUiModel
+import com.example.notesapp.ui.share.screen.SharedUsersScreenContent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SharedUsersScreenTest {
-
     @get:Rule
     val composeRule = createComposeRule()
-
     @Test
     fun sharedUsersScreen_rendersDesignContent() {
         composeRule.setContent {
@@ -44,7 +42,6 @@ class SharedUsersScreenTest {
                 onShareToNewUser = {}
             )
         }
-
         composeRule.onNodeWithText("Shared users").assertIsDisplayed()
         composeRule.onNodeWithTag("shared_users_note_title").assertIsDisplayed()
         composeRule.onNodeWithText("People with access").assertIsDisplayed()

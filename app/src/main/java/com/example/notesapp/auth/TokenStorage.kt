@@ -15,9 +15,7 @@ open class TokenStorage @Inject constructor(
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
-
     private var sharedPreferences = createSharedPreferences()
-
     private fun createSharedPreferences() = try {
         EncryptedSharedPreferences.create(
             context,
@@ -38,7 +36,6 @@ open class TokenStorage @Inject constructor(
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     }
-
     private fun deleteSharedPreferences() {
         try {
             context.deleteSharedPreferences("secure_tokens")
@@ -46,7 +43,6 @@ open class TokenStorage @Inject constructor(
             Log.e("TokenStorage", "Error deleting SharedPreferences", e)
         }
     }
-
     open fun saveTokens(accessToken: String, refreshToken: String?, idToken: String? = null) {
         try {
             sharedPreferences.edit().apply {
@@ -60,7 +56,6 @@ open class TokenStorage @Inject constructor(
             handleStorageError()
         }
     }
-
     open fun getAccessToken(): String? = try {
         sharedPreferences.getString("access_token", null)
     } catch (e: Exception) {
@@ -68,7 +63,6 @@ open class TokenStorage @Inject constructor(
         handleStorageError()
         null
     }
-
     open fun getRefreshToken(): String? = try {
         sharedPreferences.getString("refresh_token", null)
     } catch (e: Exception) {
@@ -76,7 +70,6 @@ open class TokenStorage @Inject constructor(
         handleStorageError()
         null
     }
-
     open fun getIdToken(): String? = try {
         sharedPreferences.getString("id_token", null)
     } catch (e: Exception) {
@@ -84,12 +77,10 @@ open class TokenStorage @Inject constructor(
         handleStorageError()
         null
     }
-
     private fun handleStorageError() {
         deleteSharedPreferences()
         sharedPreferences = createSharedPreferences()
     }
-
     open fun clearTokens() {
         try {
             sharedPreferences.edit().apply {

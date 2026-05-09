@@ -32,34 +32,25 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppModule {
-
     @Binds
     @Singleton
     abstract fun bindNoteRepository(impl: NoteRepositoryImpl): NoteRepository
-
     @Binds
     @Singleton
     abstract fun bindFolderRepository(impl: FolderRepositoryImpl): FolderRepository
-
     @Binds
     @Singleton
     abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
-
     companion object {
-
         @Provides
         @Singleton
         fun provideDatabase(@ApplicationContext context: Context): AppDatabase = AppDatabase.getInstance(context)
-
         @Provides
         fun provideNoteDao(database: AppDatabase): NoteDao = database.noteDao()
-
         @Provides
         fun provideFolderDao(database: AppDatabase): FolderDao = database.folderDao()
-
         @Provides
         fun provideNoteShareDao(database: AppDatabase): NoteShareDao = database.noteShareDao()
-
         @Provides
         @Singleton
         fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder()
@@ -74,13 +65,11 @@ abstract class AppModule {
                 }
             )
             .build()
-
         @Provides
         @Singleton
         fun provideMoshi(): Moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
-
         @Provides
         @Singleton
         fun provideRetrofit(client: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
@@ -88,11 +77,9 @@ abstract class AppModule {
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-
         @Provides
         @Singleton
         fun provideNotesApiService(retrofit: Retrofit): NotesApiService = retrofit.create(NotesApiService::class.java)
-
         @Provides
         @Singleton
         fun provideNoteExporter(@ApplicationContext context: Context): NoteExporter = NoteExporter(context)

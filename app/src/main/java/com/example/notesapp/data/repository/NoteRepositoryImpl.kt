@@ -25,29 +25,20 @@ class NoteRepositoryImpl @Inject constructor(
     private val syncCoordinator: ItemsSyncCoordinator,
     private val deviceIdProvider: DeviceIdProvider
 ) : NoteRepository {
-
     override fun getActiveNotes(): Flow<List<Note>> =
         noteDao.getActiveNotes().map { list -> list.map { it.toDomain() } }
-
     override fun getArchivedNotes(): Flow<List<Note>> =
         noteDao.getArchivedNotes().map { list -> list.map { it.toDomain() } }
-
     override suspend fun getNoteById(id: String): Note? = noteDao.getNoteById(id)?.toDomain()
-
     override suspend fun getActiveNoteCount(): Int = noteDao.getActiveNoteCount()
-
     override suspend fun getActiveNoteCountForFolder(folderId: String): Int =
         noteDao.getActiveNoteCountForFolder(folderId)
-
     override suspend fun getFavoriteNoteCount(): Int = noteDao.getFavoriteNoteCount()
-
     override suspend fun getArchivedNoteCount(): Int = noteDao.getArchivedNoteCount()
-
     override suspend fun save(note: Note) {
         val existing = note.id.takeIf { it.isNotBlank() }?.let { noteDao.getNoteById(it)?.toDomain() }
         val deviceId = deviceIdProvider.deviceId
         val noteId = note.id.ifBlank { "note_${UUID.randomUUID()}" }
-
         try {
             if (existing == null) {
                 api.createNote(
@@ -104,11 +95,9 @@ class NoteRepositoryImpl @Inject constructor(
             noteDao.insert(fallback.toEntity())
         }
     }
-
     override suspend fun move(note: Note, folderId: String?) {
         save(note.copy(folderId = folderId, updatedAt = System.currentTimeMillis()))
     }
-
     override suspend fun delete(note: Note) {
         try {
             api.deleteItem(
@@ -130,7 +119,6 @@ class NoteRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun toggleFavorite(note: Note) {
         val newFavoriteStatus = !note.isFavorite
         try {
@@ -155,13 +143,11 @@ class NoteRepositoryImpl @Inject constructor(
             )
         }
     }
-
     override suspend fun sync() {
         try {
             syncCoordinator.syncAll()
         } catch (_: Exception) {
         }
     }
-
     private fun defaultSortKey(): String = System.currentTimeMillis().toString()
 }

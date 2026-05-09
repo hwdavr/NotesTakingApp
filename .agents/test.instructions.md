@@ -60,5 +60,5 @@ All Viewmodel integration tests should inherit from **BaseViewModelIntegrationTe
 - deterministic only
 - one main scenario per test
 - prefer this layer before adding UI tests
-- make sure view model and domain classes are at least 95% covered
+- Run `./gradlew koverLog` after unit tests execution and make sure the overall line coverage is not less than 80%.
 

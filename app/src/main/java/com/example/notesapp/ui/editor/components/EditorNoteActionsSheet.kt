@@ -81,9 +81,7 @@ fun EditorNoteActionsSheet(
                     )
                 )
             }
-
             HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
-
             SheetActionRow(
                 icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                 label = stringResource(

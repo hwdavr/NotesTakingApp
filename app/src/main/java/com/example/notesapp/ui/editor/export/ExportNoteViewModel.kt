@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 enum class ExportFormat {
     Markdown, PDF
 }
-
 data class ExportUiState(
     val note: Note? = null,
     val selectedFormat: ExportFormat = ExportFormat.Markdown,
@@ -26,35 +25,28 @@ data class ExportUiState(
     val exportSuccess: Boolean = false,
     val error: String? = null
 )
-
 @HiltViewModel
 class ExportNoteViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val noteRepository: NoteRepository,
     private val noteExporter: NoteExporter
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(ExportUiState())
     val uiState: StateFlow<ExportUiState> = _uiState.asStateFlow()
-
     fun loadNote(noteId: String) {
         viewModelScope.launch {
             val note = noteRepository.getNoteById(noteId)
             _uiState.value = _uiState.value.copy(note = note)
         }
     }
-
     fun selectFormat(format: ExportFormat) {
         _uiState.value = _uiState.value.copy(selectedFormat = format)
     }
-
     fun exportToUri(uri: Uri) {
         val note = _uiState.value.note ?: return
         val format = _uiState.value.selectedFormat
-        
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isExporting = true, error = null)
-            
             try {
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { outputStream ->
@@ -70,7 +62,6 @@ class ExportNoteViewModel @Inject constructor(
             }
         }
     }
-
     fun resetStatus() {
         _uiState.value = _uiState.value.copy(exportSuccess = false, error = null)
     }

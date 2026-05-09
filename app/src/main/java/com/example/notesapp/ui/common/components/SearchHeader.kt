@@ -71,7 +71,6 @@ fun SearchHeader(value: String, placeholder: String, onValueChange: (String) -> 
                 }
             }
         )
-
         Box(
             modifier = Modifier
                 .size(44.dp)

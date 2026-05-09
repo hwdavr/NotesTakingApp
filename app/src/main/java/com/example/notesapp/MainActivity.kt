@@ -15,15 +15,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     @Inject
     lateinit var authManager: AuthManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         authManager.checkSession()
-
         setContent {
             NotesTakingAppTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {

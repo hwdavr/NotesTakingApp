@@ -17,7 +17,6 @@ fun NoteEntity.toDomain(): Note = Note(
     updatedAt = updatedAt,
     isFavorite = isFavorite
 )
-
 fun Note.toEntity(): NoteEntity = NoteEntity(
     id = id,
     title = title,

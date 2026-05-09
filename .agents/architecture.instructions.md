@@ -246,32 +246,23 @@ A bug fix must include at least one test that would fail before the fix when fea
 
 ## Package / Folder Guidance
 
-Recommended structure:
+Recommended structure for the UI layer:
 
-feature/<feature-name>/
-- ui/
-- presentation/
-- domain/
-- data/
-
-core/
-- ui/
-- network/
-- common/
-- testing/
+ui/<feature-name>/
+- viewmodel/      // unit-testable MVVM logic (ViewModels, UiStates)
+- mapper/         // unit-testable UI mapping logic
+- model/          // UiModel data classes
+- screen/         // Compose UI (Screens), usually excluded from unit coverage
+- components/     // feature-specific Compose components
 
 Example:
 
-feature/profile/
-- ui/ProfileScreen.kt
-- presentation/ProfileViewModel.kt
-- presentation/ProfileUiState.kt
-- domain/GetProfileUseCase.kt
-- domain/Profile.kt
-- domain/ProfileRepository.kt
-- data/ProfileRepositoryImpl.kt
-- data/remote/ProfileApi.kt
-- data/remote/ProfileDto.kt
+ui/folders/
+- viewmodel/FoldersViewModel.kt
+- model/FoldersUiState.kt
+- mapper/FolderMapper.kt
+- screen/FoldersScreen.kt
+- components/FolderRow.kt
 
 ---
 

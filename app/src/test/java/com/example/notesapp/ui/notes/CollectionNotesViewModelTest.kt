@@ -6,6 +6,8 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.notes.viewmodel.CollectionItemUiModel
+import com.example.notesapp.ui.notes.viewmodel.CollectionNotesViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,10 +22,8 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CollectionNotesViewModelTest : BaseViewModelTest() {
-
     private val folderRepository: FolderRepository = mockk(relaxed = true)
     private val noteRepository: NoteRepository = mockk(relaxed = true)
-
     private val testFolders = listOf(
         Folder(id = "f1", name = "Folder 1", sortKey = "1", deviceId = "dev", createdAt = 0, updatedAt = 0),
         Folder(
@@ -36,7 +36,6 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
             updatedAt = 0
         )
     )
-
     private val testNotes = listOf(
         Note(
             id = "n1",
@@ -59,7 +58,6 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
             updatedAt = 0
         )
     )
-
     private val archivedFolders = listOf(
         Folder(
             id = "af1",
@@ -71,7 +69,6 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
             deletedAt = 10
         )
     )
-
     private val archivedNotes = listOf(
         Note(
             id = "an1",
@@ -85,7 +82,6 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
             deletedAt = 10
         )
     )
-
     private fun createViewModel(
         type: String = "all",
         folderId: String? = null,
@@ -100,48 +96,39 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         every { folderRepository.getArchivedFolders() } returns flowOf(archivedFolders)
         every { noteRepository.getActiveNotes() } returns flowOf(testNotes)
         every { noteRepository.getArchivedNotes() } returns flowOf(archivedNotes)
-
         return CollectionNotesViewModel(folderRepository, noteRepository, savedStateHandle)
     }
-
     @Test
     fun `uiState with type all shows all notes`() = runTest {
         val viewModel = createViewModel(type = "all")
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(2, state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().size)
     }
-
     @Test
     fun `uiState with type folder shows child folders and notes`() = runTest {
         val viewModel = createViewModel(type = "folder", folderId = "f1")
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(1, state.items.filterIsInstance<CollectionItemUiModel.FolderItem>().size)
         assertEquals(1, state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().size)
-
         val folderItem = state.items.filterIsInstance<CollectionItemUiModel.FolderItem>().first()
         assertEquals("f2", folderItem.id)
-
         val noteItem = state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().first()
         assertEquals("n1", noteItem.note.id)
     }
-
     @Test
     fun `uiState with type archive shows archived folders and notes`() = runTest {
         val viewModel = createViewModel(type = "archive", label = "Archive")
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertEquals(1, state.items.filterIsInstance<CollectionItemUiModel.FolderItem>().size)

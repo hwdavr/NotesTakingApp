@@ -53,10 +53,8 @@ fun FolderRow(
             Icon(Icons.Outlined.Folder, contentDescription = null, tint = TextPrimary)
             Text(text = name, color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
         }
-
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(text = count, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
-
             if (onAddClick != null) {
                 Surface(
                     onClick = onAddClick,

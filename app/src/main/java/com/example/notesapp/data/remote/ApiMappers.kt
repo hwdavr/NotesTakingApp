@@ -17,7 +17,6 @@ fun ApiItem.toFolderEntity(): FolderEntity = FolderEntity(
     updatedAt = updatedAt.toEpochMillis(),
     isFavorite = isFavorite
 )
-
 fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
     id = id,
     title = name,
@@ -32,5 +31,4 @@ fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
     updatedAt = updatedAt.toEpochMillis(),
     isFavorite = isFavorite
 )
-
 private fun String.toEpochMillis(): Long = Instant.parse(this).toEpochMilli()

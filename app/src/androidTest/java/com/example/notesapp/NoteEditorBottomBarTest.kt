@@ -8,21 +8,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.ui.editor.NoteEditorScreenContent
-import com.example.notesapp.ui.editor.NoteEditorUiState
+import com.example.notesapp.ui.editor.screen.NoteEditorScreenContent
+import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NoteEditorBottomBarTest {
-
     @get:Rule val composeRule = createComposeRule()
-
     @Test
     fun bottomBar_togglesBetweenDefaultAndFormatting() {
         val isFormattingVisible = mutableStateOf(false)
-
         composeRule.setContent {
             NoteEditorScreenContent(
                     parentPadding = PaddingValues(0.dp),
@@ -57,21 +54,16 @@ class NoteEditorBottomBarTest {
                     onDeleteBlock = {}
             )
         }
-
         // Initially default bottom bar is shown
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertIsDisplayed()
         composeRule.onNodeWithTag("editor_formatting_bottom_bar").assertDoesNotExist()
-
         // Click Aa button
         composeRule.onNodeWithTag("editor_toggle_formatting").performClick()
-
         // Now formatting bottom bar is shown
         composeRule.onNodeWithTag("editor_formatting_bottom_bar").assertIsDisplayed()
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertDoesNotExist()
-
         // Click hide button
         composeRule.onNodeWithTag("editor_hide_formatting").performClick()
-
         // Back to default bottom bar
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertIsDisplayed()
         composeRule.onNodeWithTag("editor_formatting_bottom_bar").assertDoesNotExist()

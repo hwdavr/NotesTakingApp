@@ -4,12 +4,10 @@ enum class NoteShareAccessRole {
     READ_ONLY,
     FULL_ACCESS
 }
-
 enum class NoteShareStatus {
     PENDING,
     ACTIVE
 }
-
 data class NoteShare(
     val id: String,
     val noteId: String,

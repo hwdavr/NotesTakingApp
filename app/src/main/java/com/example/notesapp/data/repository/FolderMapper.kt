@@ -16,7 +16,6 @@ fun FolderEntity.toDomain(): Folder = Folder(
     updatedAt = updatedAt,
     isFavorite = isFavorite
 )
-
 fun Folder.toEntity(): FolderEntity = FolderEntity(
     id = id,
     name = name,

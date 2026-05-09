@@ -17,16 +17,13 @@ class NoteShareRepositoryImpl @Inject constructor(
     private val noteShareDao: NoteShareDao,
     private val api: NotesApiService
 ) : NoteShareRepository {
-
     override fun observeNoteShares(noteId: String): Flow<List<NoteShare>> =
         noteShareDao.observeByNoteId(noteId).map { shares -> shares.map { it.toDomain() } }
-
     override suspend fun refreshNoteShares(noteId: String) {
         val shares = api.listNoteShares(noteId)
         noteShareDao.clearByNoteId(noteId)
         noteShareDao.insertAll(shares.map { it.toEntity() })
     }
-
     override suspend fun inviteNoteShare(
         noteId: String,
         email: String,
@@ -40,7 +37,6 @@ class NoteShareRepositoryImpl @Inject constructor(
         noteShareDao.insert(entity)
         return entity.toDomain()
     }
-
     override suspend fun updateNoteShareRole(
         noteId: String,
         shareId: String,
@@ -55,7 +51,6 @@ class NoteShareRepositoryImpl @Inject constructor(
         noteShareDao.insert(entity)
         return entity.toDomain()
     }
-
     override suspend fun deleteNoteShare(noteId: String, shareId: String) {
         api.deleteNoteShare(noteId, shareId)
         noteShareDao.deleteById(shareId)

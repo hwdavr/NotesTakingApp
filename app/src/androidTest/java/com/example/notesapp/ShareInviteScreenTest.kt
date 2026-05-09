@@ -8,9 +8,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.ui.share.InvitePermissionUiModel
-import com.example.notesapp.ui.share.ShareInviteScreenContent
-import com.example.notesapp.ui.share.SharedUsersScreenContent
+import com.example.notesapp.ui.share.screen.InvitePermissionUiModel
+import com.example.notesapp.ui.share.screen.ShareInviteScreenContent
+import com.example.notesapp.ui.share.screen.SharedUsersScreenContent
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -18,10 +18,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ShareInviteScreenTest {
-
     @get:Rule
     val composeRule = createComposeRule()
-
     @Test
     fun shareInviteScreen_rendersDesignContentAndSelection() {
         composeRule.setContent {
@@ -49,18 +47,15 @@ class ShareInviteScreenTest {
                 onInvite = {}
             )
         }
-
         composeRule.onNodeWithText("Share to new user").assertIsDisplayed()
         composeRule.onNodeWithTag("share_invite_email").assertIsDisplayed()
         composeRule.onNodeWithText("Permissions").assertIsDisplayed()
         composeRule.onNodeWithText("Full access").assertIsDisplayed()
         composeRule.onNodeWithTag("share_invite_cta").assertIsDisplayed()
     }
-
     @Test
     fun sharedUsersCta_triggersNavigationCallback() {
         var clicked = false
-
         composeRule.setContent {
             SharedUsersScreenContent(
                 parentPadding = PaddingValues(0.dp),
@@ -72,9 +67,7 @@ class ShareInviteScreenTest {
                 onShareToNewUser = { clicked = true }
             )
         }
-
         composeRule.onNodeWithTag("shared_users_cta").performClick()
-
         assertTrue(clicked)
     }
 }
