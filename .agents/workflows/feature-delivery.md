@@ -198,7 +198,7 @@ Define and implement tests according to impact. Prefer writing the failing test 
 - Follow the golden rule from triage: always test at the lowest layer that gives enough confidence.
 - Prefer automation tests including unit tests, integration tests, and UI tests over manual testing when deterministic coverage is possible.
 - Use the **Android unit test skill** to implement unit and integration tests. Ensure **90% coverage** for all new ViewModels and Domain classes, and follow the naming conventions (`*Test.kt` vs `*IntegrationTest.kt`).
-- If an API is involved, create at least one integration test.
+- If an API is involved, create at least one integration test, use **Shared JSON scenarios skill** to load or generate a shared scenario to `sharedContracts/test-scenarios, don't mock the json data in the test cases.
 - If an API is used by a ViewModel function, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts the ViewModel-exposed `UiState` against `expected.ui`.
 - If an API is used only by domain/repository/use case logic without directly changing UI state, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts `expected.domain`.
 - Do not create mock response data inline in test cases when a shared JSON scenario should be used.

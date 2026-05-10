@@ -47,6 +47,7 @@ class FakeNoteRepository(
 ) : NoteRepository {
     private val notes = MutableStateFlow(initialNotes)
     override fun getActiveNotes(): Flow<List<Note>> = notes.map { list -> list.filter { it.deletedAt == null } }
+    override fun getSharedNotes(): Flow<List<Note>> = notes.map { list -> list.filter { it.isShared && it.deletedAt == null } }
     override fun getArchivedNotes(): Flow<List<Note>> = notes.map { list -> list.filter { it.deletedAt != null } }
     override suspend fun getNoteById(id: String): Note? = notes.value.firstOrNull { it.id == id }
     override suspend fun getActiveNoteCount(): Int = notes.value.count { it.deletedAt == null }

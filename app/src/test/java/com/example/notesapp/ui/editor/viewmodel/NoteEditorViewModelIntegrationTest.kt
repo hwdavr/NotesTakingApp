@@ -17,6 +17,33 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
     private lateinit var viewModel: NoteEditorViewModel
+
+    @Test
+    fun `load read only note exposes non editable ui state from shared scenario`() = runTest {
+        val scenarioFile = File("../sharedContracts/test-scenarios/note_read_only_001.json")
+        val jsonObject = JSONObject(scenarioFile.readText())
+        val apiMock = jsonObject.getJSONArray("apiMocks").getJSONObject(0)
+
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(apiMock.getInt("status"))
+                .setBody(apiMock.getJSONArray("response").toString())
+        )
+
+        viewModel = NoteEditorViewModel(noteRepository, folderRepository)
+        viewModel.load("note_001")
+        advanceUntilIdle()
+
+        waitUntil { viewModel.uiState.value.isLoaded }
+
+        val expectedUi = jsonObject.getJSONObject("expected").getJSONObject("ui")
+        val state = viewModel.uiState.value
+        assertEquals(expectedUi.getString("noteId"), state.noteId)
+        assertEquals(expectedUi.getString("title"), state.title)
+        assertEquals(expectedUi.getString("content"), state.content)
+        assertEquals(expectedUi.getBoolean("isEditable"), state.isEditable)
+    }
+
     @Test
     fun `test onContentChange triggers auto-save using shared scenario`() = runTest {
         // 1. Prepare initial state

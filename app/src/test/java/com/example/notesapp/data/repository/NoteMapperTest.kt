@@ -1,6 +1,7 @@
 package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.NoteEntity
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -20,7 +21,8 @@ class NoteMapperTest {
             deletedAt = null,
             createdAt = 1000L,
             updatedAt = 2000L,
-            isFavorite = true
+            isFavorite = true,
+            accessRole = "read_only"
         )
         val domain = entity.toDomain()
         assertEquals(entity.id, domain.id)
@@ -35,6 +37,7 @@ class NoteMapperTest {
         assertEquals(entity.createdAt, domain.createdAt)
         assertEquals(entity.updatedAt, domain.updatedAt)
         assertEquals(entity.isFavorite, domain.isFavorite)
+        assertEquals(NoteAccessRole.READ_ONLY, domain.accessRole)
     }
 
     @Test
@@ -51,7 +54,8 @@ class NoteMapperTest {
             deletedAt = null,
             createdAt = 1000L,
             updatedAt = 2000L,
-            isFavorite = true
+            isFavorite = true,
+            accessRole = NoteAccessRole.READ_ONLY
         )
         val entity = domain.toEntity()
         assertEquals(domain.id, entity.id)
@@ -66,5 +70,6 @@ class NoteMapperTest {
         assertEquals(domain.createdAt, entity.createdAt)
         assertEquals(domain.updatedAt, entity.updatedAt)
         assertEquals(domain.isFavorite, entity.isFavorite)
+        assertEquals("read_only", entity.accessRole)
     }
 }

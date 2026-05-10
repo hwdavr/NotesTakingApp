@@ -1,6 +1,8 @@
 package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.NoteEntity
+import com.example.notesapp.data.remote.toNoteAccessRole
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 
 fun NoteEntity.toDomain(): Note = Note(
@@ -16,7 +18,8 @@ fun NoteEntity.toDomain(): Note = Note(
     createdAt = createdAt,
     updatedAt = updatedAt,
     isFavorite = isFavorite,
-    isShared = isShared
+    isShared = isShared,
+    accessRole = accessRole.toNoteAccessRole()
 )
 fun Note.toEntity(): NoteEntity = NoteEntity(
     id = id,
@@ -31,5 +34,9 @@ fun Note.toEntity(): NoteEntity = NoteEntity(
     createdAt = createdAt,
     updatedAt = updatedAt,
     isFavorite = isFavorite,
-    isShared = isShared
+    isShared = isShared,
+    accessRole = when (accessRole) {
+        NoteAccessRole.READ_ONLY -> "read_only"
+        NoteAccessRole.FULL_ACCESS -> "full_access"
+    }
 )

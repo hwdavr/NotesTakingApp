@@ -1,0 +1,43 @@
+{
+  "id": "note_read_only_001",
+  "description": "Loads a shared note with read-only access and exposes a non-editable editor state",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "note_001",
+          "userId": "auth0|abc123",
+          "type": "note",
+          "parentId": "folder_001",
+          "name": "Shared roadmap",
+          "content": "Locked content",
+          "sortKey": "b0",
+          "version": 1,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-05-01T10:00:00Z",
+          "updatedAt": "2026-05-01T10:00:00Z",
+          "isFavorite": false,
+          "isShared": true,
+          "accessRole": "read_only"
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "domain": {
+      "noteId": "note_001",
+      "accessRole": "read_only"
+    },
+    "ui": {
+      "screen": "editor",
+      "noteId": "note_001",
+      "title": "Shared roadmap",
+      "content": "Locked content",
+      "isEditable": false
+    }
+  }
+}

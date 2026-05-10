@@ -15,7 +15,8 @@ data class ApiItem(
     val createdAt: String,
     val updatedAt: String,
     val isFavorite: Boolean = false,
-    val isShared: Boolean = false
+    val isShared: Boolean = false,
+    val accessRole: String = "full_access"
 )
 data class MutationResultDto(
     val status: String,

@@ -1,5 +1,10 @@
 package com.example.notesapp.domain.note
 
+enum class NoteAccessRole {
+    READ_ONLY,
+    FULL_ACCESS
+}
+
 data class Note(
     val id: String = "",
     val title: String,
@@ -13,5 +18,6 @@ data class Note(
     val createdAt: Long,
     val updatedAt: Long,
     val isFavorite: Boolean = false,
-    val isShared: Boolean = false
+    val isShared: Boolean = false,
+    val accessRole: NoteAccessRole = NoteAccessRole.FULL_ACCESS
 )

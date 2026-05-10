@@ -53,7 +53,8 @@ class ApiMappersTest {
             deletedAt = null,
             createdAt = "1970-01-01T00:00:01Z",
             updatedAt = "1970-01-01T00:00:02Z",
-            isFavorite = false
+            isFavorite = false,
+            accessRole = "read_only"
         )
         val entity = apiItem.toNoteEntity()
         assertEquals(apiItem.id, entity.id)
@@ -68,5 +69,6 @@ class ApiMappersTest {
         assertEquals(1000L, entity.createdAt)
         assertEquals(2000L, entity.updatedAt)
         assertEquals(apiItem.isFavorite, entity.isFavorite)
+        assertEquals("read_only", entity.accessRole)
     }
 }

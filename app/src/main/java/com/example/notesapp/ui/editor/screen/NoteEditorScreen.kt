@@ -99,6 +99,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -219,13 +220,21 @@ fun NoteEditorScreenContent(
             ) {
                 ExposedDropdownMenuBox(
                         expanded = folderMenuExpanded,
-                        onExpandedChange = { folderMenuExpanded = !folderMenuExpanded }
+                        onExpandedChange = {
+                            if (state.isEditable) {
+                                folderMenuExpanded = !folderMenuExpanded
+                            }
+                        }
                 ) {
                     Surface(
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
                             color = Color(0xFFEAF1FF),
                             shape = RoundedCornerShape(8.dp),
-                            onClick = { folderMenuExpanded = true }
+                            onClick = {
+                                if (state.isEditable) {
+                                    folderMenuExpanded = true
+                                }
+                            }
                     ) {
                         Row(
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
@@ -303,10 +312,12 @@ fun NoteEditorScreenContent(
                                                 color = Color(0xFF1F2A44)
                                         ),
                                 colors = editorFieldColors(),
-                                singleLine = true
+                                singleLine = true,
+                                enabled = state.isEditable
                         )
                         DocumentBlockList(
                                 blocks = state.document.blocks,
+                                isEditable = state.isEditable,
                                 onTextBlockChange = onTextBlockChange,
                                 onImageChange = onImageChange,
                                 onTableCellChange = onTableCellChange,
@@ -321,6 +332,7 @@ fun NoteEditorScreenContent(
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
             EditorBottomBar(
                     activeTextBlockId = activeTextBlockId,
+                    isEditable = state.isEditable,
                     isFormattingToolbarVisible = state.isFormattingToolbarVisible,
                     onToggleMark = onToggleMark,
                     onAddParagraph = onAddParagraph,
@@ -341,7 +353,8 @@ fun NoteEditorScreenContent(
                             deviceId = "",
                             createdAt = state.createdAt,
                             updatedAt = System.currentTimeMillis(),
-                            isFavorite = state.isFavorite
+                            isFavorite = state.isFavorite,
+                            accessRole = if (state.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
                     )
             EditorNoteActionsSheet(
                     note = currentNote,
@@ -402,6 +415,7 @@ fun NoteEditorScreenContent(
 @Composable
 private fun DocumentBlockList(
         blocks: List<EditorBlock>,
+        isEditable: Boolean,
         onTextBlockChange: (String, String) -> Unit,
         onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
         onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -429,6 +443,7 @@ private fun DocumentBlockList(
                 is EditorBlock.TextBlock ->
                         TextDocumentBlock(
                                 block = block,
+                                isEditable = isEditable,
                                 onChange = { onTextBlockChange(block.id, it) },
                                 onFocus = { onBlockFocused(block.id) },
                                 onSelectionChange = onSelectionChange,
@@ -438,6 +453,7 @@ private fun DocumentBlockList(
                 is EditorBlock.ImageBlock ->
                         ImageDocumentBlock(
                                 block = block,
+                                isEditable = isEditable,
                                 onUrlChange = { onImageChange(block.id, it, null) },
                                 onCaptionChange = { onImageChange(block.id, null, it) },
                                 onDelete = { onDeleteBlock(block.id) }
@@ -445,6 +461,7 @@ private fun DocumentBlockList(
                 is EditorBlock.TableBlock ->
                         TableDocumentBlock(
                                 block = block,
+                                isEditable = isEditable,
                                 onCellChange = { row, cell, value ->
                                     onTableCellChange(block.id, row, cell, value)
                                 }
@@ -456,6 +473,7 @@ private fun DocumentBlockList(
 @Composable
 private fun TextDocumentBlock(
         block: EditorBlock.TextBlock,
+        isEditable: Boolean,
         onChange: (String) -> Unit,
         onFocus: () -> Unit,
         onSelectionChange: (Int, Int) -> Unit,
@@ -470,6 +488,7 @@ private fun TextDocumentBlock(
     }
     BasicTextField(
             value = textFieldValue,
+            readOnly = !isEditable,
             onValueChange = {
                 val selectionChanged = textFieldValue.selection != it.selection
                 val textChanged = textFieldValue.text != it.text
@@ -508,7 +527,7 @@ private fun TextDocumentBlock(
                 OutlinedTextFieldDefaults.DecorationBox(
                         value = textFieldValue.text,
                         innerTextField = innerTextField,
-                        enabled = true,
+                        enabled = isEditable,
                         singleLine = false,
                         visualTransformation = VisualTransformation.None,
                         interactionSource = remember { MutableInteractionSource() },
@@ -527,7 +546,7 @@ private fun TextDocumentBlock(
                         colors = editorFieldColors(),
                         container = {
                             OutlinedTextFieldDefaults.ContainerBox(
-                                    enabled = true,
+                                    enabled = isEditable,
                                     isError = false,
                                     interactionSource = remember { MutableInteractionSource() },
                                     colors = editorFieldColors(),
@@ -561,6 +580,7 @@ private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
 @Composable
 private fun ImageDocumentBlock(
         block: EditorBlock.ImageBlock,
+        isEditable: Boolean,
         onUrlChange: (String) -> Unit,
         onCaptionChange: (String) -> Unit,
         onDelete: () -> Unit
@@ -615,6 +635,7 @@ private fun ImageDocumentBlock(
                 }
                 BasicTextField(
                         value = block.url,
+                        readOnly = !isEditable,
                         onValueChange = onUrlChange,
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = MaterialTheme.typography.bodyMedium,
@@ -623,7 +644,7 @@ private fun ImageDocumentBlock(
                             OutlinedTextFieldDefaults.DecorationBox(
                                     value = block.url,
                                     innerTextField = innerTextField,
-                                    enabled = true,
+                                    enabled = isEditable,
                                     singleLine = true,
                                     visualTransformation = VisualTransformation.None,
                                     interactionSource = remember { MutableInteractionSource() },
@@ -631,7 +652,7 @@ private fun ImageDocumentBlock(
                                     colors = editorFieldColors(),
                                     container = {
                                         OutlinedTextFieldDefaults.ContainerBox(
-                                                enabled = true,
+                                                enabled = isEditable,
                                                 isError = false,
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
@@ -646,6 +667,7 @@ private fun ImageDocumentBlock(
                 )
                 BasicTextField(
                         value = block.caption,
+                        readOnly = !isEditable,
                         onValueChange = onCaptionChange,
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = MaterialTheme.typography.bodyMedium,
@@ -654,7 +676,7 @@ private fun ImageDocumentBlock(
                             OutlinedTextFieldDefaults.DecorationBox(
                                     value = block.caption,
                                     innerTextField = innerTextField,
-                                    enabled = true,
+                                    enabled = isEditable,
                                     singleLine = true,
                                     visualTransformation = VisualTransformation.None,
                                     interactionSource = remember { MutableInteractionSource() },
@@ -662,7 +684,7 @@ private fun ImageDocumentBlock(
                                     colors = editorFieldColors(),
                                     container = {
                                         OutlinedTextFieldDefaults.ContainerBox(
-                                                enabled = true,
+                                                enabled = isEditable,
                                                 isError = false,
                                                 interactionSource =
                                                         remember { MutableInteractionSource() },
@@ -678,6 +700,7 @@ private fun ImageDocumentBlock(
             }
             IconButton(
                     onClick = onDelete,
+                    enabled = isEditable,
                     modifier =
                             Modifier.align(Alignment.TopEnd)
                                     .padding(4.dp)
@@ -697,6 +720,7 @@ private fun ImageDocumentBlock(
 @Composable
 private fun TableDocumentBlock(
         block: EditorBlock.TableBlock,
+        isEditable: Boolean,
         onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit
 ) {
     Column(
@@ -721,6 +745,7 @@ private fun TableDocumentBlock(
                         }
                         BasicTextField(
                                 value = cell.joinToString("") { it.text },
+                                readOnly = !isEditable,
                                 onValueChange = { onCellChange(rowIndex, cellIndex, it) },
                                 modifier =
                                         Modifier.weight(1f)
@@ -769,6 +794,7 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
 @Composable
 private fun EditorBottomBar(
         activeTextBlockId: String?,
+        isEditable: Boolean,
         isFormattingToolbarVisible: Boolean,
         onToggleMark: (String, String) -> Unit,
         onAddParagraph: () -> Unit,
@@ -776,6 +802,7 @@ private fun EditorBottomBar(
         onAddTable: () -> Unit,
         onToggleFormattingToolbar: () -> Unit
 ) {
+    if (!isEditable) return
     if (isFormattingToolbarVisible) {
         FormattingBottomBar(
                 activeTextBlockId = activeTextBlockId,

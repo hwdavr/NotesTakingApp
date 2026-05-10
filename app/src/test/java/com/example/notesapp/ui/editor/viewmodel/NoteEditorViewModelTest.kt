@@ -2,6 +2,7 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -36,10 +37,22 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         createdAt = 1000L,
         updatedAt = 1000L
     )
+    private val readOnlyNote = Note(
+        id = "readonly",
+        title = "Shared read only",
+        content = "Locked content",
+        folderId = "f1",
+        sortKey = "1",
+        deviceId = "dev",
+        createdAt = 1000L,
+        updatedAt = 1000L,
+        accessRole = NoteAccessRole.READ_ONLY
+    )
     @Before
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(emptyList())
         coEvery { noteRepository.getNoteById("n1") } returns testNote
+        coEvery { noteRepository.getNoteById("readonly") } returns readOnlyNote
         viewModel = NoteEditorViewModel(noteRepository, folderRepository)
     }
     @Test
@@ -50,6 +63,17 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("n1", state.noteId)
         assertEquals("Title", state.title)
         assertEquals("Content", state.content)
+        assertTrue(state.isEditable)
+    }
+    @Test
+    fun `load read only note disables editing`() = runTest {
+        viewModel.load("readonly")
+        val state = viewModel.uiState.value
+        assertTrue(state.isLoaded)
+        assertEquals("readonly", state.noteId)
+        assertEquals("Shared read only", state.title)
+        assertEquals("Locked content", state.content)
+        assertTrue(!state.isEditable)
     }
     @Test
     fun `load without noteId generates new id`() = runTest {
@@ -267,6 +291,47 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.load(null) // createdAt will be 0
         var called = false
         viewModel.delete { called = true }
+        coVerify(exactly = 0) { noteRepository.delete(any()) }
+        assertTrue(called)
+    }
+
+    @Test
+    fun `read only note mutating actions are ignored`() = runTest {
+        viewModel.load("readonly")
+        val initialBlocks = viewModel.uiState.value.document.blocks.size
+
+        viewModel.onTitleChange("Changed")
+        viewModel.onContentChange("Changed content")
+        viewModel.onFolderSelected("f2")
+        viewModel.toggleFavorite()
+        viewModel.addParagraphBlock()
+        viewModel.addImageBlock()
+        viewModel.addTableBlock()
+        val blockId = viewModel.uiState.value.document.blocks.first().id
+        viewModel.onTextBlockChange(blockId, "Edited")
+        viewModel.toggleBlockMark(blockId, "bold")
+        viewModel.deleteBlock(blockId)
+
+        advanceTimeBy(2001)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals("Shared read only", state.title)
+        assertEquals("Locked content", state.content)
+        assertEquals("f1", state.folderId)
+        assertTrue(!state.isFavorite)
+        assertEquals(initialBlocks, state.document.blocks.size)
+        coVerify(exactly = 0) { noteRepository.save(any()) }
+        coVerify(exactly = 0) { noteRepository.delete(any()) }
+    }
+
+    @Test
+    fun `delete on read only note does not call repository delete`() = runTest {
+        viewModel.load("readonly")
+        var called = false
+
+        viewModel.delete { called = true }
+
         coVerify(exactly = 0) { noteRepository.delete(any()) }
         assertTrue(called)
     }

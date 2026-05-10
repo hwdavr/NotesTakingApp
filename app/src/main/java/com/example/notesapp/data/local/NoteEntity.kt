@@ -30,5 +30,6 @@ data class NoteEntity(
     val createdAt: Long,
     val updatedAt: Long,
     val isFavorite: Boolean = false,
-    val isShared: Boolean = false
+    val isShared: Boolean = false,
+    val accessRole: String = "full_access"
 )

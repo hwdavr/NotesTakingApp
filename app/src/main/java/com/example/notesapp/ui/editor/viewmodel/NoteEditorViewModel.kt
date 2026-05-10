@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -35,7 +36,8 @@ data class NoteEditorUiState(
     val focusedBlockId: String? = null,
     val selectionStart: Int = 0,
     val selectionEnd: Int = 0,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isEditable: Boolean = true
 ) {
     val content: String
         get() = document.toPlainText()
@@ -47,6 +49,7 @@ open class NoteEditorViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
+    private fun canEdit(): Boolean = _uiState.value.isEditable
     fun toggleFormattingToolbar() {
         _uiState.value = _uiState.value.copy(
             isFormattingToolbarVisible = !_uiState.value.isFormattingToolbarVisible
@@ -71,6 +74,7 @@ open class NoteEditorViewModel @Inject constructor(
                     noteId = "note_${UUID.randomUUID()}",
                     availableFolders = folders,
                     folderId = folderId,
+                    isEditable = true,
                     isLoaded = true
                 )
                 return@launch
@@ -85,6 +89,7 @@ open class NoteEditorViewModel @Inject constructor(
                     availableFolders = folders,
                     createdAt = note.createdAt,
                     isFavorite = note.isFavorite,
+                    isEditable = note.accessRole != NoteAccessRole.READ_ONLY,
                     isLoaded = true
                 )
             } else {
@@ -97,16 +102,19 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onTitleChange(value: String) {
+        if (!canEdit()) return
         _uiState.value = _uiState.value.copy(title = value)
         scheduleAutoSave()
     }
     fun rename(newName: String) {
+        if (!canEdit()) return
         _uiState.value = _uiState.value.copy(title = newName)
         viewModelScope.launch {
             saveInternally()
         }
     }
     fun toggleFavorite() {
+        if (!canEdit()) return
         val current = _uiState.value
         val newFavorite = !current.isFavorite
         _uiState.value = current.copy(isFavorite = newFavorite)
@@ -116,6 +124,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onContentChange(value: String) {
+        if (!canEdit()) return
         val current = _uiState.value
         val blocks = current.document.blocks
         val firstTextIndex = blocks.indexOfFirst { it is EditorBlock.TextBlock }
@@ -134,6 +143,7 @@ open class NoteEditorViewModel @Inject constructor(
         scheduleAutoSave()
     }
     fun onTextBlockChange(blockId: String, value: String) {
+        if (!canEdit()) return
         if (value.contains('\n')) {
             splitTextBlock(blockId, value)
             return
@@ -143,6 +153,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleBlockMark(blockId: String, mark: String) {
+        if (!canEdit()) return
         val state = _uiState.value
         val start = state.selectionStart
         val end = state.selectionEnd
@@ -181,12 +192,15 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun addParagraphBlock() {
+        if (!canEdit()) return
         appendBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
     }
     fun addImageBlock() {
+        if (!canEdit()) return
         appendBlock(EditorBlock.ImageBlock())
     }
     fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
+        if (!canEdit()) return
         updateBlock(blockId) { block ->
             if (block is EditorBlock.ImageBlock) {
                 block.copy(
@@ -199,9 +213,11 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun addTableBlock() {
+        if (!canEdit()) return
         appendBlock(EditorBlock.TableBlock())
     }
     fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
+        if (!canEdit()) return
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TableBlock) return@updateBlock block
             block.copy(
@@ -218,6 +234,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onFolderSelected(folderId: String?) {
+        if (!canEdit()) return
         _uiState.value = _uiState.value.copy(folderId = folderId)
         scheduleAutoSave()
     }
@@ -230,6 +247,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
     private suspend fun saveInternally() {
         val current = _uiState.value
+        if (!current.isEditable && current.createdAt != 0L) return
         // Don't auto-save if both title and content are empty
         if (current.title.isBlank() && current.content.isBlank()) return
         val now = System.currentTimeMillis()
@@ -243,7 +261,8 @@ open class NoteEditorViewModel @Inject constructor(
             deviceId = "",
             createdAt = if (current.createdAt == 0L) now else current.createdAt,
             updatedAt = now,
-            isFavorite = current.isFavorite
+            isFavorite = current.isFavorite,
+            accessRole = if (current.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
         )
         noteRepository.save(note)
         // Update state with generated ID and createdAt to avoid duplicate creations
@@ -268,6 +287,10 @@ open class NoteEditorViewModel @Inject constructor(
     }
     fun delete(onDone: () -> Unit) {
         val current = _uiState.value
+        if (!current.isEditable) {
+            onDone()
+            return
+        }
         // If not saved yet, just finish
         if (current.createdAt == 0L) {
             onDone()
@@ -284,7 +307,8 @@ open class NoteEditorViewModel @Inject constructor(
                     version = 0,
                     deviceId = "",
                     createdAt = current.createdAt,
-                    updatedAt = System.currentTimeMillis()
+                    updatedAt = System.currentTimeMillis(),
+                    accessRole = if (current.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
                 )
             )
             onDone()

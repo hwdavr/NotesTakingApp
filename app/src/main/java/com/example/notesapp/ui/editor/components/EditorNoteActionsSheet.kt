@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.R
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.common.components.SheetActionRow
 
@@ -83,43 +84,45 @@ fun EditorNoteActionsSheet(
             }
             HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
             SheetActionRow(
-                icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
-                label = stringResource(
-                    if (note.isFavorite) {
-                        R.string.folders_remove_from_favorites_action
-                    } else {
-                        R.string.folders_add_to_favorites_action
-                    }
-                ),
-                onClick = onAddToFavorites,
-                modifier = Modifier.testTag("add_to_favorites_action")
-            )
-            SheetActionRow(
-                icon = Icons.Outlined.Folder,
-                label = stringResource(R.string.folders_move_to_action),
-                onClick = onMoveTo,
-                modifier = Modifier.testTag("move_item_action")
-            )
-            SheetActionRow(
-                icon = Icons.Outlined.Edit,
-                label = stringResource(R.string.folders_rename_action),
-                onClick = onRename,
-                modifier = Modifier.testTag("rename_item_action")
-            )
-            SheetActionRow(
                 icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.editor_export_action),
                 onClick = onExport,
                 modifier = Modifier.testTag("export_item_action")
             )
-            SheetActionRow(
-                icon = Icons.Outlined.Archive,
-                label = stringResource(R.string.folders_delete_action),
-                onClick = onDelete,
-                iconTint = Color(0xFFC44A4A),
-                textColor = Color(0xFFC44A4A),
-                modifier = Modifier.testTag("delete_item_action")
-            )
+            if (note.accessRole != NoteAccessRole.READ_ONLY) {
+                SheetActionRow(
+                    icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
+                    label = stringResource(
+                        if (note.isFavorite) {
+                            R.string.folders_remove_from_favorites_action
+                        } else {
+                            R.string.folders_add_to_favorites_action
+                        }
+                    ),
+                    onClick = onAddToFavorites,
+                    modifier = Modifier.testTag("add_to_favorites_action")
+                )
+                SheetActionRow(
+                    icon = Icons.Outlined.Folder,
+                    label = stringResource(R.string.folders_move_to_action),
+                    onClick = onMoveTo,
+                    modifier = Modifier.testTag("move_item_action")
+                )
+                SheetActionRow(
+                    icon = Icons.Outlined.Edit,
+                    label = stringResource(R.string.folders_rename_action),
+                    onClick = onRename,
+                    modifier = Modifier.testTag("rename_item_action")
+                )
+                SheetActionRow(
+                    icon = Icons.Outlined.Archive,
+                    label = stringResource(R.string.folders_delete_action),
+                    onClick = onDelete,
+                    iconTint = Color(0xFFC44A4A),
+                    textColor = Color(0xFFC44A4A),
+                    modifier = Modifier.testTag("delete_item_action")
+                )
+            }
         }
     }
 }
