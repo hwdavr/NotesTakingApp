@@ -7,14 +7,6 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "notes",
-    foreignKeys = [
-        ForeignKey(
-            entity = FolderEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["folderId"],
-            onDelete = ForeignKey.SET_NULL
-        )
-    ],
     indices = [Index("folderId")]
 )
 data class NoteEntity(

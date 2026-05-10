@@ -7,7 +7,8 @@ data class FolderUiModel(
     val id: String,
     val name: String,
     val noteCount: Int,
-    val isPrimary: Boolean = false
+    val isPrimary: Boolean = false,
+    val isShared: Boolean = false
 )
 data class HomeUiState(
     val recentNotes: List<NoteUiModel> = emptyList(),

@@ -16,7 +16,9 @@ fun ApiItem.toFolderEntity(): FolderEntity = FolderEntity(
     deletedAt = deletedAt?.toEpochMillis(),
     createdAt = createdAt.toEpochMillis(),
     updatedAt = updatedAt.toEpochMillis(),
-    isFavorite = isFavorite
+    isFavorite = isFavorite,
+    isShared = isShared,
+    accessRole = accessRole
 )
 fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
     id = id,

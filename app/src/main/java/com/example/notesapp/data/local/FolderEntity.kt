@@ -28,5 +28,7 @@ data class FolderEntity(
     val deletedAt: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isShared: Boolean = false,
+    val accessRole: String = "full_access"
 )
