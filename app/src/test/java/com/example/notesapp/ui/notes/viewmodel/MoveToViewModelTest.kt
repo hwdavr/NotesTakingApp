@@ -135,6 +135,7 @@ private class FakeMoveNoteRepository(
     private val notes = MutableStateFlow(initialNotes)
     var movedNote: Pair<String, String?>? = null
     override fun getActiveNotes(): Flow<List<Note>> = notes
+    override fun getSharedNotes(): Flow<List<Note>> = flowOf(emptyList())
     override fun getArchivedNotes(): Flow<List<Note>> = flowOf(emptyList())
     override suspend fun getNoteById(id: String): Note? = notes.value.firstOrNull { it.id == id }
     override suspend fun getActiveNoteCount(): Int = notes.value.size

@@ -15,7 +15,8 @@ fun NoteEntity.toDomain(): Note = Note(
     deletedAt = deletedAt,
     createdAt = createdAt,
     updatedAt = updatedAt,
-    isFavorite = isFavorite
+    isFavorite = isFavorite,
+    isShared = isShared
 )
 fun Note.toEntity(): NoteEntity = NoteEntity(
     id = id,
@@ -29,5 +30,6 @@ fun Note.toEntity(): NoteEntity = NoteEntity(
     deletedAt = deletedAt,
     createdAt = createdAt,
     updatedAt = updatedAt,
-    isFavorite = isFavorite
+    isFavorite = isFavorite,
+    isShared = isShared
 )

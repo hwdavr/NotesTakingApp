@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -223,6 +224,32 @@ fun FoldersScreenContent(
                                         selectedItemForQuickActions = QuickActionItem.NoteItem(item.note)
                                     }
                                 )
+                            }
+                        }
+                        if (!state.isSearchActive && state.sharedTreeItems.isNotEmpty()) {
+                            item {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.folders_shared_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = Color(0xFF2F343A)
+                                    ),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                            items(state.sharedTreeItems) { item ->
+                                if (item is FolderTreeItem.NoteItem) {
+                                    NoteTreeRow(
+                                        note = item.note,
+                                        depth = 0,
+                                        onClick = { onOpenNote(item.note.id) },
+                                        onQuickActions = {
+                                            selectedItemForQuickActions = QuickActionItem.NoteItem(item.note)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

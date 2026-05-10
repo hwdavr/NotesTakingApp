@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -185,6 +186,42 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // sync
         waitUntil { viewModel.uiState.value.treeItems.isEmpty() }
         assertEquals(0, viewModel.uiState.value.treeItems.size)
+        collectJob.cancel()
+    }
+
+    @Test
+    fun `test shared notes appear in Shared section using shared scenario`() = runTest {
+        val scenarioFile = File("../sharedContracts/test-scenarios/note_shared_list_001.json")
+        val jsonObject = JSONObject(scenarioFile.readText())
+        val apiMocks = jsonObject.getJSONArray("apiMocks")
+        val firstMock = apiMocks.getJSONObject(0)
+        
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(firstMock.getInt("status"))
+                .setBody(firstMock.getJSONArray("response").toString())
+        )
+        
+        viewModel = FoldersViewModel(folderRepository, noteRepository)
+        val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect { }
+        }
+        
+        advanceUntilIdle()
+        mockWebServer.takeRequest(5, TimeUnit.SECONDS) // init sync
+        
+        waitUntil { viewModel.uiState.value.sharedTreeItems.isNotEmpty() }
+        
+        val uiState = viewModel.uiState.value
+        val expectedUi = jsonObject.getJSONObject("expected").getJSONObject("ui")
+        val expectedSharedItemCount = expectedUi.getInt("sharedItemCount")
+        val expectedFirstSharedItemName = expectedUi.getJSONArray("sharedItems").getJSONObject(0).getString("title")
+        
+        assertEquals(expectedSharedItemCount, uiState.sharedTreeItems.size)
+        val sharedNoteItem = uiState.sharedTreeItems[0] as? FolderTreeItem.NoteItem
+        assertEquals(expectedFirstSharedItemName, sharedNoteItem?.note?.title)
+        assertEquals(true, sharedNoteItem?.note?.isShared)
+        
         collectJob.cancel()
     }
 }

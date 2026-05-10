@@ -29,5 +29,6 @@ data class NoteEntity(
     val deletedAt: Long? = null,
     val createdAt: Long,
     val updatedAt: Long,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isShared: Boolean = false
 )

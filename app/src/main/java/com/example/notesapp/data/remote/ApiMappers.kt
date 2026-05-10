@@ -29,6 +29,7 @@ fun ApiItem.toNoteEntity(): NoteEntity = NoteEntity(
     deletedAt = deletedAt?.toEpochMillis(),
     createdAt = createdAt.toEpochMillis(),
     updatedAt = updatedAt.toEpochMillis(),
-    isFavorite = isFavorite
+    isFavorite = isFavorite,
+    isShared = isShared
 )
 private fun String.toEpochMillis(): Long = Instant.parse(this).toEpochMilli()

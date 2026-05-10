@@ -33,6 +33,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
 
     private val foldersFlow = MutableStateFlow(listOf(folder1, folder2))
     private val notesFlow = MutableStateFlow(listOf(note1))
+    private val sharedNotesFlow = MutableStateFlow<List<Note>>(emptyList())
 
     @Before
     fun setup() {
@@ -43,6 +44,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
         coEvery { folderRepository.getArchivedFolderCount() } returns 0
         coEvery { noteRepository.getArchivedNoteCount() } returns 0
         coEvery { noteRepository.getActiveNoteCountForFolder(any()) } returns 0
+        every { noteRepository.getSharedNotes() } returns sharedNotesFlow
         
         viewModel = FoldersViewModel(folderRepository, noteRepository)
     }
@@ -109,5 +111,35 @@ class FoldersViewModelTest : BaseViewModelTest() {
         viewModel.addNoteToFavorites(note1)
         advanceUntilIdle()
         coVerify { noteRepository.toggleFavorite(note1) }
+    }
+
+    @Test
+    fun `uiState contains shared items when provided`() = runTest {
+        val sharedNote = Note(id = "sn1", title = "Shared Note", content = "Shared Content", isShared = true, createdAt = 1000L, updatedAt = 1000L)
+        sharedNotesFlow.value = listOf(sharedNote)
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value
+        assertEquals(1, state.sharedTreeItems.size)
+        val item = state.sharedTreeItems[0] as FolderTreeItem.NoteItem
+        assertEquals("sn1", item.note.id)
+        assertTrue(item.note.isShared)
+    }
+
+    @Test
+    fun `search filters both owned and shared notes`() = runTest {
+        val sharedNote = Note(id = "sn1", title = "Shared Note", content = "Shared Content", isShared = true, createdAt = 1000L, updatedAt = 1000L)
+        sharedNotesFlow.value = listOf(sharedNote)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+
+        viewModel.onSearchChanged("Shared")
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value
+        // Note: In search mode, treeItems should contain everything matching
+        assertEquals(1, state.treeItems.size)
+        val item = state.treeItems[0] as FolderTreeItem.NoteItem
+        assertEquals("sn1", item.note.id)
     }
 }

@@ -9,19 +9,21 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NoteDao {
-    @Query("SELECT * FROM notes WHERE deletedAt IS NULL ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM notes WHERE deletedAt IS NULL AND isShared = 0 ORDER BY updatedAt DESC")
     fun getActiveNotes(): Flow<List<NoteEntity>>
+    @Query("SELECT * FROM notes WHERE deletedAt IS NULL AND isShared = 1 ORDER BY updatedAt DESC")
+    fun getSharedNotes(): Flow<List<NoteEntity>>
     @Query("SELECT * FROM notes WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC, updatedAt DESC")
     fun getArchivedNotes(): Flow<List<NoteEntity>>
     @Query("SELECT * FROM notes WHERE id = :id LIMIT 1")
     suspend fun getNoteById(id: String): NoteEntity?
     @Query("SELECT * FROM notes WHERE folderId = :folderId AND deletedAt IS NULL ORDER BY updatedAt DESC")
     fun getNotesByFolder(folderId: String): Flow<List<NoteEntity>>
-    @Query("SELECT COUNT(*) FROM notes WHERE folderId = :folderId AND deletedAt IS NULL")
+    @Query("SELECT COUNT(*) FROM notes WHERE folderId = :folderId AND deletedAt IS NULL AND isShared = 0")
     suspend fun getActiveNoteCountForFolder(folderId: String): Int
-    @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NULL")
+    @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NULL AND isShared = 0")
     suspend fun getActiveNoteCount(): Int
-    @Query("SELECT COUNT(*) FROM notes WHERE isFavorite = 1 AND deletedAt IS NULL")
+    @Query("SELECT COUNT(*) FROM notes WHERE isFavorite = 1 AND deletedAt IS NULL AND isShared = 0")
     suspend fun getFavoriteNoteCount(): Int
     @Query("SELECT COUNT(*) FROM notes WHERE deletedAt IS NOT NULL")
     suspend fun getArchivedNoteCount(): Int

@@ -1,0 +1,51 @@
+{
+  "id": "home_shared_pill_001",
+  "description": "Verify that the Shared pill appears on the Home screen and filters notes when selected.",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "owned_1",
+          "userId": "u1",
+          "type": "note",
+          "parentId": null,
+          "name": "My Note",
+          "content": "",
+          "sortKey": "a0",
+          "version": 1,
+          "deviceId": "dev",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T10:00:00Z",
+          "isShared": false
+        },
+        {
+          "id": "shared_1",
+          "userId": "u2",
+          "type": "note",
+          "parentId": null,
+          "name": "Shared Note",
+          "content": "",
+          "sortKey": "a1",
+          "version": 1,
+          "deviceId": "dev2",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T10:00:00Z",
+          "isShared": true
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "ui": {
+      "screen": "home",
+      "hasSharedPill": true,
+      "initialNoteCount": 1,
+      "filteredNoteCount": 1
+    }
+  }
+}

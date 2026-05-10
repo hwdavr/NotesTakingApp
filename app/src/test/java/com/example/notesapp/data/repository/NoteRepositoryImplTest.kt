@@ -51,6 +51,7 @@ class NoteRepositoryImplTest {
             deviceId = "device1",
             lastSyncedVersion = 0,
             isFavorite = false,
+            isShared = false,
             createdAt = 1000L,
             updatedAt = 2000L,
             deletedAt = null
@@ -96,7 +97,7 @@ class NoteRepositoryImplTest {
         val existingEntity = NoteEntity(
             id = "n1", title = "Old", content = "Old", folderId = "f1", sortKey = "100",
             version = 1, deviceId = "device1", lastSyncedVersion = 1,
-            isFavorite = false, createdAt = 1000L, updatedAt = 2000L, deletedAt = null
+            isFavorite = false, isShared = false, createdAt = 1000L, updatedAt = 2000L, deletedAt = null
         )
         val note = Note(id = "n1", title = "New", content = "New", folderId = "f2", sortKey = "100", createdAt = 1000L, updatedAt = 1000L)
         
@@ -134,5 +135,21 @@ class NoteRepositoryImplTest {
 
         coVerify { api.createNote(any()) }
         coVerify { dao.insert(match { it.id == "n1" && it.version == 1L }) }
+    }
+
+    @Test
+    fun `getSharedNotes returns mapped shared notes from dao`() = runTest {
+        val sharedEntity = NoteEntity(
+            id = "sn1", title = "Shared", content = "Content", folderId = "f1", sortKey = "100",
+            version = 1, deviceId = "device2", lastSyncedVersion = 1,
+            isFavorite = false, isShared = true, createdAt = 1000L, updatedAt = 2000L, deletedAt = null
+        )
+        every { dao.getSharedNotes() } returns flowOf(listOf(sharedEntity))
+
+        val result = repository.getSharedNotes().first()
+
+        assertEquals(1, result.size)
+        assertEquals("sn1", result[0].id)
+        assertEquals(true, result[0].isShared)
     }
 }

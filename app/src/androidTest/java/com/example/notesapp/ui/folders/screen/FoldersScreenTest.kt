@@ -314,4 +314,29 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(folder, favoritedFolder)
     }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sharedNotes_rendersInSharedSection() {
+        val sharedNote = Note(
+            id = "shared_1",
+            title = "Shared Note",
+            content = "",
+            folderId = null,
+            isShared = true,
+            createdAt = 0,
+            updatedAt = 0
+        )
+        val state = FoldersUiState(
+            sharedTreeItems = listOf(FolderTreeItem.NoteItem(sharedNote, 0))
+        )
+        composeRule.setContent {
+            TestFoldersScreen(state = state)
+        }
+        
+        // Check for shared section title
+        composeRule.onNodeWithText("Shared").assertIsDisplayed()
+        // Check for the shared note title
+        composeRule.onNodeWithText("Shared Note").assertIsDisplayed()
+    }
 }

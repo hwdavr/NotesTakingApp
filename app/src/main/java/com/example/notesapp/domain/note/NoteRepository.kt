@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
     fun getActiveNotes(): Flow<List<Note>>
+    fun getSharedNotes(): Flow<List<Note>>
     fun getArchivedNotes(): Flow<List<Note>>
     suspend fun getNoteById(id: String): Note?
     suspend fun getActiveNoteCount(): Int

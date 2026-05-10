@@ -14,7 +14,8 @@ data class ApiItem(
     val deletedAt: String?,
     val createdAt: String,
     val updatedAt: String,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isShared: Boolean = false
 )
 data class MutationResultDto(
     val status: String,

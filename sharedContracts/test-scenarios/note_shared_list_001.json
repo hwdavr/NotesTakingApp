@@ -1,0 +1,55 @@
+{
+  "id": "note_shared_list_001",
+  "description": "Verify that shared notes appear in the Shared section of the folder tree.",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "owned_1",
+          "userId": "u1",
+          "type": "note",
+          "parentId": null,
+          "name": "My Note",
+          "content": "",
+          "sortKey": "a0",
+          "version": 1,
+          "deviceId": "dev",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T10:00:00Z",
+          "isShared": false
+        },
+        {
+          "id": "shared_1",
+          "userId": "u2",
+          "type": "note",
+          "parentId": null,
+          "name": "Shared Note",
+          "content": "",
+          "sortKey": "a1",
+          "version": 1,
+          "deviceId": "dev2",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-04-26T10:00:00Z",
+          "updatedAt": "2026-04-26T10:00:00Z",
+          "isShared": true
+        }
+      ]
+    }
+  ],
+  "expected": {
+    "ui": {
+      "screen": "folders",
+      "sharedItemCount": 1,
+      "sharedItems": [
+        {
+          "id": "shared_1",
+          "title": "Shared Note"
+        }
+      ]
+    }
+  }
+}

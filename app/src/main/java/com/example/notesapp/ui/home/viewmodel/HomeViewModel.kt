@@ -50,11 +50,13 @@ open class HomeViewModel @Inject constructor(
     }
     open val uiState: StateFlow<HomeUiState> = combine(
         noteRepository.getActiveNotes(),
+        noteRepository.getSharedNotes(),
         folderRepository.getFolders(),
         selectedFolderId
-    ) { notes, folders, selectedId ->
+    ) { notes, shared, folders, selectedId ->
         val filteredNotes = when (selectedId) {
             "all_notes" -> notes
+            "shared" -> shared
             "favorites" -> {
                 val favFolder = folders.find { it.name.equals("Favorites", ignoreCase = true) }
                 if (favFolder != null) {
@@ -65,7 +67,7 @@ open class HomeViewModel @Inject constructor(
             }
             else -> notes.filter { it.folderId == selectedId }
         }
-        val noteCountsByFolder = notes
+        val noteCountsByFolder = (notes + shared)
             .mapNotNull { note -> note.folderId }
             .groupingBy { it }
             .eachCount()
@@ -76,11 +78,15 @@ open class HomeViewModel @Inject constructor(
                     title = note.title,
                     preview = noteContentPreview(note.content),
                     colorIndex = note.id.hashCode().mod(4).let { if (it < 0) it + 4 else it },
-                    isFavorite = note.isFavorite
+                    isFavorite = note.isFavorite,
+                    isShared = note.isShared
                 )
             },
-            noteActions = filteredNotes.associateBy { it.id },
-            recentFolders = folders.map { folder ->
+            noteActions = (notes + shared).associateBy { it.id },
+            recentFolders = listOf(
+                FolderUiModel(id = "all_notes", name = "All Notes", noteCount = notes.size, isPrimary = false),
+                FolderUiModel(id = "shared", name = "Shared", noteCount = shared.size, isPrimary = false)
+            ) + folders.map { folder ->
                 FolderUiModel(
                     id = folder.id,
                     name = folder.name,

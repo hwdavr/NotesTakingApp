@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.map
 
 class FakeNoteDao : NoteDao {
     val notesFlow = MutableStateFlow<List<NoteEntity>>(emptyList())
-    override fun getActiveNotes() = notesFlow.map { it.filter { note -> note.deletedAt == null } }
+    override fun getActiveNotes() = notesFlow.map { it.filter { note -> note.deletedAt == null && !note.isShared } }
+    override fun getSharedNotes() = notesFlow.map { it.filter { note -> note.deletedAt == null && note.isShared } }
     override fun getArchivedNotes() = notesFlow.map { it.filter { note -> note.deletedAt != null } }
     override suspend fun getNoteById(id: String) = notesFlow.value.find { it.id == id }
     override fun getNotesByFolder(folderId: String) =

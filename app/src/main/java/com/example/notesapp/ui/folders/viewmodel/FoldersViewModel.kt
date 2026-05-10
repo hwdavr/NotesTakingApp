@@ -35,6 +35,7 @@ sealed class FolderTreeItem {
 data class FoldersUiState(
     val smartCounts: SmartCollectionCounts = SmartCollectionCounts(),
     val treeItems: List<FolderTreeItem> = emptyList(),
+    val sharedTreeItems: List<FolderTreeItem> = emptyList(),
     val isSearchActive: Boolean = false
 )
 @HiltViewModel
@@ -46,7 +47,10 @@ open class FoldersViewModel @Inject constructor(
     private val smartCounts = MutableStateFlow(SmartCollectionCounts())
     private val folderCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     private val allFolders = folderRepository.getFolders()
-    private val allNotes = noteRepository.getActiveNotes()
+    private val allActiveNotes = combine(
+        noteRepository.getActiveNotes(),
+        noteRepository.getSharedNotes()
+    ) { owned, shared -> owned to shared }
     private val _uiState = MutableStateFlow(FoldersUiState())
     open val uiState: StateFlow<FoldersUiState> = _uiState.asStateFlow()
 
@@ -54,11 +58,11 @@ open class FoldersViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 allFolders,
-                allNotes,
+                allActiveNotes,
                 searchQuery,
                 smartCounts,
                 folderCounts
-            ) { folders, notes, query, counts, perFolderCounts ->
+            ) { folders, (notes, shared), query, counts, perFolderCounts ->
                 val items = if (query.isBlank()) {
                     buildTree(folders, notes, null, 0, perFolderCounts)
                 } else {
@@ -79,14 +83,30 @@ open class FoldersViewModel @Inject constructor(
                                 it.content.contains(query, ignoreCase = true)
                         }
                         .map { FolderTreeItem.NoteItem(it, 0) }
-                    matchingFolders + matchingNotes
+                    
+                    val matchingShared = shared
+                        .filter {
+                            it.title.contains(query, ignoreCase = true) ||
+                                it.content.contains(query, ignoreCase = true)
+                        }
+                        .map { FolderTreeItem.NoteItem(it, 0) }
+
+                    matchingFolders + matchingNotes + matchingShared
                 }
+
+                val sharedItems = if (query.isBlank()) {
+                    shared.map { FolderTreeItem.NoteItem(it, 0) }
+                } else {
+                    emptyList() // Already included in search results
+                }
+
                 FoldersUiState(
                     smartCounts = counts,
                     treeItems = items,
+                    sharedTreeItems = sharedItems,
                     isSearchActive = query.isNotBlank()
                 )
-            }.collect { _uiState.value = it }
+            }.collect { state -> _uiState.value = state }
         }
         viewModelScope.launch {
             folderRepository.sync()

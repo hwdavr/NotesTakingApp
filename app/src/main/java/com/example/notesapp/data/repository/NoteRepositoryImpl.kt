@@ -27,6 +27,8 @@ class NoteRepositoryImpl @Inject constructor(
 ) : NoteRepository {
     override fun getActiveNotes(): Flow<List<Note>> =
         noteDao.getActiveNotes().map { list -> list.map { it.toDomain() } }
+    override fun getSharedNotes(): Flow<List<Note>> =
+        noteDao.getSharedNotes().map { list -> list.map { it.toDomain() } }
     override fun getArchivedNotes(): Flow<List<Note>> =
         noteDao.getArchivedNotes().map { list -> list.map { it.toDomain() } }
     override suspend fun getNoteById(id: String): Note? = noteDao.getNoteById(id)?.toDomain()

@@ -5,7 +5,8 @@ data class NoteUiModel(
     val title: String,
     val preview: String,
     val colorIndex: Int,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val isShared: Boolean = false
 )
 data class NotesUiState(
     val isLoading: Boolean = false,
