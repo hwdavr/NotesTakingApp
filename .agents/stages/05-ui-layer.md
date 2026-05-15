@@ -1,0 +1,98 @@
+# Stage 05 — UI Layer
+
+## Purpose
+Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composable screens, and navigation wiring.
+
+---
+
+## Load
+- `skills/android-ui-verification/SKILL.md`
+- `rules/compose-rules.md`
+- `rules/navigation-rules.md`
+- `rules/analytics-rules.md`
+- `rules/localization-rules.md`
+- `coding/implementation_plan.md` (Stage 02 output)
+- `request_analysis/spec.md` — UiState design from Stage 01
+
+---
+
+## Execute
+
+### 1. ViewModel
+1. Implement or update the ViewModel using the ViewModel pattern in `skills/android-feature/SKILL.md`
+2. Expose screen state as `StateFlow<UiState>` — one state object per screen
+3. Handle all states: loading, success, empty, error, retry, permission
+4. Emit one-off events (navigation, toast, dialog) via a separate `Channel<Event>`
+5. Call use cases only — never call repositories or data sources directly
+6. Do not import Retrofit, Room, or data-layer classes
+
+### 2. UI model and mapper
+1. Create or update UI model data classes if the domain model needs formatting for display
+2. Create or update the Domain → UI mapper in the Presentation layer
+3. Do not pass domain models directly to Composables when UI formatting is needed
+
+### 3. Composable screen
+1. Split every screen into stateless content + stateful wrapper (see `rules/compose-rules.md`)
+2. The stateless `Content` Composable receives `UiState` and callbacks — it does not call the ViewModel
+3. Keep Composables small — extract reusable UI to `components/`
+4. Use `stringResource()` for all user-visible text — **no hardcoded strings**
+5. Add `Modifier.testTag("stable_name")` to all interactive elements and key content areas
+
+### 4. Navigation wiring
+1. Update the navigation graph if new routes are added or arguments changed
+2. Pass only serializable types as navigation arguments
+3. Confirm back-stack behavior matches the design
+
+### 5. Analytics
+Fire analytics events from the ViewModel — not from Composables.
+Follow `rules/analytics-rules.md` for naming and payload rules.
+
+### 6. String resources
+Add all new user-visible text to `res/values/strings.xml` with descriptive keys following `rules/localization-rules.xml`.
+
+---
+
+## Output
+
+Updated / created:
+- ViewModel file
+- UiState and UI model files
+- UI mapper file
+- Composable screen and component files
+- Navigation graph (if changed)
+- `strings.xml` (for all new copy)
+
+Update `coding/coding_report_v<N>.md` with a UI Layer section:
+```
+## UI Layer Changes
+
+### Files Changed
+| File | Action | Notes |
+|------|--------|-------|
+
+### UiState Implemented
+<confirm all states are covered: loading / success / empty / error>
+
+### testTags Added
+<list key testTag values added>
+```
+
+Update `summary.md`: mark Stage 05 complete.
+
+---
+
+## Gate
+
+**Conditions to pass — all must be mechanically verifiable:**
+- [ ] ViewModel does not import `retrofit2.*`, `androidx.room.*`, or any data-layer class
+- [ ] Composable screens do not contain business logic
+- [ ] All user-visible text uses `stringResource()` — no hardcoded strings (`grep -r '"[A-Z]' ui/`)
+- [ ] All interactive elements have `Modifier.testTag(...)` with a stable name
+- [ ] UiState covers loading, success, empty, and error states
+- [ ] Navigation arguments are serializable types
+- [ ] Build passes: `./gradlew assembleDebug`
+
+**APPROVED →** proceed to Stage 06 — Code Review
+
+**REVISION REQUIRED →** fix the UI layer issue, re-run `assembleDebug`, re-evaluate gate.
+**Rollback trigger:** If build fails due to a domain model mismatch in the UI mapper, fix the mapper before proceeding.

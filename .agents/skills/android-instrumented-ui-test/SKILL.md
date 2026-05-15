@@ -32,9 +32,27 @@ If a shared JSON scenario exists:
 2. launch the screen under test
 3. assert expected.ui
 
+## Implementation Details
+
+### 1. Stateless UI Testing (Lightest Layer)
+**Goal:** Verify rendering and interaction logic of a single Composable in isolation.
+- **Pattern:** Test the stateless `Content` Composable — do not involve a ViewModel or real DI wiring.
+- **Rule:** Use `createComposeRule()` (NOT `createAndroidComposeRule`).
+- **Setup:**
+    - Initialize a pure `UiState` object (e.g., `FoldersUiState.Success(...)`).
+    - Mock interaction callbacks using lambda expressions or mocks.
+- **Naming:** `<ScreenName>Test.kt` (e.g., `FoldersScreenTest.kt`).
+
+### 2. Stateful Screen Testing (Medium Layer)
+**Goal:** Verify the wiring between the ViewModel and the Composable.
+- **Rule:** Use `createAndroidComposeRule<ComponentActivity>()`.
+- **Setup:**
+    - Override the ViewModel with a mock or fake.
+    - Provide the ViewModel through Hilt or manual injection into the `Screen` wrapper.
+
 ## Rules
 - one scenario per test
-- no Thread.sleep
-- stable selectors only
+- no Thread.sleep — use `waitUntil` or `waitForIdle`
+- stable selectors only (`Modifier.testTag`)
 - prefer destination screen assertion for navigation
-- do not duplicate the full API error matrix here
+- do not duplicate the full API error matrix here (cover in integration tests instead)

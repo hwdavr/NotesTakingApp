@@ -1,9 +1,13 @@
 ---
-description: You are a senior Android developer, to diagnose and fix a bug in the application.
+description: You are a senior Android developer diagnosing and fixing a bug.
 ---
 
-## Goal
-Use this workflow when investigating and fixing a defect, production issue, regression, crash, test failure, or unexpected app behavior.
+# Workflow: Bug Fixing
+
+## When to use
+- A defect, crash, ANR, or production issue
+- A regression or test failure
+- Unexpected app behavior
 
 This workflow prioritizes root-cause analysis over quick patching.
 
@@ -11,244 +15,84 @@ This workflow prioritizes root-cause analysis over quick patching.
 
 ## Core Principle
 
-Do not fix symptoms first. Fix Plan MUST be generated and approved before coding. 
+Do not fix symptoms first.
+**The fix plan (Stage 02) must be approved before any code is written.**
 
-Always move through:
-
-Reproduce → Localize → Root Cause → Fix Plan → [Mandatory user review] → Minimal Change → Regression Tests → Risk Review
-
----
-
-## Required workflow
-
-### 1. Understand the Bug
-
-Collect and summarize:
-
-- bug description
-- expected behavior
-- actual behavior
-- affected platform
-- affected app version
-- affected user segment
-- affected screen or flow
-- frequency
-- severity
-- logs/screenshots/videos
-- backend/API dependency
-- recent related changes
-
-If information is missing, state assumptions.
+Pipeline: Understand, Localize & Design → Fix Plan → [User Approval] → Implementation → Code Review → Regression Test → Test Review → Knowledge
 
 ---
 
-### 3. Classify the Bug
+## Stage Execution
 
-Classify the bug as one or more of:
+### Stage 01 — Bug Context, Localization & Root Cause
+Load: `stages/01-requirement-analysis.md`
 
-- UI rendering issue
-- state management issue
-- API contract mismatch
-- mapper/model issue
-- business logic issue
-- navigation issue
-- concurrency/race condition
-- caching issue
-- session/auth issue
-- permission issue
-- platform-specific issue
-- backend dependency issue
-- release/configuration issue
+Adapt for bugs:
+- Bug description, expected vs. actual behavior
+- Fault localization (UI → VM → UC → Repo → API)
+- Root cause statement (triggered when <cond>, causing <behavior>)
+- Design the fix (UiState changes if needed)
 
-Use the classification to guide investigation.
+Output: `docs/changes/<name>/request_analysis/spec.md` with bug context, fault area, and root cause
+Gate: root cause is specific enough that a test can be written to reproduce it
 
 ---
 
-### 4. Localize the Fault
+### Stage 02 — Fix Plan ⛔ STOP
+Load: `stages/02-implementation-plan.md`
 
-Inspect the relevant code path.
-
-Check:
-
-- UI component
-- ViewModel/state holder
-- use case
-- repository
-- API client
-- DTO/domain mapper
-- local cache/database
-- feature flag/config
-- navigation route
-- analytics/logging side effects
-
-Do not modify code until the likely fault area is identified.
-
----
-
-### 5. API and Data Validation
-
-If API data is involved, compare:
-
-- expected API contract
-- actual API response
-- DTO model
-- domain mapper
-- UI model
-- nullability handling
-- enum handling
-- error handling
-- empty/partial data handling
-
-Identify whether the bug is caused by:
-
-- backend contract issue
-- mobile parsing issue
-- backward compatibility issue
-- invalid assumption in domain/UI layer
-
----
-
-### 6. Root Cause Analysis
-
-Before fixing, write a concise root cause. 
-
-Use this format:
-
-```text
-Root cause:
-The bug happens because [specific code/data/state issue], triggered when [condition], causing [wrong behavior].
-```
-
-Avoid vague causes like:
-- "state issue"
-- "API issue"
-- "UI bug"
-- "race condition"
-
-Be specific.
-
----
-
-### 7. Fix Strategy
-
-Choose the smallest safe fix.
-
-Prefer:
-- fixing the root cause
-- preserving existing behavior
-- adding defensive handling for malformed/partial data
-- improving state modeling if the bug is caused by ambiguous state
-- aligning mapper/domain behavior with API contract
-
-Avoid:
-- broad refactoring
-- unrelated cleanup
-- hardcoded patches
-- swallowing errors silently
-- changing public behavior without validation
-
----
-
-### 8. Implementation Plan
-
-Before coding, provide:
-- root cause
-- proposed fix
-- files to modify
-- tests to add/update
-- risk areas
-- rollback considerations if relevant
-
-Present the implementation plan to the user and wait for their explicit approval before proceeding with any implementation.
-
----
-
-### 9. Regression Test Strategy
-
-Add or update tests to prevent recurrence. 
-- Use the **Android test triage skill** to decide which layer the reproduction test belongs to.
-- Write a failing test that reproduces the bug before touching the application code.
-
----
-
-### 10. Verify Edge Cases
-
-Check whether the fix handles:
-- null data
-- empty data
-- partial data
-- unknown enum
-- slow network
-- timeout
-- retry
-- stale cache
-- logged-out/session expired state
-- app upgrade scenario
-- old backend response
-- new backend response
-
----
-
-### 11. Security and Privacy Check
-
-Ensure the fix does not:
-- expose sensitive data
-- log tokens or PII
-- weaken authentication/session handling
-- bypass validation incorrectly
-- introduce unsafe WebView/deep link behavior
-- change payment/security behavior without review
-
----
-
-### 12. Release Risk Review
-
-Before finalizing, assess:
-- whether this needs hotfix release
-- whether backend rollout is required
-- whether feature flag/config change is required
-- whether force update is required
-- whether old app versions are affected
-- whether monitoring is needed after release
-
----
-
-### 13. Final Validation
-
-Before completion:
-- run affected tests
-- run build
-- verify no unrelated changes
-- review diff
-- confirm the fix matches root cause
-- confirm regression test fails before fix and passes after fix where possible
-
----
-
-### Final Output Format
-
-Always provide:
-- Bug summary
-- Reproduction or simulation path
+Adapt — the plan must include:
 - Root cause
-- Fix strategy
-- Files changed or proposed
-- Tests added or proposed
-- Edge cases covered
-- Security/privacy considerations
-- Release risk
-- Remaining assumptions
+- Proposed fix (minimal)
+- Regression tests to add
+
+Output: `docs/changes/<name>/coding/implementation_plan.md`
+Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---
 
-### Stop Conditions
+### Stage 03–05 — Implementation (data / domain / UI as needed)
+Load: the relevant stages: `stages/03-data-layer.md`, `stages/04-domain-layer.md`, `stages/05-ui-layer.md`
 
-Stop and ask for clarification only when:
-- the bug cannot be understood from available evidence
-- multiple root causes are equally likely and require product/backend input
-- the fix may change expected business behavior
-- the issue involves payment/auth/security-sensitive flow
-- production hotfix decision is required
+---
 
+### Stage 06 — Code Review
+Load: `stages/06-code-review.md`
 
-Otherwise, proceed with reasonable assumptions and state them clearly.
+Verify:
+- Minimal fix — no unrelated changes
+- Logic matches root cause
+- Architecture rules followed
+
+Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
+Gate: build passes, static analysis passes, architecture rules followed
+
+---
+
+### Stage 07 — Regression Test (Testing — write test first)
+Load: `stages/07-testing.md`
+
+**Write the failing regression test before touching the application code** where feasible.
+Gate: regression test fails before fix AND passes after fix
+
+---
+
+### Stage 08 — Test Review
+Load: `stages/08-test-review.md`
+
+Verify regression test stability and fix coverage.
+
+---
+
+### Stage 09 — Knowledge Capture
+Load: `stages/09-knowledge-capture.md`
+
+**Always** record the bug in `docs/knowledge/past-bugs/`.
+
+---
+
+## Human-in-the-Loop Confirmation Points
+
+1. **After Stage 01** — if root cause is uncertain, ask user
+2. **After Stage 02** — user approves fix plan *(mandatory always)*
+3. **After Stage 08** — user confirms the fix before it is merged
