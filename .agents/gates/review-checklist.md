@@ -20,6 +20,7 @@ Checklist for reviewing any code change before it is considered complete.
 
 - [ ] Each modified screen renders from a single `UiState`
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings
+- [ ] All colors use `LocalAppColors.current.<token>` — no hardcoded `Color(0x...)` or `Color.Red` etc.
 - [ ] All interactive elements have `Modifier.testTag(...)` with stable names
 - [ ] One-off events (navigation, toast, dialog) use `Channel` or `SharedFlow` — not permanent `UiState` fields
 - [ ] Loading, success, empty, and error states are all handled in `UiState`
