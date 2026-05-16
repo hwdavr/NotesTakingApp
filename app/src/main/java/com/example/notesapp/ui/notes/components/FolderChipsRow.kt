@@ -9,8 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.notesapp.ui.theme.SurfaceCard
-import com.example.notesapp.ui.theme.TextPrimary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun FolderChipsRow(items: List<String>) {
@@ -18,9 +17,9 @@ fun FolderChipsRow(items: List<String>) {
         items.forEach { item ->
             Text(
                 text = item,
-                color = TextPrimary,
+                color = LocalAppColors.current.textPrimary,
                 modifier = Modifier
-                    .background(SurfaceCard, RoundedCornerShape(16.dp))
+                    .background(LocalAppColors.current.surface, RoundedCornerShape(16.dp))
                     .padding(horizontal = 14.dp, vertical = 10.dp)
             )
         }

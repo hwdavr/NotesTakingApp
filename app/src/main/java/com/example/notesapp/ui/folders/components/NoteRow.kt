@@ -17,8 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.notesapp.ui.theme.TextPrimary
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun NoteRow(title: String, preview: String, depth: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -33,20 +32,20 @@ fun NoteRow(title: String, preview: String, depth: Int, onClick: () -> Unit, mod
         Icon(
             imageVector = Icons.Outlined.Description,
             contentDescription = null,
-            tint = TextSecondary,
+            tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(18.dp)
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextPrimary
+                color = LocalAppColors.current.textPrimary
             )
             if (preview.isNotBlank()) {
                 Text(
                     text = preview,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalAppColors.current.textSecondary,
                     maxLines = 1,
                     lineHeight = 16.sp
                 )

@@ -29,10 +29,7 @@ import com.example.notesapp.ui.common.components.SectionTitle
 import com.example.notesapp.ui.notes.components.FolderChipsRow
 import com.example.notesapp.ui.notes.components.NoteCard
 import com.example.notesapp.ui.notes.viewmodel.NotesViewModel
-import com.example.notesapp.ui.theme.AccentBlue
-import com.example.notesapp.ui.theme.AccentMint
-import com.example.notesapp.ui.theme.AccentPink
-import com.example.notesapp.ui.theme.AccentYellow
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun NotesScreen(
@@ -43,7 +40,8 @@ fun NotesScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var search by remember { mutableStateOf("") }
-    val cardColors = listOf(AccentYellow, AccentPink, AccentMint, AccentBlue)
+    val colors = LocalAppColors.current
+    val cardColors = listOf(colors.accentYellow, colors.accentPink, colors.accentMint, colors.accentBlue)
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         floatingActionButton = { AddFab(onClick = onAddNote) },

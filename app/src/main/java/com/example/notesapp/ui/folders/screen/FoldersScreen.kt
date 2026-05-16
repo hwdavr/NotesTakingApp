@@ -74,6 +74,7 @@ import com.example.notesapp.ui.folders.model.QuickActionItem
 import com.example.notesapp.ui.folders.viewmodel.FolderTreeItem
 import com.example.notesapp.ui.folders.viewmodel.FoldersUiState
 import com.example.notesapp.ui.folders.viewmodel.FoldersViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,7 +144,7 @@ fun FoldersScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF3F7FF), Color(0xFFEDF3FF))
+                        colors = listOf(LocalAppColors.current.accentGradientStart, LocalAppColors.current.accentGradientEnd)
                     )
                 )
                 .padding(innerPadding)
@@ -193,7 +194,7 @@ fun FoldersScreenContent(
                                     R.string.folders_empty_state
                                 }
                             ),
-                            color = Color(0xFF7D848B),
+                            color = LocalAppColors.current.textSecondary,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -234,7 +235,7 @@ fun FoldersScreenContent(
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 16.sp,
-                                        color = Color(0xFF2F343A)
+                                        color = LocalAppColors.current.textPrimary
                                     ),
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
@@ -469,7 +470,7 @@ fun FoldersScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.folders_delete_action),
-                        color = Color(0xFFC44A4A)
+                        color = LocalAppColors.current.error
                     )
                 }
             },
@@ -528,13 +529,13 @@ private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onCl
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(6.dp))
-                    .background(Color(0xFFDCE1E2)),
+                    .background(LocalAppColors.current.searchBackground),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = LocalAppColors.current.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -543,7 +544,7 @@ private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onCl
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
-                    color = Color(0xFF3E444A)
+                    color = LocalAppColors.current.textPrimary
                 )
             )
         }
@@ -552,7 +553,7 @@ private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onCl
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
-                color = Color(0xFF7D848B)
+                color = LocalAppColors.current.textSecondary
             )
         )
     }
@@ -608,7 +609,7 @@ private fun FolderTreeRow(
             Icon(
                 imageVector = if (item.depth == 0) Icons.Outlined.KeyboardArrowDown else Icons.Outlined.ChevronRight,
                 contentDescription = null,
-                tint = Color(0xFF666F77),
+                tint = LocalAppColors.current.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
         } else {
@@ -617,7 +618,7 @@ private fun FolderTreeRow(
         Icon(
             imageVector = folderIconForName(item.folder.name),
             contentDescription = null,
-            tint = Color(0xFF666F77),
+            tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(20.dp)
         )
         Text(
@@ -626,7 +627,7 @@ private fun FolderTreeRow(
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
-                color = Color(0xFF3E444A)
+                color = LocalAppColors.current.textPrimary
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -635,7 +636,7 @@ private fun FolderTreeRow(
             text = item.noteCount.toString(),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF7D848B)
+                color = LocalAppColors.current.textSecondary
             )
         )
         IconButton(
@@ -647,7 +648,7 @@ private fun FolderTreeRow(
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
                 contentDescription = stringResource(R.string.folders_more_actions),
-                tint = if (highlighted) Color(0xFF5F6EFA) else Color(0xFF8B9199)
+                tint = if (highlighted) LocalAppColors.current.primary else LocalAppColors.current.textTertiary
             )
         }
         IconButton(onClick = onQuickAdd, modifier = Modifier.size(28.dp)) {
@@ -672,7 +673,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
         Icon(
             imageVector = Icons.Outlined.Description,
             contentDescription = null,
-            tint = Color(0xFF808890),
+            tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(20.dp)
         )
         Text(
@@ -681,7 +682,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF3E444A)
+                color = LocalAppColors.current.textPrimary
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -695,7 +696,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
                 contentDescription = null,
-                tint = Color(0xFF8B9199),
+                tint = LocalAppColors.current.textTertiary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -828,8 +829,8 @@ private fun FolderItemActionsSheet(
                 icon = Icons.Outlined.Archive,
                 label = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
-                iconTint = Color(0xFFC44A4A),
-                textColor = Color(0xFFC44A4A),
+                iconTint = LocalAppColors.current.error,
+                textColor = LocalAppColors.current.error,
                 modifier = Modifier.testTag("delete_item_action")
             )
         }
@@ -841,7 +842,7 @@ private fun HomeStyleFab(onClick: () -> Unit, modifier: Modifier = Modifier) {
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFF6E6E73),
+        color = LocalAppColors.current.textSecondary,
         shadowElevation = 0.dp
     ) {
         Box(
@@ -850,7 +851,7 @@ private fun HomeStyleFab(onClick: () -> Unit, modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = "+",
-                color = Color.White,
+                color = LocalAppColors.current.onSecondary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium
             )

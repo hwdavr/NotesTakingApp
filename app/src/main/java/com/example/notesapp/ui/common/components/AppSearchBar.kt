@@ -13,30 +13,29 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.notesapp.ui.theme.BorderSubtle
-import com.example.notesapp.ui.theme.SurfaceCard
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun AppSearchBar(value: String, onValueChange: (String) -> Unit, placeholder: String, modifier: Modifier = Modifier) {
+    val colors = LocalAppColors.current
     TextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(SurfaceCard, RoundedCornerShape(20.dp)),
-        placeholder = { Text(placeholder, color = TextSecondary) },
+            .background(colors.surface, RoundedCornerShape(20.dp)),
+        placeholder = { Text(placeholder, color = colors.textSecondary) },
         leadingIcon = {
-            Icon(Icons.Outlined.Search, contentDescription = "Search", tint = TextSecondary)
+            Icon(Icons.Outlined.Search, contentDescription = "Search", tint = colors.textSecondary)
         },
         shape = RoundedCornerShape(20.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = SurfaceCard,
-            unfocusedContainerColor = SurfaceCard,
-            focusedIndicatorColor = BorderSubtle,
-            unfocusedIndicatorColor = BorderSubtle,
-            cursorColor = TextSecondary
+            focusedContainerColor = colors.surface,
+            unfocusedContainerColor = colors.surface,
+            focusedIndicatorColor = colors.divider,
+            unfocusedIndicatorColor = colors.divider,
+            cursorColor = colors.textSecondary
         ),
         singleLine = true
     )
