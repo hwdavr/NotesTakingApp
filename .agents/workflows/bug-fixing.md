@@ -25,7 +25,7 @@ Pipeline: Understand, Localize & Design → Fix Plan → [User Approval] → Imp
 ## Stage Execution
 
 ### Stage 01 — Bug Context, Localization & Root Cause
-Load: `stages/01-requirement-analysis.md`
+Load: `stages/requirement-analysis.md`
 
 Adapt for bugs:
 - Bug description, expected vs. actual behavior
@@ -39,7 +39,7 @@ Gate: root cause is specific enough that a test can be written to reproduce it
 ---
 
 ### Stage 02 — Fix Plan ⛔ STOP
-Load: `stages/02-implementation-plan.md`
+Load: `stages/implementation-plan.md`
 
 Adapt — the plan must include:
 - Root cause
@@ -51,13 +51,16 @@ Gate: **STOP — present fix plan to user. Do not proceed until user explicitly 
 
 ---
 
-### Stage 03–05 — Implementation (data / domain / UI as needed)
-Load: the relevant stages: `stages/03-data-layer.md`, `stages/04-domain-layer.md`, `stages/05-ui-layer.md`
+### Stage 03 — Implementation (Data + Domain + UI as needed)
+Load: `stages/implementation.md`
+
+Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
+Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied
 
 ---
 
-### Stage 06 — Code Review
-Load: `stages/06-code-review.md`
+### Stage 04 — Code Review
+Load: `stages/code-review.md`
 
 Verify:
 - Minimal fix — no unrelated changes
@@ -69,23 +72,23 @@ Gate: build passes, static analysis passes, architecture rules followed
 
 ---
 
-### Stage 07 — Regression Test (Testing — write test first)
-Load: `stages/07-testing.md`
+### Stage 05 — Regression Test (Testing — write test first)
+Load: `stages/testing.md`
 
 **Write the failing regression test before touching the application code** where feasible.
 Gate: regression test fails before fix AND passes after fix
 
 ---
 
-### Stage 08 — Test Review
-Load: `stages/08-test-review.md`
+### Stage 06 — Test Review
+Load: `stages/test-review.md`
 
 Verify regression test stability and fix coverage.
 
 ---
 
-### Stage 09 — Knowledge Capture
-Load: `stages/09-knowledge-capture.md`
+### Stage 07 — Knowledge Capture
+Load: `stages/knowledge-capture.md`
 
 **Always** record the bug in `docs/knowledge/past-bugs/`.
 
@@ -95,4 +98,4 @@ Load: `stages/09-knowledge-capture.md`
 
 1. **After Stage 01** — if root cause is uncertain, ask user
 2. **After Stage 02** — user approves fix plan *(mandatory always)*
-3. **After Stage 08** — user confirms the fix before it is merged
+3. **After Stage 05** — user confirms the fix before it is merged

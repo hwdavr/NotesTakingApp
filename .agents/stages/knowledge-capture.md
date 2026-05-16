@@ -1,5 +1,7 @@
 # Stage 09 — Knowledge Capture
 
+> **Routing**: This is typically the final stage. Verify in the active **workflow** file if there are any further steps.
+
 ## Purpose
 Record decisions, findings, and lessons learned so every piece of institutional knowledge outlives this change.
 

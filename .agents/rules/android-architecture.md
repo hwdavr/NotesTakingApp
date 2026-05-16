@@ -142,6 +142,7 @@ These are never allowed without explicit architectural justification:
 - Domain layer importing Android framework classes
 - Adding feature logic without tests
 - AI-generated code merged without review
+- Fully-qualified class names used inline in code (e.g. `com.example.Foo()` in function bodies) — always use `import` at the top of the file
 
 ---
 

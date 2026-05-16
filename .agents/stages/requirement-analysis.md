@@ -1,5 +1,7 @@
 # Stage 01 — Requirement, Impact & Design Analysis
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Understand what is being built, identify affected files, and design the core UI state and navigation before implementation.
 Do not write any code in this stage.
@@ -36,6 +38,8 @@ Do not write any code in this stage.
 ## Output
 
 Create `docs/changes/<type>-<name>-<YYYYMMDD>/` directory.
+
+If the user provides a design screenshot or mockup, save it to **`request_analysis/design/`** so it can be referenced during UI Verification.
 
 Produce **`request_analysis/spec.md`**:
 ```
@@ -78,4 +82,4 @@ data class ExampleUiState(...)
 - [ ] UiState design covers all visual states.
 - [ ] API change is classified.
 
-**APPROVED →** proceed to Stage 02 — Implementation Plan
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

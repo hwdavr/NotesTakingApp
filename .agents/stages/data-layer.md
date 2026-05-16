@@ -1,5 +1,7 @@
 # Stage 03 — Data Layer
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Implement data layer changes: DTOs, Room entities, DAOs, repository implementations, and API mappers.
 Implement in small, working slices. Verify the build passes before proceeding.
@@ -88,7 +90,7 @@ Update `summary.md`: mark Stage 03 complete.
 - [ ] Repository method returns domain models, not DTOs
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** proceed to Stage 04 — Domain Layer
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →** fix the data layer issue identified, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a missing mapper field or DTO mismatch, fix in this stage — do not proceed to Stage 04 with a broken build.
+**Rollback trigger:** If build fails due to a missing mapper field or DTO mismatch, fix in this stage — do not proceed with a broken build.

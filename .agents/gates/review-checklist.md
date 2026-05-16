@@ -12,6 +12,7 @@ Checklist for reviewing any code change before it is considered complete.
 - [ ] Domain layer has no Android framework imports (`Context`, `Bundle`, SDK types)
 - [ ] DTOs are not exposed outside the data layer
 - [ ] No domain models are used directly in Compose without mapping to UI models (if formatting is needed)
+- [ ] No fully-qualified class names used inline in code — all classes referenced via `import` at the top of the file (e.g. no `com.example.Foo()` in function bodies)
 
 ---
 

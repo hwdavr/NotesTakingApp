@@ -13,34 +13,28 @@ Use this workflow when:
 
 ## Stages
 
-### Stage 1 — Requirement, Impact & Design Analysis
-Run: `stages/01-requirement-analysis.md`
+### Stage 1 — UI Implementation
+Run: `stages/ui-layer.md`
 
-Adapt:
-- Identify target components
-- Design UiState and navigation
+Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
 
-### Stage 2 — Implementation Plan ⛔ STOP
-Run: `stages/02-implementation-plan.md`
+### Stage 2 — UI Verification ↩️ Loop
+Run: `stages/ui-verification.md`
 
-**Stop and present the plan before implementing.**
+Compare the implemented UI against the original design screenshot in `request_analysis/design/`.
 
-### Stage 3–05 — Implementation
-Run: `stages/03-data-layer.md`, `stages/04-domain-layer.md`, `stages/05-ui-layer.md`
+**Loop rule — if verification FAILS:**
+- Return to **Stage 1** to fix the implementation.
+- Re-run Stage 2 after each fix.
+- **Maximum 3 loops total.**
+- If still failing after 3 loops, stop and surface the deviation to the user with the screenshot attached.
 
-### Stage 6 — Code Review (UI verification)
-Run: `stages/06-code-review.md`
+**PASS →** proceed to Stage 3.
 
-Perform:
-- Build and Static Quality Checks
-- Architecture & Design Validation (match against designs in Stage 01)
-- Visual UI verification (screenshots/texts)
+### Stage 3 — Code Review
+Run: `stages/code-review.md`
 
-### Stage 7 — Testing
-Run: `stages/07-testing.md`
-
-### Stage 8 — Test Review
-Run: `stages/08-test-review.md`
-
-### Stage 9 — Knowledge Capture
-Run: `stages/09-knowledge-capture.md`
+## Best Practices
+- **Handling Long Content**: For scrollable screens or bottom sheets, ensure the UI handles scrolling properly. In tests, use `performScrollToNode()` to find off-screen elements.
+- **Bottom Sheets**: Use `skipPartiallyExpanded = true` for bottom sheets with significant content to improve immediate visibility and test reliability.
+- **Duplicate Text**: When multiple nodes share the same text, use `onAllNodesWithText()[index]` to avoid ambiguity in assertions.

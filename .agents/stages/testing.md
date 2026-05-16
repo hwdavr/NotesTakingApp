@@ -1,5 +1,7 @@
 # Stage 07 — Testing
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Write and verify all tests for the change.
 The article principle: write the failing test *before* touching the application code for bug fixes and new behavior.
@@ -113,7 +115,7 @@ Update `summary.md`: mark Stage 07 complete with test count and coverage.
 - [ ] Instrumented tests pass (if added): `./gradlew connectedDebugAndroidTest`
 - [ ] `unit_test/test_report_v<N>.md` exists with coverage numbers filled in
 
-**APPROVED →** proceed to Stage 08 — Test Review
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →**
 - If `total_tests == 0` → return to Stage 07, add missing tests

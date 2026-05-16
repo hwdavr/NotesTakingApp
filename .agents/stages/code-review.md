@@ -1,5 +1,7 @@
 # Stage 06 — Code Review
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 This is the Evaluator stage — a separate review pass focused on architecture compliance, code quality, and UI correctness.
 The article principle: "Separating the agent that does the work from the agent that judges the work is a powerful lever."
@@ -96,7 +98,7 @@ Update `summary.md`: mark Stage 06 complete with review verdict.
 - [ ] UI matches the designed states in `spec.md`
 - [ ] `coding/review/code_review_v<N>.md` exists with verdict filled in
 
-**APPROVED →** proceed to Stage 07 — Testing
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →**
 - Compilation error → return to the stage that introduced it (03 / 04 / 05)

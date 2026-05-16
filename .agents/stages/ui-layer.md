@@ -1,5 +1,7 @@
 # Stage 05 — UI Layer
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composable screens, and navigation wiring.
 
@@ -92,7 +94,7 @@ Update `summary.md`: mark Stage 05 complete.
 - [ ] Navigation arguments are serializable types
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** proceed to Stage 06 — Code Review
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →** fix the UI layer issue, re-run `assembleDebug`, re-evaluate gate.
 **Rollback trigger:** If build fails due to a domain model mismatch in the UI mapper, fix the mapper before proceeding.

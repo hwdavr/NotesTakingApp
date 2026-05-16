@@ -1,5 +1,7 @@
 # Stage 02 — Implementation Plan
 
+> **Routing**: When this stage is approved, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Produce a concrete, reviewable plan before any code is written.
 This is the final gate before implementation begins.
@@ -43,8 +45,8 @@ Update `summary.md`: mark Stage 02 complete.
 ### Feedback Loop
 1. **Feedback**: The user provides feedback via chat, file comments, or direct edits to the plan.
 2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to Stage 01** to update the analysis/spec first. Then, update `implementation_plan.md` and request approval again.
-3. **Approval**: The agent proceeds to Stage 03 only after explicit user approval (e.g., "Approved", "Proceed", "Go").
+3. **Approval**: The agent returns to the active workflow file and proceeds to the next stage defined there.
 
 Do not write any code, create any source files, or call any file-editing tools until the user explicitly approves.
 
-**APPROVED by user →** proceed to Stage 03 — Data Layer
+**APPROVED by user →** Return to the active workflow file and proceed to the next stage defined there.

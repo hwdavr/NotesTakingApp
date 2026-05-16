@@ -1,5 +1,7 @@
 # Stage 08 — Test Review
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Verify the quality, coverage, and correctness of the tests implemented in Stage 07.
 Ensure the change is fully verified before final knowledge capture.
@@ -77,7 +79,7 @@ Update `summary.md`: mark Stage 08 complete with test review verdict.
 - [ ] Regression test confirmed failing before and passing after (for bugs)
 - [ ] `coding/review/test_review_v<N>.md` exists with verdict filled in
 
-**APPROVED →** proceed to Stage 09 — Knowledge Capture
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →**
 - Test failure or coverage gap → return to Stage 07

@@ -1,5 +1,7 @@
 # Stage 04 — Domain Layer
 
+> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+
 ## Purpose
 Implement domain layer changes: use cases, domain models, and repository interfaces.
 The domain layer must remain platform-independent.
@@ -69,7 +71,7 @@ Update `summary.md`: mark Stage 04 complete.
 - [ ] New enum domain models include `UNKNOWN` / fallback variant
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** proceed to Stage 05 — UI Layer
+**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →** fix the domain layer issue, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a repository interface mismatch between Stage 03 and Stage 04, fix the interface contract before proceeding.
+**Rollback trigger:** If build fails due to a repository interface mismatch, fix the interface contract before proceeding.
