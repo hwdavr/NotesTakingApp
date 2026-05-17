@@ -106,6 +106,17 @@ This project runs in WSL. Ensure the correct WSL environment before running Grad
 
 ---
 
+## Deployment Commands
+
+Use the following Gradle tasks to package and distribute the application to Firebase App Distribution:
+
+```bash
+./gradlew appDistributionUploadDebug     # Package and distribute the Debug build (version: 1.0-Debug) to MyAccounts
+./gradlew appDistributionUploadRelease   # Package and distribute the Release build (version: 1.0-Release) to MyAccounts
+```
+
+---
+
 ## When you find a bug in the harness itself
 
 Fix it immediately. Update the relevant stage, rule, or gate to prevent recurrence.
