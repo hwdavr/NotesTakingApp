@@ -202,8 +202,3 @@ kover {
         }
     }
 }
-
-detekt {
-    ignoreFailures = true
-}
-

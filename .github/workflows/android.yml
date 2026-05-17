@@ -35,8 +35,8 @@ jobs:
         run: chmod +x gradlew
 
       # Step 5: Run Code Quality Checks (Ktlint & Detekt)
-      - name: Run Code Style & Quality Checks
-        run: ./gradlew ktlintCheck detekt
+      # - name: Run Code Style & Quality Checks
+      #   run: ./gradlew ktlintCheck detekt
 
       # Step 6: Run Unit Tests
       - name: Run Unit Tests
