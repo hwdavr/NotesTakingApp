@@ -53,4 +53,5 @@ The main verifier for AI-generated Android UI changes is Android-native instrume
 ## Common pitfalls
 - Capturing a screenshot before the app has fully loaded or before navigating to the target screen — always use `uiautomator dump` to confirm you are on the right screen first
 - Assuming `onNodeWithText()` is unambiguous when the same text appears in multiple places — use `onAllNodesWithText()[index]` when duplicates exist
+- Not handling long content in BottomSheets — use `skipPartiallyExpanded = true` in `SheetState` to ensure full height, and use `performScrollToNode()` in tests to reach off-screen items
 - Missing `androidTestImplementation` dependencies (`ui-test-junit4`, `junit`, `espresso-core`) — verify in `app/build.gradle.kts` before writing tests

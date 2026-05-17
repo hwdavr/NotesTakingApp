@@ -7,7 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun SectionTitle(title: String, actionLabel: String? = null) {
@@ -17,7 +17,7 @@ fun SectionTitle(title: String, actionLabel: String? = null) {
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
         if (actionLabel != null) {
-            Text(text = actionLabel, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(text = actionLabel, color = LocalAppColors.current.textSecondary, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

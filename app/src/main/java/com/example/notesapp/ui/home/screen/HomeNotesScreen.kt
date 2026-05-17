@@ -53,10 +53,7 @@ import com.example.notesapp.ui.home.model.FolderUiModel
 import com.example.notesapp.ui.home.model.HomeUiState
 import com.example.notesapp.ui.home.viewmodel.HomeViewModel
 import com.example.notesapp.ui.notes.components.NoteCard
-import com.example.notesapp.ui.theme.AccentBlue
-import com.example.notesapp.ui.theme.AccentMint
-import com.example.notesapp.ui.theme.AccentPink
-import com.example.notesapp.ui.theme.AccentYellow
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun HomeNotesScreen(
@@ -79,6 +76,7 @@ fun HomeNotesScreen(
         onMoveNote = onMoveNote
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeNotesScreenContent(
@@ -92,12 +90,13 @@ fun HomeNotesScreenContent(
     onDeleteNote: (Note) -> Unit = {},
     onMoveNote: (Note) -> Unit = {}
 ) {
+    val colors = LocalAppColors.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedNoteForQuickActions by remember { mutableStateOf<Note?>(null) }
     var noteToRename by remember { mutableStateOf<Note?>(null) }
     var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
-    val cardColors = remember { listOf(AccentYellow, AccentPink, AccentMint, AccentBlue) }
+    val cardColors = remember { listOf(colors.accentYellow, colors.accentPink, colors.accentMint, colors.accentBlue) }
     val filteredNotes = remember(state.recentNotes, searchQuery) {
         if (searchQuery.isBlank()) {
             state.recentNotes
@@ -119,7 +118,7 @@ fun HomeNotesScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF3F7FF), Color(0xFFEDF3FF))
+                        colors = listOf(colors.accentGradientStart, colors.accentGradientEnd)
                     )
                 )
                 .padding(innerPadding)
@@ -141,7 +140,7 @@ fun HomeNotesScreenContent(
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color(0xFF26262B)
+                        color = colors.textPrimary
                     )
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -157,7 +156,7 @@ fun HomeNotesScreenContent(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = Color(0xFF5F6EFA))
+                            CircularProgressIndicator(color = colors.primary)
                         }
                     }
                     filteredNotes.isEmpty() -> {
@@ -289,7 +288,7 @@ fun HomeNotesScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.folders_delete_action),
-                        color = Color(0xFFC44A4A)
+                        color = colors.error
                     )
                 }
             },
@@ -301,6 +300,7 @@ fun HomeNotesScreenContent(
         )
     }
 }
+
 @Composable
 private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSelect: (String) -> Unit) {
     Row(
@@ -336,17 +336,19 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
         }
     }
 }
+
 @Composable
 private fun FolderPill(name: String, isSelected: Boolean, onClick: () -> Unit) {
+    val colors = LocalAppColors.current
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
-        color = if (isSelected) Color(0xFFDFECE7) else Color(0xFFEFEFF1)
+        color = if (isSelected) colors.primary.copy(alpha = 0.15f) else colors.searchBackground
     ) {
         Text(
             text = name,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            color = if (isSelected) Color(0xFF5E6A64) else Color(0xFF7A7A82),
+            color = if (isSelected) colors.primary else colors.textSecondary,
             style = MaterialTheme.typography.labelLarge.copy(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
@@ -354,6 +356,7 @@ private fun FolderPill(name: String, isSelected: Boolean, onClick: () -> Unit) {
         )
     }
 }
+
 @Composable
 private fun EmptyNotesState(modifier: Modifier = Modifier, searchActive: Boolean) {
     Box(
@@ -365,17 +368,19 @@ private fun EmptyNotesState(modifier: Modifier = Modifier, searchActive: Boolean
                 if (searchActive) R.string.home_search_empty_state else R.string.home_notes_empty_state
             ),
             style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF7A7A82)
+            color = LocalAppColors.current.textSecondary
         )
     }
 }
+
 @Composable
 private fun HomeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalAppColors.current
     Surface(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFF6E6E73),
+        color = colors.textSecondary,
         shadowElevation = 0.dp
     ) {
         Box(
@@ -384,7 +389,7 @@ private fun HomeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = "+",
-                color = Color.White,
+                color = colors.onSecondary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium
             )

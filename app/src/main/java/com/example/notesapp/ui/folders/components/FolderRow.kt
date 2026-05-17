@@ -21,10 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.notesapp.ui.theme.LavenderPrimary
-import com.example.notesapp.ui.theme.SurfaceCard
-import com.example.notesapp.ui.theme.TextPrimary
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun FolderRow(
@@ -39,7 +36,7 @@ fun FolderRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(start = (depth * 16).dp)
-            .background(SurfaceCard, RoundedCornerShape(20.dp))
+            .background(LocalAppColors.current.surface, RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -50,17 +47,17 @@ fun FolderRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(Icons.Outlined.Folder, contentDescription = null, tint = TextPrimary)
-            Text(text = name, color = TextPrimary, style = MaterialTheme.typography.bodyLarge)
+            Icon(Icons.Outlined.Folder, contentDescription = null, tint = LocalAppColors.current.textPrimary)
+            Text(text = name, color = LocalAppColors.current.textPrimary, style = MaterialTheme.typography.bodyLarge)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = count, color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(text = count, color = LocalAppColors.current.textSecondary, style = MaterialTheme.typography.bodyMedium)
             if (onAddClick != null) {
                 Surface(
                     onClick = onAddClick,
                     shape = CircleShape,
-                    color = LavenderPrimary.copy(alpha = 0.1f),
-                    contentColor = LavenderPrimary,
+                    color = LocalAppColors.current.primary.copy(alpha = 0.1f),
+                    contentColor = LocalAppColors.current.primary,
                     modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
@@ -70,7 +67,7 @@ fun FolderRow(
                     )
                 }
             } else {
-                Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = TextSecondary)
+                Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = LocalAppColors.current.textSecondary)
             }
         }
     }

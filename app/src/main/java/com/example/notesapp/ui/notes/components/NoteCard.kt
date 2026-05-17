@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun NoteCard(
@@ -33,6 +33,7 @@ fun NoteCard(
     moreActionsTestTag: String? = null,
     badgeTestTag: String? = null
 ) {
+    val colors = LocalAppColors.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,12 +68,12 @@ fun NoteCard(
                     Icon(Icons.Outlined.MoreHoriz, contentDescription = "More")
                 }
             }
-            Text(text = preview, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            Text(text = preview, style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
             if (meta.isNotBlank()) {
                 Text(
                     text = meta,
                     style = MaterialTheme.typography.labelMedium,
-                    color = TextSecondary,
+                    color = colors.textSecondary,
                     modifier = Modifier
                         .then(
                             if (badgeTestTag != null) {

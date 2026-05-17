@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.ui.notes.viewmodel.MoveToUiState
 import com.example.notesapp.ui.notes.viewmodel.MoveToViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun MoveToScreen(
@@ -80,7 +81,7 @@ fun MoveToScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF3F7FF), Color(0xFFEDF3FF))
+                        colors = listOf(LocalAppColors.current.accentGradientStart, LocalAppColors.current.accentGradientEnd)
                     )
                 )
                 .padding(innerPadding)
@@ -112,7 +113,7 @@ fun MoveToScreenContent(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xFF2F343A)
+                    color = LocalAppColors.current.textPrimary
                 )
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -126,7 +127,7 @@ fun MoveToScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.move_to_empty_folders),
-                        color = Color(0xFF7D848B),
+                        color = LocalAppColors.current.textSecondary,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -164,7 +165,7 @@ private fun MoveToTopBar(onBack: () -> Unit) {
             text = stringResource(R.string.move_to_title),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2A2A30)
+                color = LocalAppColors.current.textPrimary
             )
         )
     }
@@ -177,15 +178,15 @@ private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(Color(0xFFEEEFF1), RoundedCornerShape(8.dp))
+            .background(LocalAppColors.current.searchBackground, RoundedCornerShape(8.dp))
             .testTag("move_to_search_input"),
         textStyle = MaterialTheme.typography.bodyMedium.copy(
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.Black
+            color = LocalAppColors.current.textPrimary
         ),
         singleLine = true,
-        cursorBrush = androidx.compose.ui.graphics.SolidColor(Color(0xFF5F6EFA)),
+        cursorBrush = androidx.compose.ui.graphics.SolidColor(LocalAppColors.current.primary),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier.padding(horizontal = 12.dp),
@@ -195,14 +196,14 @@ private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
                 Icon(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = null,
-                    tint = Color(0xFF8E959B),
+                    tint = LocalAppColors.current.searchIcon,
                     modifier = Modifier.size(20.dp)
                 )
                 Box(modifier = Modifier.weight(1f)) {
                     if (value.isEmpty()) {
                         Text(
                             text = stringResource(R.string.move_to_search_placeholder),
-                            color = Color(0xFFA0A6AC),
+                            color = LocalAppColors.current.textTertiary,
                             fontSize = 14.sp
                         )
                     }
@@ -219,7 +220,7 @@ private fun MoveDestinationRow(name: String, depth: Int, isRoot: Boolean, testTa
             .fillMaxWidth()
             .testTag(testTag),
         shape = RoundedCornerShape(10.dp),
-        color = Color.White,
+        color = LocalAppColors.current.surface,
         shadowElevation = 0.dp
     ) {
         Row(
@@ -236,14 +237,14 @@ private fun MoveDestinationRow(name: String, depth: Int, isRoot: Boolean, testTa
                     Icons.Outlined.Folder
                 },
                 contentDescription = null,
-                tint = Color(0xFF5F6770),
+                tint = LocalAppColors.current.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = name,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF3E444A)
+                    color = LocalAppColors.current.textPrimary
                 )
             )
         }

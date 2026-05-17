@@ -8,14 +8,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.notesapp.ui.theme.LavenderPrimary
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun AddFab(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = LavenderPrimary,
-        contentColor = Color.White,
+        containerColor = LocalAppColors.current.primary,
+        contentColor = LocalAppColors.current.onPrimary,
         shape = RoundedCornerShape(18.dp)
     ) {
         Icon(Icons.Filled.Add, contentDescription = "Add")

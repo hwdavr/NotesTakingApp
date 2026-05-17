@@ -1,315 +1,81 @@
 ---
-description: You are a senior Android developer, to deliver a new feature.
+description: You are a senior Android developer delivering a new feature end-to-end.
 ---
 
-## Goal
-Use this workflow when implementing a new feature, enhancing an existing feature, or integrating a backend/API change into the mobile app.
+# Workflow: Feature Delivery
 
-This workflow is designed for production-grade mobile delivery, not quick prototyping.
+## When to use
+- Implementing a new feature
+- Enhancing an existing feature
+- Integrating a backend or API change
+
+This workflow is for production-grade delivery — not quick prototyping.
 
 ---
 
 ## Core Principle
 
-Do not jump directly into coding. Implementation Plan MUST be approved before coding. 
+Do not jump directly into coding.
+**The implementation plan (Stage 02) must be approved before any code is written.**
 
-Always move through:
-
-Requirement → Impact Analysis → Architecture → Implementation Plan → [Mandatory user review] → Tests → Risk Review → Code Changes
-
----
-
-## Required workflow
-
-### 1. Requirement Analysis & Discovery
-
-Read the user story, ticket, product requirement, and API contract (`sharedContracts/openapi.yaml`). Read the design if it is provided.
-
-Identify:
-
-- business goal
-- user flow
-- affected screens
-- affected API endpoints
-- affected domain logic
-- affected platforms
-- feature flag requirement
-- analytics or observability requirement
-
-If the requirement is unclear, state assumptions and clarify first before proceeding.
+Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
 
 ---
 
-### 2. Classify the Change
+## Stage Execution
 
-Classify the feature as one or more of:
+### Stage 01 — Requirement, Impact & Design Analysis
+Load: `stages/requirement-analysis.md`
+Output: `docs/changes/<name>/request_analysis/spec.md`, `tasks.md`, `summary.md`
+Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
 
-- new UI feature
-- API integration
-- business logic change
-- configuration change
-- authentication/session-related change
-- payment/security-sensitive change
-- release/rollout change
-- cross-platform consistency change
+### Stage 02 — Implementation Plan ⛔ STOP
+Load: `stages/implementation-plan.md`
+Output: `docs/changes/<name>/coding/implementation_plan.md`
+Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
-Use this classification and the **Android test triage skill** to decide the implementation and test depth.
+### Stage 03 — Implementation (Data + Domain + UI)
+Load: `stages/implementation.md`
+Output: All source files across Data, Domain, and UI layers. `coding/coding_report_v<N>.md`
+Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
----
+### Stage 04 — Code Review
+Load: `stages/code-review.md`
+Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
+Gate: ktlint/detekt passes, architecture and design compliance verified
 
-### 3. API Contract Review
+### Stage 05 — Testing
+Load: `stages/testing.md`
+Output: Unit tests, integration tests, shared JSON scenarios
+Gate: tests pass, coverage targets met
 
-If API changes are involved, review the API contract before implementation.
+### Stage 06 — Test Review
+Load: `stages/test-review.md`
+Output: `docs/changes/<name>/coding/review/test_review_v<N>.md`
+Gate: overall coverage ≥ 80%, shared scenarios used, regressions verified
 
-Check:
-
-- new fields
-- removed fields
-- renamed fields
-- changed data type
-- changed enum value
-- changed nullability
-- changed error response
-- changed pagination
-- changed authentication requirement
-- changed backward compatibility
-
-Classify the API change as:
-
-- backward compatible
-- backward compatible but risky
-- breaking change
-
-Explicitly state whether a mobile force update may be required.
-- If new API responses are involved, check if they are already defined in `sharedContracts/openapi.yaml`, otherwise, update it in the openapi.yaml.
----
-
-### 4. Existing Code Impact Analysis
-
-Search the existing codebase for related:
-
-- screens
-- ViewModels
-- use cases
-- repositories
-- API clients
-- DTOs
-- domain models
-- mappers
-- navigation routes
-- analytics events
-- tests
-
-Before modifying code, summarize the affected areas.
+### Stage 07 — Knowledge Capture
+Load: `stages/knowledge-capture.md`
+Output: ADRs, past-bugs, pitfalls, finalized `summary.md`
+Gate: all knowledge artifacts produced
 
 ---
 
-### 5. Architecture Design
+## Rollback Routes
 
-Follow the existing project architecture.
-
-For Android, prefer:
-
-- UI layer for rendering only
-- ViewModel for UI state orchestration
-- UseCase for business rules
-- Repository for data access
-- DTO/API model separated from domain model
-- mapper from API model to domain model
-- mapper from domain model to UI model if needed
-
-Do not put business logic directly into composables or UI components.
+| Failure | Return to |
+|---------|-----------|
+| Compilation error | Stage 03 (Implementation) |
+| Code quality/Architecture violation | Stage 03(Implementation)
+| Test failure/Coverage gap | Stage 05 (Testing) |
+| User rejects plan | Stage 01 (Requirement, Impact & Design Analysis) |
+| Requirement ambiguity | Stage 01 (Requirement, Impact & Design Analysis) |
 
 ---
 
-### 6. State Design
+## Human-in-the-Loop Confirmation Points
 
-Define the UI state before coding.
-
-Include:
-
-- loading state
-- success state
-- empty state
-- error state
-- partial data state
-- retry state
-- permission/auth state if applicable
-
-Use explicit state models instead of scattered boolean flags where possible.
-
----
-
-### 7. Implementation Plan
-
-Before coding, provide an implementation plan.
-
-Include:
-
-- files to create
-- files to modify
-- domain changes
-- API changes
-- UI changes
-- navigation changes
-- test changes
-- migration or compatibility handling
-
-**CRITICAL RULE: You MUST stop and present the implementation plan to the user here. You MUST wait for their explicit approval before generating any code or making any file modifications. Do not proceed to the next steps or write any code until the user explicitly approves the plan.**
-
----
-
-### 8. Implementation Rules
-
-When implementing:
-
-- implement in small, working slices
-- test and verify each slice before expanding scope
-- preserve existing behavior unless the requirement explicitly changes it
-- avoid unrelated refactoring
-- avoid broad rewrites
-- keep naming consistent with the existing codebase
-- follow existing dependency injection patterns
-- follow existing error handling patterns
-- follow existing logging and analytics patterns
-- keep changes easy to review
-- follow **Android feature skill** principles for UI components
-- add stable selectors (`testTag` for Compose, `id` for XML) for testability
-
-If a larger refactor is necessary, explain why.
-
----
-
-### 9. Data & API Planning
-
-If new API responses are involved:
-
-- check if they are already defined in `sharedContracts/openapi.yaml`, otherwise update it
-- use **Shared JSON scenarios skill** to load mocks if available, otherwise generate one using the skill
-- do not create mock response data inline in test cases
-- define necessary DTOs and Domain Models
-
----
-
-### 10. Testing Strategy
-
-Define and implement tests according to impact. Prefer writing the failing test first for new logic, bug fixes, and behavior changes.
-- Use the **Android test triage skill** to decide the minimum test layers needed for the change.
-- Follow the golden rule from triage: always test at the lowest layer that gives enough confidence.
-- Prefer automation tests including unit tests, integration tests, and UI tests over manual testing when deterministic coverage is possible.
-- Use the **Android unit test skill** to implement unit and integration tests. Ensure **90% coverage** for all new ViewModels and Domain classes, and follow the naming conventions (`*Test.kt` vs `*IntegrationTest.kt`).
-- If an API is involved, create at least one integration test, use **Shared JSON scenarios skill** to load or generate a shared scenario to `sharedContracts/test-scenarios, don't mock the json data in the test cases.
-- If an API is used by a ViewModel function, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts the ViewModel-exposed `UiState` against `expected.ui`.
-- If an API is used only by domain/repository/use case logic without directly changing UI state, use the **Shared JSON scenarios skill** to load or generate a shared scenario and add an integration test that asserts `expected.domain`.
-- Do not create mock response data inline in test cases when a shared JSON scenario should be used.
-
-### 11. Cross-Platform Consistency
-
-All the features exist on both Android and iOS, identify:
-
-- shared API contract
-- shared business rules
-- shared edge cases
-- platform-specific differences
-- test scenarios that should be aligned
-
-If shared JSON scenarios exist, update or propose updates.
-
----
-
-### 12. Observability and Analytics
-
-Check whether the feature needs:
-
-- analytics events
-- error logs
-- API latency tracking
-- screen performance tracking
-- crash breadcrumbs
-- business funnel tracking
-
-Do not log sensitive data.
-
----
-
-### 13. Security and Privacy Review
-
-Review:
-
-- token handling
-- sensitive data exposure
-- logs
-- screenshots
-- clipboard usage
-- deep links
-- WebView usage
-- payment/card data handling
-- PII storage
-- local persistence
-
-If sensitive data is involved, use the safest existing pattern in the codebase.
-
----
-
-### 14. Rollout and Release Review
-
-Before finalizing, check:
-
-- backward compatibility
-- force update requirement
-- feature flag requirement
-- phased rollout requirement
-- migration requirement
-- app version dependency
-- backend deployment dependency
-- monitoring plan
-
----
-
-### 15. Final Validation
-
-Before completion:
-
-- Ensure the app builds: `./gradlew assembleDebug`.
-- Run all relevant tests:
-  - Local tests: `./gradlew testDebugUnitTest`.
-  - Coverage: Run `./gradlew :app:koverHtmlReportDebug` and verify the coverage meets the **android-unit-test skill** requirements (Overall 80%, New classes 90%).
-  - Instrumented tests: `./gradlew connectedDebugAndroidTest`.
-- Verify UI fidelity if a design was provided.
-- For UI changes, apply the **Android UI verification skill** with the cheapest reliable checks first.
-- check formatting/lint if available
-- review changed files using the **code-review-and-quality skill**
-- verify no unrelated changes were introduced
-- summarize remaining risks
-
----
-
-## Final Output Format
-
-Always provide:
-
-1. Requirement summary
-2. Impact analysis
-3. API compatibility assessment
-4. Architecture/design summary
-5. Implementation plan
-6. Test plan
-7. Security/privacy considerations
-8. Rollout/release considerations
-9. Files changed or proposed
-10. Open questions or assumptions
-
----
-
-## Stop Conditions
-
-You MUST stop and wait for user input in the following situations:
-
-1. **Mandatory Plan Review (ALWAYS APPLIES):** After completing Step 7, you MUST stop. You are STRICTLY FORBIDDEN from writing any code, using file editing tools, or proceeding further until the user explicitly approves the implementation plan.
-2. The requirement is contradictory.
-3. The API contract is missing and cannot be inferred.
-4. The change may break existing production users.
-5. Security/payment/auth behavior is ambiguous.
-6. The implementation requires choosing between major architecture options.
-
-For conditions 2-6, state your questions clearly. Even if conditions 2-6 do not apply, you MUST STILL STOP for condition 1 (Mandatory Plan Review). Do not proceed to write code under any circumstances without user approval of the plan.
+1. **After Stage 01** — user confirms assumptions and designs
+2. **After Stage 02** — user approves implementation plan *(mandatory always)*
+3. **After Stage 04** — user reviews the code before testing
+4. **After Stage 06** — user reviews the full change before merge

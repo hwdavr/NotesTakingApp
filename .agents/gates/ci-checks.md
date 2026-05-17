@@ -1,0 +1,64 @@
+# CI Checks
+
+## Purpose
+Defines the minimum set of checks that must pass before a change is considered ready to merge.
+
+---
+
+## Required Checks
+
+### 1. Build
+```bash
+./gradlew assembleDebug
+```
+**Must pass.** A failing build is a hard blocker.
+
+### 2. Unit and Integration Tests
+```bash
+./gradlew testDebugUnitTest
+```
+**Must pass.** All tests in `app/src/test/` must be green.
+
+### 3. Coverage
+```bash
+./gradlew koverLog
+./gradlew :app:koverHtmlReportDebug
+```
+**Must pass threshold:**
+- Overall project: ≥ 80% line coverage
+- New ViewModel classes: ≥ 90%
+- New domain use case classes: ≥ 90%
+
+### 4. Ktlint (formatting)
+```bash
+./gradlew ktlintCheck
+```
+**Must pass.** Auto-fix with `./gradlew ktlintFormat` before committing.
+
+### 5. Detekt (static analysis)
+```bash
+./gradlew detekt
+```
+**Must pass** for errors. Warnings are informational.
+
+### 6. Android Lint
+```bash
+./gradlew lintDebug
+```
+**Must pass** for errors. Review warnings in changed files.
+
+---
+
+## Conditional Checks
+
+### Instrumented UI tests (when UI changed)
+```bash
+./gradlew connectedDebugAndroidTest
+```
+Run when the change modifies Composable screens or navigation.
+
+---
+
+## Environment Note
+
+This project runs in WSL. Ensure the WSL terminal has the correct environment set before running Gradle commands.

@@ -56,16 +56,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.notesapp.R
 import com.example.notesapp.ui.settings.viewmodel.SettingsViewModel
-import com.example.notesapp.ui.theme.BorderSubtle
-import com.example.notesapp.ui.theme.LavenderPrimary
-import com.example.notesapp.ui.theme.LavenderSecondary
-import com.example.notesapp.ui.theme.TextSecondary
+import com.example.notesapp.ui.theme.LocalAppColors
 
-private val ProBadgeGradientStart = Color(0xFF9B8CFF)
-private val ProBadgeGradientEnd = Color(0xFFE06FD8)
-private val HeroGradientStart = Color(0xFF7C6CF2)
-private val HeroGradientEnd = Color(0xFFC569E0)
-private val SectionBorder = Color(0xFFEAEAEA)
 @Composable
 fun SettingsScreen(
     parentPadding: PaddingValues,
@@ -90,7 +82,7 @@ fun SettingsScreen(
 fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "Guest", onLogout: () -> Unit) {
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
-        containerColor = Color(0xFFF8F8FA),
+        containerColor = LocalAppColors.current.settingsBackground,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
@@ -214,7 +206,7 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
                 SettingRowItem(
                     icon = Icons.Outlined.Description,
                     iconBackground = Color(0xFFF5F3FF),
-                    iconTint = LavenderPrimary,
+                    iconTint = LocalAppColors.current.primary,
                     title = "Terms of Use",
                     subtitle = null,
                     showArrow = true
@@ -238,7 +230,7 @@ private fun SettingsTopBar() {
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Black,
                 fontSize = 26.sp,
-                color = Color(0xFF333333),
+                color = LocalAppColors.current.textPrimary,
                 letterSpacing = (-0.5).sp
             ),
             modifier = Modifier.weight(1f)
@@ -248,7 +240,7 @@ private fun SettingsTopBar() {
             modifier = Modifier
                 .background(
                     brush = Brush.linearGradient(
-                        colors = listOf(ProBadgeGradientStart, ProBadgeGradientEnd),
+                        colors = listOf(LocalAppColors.current.proBadgeStart, LocalAppColors.current.proBadgeEnd),
                         start = Offset(0f, 0f),
                         end = Offset(200f, 0f)
                     ),
@@ -280,7 +272,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(16.dp))
             .background(
                 brush = Brush.linearGradient(
-                    colors = listOf(HeroGradientStart, HeroGradientEnd),
+                    colors = listOf(LocalAppColors.current.heroBannerStart, LocalAppColors.current.heroBannerEnd),
                     start = Offset(0f, 0f),
                     end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                 )
@@ -340,7 +332,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
                     .clip(CircleShape)
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(LavenderPrimary, LavenderSecondary)
+                            colors = listOf(LocalAppColors.current.primary, LocalAppColors.current.secondary)
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -364,7 +356,7 @@ private fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.SemiBold,
-            color = TextSecondary,
+            color = LocalAppColors.current.textSecondary,
             fontSize = 11.sp,
             letterSpacing = 0.8.sp
         ),
@@ -379,8 +371,8 @@ private fun SectionCard(modifier: Modifier = Modifier, content: @Composable () -
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .border(width = 1.dp, color = SectionBorder, shape = RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .border(width = 1.dp, color = LocalAppColors.current.border, shape = RoundedCornerShape(12.dp))
+            .background(LocalAppColors.current.surface)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             content()
@@ -424,14 +416,14 @@ private fun SettingRowItem(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF333333)
+                    color = LocalAppColors.current.textPrimary
                 )
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+                    color = LocalAppColors.current.textSecondary
                 )
             }
         }
@@ -450,7 +442,7 @@ private fun SettingRowItem(
 private fun SettingsDivider() {
     HorizontalDivider(
         modifier = Modifier.padding(start = 64.dp, end = 16.dp),
-        color = BorderSubtle,
+        color = LocalAppColors.current.divider,
         thickness = 0.5.dp
     )
 }
