@@ -106,7 +106,7 @@ This project runs in WSL. Ensure the correct WSL environment before running Grad
 
 ---
 
-## Deployment Commands
+## Distribution Commands
 
 Use the following Gradle tasks to package and distribute the application to Firebase App Distribution:
 
