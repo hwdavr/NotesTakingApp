@@ -28,6 +28,8 @@ plugins {
     id("com.github.hierynomus.license") version "0.16.1"
     id("org.jetbrains.kotlinx.kover")
     id("com.google.firebase.appdistribution")
+    id("org.jlleitschuh.gradle.ktlint")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 android {
