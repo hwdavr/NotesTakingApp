@@ -1,0 +1,66 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: Build & Test Android App
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Java 17 environment
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # Step 3: Cache and set up Gradle
+      # The actions/setup-gradle action automatically handles caching for dependencies and build cache.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # Step 4: Make gradlew executable
+      - name: Make Gradlew Executable
+        run: chmod +x gradlew
+
+      # Step 5: Run Code Quality Checks (Ktlint & Detekt)
+      - name: Run Code Style & Quality Checks
+        run: ./gradlew ktlintCheck detekt
+
+      # Step 6: Run Unit Tests
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      # Step 7: Build Debug APK
+      - name: Build Debug APK
+        env:
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: ./gradlew assembleDebug
+
+      # Step 8: Distribute Debug build to Firebase App Distribution (Master branch only)
+      - name: Create Firebase Service Account file
+        if: github.ref == 'refs/heads/master' && secrets.FIREBASE_SERVICE_ACCOUNT_KEY != ''
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > firebase-credentials.json
+
+      - name: Upload Debug Build to Firebase App Distribution
+        if: github.ref == 'refs/heads/master' && secrets.FIREBASE_SERVICE_ACCOUNT_KEY != ''
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_GROUPS: ${{ secrets.FIREBASE_GROUPS || 'MyAccounts' }}
+          FIREBASE_RELEASE_NOTES: ${{ secrets.FIREBASE_RELEASE_NOTES || 'CI/CD Automated Build on push to master' }}
+          FIREBASE_SERVICE_CREDENTIALS_FILE: firebase-credentials.json
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: ./gradlew appDistributionUploadDebug

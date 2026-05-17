@@ -1,0 +1,88 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer background shape with dark premium theme -->
+    <path
+        android:pathData="M15,0 L93,0 A15,15 0 0 1 108,15 L108,93 A15,15 0 0 1 93,108 L15,108 A15,15 0 0 1 0,93 L0,15 A15,15 0 0 1 15,0 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="0"
+                android:startY="0"
+                android:endX="108"
+                android:endY="108"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF0F2027"/>
+                <item android:offset="0.5" android:color="#FF203A43"/>
+                <item android:offset="1.0" android:color="#FF2C5364"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Main Notebook sheet -->
+    <path
+        android:pathData="M32,24 L76,24 C80.4,24 84,27.6 84,32 L84,80 C84,84.4 80.4,88 76,88 L32,88 C27.6,88 24,84.4 24,80 L24,32 C24,27.6 27.6,24 32,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="24"
+                android:startY="24"
+                android:endX="84"
+                android:endY="88"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFFFF"/>
+                <item android:offset="1.0" android:color="#FFE0E0E0"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Decorative Top Accent Line (Notebook binding look) -->
+    <path
+        android:pathData="M24,32 L84,32 L84,38 L24,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="24"
+                android:startY="32"
+                android:endX="84"
+                android:endY="38"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FF2196F3"/>
+                <item android:offset="1.0" android:color="#FF00BCD4"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Note lines -->
+    <!-- Line 1 -->
+    <path
+        android:fillColor="#FFB0BEC5"
+        android:pathData="M34,48 L74,48 L74,51 L34,51 Z"/>
+    
+    <!-- Line 2 -->
+    <path
+        android:fillColor="#FFB0BEC5"
+        android:pathData="M34,58 L74,58 L74,61 L34,61 Z"/>
+
+    <!-- Line 3 -->
+    <path
+        android:fillColor="#FFB0BEC5"
+        android:pathData="M34,68 L60,68 L60,71 L34,71 Z"/>
+
+    <!-- Stylish checkmark/pencil accent on the note -->
+    <path
+        android:pathData="M66,66 L78,54 L80,56 L68,70 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="66"
+                android:startY="54"
+                android:endX="80"
+                android:endY="70"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFF4081"/>
+                <item android:offset="1.0" android:color="#FFE040FB"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

@@ -7,4 +7,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.7" apply false
     id("org.jetbrains.kotlinx.kover") version "0.8.0"
+    id("com.google.gms.google-services") version "4.4.2" apply false
+    id("com.google.firebase.appdistribution") version "5.2.1" apply false
 }
+
