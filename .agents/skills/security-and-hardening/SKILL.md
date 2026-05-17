@@ -1,349 +1,208 @@
 ---
 name: security-and-hardening
-description: Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services.
+description: Hardens Android code against security and privacy risks. Use when handling authentication tokens, local storage, deep links, WebView, file or content URIs, exported components, IPC, network communication, or third-party SDKs. Use when building features that process untrusted input, store sensitive data on-device, or integrate with backend APIs and external services.
 ---
 
 # Security and Hardening
 
 ## Overview
 
-Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase — it's a constraint on every line of code that touches user data, authentication, or external systems.
+Security-first development practices for Android applications. Treat every external input as untrusted, every token as sensitive, every exported surface as a security boundary, and every persisted secret as a liability. Security is not a later review step. It constrains storage, networking, manifest design, SDK integrations, and UI behavior from the start.
 
 ## When to Use
 
-- Building anything that accepts user input
-- Implementing authentication or authorization
-- Storing or transmitting sensitive data
-- Integrating with external APIs or services
-- Adding file uploads, webhooks, or callbacks
-- Handling payment or PII data
+- Handling auth tokens, refresh tokens, or user sessions
+- Storing sensitive data locally
+- Adding deep links, app links, or exported components
+- Working with `Intent`, `Bundle`, `SavedStateHandle`, URI input, or navigation args from outside the current process
+- Opening files, attachments, camera/gallery results, or `content://` URIs
+- Adding or modifying `WebView`
+- Integrating third-party SDKs, analytics, crash reporters, or external APIs
+- Handling PII, financial data, or regulated data
+- Making build, manifest, or network security configuration changes
 
-## The Three-Tier Boundary System
+## Android Security Boundaries
 
-### Always Do (No Exceptions)
+### Always Do
 
-- **Validate all external input** at the system boundary (API routes, form handlers)
-- **Parameterize all database queries** — never concatenate user input into SQL
-- **Encode output** to prevent XSS (use framework auto-escaping, don't bypass it)
-- **Use HTTPS** for all external communication
-- **Hash passwords** with bcrypt/scrypt/argon2 (never store plaintext)
-- **Set security headers** (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
-- **Use httpOnly, secure, sameSite cookies** for sessions
-- **Run `npm audit`** (or equivalent) before every release
+- Validate all external input from `Intent`, deep link, URI, `Bundle`, backend payload, and file metadata
+- Store tokens and sensitive local data using encrypted storage where practical
+- Use HTTPS for production traffic and block cleartext by default
+- Keep Android components non-exported unless there is a clear product need
+- Apply least privilege for runtime and manifest permissions
+- Redact tokens, secrets, and sensitive identifiers from logs and crash reports
+- Review manifest, Network Security Config, and build-type changes for security impact
+- Keep dependencies and SDKs updated and review known vulnerabilities before release
 
-### Ask First (Requires Human Approval)
+### Ask First
 
-- Adding new authentication flows or changing auth logic
-- Storing new categories of sensitive data (PII, payment info)
-- Adding new external service integrations
-- Changing CORS configuration
-- Adding file upload handlers
-- Modifying rate limiting or throttling
-- Granting elevated permissions or roles
+- Adding a new exported Activity, Service, Receiver, or Provider
+- Adding or changing authentication/session flows
+- Storing new categories of sensitive local data
+- Adding `WebView`, JavaScript bridges, or arbitrary URL loading
+- Relaxing TLS validation, enabling cleartext traffic, or adding trust exceptions
+- Adding certificate pinning
+- Introducing new third-party SDKs that collect user/device data
+- Expanding background sync, foreground services, or privileged device access
 
 ### Never Do
 
-- **Never commit secrets** to version control (API keys, passwords, tokens)
-- **Never log sensitive data** (passwords, tokens, full credit card numbers)
-- **Never trust client-side validation** as a security boundary
-- **Never disable security headers** for convenience
-- **Never use `eval()` or `innerHTML`** with user-provided data
-- **Never store sessions in client-accessible storage** (localStorage for auth tokens)
-- **Never expose stack traces** or internal error details to users
+- Never hardcode API keys, client secrets, tokens, or credentials in source
+- Never log passwords, access tokens, refresh tokens, session secrets, or full PII
+- Never trust client checks as authorization
+- Never set components exported by default for convenience
+- Never disable TLS verification in production
+- Never allow app-wide cleartext traffic for convenience
+- Never use unrestricted `WebView` settings against untrusted content
+- Never assume file extension or MIME declaration is trustworthy without validation
 
-## OWASP Top 10 Prevention
+## Core Threat Areas
 
-### 1. Injection (SQL, NoSQL, OS Command)
+### 1. Input Validation at Android Boundaries
 
-```typescript
-// BAD: SQL injection via string concatenation
-const query = `SELECT * FROM users WHERE id = '${userId}'`;
+- Validate IDs, enum values, route params, and user-entered fields before use
+- Validate all `Intent` extras and deep-link params before navigation or data fetch
+- Treat backend responses as untrusted until parsed and mapped
+- Constrain URI schemes, authorities, MIME types, and file sizes
 
-// GOOD: Parameterized query
-const user = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+### 2. Local Data Protection
 
-// GOOD: ORM with parameterized input
-const user = await prisma.user.findUnique({ where: { id: userId } });
-```
+- Use encrypted storage for tokens and highly sensitive data
+- Avoid plaintext storage in `SharedPreferences`, Room, or files unless risk is explicitly accepted
+- Clear sensitive state on logout
+- Review whether local data should be excluded from backup/restore
+- Avoid placing secrets in clipboard, notifications, widgets, or screenshots unless explicitly required
 
-### 2. Broken Authentication
+### 3. Auth and Session Handling
 
-```typescript
-// Password hashing
-import { hash, compare } from 'bcrypt';
+- Keep tokens out of logs, exceptions, analytics, and navigation args
+- Clear both in-memory and persisted auth state on logout
+- Treat refresh-token handling as sensitive infrastructure
+- Fail closed when auth state is missing, malformed, or expired
 
-const SALT_ROUNDS = 12;
-const hashedPassword = await hash(plaintext, SALT_ROUNDS);
-const isValid = await compare(plaintext, hashedPassword);
+### 4. Exported Components and IPC
 
-// Session management
-app.use(session({
-  secret: process.env.SESSION_SECRET,  // From environment, not code
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,     // Not accessible via JavaScript
-    secure: true,       // HTTPS only
-    sameSite: 'lax',    // CSRF protection
-    maxAge: 24 * 60 * 60 * 1000,  // 24 hours
-  },
-}));
-```
+- Default to `android:exported="false"`
+- Validate all incoming extras, actions, and URIs on exported entry points
+- Use the narrowest permission model possible for IPC
+- Avoid unintentionally exposing data via Providers, Receivers, or implicit intents
 
-### 3. Cross-Site Scripting (XSS)
+### 5. Deep Links and Navigation
 
-```typescript
-// BAD: Rendering user input as HTML
-element.innerHTML = userInput;
+- Treat every deep-link parameter as hostile
+- Validate destination eligibility before entering privileged flows
+- Do not navigate directly into sensitive screens without auth and state checks
+- Ensure malformed or partial deep links fail safely
 
-// GOOD: Use framework auto-escaping (React does this by default)
-return <div>{userInput}</div>;
+### 6. Network Hardening
 
-// If you MUST render HTML, sanitize first
-import DOMPurify from 'dompurify';
-const clean = DOMPurify.sanitize(userInput);
-```
+- Use HTTPS only for production endpoints
+- Use Network Security Config intentionally rather than broad defaults
+- Validate backend payloads before domain/UI mapping
+- Be explicit about retry and fallback behavior on auth and transport failures
 
-### 4. Broken Access Control
+### 7. WebView Safety
 
-```typescript
-// Always check authorization, not just authentication
-app.patch('/api/tasks/:id', authenticate, async (req, res) => {
-  const task = await taskService.findById(req.params.id);
+- Avoid `WebView` unless it is genuinely needed
+- Disable JavaScript unless required
+- Never add a JavaScript interface to untrusted content
+- Restrict file access and mixed content
+- Do not load arbitrary user-provided URLs without allowlisting
 
-  // Check that the authenticated user owns this resource
-  if (task.ownerId !== req.user.id) {
-    return res.status(403).json({
-      error: { code: 'FORBIDDEN', message: 'Not authorized to modify this task' }
-    });
-  }
+### 8. File and URI Handling
 
-  // Proceed with update
-  const updated = await taskService.update(req.params.id, req.body);
-  return res.json(updated);
-});
-```
+- Use `ContentResolver` and scoped access patterns
+- Validate MIME type, size, and expected source before processing
+- Request and grant the narrowest URI permissions possible
+- Treat attachment parsing and preview rendering as untrusted-input paths
 
-### 5. Security Misconfiguration
+### 9. Third-Party SDK Data Minimization
 
-```typescript
-// Security headers (use helmet for Express)
-import helmet from 'helmet';
-app.use(helmet());
+- Review what data the SDK collects, stores, and transmits
+- Disable unnecessary identifiers, auto-capture, or verbose logging where possible
+- Do not send auth tokens or sensitive note content to SDKs unless explicitly required and approved
 
-// Content Security Policy
-app.use(helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
-    styleSrc: ["'self'", "'unsafe-inline'"],  // Tighten if possible
-    imgSrc: ["'self'", 'data:', 'https:'],
-    connectSrc: ["'self'"],
-  },
-}));
+## Android Release Hardening
 
-// CORS — restrict to known origins
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
-  credentials: true,
-}));
-```
+### Obfuscation and Shrinking
 
-### 6. Sensitive Data Exposure
+Use for release builds that ship sensitive business logic, anti-abuse checks, or auth-adjacent behavior.
 
-```typescript
-// Never return sensitive fields in API responses
-function sanitizeUser(user: UserRecord): PublicUser {
-  const { passwordHash, resetToken, ...publicFields } = user;
-  return publicFields;
-}
+- Enable R8 for release builds where appropriate
+- Shrink unused code and resources when safe
+- Add only the keep rules required by serialization, DI, reflection, and SDK integrations
+- Verify obfuscation does not break Retrofit, Moshi, Kotlinx Serialization, Hilt, Room, or navigation
+- Do not treat obfuscation as a primary security boundary
 
-// Use environment variables for secrets
-const API_KEY = process.env.STRIPE_API_KEY;
-if (!API_KEY) throw new Error('STRIPE_API_KEY not configured');
-```
+Checks:
+- Release build uses `isMinifyEnabled = true` where the app policy expects it
+- Release build uses `isShrinkResources = true` when compatible
+- Keep rules are minimal and reviewed, not copied wholesale
 
-## Input Validation Patterns
+### TLS and Certificate Pinning
 
-### Schema Validation at Boundaries
+Use selectively for high-sensitivity traffic or environments with explicit MITM-resistance requirements.
 
-```typescript
-import { z } from 'zod';
+- Enforce HTTPS for production traffic
+- Add certificate pinning only with an agreed certificate rotation plan
+- Prefer designs that support backup pins and controlled migration
+- Document the expected failure behavior before shipping pinning
+- Do not add pinning casually; broken pinning creates production outages
 
-const CreateTaskSchema = z.object({
-  title: z.string().min(1).max(200).trim(),
-  description: z.string().max(2000).optional(),
-  priority: z.enum(['low', 'medium', 'high']).default('medium'),
-  dueDate: z.string().datetime().optional(),
-});
+Checks:
+- Only justified production hosts are pinned
+- Rotation and backup-pin strategy exists
+- Pin failure UX and recovery behavior are reviewed
 
-// Validate at the route handler
-app.post('/api/tasks', async (req, res) => {
-  const result = CreateTaskSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(422).json({
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'Invalid input',
-        details: result.error.flatten(),
-      },
-    });
-  }
-  // result.data is now typed and validated
-  const task = await taskService.create(result.data);
-  return res.status(201).json(task);
-});
-```
+### Debuggable and Build Variant Configuration
 
-### File Upload Safety
+Release builds must not expose debug behavior.
 
-```typescript
-// Restrict file types and sizes
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+- Ensure release builds are not debuggable
+- Keep debug-only tooling, mock endpoints, inspectors, and verbose logging out of release variants
+- Gate dev menus and test hooks behind debug-only build flags
+- Verify final merged manifest and release config, not just source defaults
 
-function validateUpload(file: UploadedFile) {
-  if (!ALLOWED_TYPES.includes(file.mimetype)) {
-    throw new ValidationError('File type not allowed');
-  }
-  if (file.size > MAX_SIZE) {
-    throw new ValidationError('File too large (max 5MB)');
-  }
-  // Don't trust the file extension — check magic bytes if critical
-}
-```
+Checks:
+- Release variant is not debuggable
+- No debug interceptors or inspectors are bundled in release
+- No staging or localhost endpoint can ship in production
 
-## Triaging npm audit Results
+### Cleartext / Plain HTTP Enforcement
 
-Not all audit findings require immediate action. Use this decision tree:
+Plain HTTP should be blocked unless there is a narrow, approved exception.
 
-```
-npm audit reports a vulnerability
-├── Severity: critical or high
-│   ├── Is the vulnerable code reachable in your app?
-│   │   ├── YES --> Fix immediately (update, patch, or replace the dependency)
-│   │   └── NO (dev-only dep, unused code path) --> Fix soon, but not a blocker
-│   └── Is a fix available?
-│       ├── YES --> Update to the patched version
-│       └── NO --> Check for workarounds, consider replacing the dependency, or add to allowlist with a review date
-├── Severity: moderate
-│   ├── Reachable in production? --> Fix in the next release cycle
-│   └── Dev-only? --> Fix when convenient, track in backlog
-└── Severity: low
-    └── Track and fix during regular dependency updates
-```
+- Set `usesCleartextTraffic="false"` by default
+- Use Network Security Config for tightly scoped exceptions only
+- Never allow app-wide cleartext just to support a convenience endpoint
+- Review SDKs, image loaders, and file fetchers for accidental HTTP usage
 
-**Key questions:**
-- Is the vulnerable function actually called in your code path?
-- Is the dependency a runtime dependency or dev-only?
-- Is the vulnerability exploitable given your deployment context (e.g., a server-side vulnerability in a client-only app)?
+Checks:
+- Production traffic uses HTTPS only
+- Any cleartext exception is host-specific and documented
+- `WebView` behavior does not silently reintroduce insecure transport
 
-When you defer a fix, document the reason and set a review date.
+## Review Checklist
 
-## Rate Limiting
+- What are the new trust boundaries in this change
+- Does any new input cross process, network, file, or URI boundaries
+- Is any sensitive data stored locally, and if so, is the storage appropriate
+- Did this change add any exported manifest surface
+- Could this change leak data through logs, screenshots, clipboard, notifications, backups, or SDKs
+- Are permissions minimal
+- Does release configuration differ safely from debug
+- Is cleartext blocked and TLS behavior appropriate
+- Is pinning justified operationally if added
 
-```typescript
-import rateLimit from 'express-rate-limit';
+## Testing Expectations
 
-// General API rate limit
-app.use('/api/', rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,                   // 100 requests per window
-  standardHeaders: true,
-  legacyHeaders: false,
-}));
+- Add unit tests for validation, sanitization, and secure fallback logic
+- Add integration tests for malformed backend payloads, auth failures, and URI/file edge cases where practical
+- Review manifest and release-build security settings when changing exported surfaces, permissions, TLS, or cleartext policy
+- For logout or credential changes, verify sensitive state is cleared from memory and disk-backed storage
 
-// Stricter limit for auth endpoints
-app.use('/api/auth/', rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,  // 10 attempts per 15 minutes
-}));
-```
+## What This Skill Is Not For
 
-## Secrets Management
+- Backend-only concerns like CORS, CSP, HSTS, cookie flags, SQL injection, or server-side rate limiting
+- Payment-industry or platform-compliance audits that require formal legal/compliance review
 
-```
-.env files:
-  ├── .env.example  → Committed (template with placeholder values)
-  ├── .env          → NOT committed (contains real secrets)
-  └── .env.local    → NOT committed (local overrides)
-
-.gitignore must include:
-  .env
-  .env.local
-  .env.*.local
-  *.pem
-  *.key
-```
-
-**Always check before committing:**
-```bash
-# Check for accidentally staged secrets
-git diff --cached | grep -i "password\|secret\|api_key\|token"
-```
-
-## Security Review Checklist
-
-```markdown
-### Authentication
-- [ ] Passwords hashed with bcrypt/scrypt/argon2 (salt rounds ≥ 12)
-- [ ] Session tokens are httpOnly, secure, sameSite
-- [ ] Login has rate limiting
-- [ ] Password reset tokens expire
-
-### Authorization
-- [ ] Every endpoint checks user permissions
-- [ ] Users can only access their own resources
-- [ ] Admin actions require admin role verification
-
-### Input
-- [ ] All user input validated at the boundary
-- [ ] SQL queries are parameterized
-- [ ] HTML output is encoded/escaped
-
-### Data
-- [ ] No secrets in code or version control
-- [ ] Sensitive fields excluded from API responses
-- [ ] PII encrypted at rest (if applicable)
-
-### Infrastructure
-- [ ] Security headers configured (CSP, HSTS, etc.)
-- [ ] CORS restricted to known origins
-- [ ] Dependencies audited for vulnerabilities
-- [ ] Error messages don't expose internals
-```
-## See Also
-
-For detailed security checklists and pre-commit verification steps, see `references/security-checklist.md`.
-
-## Common Rationalizations
-
-| Rationalization | Reality |
-|---|---|
-| "This is an internal tool, security doesn't matter" | Internal tools get compromised. Attackers target the weakest link. |
-| "We'll add security later" | Security retrofitting is 10x harder than building it in. Add it now. |
-| "No one would try to exploit this" | Automated scanners will find it. Security by obscurity is not security. |
-| "The framework handles security" | Frameworks provide tools, not guarantees. You still need to use them correctly. |
-| "It's just a prototype" | Prototypes become production. Security habits from day one. |
-
-## Red Flags
-
-- User input passed directly to database queries, shell commands, or HTML rendering
-- Secrets in source code or commit history
-- API endpoints without authentication or authorization checks
-- Missing CORS configuration or wildcard (`*`) origins
-- No rate limiting on authentication endpoints
-- Stack traces or internal errors exposed to users
-- Dependencies with known critical vulnerabilities
-
-## Verification
-
-After implementing security-relevant code:
-
-- [ ] `npm audit` shows no critical or high vulnerabilities
-- [ ] No secrets in source code or git history
-- [ ] All user input validated at system boundaries
-- [ ] Authentication and authorization checked on every protected endpoint
-- [ ] Security headers present in response (check with browser DevTools)
-- [ ] Error responses don't expose internal details
-- [ ] Rate limiting active on auth endpoints
