@@ -35,10 +35,10 @@ Types: `feature` | `bugfix` | `api` | `refactor` | `config`
 │       ├── spec_review_v1.md     # Expert review of spec (v increments, never deleted)
 │       └── spec_review_v2.md
 ├── coding/
-│   ├── implementation_plan.md    # Approved implementation plan (Stage 04)
+│   ├── implementation_plan.md    # Approved implementation plan
 │   ├── coding_report_v1.md       # Coding report (v increments per revision round)
 │   └── review/
-│       └── code_review_v1.md     # Code review report (Stage 09)
+│       └── code_review_v1.md     # Code review report
 ├── unit_test/
 │   └── test_report_v1.md         # Test results and coverage
 └── deployment/
@@ -52,7 +52,7 @@ Types: `feature` | `bugfix` | `api` | `refactor` | `config`
 `summary.md` is the most important file in each change directory.
 It is updated at every stage and provides a one-page view of the entire change.
 
-**It must be created at Stage 01 and updated immediately after every stage completes.**
+**It must be created at the beginning of the workflow (during Requirement Analysis or UI Implementation) and updated immediately after every stage completes.**
 
 Template:
 ```markdown
@@ -64,18 +64,18 @@ Template:
 
 ## Stage Progress
 
+> *Agent Instruction: Generate this table dynamically based on the stages defined in the active workflow (e.g., `workflows/feature-delivery.md` or `workflows/bug-fixing.md`). List all the stages required by the workflow in order, without numbers, and update the status as you progress.*
+
 | Stage | Status | Date | Notes |
 |-------|--------|------|-------|
-| 01 Requirement Analysis | ✅ / ⏳ / ❌ | | |
-| 02 Impact Analysis | | | |
-| 03 Architecture Validation | | | |
-| 04 Implementation Plan | | | Approved by user: yes/no |
-| 05 Data Layer | | | |
-| 06 Domain Layer | | | |
-| 07 UI Layer | | | |
-| 08 Testing | | | N tests, X% coverage |
-| 09 Review | | | APPROVED / REVISION REQUIRED |
-| 10 Knowledge Capture | | | |
+| Requirement Analysis | ✅ / ⏳ / ❌ | | |
+| Implementation Plan | | | Approved by user: yes/no |
+| Implementation | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Testing | | | N tests, X% coverage |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | |
+*(Adapt the rows above to match the exact stages in the active workflow)*
 
 ## Key Decisions
 <major decisions made during this change>

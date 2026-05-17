@@ -1,4 +1,4 @@
-# Stage 09 — Knowledge Capture
+# Stage — Knowledge Capture
 
 > **Routing**: This is typically the final stage. Verify in the active **workflow** file if there are any further steps.
 
@@ -11,8 +11,8 @@ The article principle: "Every time you discover an agent has made a mistake, you
 
 ## Load
 - `skills/documentation-and-adrs/SKILL.md`
-- `coding/review/code_review_v<N>.md` (Stage 06 output)
-- `coding/review/test_review_v<N>.md` (Stage 08 output)
+- `coding/review/code_review_v<N>.md` (the relevant stage output)
+- `coding/review/test_review_v<N>.md` (the relevant stage output)
 - `summary.md` (full change history)
 
 ---
@@ -47,17 +47,7 @@ Update `summary.md` to mark all stages complete and record the final state:
 ```
 ## Change Summary — <name>
 
-| Stage | Status | Notes |
-|-------|--------|-------|
-| 01 Requirement, Impact & Design | ✅ Complete | <date> |
-| 02 Implementation Plan | ✅ Complete | Approved by user |
-| 03 Data Layer | ✅ Complete | |
-| 04 Domain Layer | ✅ Complete | |
-| 05 UI Layer | ✅ Complete | |
-| 06 Code Review | ✅ Complete | APPROVED |
-| 07 Testing | ✅ Complete | N tests, X% coverage |
-| 08 Test Review | ✅ Complete | APPROVED |
-| 09 Knowledge Capture | ✅ Complete | <date> |
+> *Ensure the Stage Progress table (generated dynamically based on the active workflow) has all stages marked as ✅ Complete.*
 
 ## Knowledge Artifacts Produced
 - <path> — <description>
@@ -86,4 +76,4 @@ Zero or more of:
 - [ ] `rules/` files updated if a coding convention changed
 - [ ] `summary.md` is finalized with all stages marked ✅ Complete
 
-**APPROVED →** Change is complete. Notify the user that the full 9-stage pipeline is done.
+**APPROVED →** Change is complete. Notify the user that the workflow pipeline is done.

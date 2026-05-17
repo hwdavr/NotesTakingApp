@@ -1,6 +1,6 @@
 # Regression Template
 
-Use this template when documenting a bug fix regression test in **Stage 08** or in `knowledge/past-bugs/`.
+Use this template when documenting a bug fix regression test in the relevant stage or in `knowledge/past-bugs/`.
 
 ---
 

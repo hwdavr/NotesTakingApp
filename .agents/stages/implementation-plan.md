@@ -1,4 +1,4 @@
-# Stage 02 — Implementation Plan
+# Stage — Implementation Plan
 
 > **Routing**: When this stage is approved, return to the active **workflow** file to determine the next stage.
 
@@ -12,13 +12,13 @@ This is the final gate before implementation begins.
 - `skills/incremental-implementation/SKILL.md`
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
-- `request_analysis/spec.md` (Stage 01 output)
+- `request_analysis/spec.md` (the relevant stage output)
 
 ---
 
 ## Execute
 
-1. Using all outputs from Stage 01, compile a complete implementation plan. **You MUST follow the structure and sections in `docs/templates/implementation-plan-template.md` exactly.**
+1. Using all outputs from the relevant stage, compile a complete implementation plan. **You MUST follow the structure and sections in `docs/templates/implementation-plan-template.md` exactly.**
 
 2. The plan must include:
    - Files to create / modify / delete
@@ -34,7 +34,7 @@ This is the final gate before implementation begins.
 ## Output
 
 Write `coding/implementation_plan.md`.
-Update `summary.md`: mark Stage 02 complete.
+Update `summary.md`: mark the relevant stage complete.
 
 ---
 
@@ -44,7 +44,7 @@ Update `summary.md`: mark Stage 02 complete.
 
 ### Feedback Loop
 1. **Feedback**: The user provides feedback via chat, file comments, or direct edits to the plan.
-2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to Stage 01** to update the analysis/spec first. Then, update `implementation_plan.md` and request approval again.
+2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the relevant stage** to update the analysis/spec first. Then, update `implementation_plan.md` and request approval again.
 3. **Approval**: The agent returns to the active workflow file and proceeds to the next stage defined there.
 
 Do not write any code, create any source files, or call any file-editing tools until the user explicitly approves.

@@ -1,4 +1,4 @@
-# Stage 05 — UI Layer
+# Stage — UI Layer
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
@@ -13,8 +13,8 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan.md` (Stage 02 output)
-- `request_analysis/spec.md` — UiState design from Stage 01
+- `coding/implementation_plan.md` (the relevant stage output)
+- `request_analysis/spec.md` — UiState design from the relevant stage
 
 ---
 
@@ -79,7 +79,7 @@ Update `coding/coding_report_v<N>.md` with a UI Layer section:
 <list key testTag values added>
 ```
 
-Update `summary.md`: mark Stage 05 complete.
+Update `summary.md`: mark the UI Layer stage complete.
 
 ---
 

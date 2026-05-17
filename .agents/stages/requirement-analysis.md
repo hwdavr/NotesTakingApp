@@ -1,4 +1,4 @@
-# Stage 01 — Requirement, Impact & Design Analysis
+# Stage — Requirement, Impact & Design Analysis
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
@@ -70,7 +70,8 @@ data class ExampleUiState(...)
 1. <assumption>
 ```
 
-**`request_analysis/tasks.md`** & **`summary.md`**.
+Produce **`request_analysis/tasks.md`** and **`summary.md`**.
+*(For `summary.md`, follow the template in `docs/changes/README.md` and generate the Stage Progress table dynamically based on the active workflow's stages.)*
 
 ---
 

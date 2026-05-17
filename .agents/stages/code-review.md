@@ -1,4 +1,4 @@
-# Stage 06 — Code Review
+# Stage — Code Review
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
@@ -85,7 +85,7 @@ Produce `coding/review/code_review_v<N>.md` using `docs/templates/review-templat
 APPROVED / REVISION REQUIRED — <blocking issue>
 ```
 
-Update `summary.md`: mark Stage 06 complete with review verdict.
+Update `summary.md`: mark the relevant stage complete with review verdict.
 
 ---
 
@@ -103,6 +103,6 @@ Update `summary.md`: mark Stage 06 complete with review verdict.
 **REVISION REQUIRED →**
 - Compilation error → return to the stage that introduced it (03 / 04 / 05)
 - Architecture violation → return to the relevant implementation stage
-- Design mismatch → return to Stage 05 (UI)
+- Design mismatch → return to the relevant stage (UI)
 
 **Iteration cap:** 2 rounds of review. If unresolved after 2 rounds, surface the specific issue to the user for a decision.

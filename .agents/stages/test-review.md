@@ -1,9 +1,9 @@
-# Stage 08 — Test Review
+# Stage — Test Review
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
 ## Purpose
-Verify the quality, coverage, and correctness of the tests implemented in Stage 07.
+Verify the quality, coverage, and correctness of the tests implemented in the relevant stage.
 Ensure the change is fully verified before final knowledge capture.
 
 ---
@@ -11,7 +11,7 @@ Ensure the change is fully verified before final knowledge capture.
 ## Load
 - `skills/android-code-quality-checks/SKILL.md`
 - `gates/ci-checks.md`
-- `unit_test/test_report_v<N>.md` (Stage 07 output)
+- `unit_test/test_report_v<N>.md` (the relevant stage output)
 - `coding/implementation_plan.md` — test plan section
 
 ---
@@ -19,7 +19,7 @@ Ensure the change is fully verified before final knowledge capture.
 ## Execute
 
 ### 1. Test Execution & Coverage
-Verify the results reported in Stage 07:
+Verify the results reported in the relevant stage:
 ```bash
 ./gradlew testDebugUnitTest
 ./gradlew koverLog
@@ -66,7 +66,7 @@ Produce `coding/review/test_review_v<N>.md`:
 APPROVED / REVISION REQUIRED — <blocking issue>
 ```
 
-Update `summary.md`: mark Stage 08 complete with test review verdict.
+Update `summary.md`: mark the relevant stage complete with test review verdict.
 
 ---
 
@@ -82,6 +82,6 @@ Update `summary.md`: mark Stage 08 complete with test review verdict.
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →**
-- Test failure or coverage gap → return to Stage 07
-- Flaky test found → return to Stage 07 to stabilize
-- Shared scenario missing → return to Stage 07
+- Test failure or coverage gap → return to the relevant stage
+- Flaky test found → return to the relevant stage to stabilize
+- Shared scenario missing → return to the relevant stage

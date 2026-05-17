@@ -1,4 +1,4 @@
-# Stage 03 — Implementation (Data + Domain + UI)
+# Stage — Implementation (Data + Domain + UI)
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
@@ -19,8 +19,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan.md` (Stage 02 output)
-- `request_analysis/spec.md` — UiState and API design from Stage 01
+- `coding/implementation_plan.md` (the relevant stage output)
+- `request_analysis/spec.md` — UiState and API design from the relevant stage
 
 ---
 
@@ -142,7 +142,7 @@ Produce `coding/coding_report_v<N>.md`:
 <anything intentionally deferred>
 ```
 
-Update `summary.md`: mark Stage 03 (Implementation) complete.
+Update `summary.md`: mark the Implementation stage complete.
 
 ---
 

@@ -1,6 +1,6 @@
 # Review Template
 
-Use this template when producing the review summary in **Stage 09**.
+Use this template when producing the review summary in the relevant stage.
 
 ---
 

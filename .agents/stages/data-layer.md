@@ -1,4 +1,4 @@
-# Stage 03 — Data Layer
+# Stage — Data Layer
 
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
@@ -11,7 +11,7 @@ Implement in small, working slices. Verify the build passes before proceeding.
 ## Load
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
-- `coding/implementation_plan.md` (Stage 02 output)
+- `coding/implementation_plan.md` (the relevant stage output)
 
 ---
 
@@ -76,7 +76,7 @@ Produce `coding/coding_report_v<N>.md`:
 <anything intentionally deferred>
 ```
 
-Update `summary.md`: mark Stage 03 complete.
+Update `summary.md`: mark the relevant stage complete.
 
 ---
 

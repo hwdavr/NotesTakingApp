@@ -64,17 +64,17 @@ Existing skills — load the SKILL.md from the relevant folder:
 
 | Skill folder | Used in stage |
 |---|---|
-| `skills/spec-driven-development/` | Stage 01 — Requirement, Impact & Design |
-| `skills/android-ui-verification/` | Stage 05 — UI Layer |
-| `skills/android-unit-test/` | Stage 07 — Testing |
-| `skills/android-instrumented-ui-test/` | Stage 07 — Testing |
-| `skills/shared-json-scenarios/` | Stage 07 — Testing |
-| `skills/code-review-and-quality/` | Stage 06 — Code Review |
-| `skills/android-code-quality-checks/` | Stage 06, 08 |
-| `skills/incremental-implementation/` | Stage 02 — Implementation Plan |
-| `skills/documentation-and-adrs/` | Stage 09 — Knowledge Capture |
+| `skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
+| `skills/android-ui-verification/` | Stage — UI Layer |
+| `skills/android-unit-test/` | Stage — Testing |
+| `skills/android-instrumented-ui-test/` | Stage — Testing |
+| `skills/shared-json-scenarios/` | Stage — Testing |
+| `skills/code-review-and-quality/` | Stage — Code Review |
+| `skills/android-code-quality-checks/` | the relevant stage, 08 |
+| `skills/incremental-implementation/` | Stage — Implementation Plan |
+| `skills/documentation-and-adrs/` | Stage — Knowledge Capture |
 | `skills/karpathy-guidelines/` | Any stage — coding discipline |
-| `skills/security-and-hardening/` | Stage 06 — Code Review (security-sensitive changes) |
+| `skills/security-and-hardening/` | Stage — Code Review (security-sensitive changes) |
 
 ---
 
