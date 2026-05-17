@@ -181,7 +181,7 @@ fun FoldersScreenContent(
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                if (state.treeItems.isEmpty()) {
+                if (state.treeItems.isEmpty() && state.sharedTreeItems.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center

@@ -122,6 +122,33 @@ class HomeScreenIntegrationTest {
         }
         composeRule.onNodeWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).assertIsDisplayed()
     }
+    @Test
+    fun folderPillsAreNotDuplicated() {
+        val viewModel = HomeViewModel(
+            noteRepository = FakeNoteRepository(),
+            folderRepository = FakeFolderRepository(
+                initialFolders = listOf(
+                    folder(id = "work", name = "Work")
+                )
+            )
+        )
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                HomeNotesScreen(
+                    parentPadding = PaddingValues(0.dp),
+                    onAddNote = {},
+                    onOpenNote = {},
+                    viewModel = viewModel
+                )
+            }
+        }
+        composeRule.waitForIdle()
+        // Verify that virtual and database folder pills are displayed exactly once
+        composeRule.onAllNodesWithText("All Notes").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Shared").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Favorites").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Work").assertCountEquals(1)
+    }
     private fun step(description: String, action: () -> Unit) {
         action()
     }

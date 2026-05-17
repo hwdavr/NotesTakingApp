@@ -327,7 +327,11 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
             isSelected = selectedId == "shared",
             onClick = { onSelect("shared") }
         )
-        items.filter { !it.name.equals("Favorites", ignoreCase = true) }.forEach { folder ->
+        items.filter { 
+            it.id != "all_notes" && 
+            it.id != "shared" && 
+            !it.name.equals("Favorites", ignoreCase = true) 
+        }.forEach { folder ->
             FolderPill(
                 name = folder.name,
                 isSelected = selectedId == folder.id,
