@@ -16,7 +16,7 @@ This workflow is for production-grade delivery — not quick prototyping.
 ## Core Principle
 
 Do not jump directly into coding.
-**The implementation plan (the relevant stage) must be approved before any code is written.**
+**The Implementation Plan must be approved before any code is written.**
 
 Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
 
@@ -65,17 +65,15 @@ Gate: all knowledge artifacts produced
 
 | Failure | Return to |
 |---------|-----------|
-| Compilation error | the relevant stage (Implementation) |
-| Code quality/Architecture violation | the relevant stage(Implementation)
-| Test failure/Coverage gap | the relevant stage (Testing) |
-| User rejects plan | the relevant stage (Requirement, Impact & Design Analysis) |
-| Requirement ambiguity | the relevant stage (Requirement, Impact & Design Analysis) |
+| Compilation error or Code quality/Architecture violation | Implementation (Data + Domain + UI) |
+| Test failure or Coverage gap | Testing |
+| Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
 
 ---
 
 ## Human-in-the-Loop Confirmation Points
 
-1. **After the relevant stage** — user confirms assumptions and designs
-2. **After the relevant stage** — user approves implementation plan *(mandatory always)*
-3. **After the relevant stage** — user reviews the code before testing
-4. **After the relevant stage** — user reviews the full change before merge
+1. **After Requirement, Impact & Design Analysis** — user confirms assumptions and designs
+2. **After Implementation Plan** — user approves implementation plan *(mandatory always)*
+3. **After Code Review** — user reviews the code before testing
+4. **After Test Review** — user reviews the full change before merge

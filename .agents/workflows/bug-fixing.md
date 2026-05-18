@@ -16,7 +16,7 @@ This workflow prioritizes root-cause analysis over quick patching.
 ## Core Principle
 
 Do not fix symptoms first.
-**The fix plan (the relevant stage) must be approved before any code is written.**
+**The Fix Plan must be approved before any code is written.**
 
 Pipeline: Understand, Localize & Design → Fix Plan → [User Approval] → Implementation → Code Review → Regression Test → Test Review → Knowledge
 
@@ -96,6 +96,6 @@ Load: `stages/knowledge-capture.md`
 
 ## Human-in-the-Loop Confirmation Points
 
-1. **After the relevant stage** — if root cause is uncertain, ask user
-2. **After the relevant stage** — user approves fix plan *(mandatory always)*
-3. **After the relevant stage** — user confirms the fix before it is merged
+1. **After Bug Context, Localization & Root Cause** — if root cause is uncertain, ask user
+2. **After Fix Plan** — user approves fix plan *(mandatory always)*
+3. **After Test Review** — user confirms the fix before it is merged
