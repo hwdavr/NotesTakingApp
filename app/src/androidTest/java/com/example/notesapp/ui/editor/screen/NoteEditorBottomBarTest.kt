@@ -18,41 +18,42 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NoteEditorBottomBarTest {
     @get:Rule val composeRule = createComposeRule()
+
     @Test
     fun bottomBar_togglesBetweenDefaultAndFormatting() {
         val isFormattingVisible = mutableStateOf(false)
         composeRule.setContent {
             NoteEditorScreenContent(
-                    parentPadding = PaddingValues(0.dp),
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state =
+                NoteEditorUiState(
                     noteId = "note_1",
-                    state =
-                            NoteEditorUiState(
-                                    noteId = "note_1",
-                                    isFormattingToolbarVisible = isFormattingVisible.value,
-                                    isLoaded = true
-                            ),
-                    onBack = {},
-                    onShareRequested = {},
-                    onDelete = {},
-                    onTitleChange = {},
-                    onRename = {},
-                    onToggleFavorite = {},
-                    onMoveNote = {},
-                    onExportNote = {},
-                    onTextBlockChange = { _, _ -> },
-                    onToggleMark = { _, _ -> },
-                    onAddParagraph = {},
-                    onAddImage = {},
-                    onImageChange = { _, _, _ -> },
-                    onAddTable = {},
-                    onTableCellChange = { _, _, _, _ -> },
-                    onFolderSelected = {},
-                    onToggleFormattingToolbar = {
-                        isFormattingVisible.value = !isFormattingVisible.value
-                    },
-                    onBlockFocused = {},
-                    onSelectionChange = { _, _ -> },
-                    onDeleteBlock = {}
+                    isFormattingToolbarVisible = isFormattingVisible.value,
+                    isLoaded = true
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {
+                    isFormattingVisible.value = !isFormattingVisible.value
+                },
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
             )
         }
         // Initially default bottom bar is shown
@@ -74,34 +75,34 @@ class NoteEditorBottomBarTest {
     fun readOnlyNote_hidesBottomBar() {
         composeRule.setContent {
             NoteEditorScreenContent(
-                    parentPadding = PaddingValues(0.dp),
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state =
+                NoteEditorUiState(
                     noteId = "note_1",
-                    state =
-                            NoteEditorUiState(
-                                    noteId = "note_1",
-                                    isLoaded = true,
-                                    isEditable = false
-                            ),
-                    onBack = {},
-                    onShareRequested = {},
-                    onDelete = {},
-                    onTitleChange = {},
-                    onRename = {},
-                    onToggleFavorite = {},
-                    onMoveNote = {},
-                    onExportNote = {},
-                    onTextBlockChange = { _, _ -> },
-                    onToggleMark = { _, _ -> },
-                    onAddParagraph = {},
-                    onAddImage = {},
-                    onImageChange = { _, _, _ -> },
-                    onAddTable = {},
-                    onTableCellChange = { _, _, _, _ -> },
-                    onFolderSelected = {},
-                    onToggleFormattingToolbar = {},
-                    onBlockFocused = {},
-                    onSelectionChange = { _, _ -> },
-                    onDeleteBlock = {}
+                    isLoaded = true,
+                    isEditable = false
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
             )
         }
         assertTrue(composeRule.onAllNodesWithTag("editor_default_bottom_bar").fetchSemanticsNodes().isEmpty())

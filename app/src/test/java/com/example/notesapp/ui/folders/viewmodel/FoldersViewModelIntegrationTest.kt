@@ -12,12 +12,12 @@ import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
     private lateinit var viewModel: FoldersViewModel
+
     @Test
     fun `test add folder and sync updates UI state using shared scenario`() = runTest {
         val scenarioFile = File("../sharedContracts/test-scenarios/folder_add_001.json")
@@ -68,6 +68,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
         collectJob.cancel()
     }
+
     @Test
     fun `test rename folder updates UI state`() = runTest {
         val scenarioFile = File("../sharedContracts/test-scenarios/folder_rename_001.json")
@@ -124,6 +125,7 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         assertEquals(expectedFirstItemName, firstTreeItem.folder.name)
         collectJob.cancel()
     }
+
     @Test
     fun `test delete folder updates UI state`() = runTest {
         val scenarioFile = File("../sharedContracts/test-scenarios/folder_delete_001.json")
@@ -195,33 +197,33 @@ class FoldersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         val jsonObject = JSONObject(scenarioFile.readText())
         val apiMocks = jsonObject.getJSONArray("apiMocks")
         val firstMock = apiMocks.getJSONObject(0)
-        
+
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(firstMock.getInt("status"))
                 .setBody(firstMock.getJSONArray("response").toString())
         )
-        
+
         viewModel = FoldersViewModel(folderRepository, noteRepository)
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect { }
         }
-        
+
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS) // init sync
-        
+
         waitUntil { viewModel.uiState.value.sharedTreeItems.isNotEmpty() }
-        
+
         val uiState = viewModel.uiState.value
         val expectedUi = jsonObject.getJSONObject("expected").getJSONObject("ui")
         val expectedSharedItemCount = expectedUi.getInt("sharedItemCount")
         val expectedFirstSharedItemName = expectedUi.getJSONArray("sharedItems").getJSONObject(0).getString("title")
-        
+
         assertEquals(expectedSharedItemCount, uiState.sharedTreeItems.size)
         val sharedNoteItem = uiState.sharedTreeItems[0] as? FolderTreeItem.NoteItem
         assertEquals(expectedFirstSharedItemName, sharedNoteItem?.note?.title)
         assertEquals(true, sharedNoteItem?.note?.isShared)
-        
+
         collectJob.cancel()
     }
 }

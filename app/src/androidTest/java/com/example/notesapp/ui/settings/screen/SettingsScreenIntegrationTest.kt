@@ -45,6 +45,7 @@ class SettingsScreenIntegrationTest {
     }
     private val authManager = FakeAuthManager()
     private val viewModel = SettingsViewModel(authManager)
+
     // Screen Object abstraction
     private val settingsScreen = object {
         fun clickLogout() {
@@ -54,6 +55,7 @@ class SettingsScreenIntegrationTest {
             composeRule.onNodeWithText("Logout").performClick()
         }
     }
+
     @Test
     fun clickingLogout_triggersAuthManagerLogoutAndCallback() {
         var logoutCallbackCalled = false

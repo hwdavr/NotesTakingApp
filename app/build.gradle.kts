@@ -10,7 +10,7 @@ if (localPropertiesFile.exists()) {
 }
 
 val auth0ClientId =
-        localProperties.getProperty("AUTH0_CLIENT_ID") ?: System.getenv("AUTH0_CLIENT_ID") ?: ""
+    localProperties.getProperty("AUTH0_CLIENT_ID") ?: System.getenv("AUTH0_CLIENT_ID") ?: ""
 val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: System.getenv("AUTH0_AUDIENCE") ?: "https://api.example.com/"
 val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: System.getenv("API_BASE_URL") ?: "https://api.example.com/"
 
@@ -69,8 +69,8 @@ android {
             versionNameSuffix = "-Release"
             isMinifyEnabled = false
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
 
             firebaseAppDistribution {
@@ -173,27 +173,27 @@ kover {
         filters {
             excludes {
                 classes(
-                        "com.example.notesapp.MainActivity",
-                        "com.example.notesapp.NotesApplication",
-                        "com.example.notesapp.auth.*",
-                        "com.example.notesapp.ui.*.screen.*",
-                        "com.example.notesapp.navigation.*",
-                        "com.example.notesapp.ui.*.components.*",
-                        "com.example.notesapp.ui.theme.*",
-                        "*_Impl",
-                        "*_Impl$*",
-                        "*_Factory",
-                        "*_Factory$*",
-                        "*_HiltModules*",
-                        "*Hilt_*",
-                        "*_MembersInjector",
-                        "com.example.notesapp.di.*",
-                        "com.example.notesapp.data.local.AppDatabase*"
+                    "com.example.notesapp.MainActivity",
+                    "com.example.notesapp.NotesApplication",
+                    "com.example.notesapp.auth.*",
+                    "com.example.notesapp.ui.*.screen.*",
+                    "com.example.notesapp.navigation.*",
+                    "com.example.notesapp.ui.*.components.*",
+                    "com.example.notesapp.ui.theme.*",
+                    "*_Impl",
+                    "*_Impl$*",
+                    "*_Factory",
+                    "*_Factory$*",
+                    "*_HiltModules*",
+                    "*Hilt_*",
+                    "*_MembersInjector",
+                    "com.example.notesapp.di.*",
+                    "com.example.notesapp.data.local.AppDatabase*"
                 )
             }
         }
-        total { 
-            log { onCheck = true } 
+        total {
+            log { onCheck = true }
             verify {
                 rule("Overall coverage") {
                     bound { minValue = 80 }

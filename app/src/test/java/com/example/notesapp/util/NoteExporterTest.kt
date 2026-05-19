@@ -1,16 +1,13 @@
 package com.example.notesapp.util
 
+import androidx.test.core.app.ApplicationProvider
 import com.example.notesapp.domain.note.Note
-import com.example.notesapp.ui.editor.mapper.EditorBlock
-import com.example.notesapp.ui.editor.mapper.NoteDocument
-import io.mockk.mockk
+import java.io.ByteArrayOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import androidx.test.core.app.ApplicationProvider
-import java.io.ByteArrayOutputStream
 
 @RunWith(RobolectricTestRunner::class)
 class NoteExporterTest {
@@ -29,7 +26,7 @@ class NoteExporterTest {
         )
         val outputStream = ByteArrayOutputStream()
         exporter.exportToMarkdown(note, outputStream)
-        
+
         val result = outputStream.toString()
         val expected = "# Test Note\n\nHello world"
         assertEquals(expected, result)
@@ -60,7 +57,7 @@ class NoteExporterTest {
         )
         val outputStream = ByteArrayOutputStream()
         exporter.exportToMarkdown(note, outputStream)
-        
+
         val result = outputStream.toString()
         assertTrue(result.contains("# Heading 1"))
         assertTrue(result.contains("**Bold**"))
@@ -89,7 +86,7 @@ class NoteExporterTest {
         )
         val outputStream = ByteArrayOutputStream()
         exporter.exportToMarkdown(note, outputStream)
-        
+
         val result = outputStream.toString()
         // Order of marks in NoteDocument.toMarkdown: bold, then italic, then code
         // result = "# Rich Text\n\n`***Mixed***`"
@@ -108,7 +105,7 @@ class NoteExporterTest {
         )
         val outputStream = ByteArrayOutputStream()
         exporter.exportToMarkdown(note, outputStream)
-        
+
         val result = outputStream.toString()
         val expected = "# Empty\n\n"
         assertEquals(expected, result)
@@ -131,7 +128,7 @@ class NoteExporterTest {
         // This will call exportToPdf if we called it, but exportToMarkdown doesn't call loadBitmap.
         // Wait, exportToMarkdown ONLY uses NoteDocument.toMarkdown().
         // loadBitmap is ONLY used in exportToPdf.
-        
+
         // Since exportToPdf is hard to test, I'll focus on what's testable.
     }
 }

@@ -58,6 +58,7 @@ internal val SharedUsersCard = Color(0xFFF7FAFF)
 internal val SharedUsersPrimary = Color(0xFF4C6FFF)
 internal val SharedUsersTextPrimary = Color(0xFF1F2A44)
 internal val SharedUsersTextSecondary = Color(0xFF7281A7)
+
 @Composable
 fun SharedUsersScreen(
     parentPadding: PaddingValues,
@@ -82,6 +83,7 @@ fun SharedUsersScreen(
         onShareToNewUser = onShareToNewUser
     )
 }
+
 @Composable
 fun SharedUsersScreenContent(
     parentPadding: PaddingValues,
@@ -225,6 +227,7 @@ fun SharedUsersScreenContent(
         }
     }
 }
+
 @Composable
 internal fun SharedUsersTopBar(onBack: () -> Unit, title: String) {
     Row(
@@ -251,6 +254,7 @@ internal fun SharedUsersTopBar(onBack: () -> Unit, title: String) {
         )
     }
 }
+
 @Composable
 private fun SharedUserRow(user: SharedUserUiModel) {
     Surface(
@@ -309,6 +313,7 @@ private fun SharedUserRow(user: SharedUserUiModel) {
         }
     }
 }
+
 @Composable
 private fun AccessRolePill(role: AccessRole) {
     val backgroundColor = when (role) {
@@ -339,6 +344,7 @@ private fun AccessRolePill(role: AccessRole) {
         )
     }
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun SharedUsersScreenPreview() {

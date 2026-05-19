@@ -96,6 +96,7 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         every { noteRepository.getArchivedNotes() } returns flowOf(archivedNotes)
         return CollectionNotesViewModel(folderRepository, noteRepository, savedStateHandle)
     }
+
     @Test
     fun `uiState with type all shows all notes`() = runTest {
         val viewModel = createViewModel(type = "all")
@@ -106,6 +107,7 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         assertFalse(state.isLoading)
         assertEquals(2, state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().size)
     }
+
     @Test
     fun `uiState with type folder shows child folders and notes`() = runTest {
         val viewModel = createViewModel(type = "folder", folderId = "f1")
@@ -121,6 +123,7 @@ class CollectionNotesViewModelTest : BaseViewModelTest() {
         val noteItem = state.items.filterIsInstance<CollectionItemUiModel.NoteItem>().first()
         assertEquals("n1", noteItem.note.id)
     }
+
     @Test
     fun `uiState with type archive shows archived folders and notes`() = runTest {
         val viewModel = createViewModel(type = "archive", label = "Archive")

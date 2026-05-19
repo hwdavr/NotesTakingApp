@@ -51,6 +51,7 @@ data class InvitePermissionUiModel(
     val title: String,
     val subtitle: String
 )
+
 @Composable
 fun ShareInviteScreen(
     parentPadding: PaddingValues,
@@ -91,6 +92,7 @@ fun ShareInviteScreen(
         onInvite = viewModel::invite
     )
 }
+
 @Composable
 fun ShareInviteScreenContent(
     parentPadding: PaddingValues,
@@ -214,12 +216,9 @@ fun ShareInviteScreenContent(
         }
     }
 }
+
 @Composable
-private fun PermissionOptionRow(
-    permission: InvitePermissionUiModel,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
+private fun PermissionOptionRow(permission: InvitePermissionUiModel, selected: Boolean, onClick: () -> Unit) {
     Surface(
         color = if (selected) Color(0xFFEEF3FF) else SharedUsersCard,
         shape = RoundedCornerShape(16.dp),
@@ -266,6 +265,7 @@ private object PermissionIds {
     const val VIEWER = "viewer"
     const val EDITOR = "editor"
 }
+
 @Composable
 private fun invitePermissions(): List<InvitePermissionUiModel> = listOf(
     InvitePermissionUiModel(
@@ -283,6 +283,7 @@ private fun NoteShareAccessRole.toPermissionId(): String = when (this) {
     NoteShareAccessRole.VIEWER -> PermissionIds.VIEWER
     NoteShareAccessRole.EDITOR -> PermissionIds.EDITOR
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun ShareInviteScreenPreview() {

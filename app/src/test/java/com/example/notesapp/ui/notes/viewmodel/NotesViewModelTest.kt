@@ -42,11 +42,13 @@ class NotesViewModelTest : BaseViewModelTest() {
             updatedAt = 0
         )
     )
+
     @Before
     fun setup() {
         every { noteRepository.getActiveNotes() } returns flowOf(testNotes)
         viewModel = NotesViewModel(noteRepository)
     }
+
     @Test
     fun `uiState initially shows all notes`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -56,6 +58,7 @@ class NotesViewModelTest : BaseViewModelTest() {
         assertFalse(state.isLoading)
         assertEquals(2, state.notes.size)
     }
+
     @Test
     fun `onSearchChanged filters notes by title`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -66,6 +69,7 @@ class NotesViewModelTest : BaseViewModelTest() {
         assertEquals(1, state.notes.size)
         assertEquals("Alpha", state.notes[0].title)
     }
+
     @Test
     fun `onSearchChanged filters notes by content`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {

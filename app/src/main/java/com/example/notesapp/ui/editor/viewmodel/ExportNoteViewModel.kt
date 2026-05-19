@@ -16,7 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 enum class ExportFormat {
-    Markdown, PDF
+    Markdown,
+    PDF
 }
 data class ExportUiState(
     val note: Note? = null,
@@ -25,6 +26,7 @@ data class ExportUiState(
     val exportSuccess: Boolean = false,
     val error: String? = null
 )
+
 @HiltViewModel
 class ExportNoteViewModel @Inject constructor(
     @ApplicationContext private val context: Context,

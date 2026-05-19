@@ -24,11 +24,7 @@ class NoteShareRepositoryImpl @Inject constructor(
         noteShareDao.clearByNoteId(noteId)
         noteShareDao.insertAll(shares.map { it.toEntity() })
     }
-    override suspend fun inviteNoteShare(
-        noteId: String,
-        email: String,
-        accessRole: NoteShareAccessRole
-    ): NoteShare {
+    override suspend fun inviteNoteShare(noteId: String, email: String, accessRole: NoteShareAccessRole): NoteShare {
         val created = api.createNoteShare(
             noteId,
             CreateNoteShareRequest(email = email, accessRole = accessRole.toApiValue())

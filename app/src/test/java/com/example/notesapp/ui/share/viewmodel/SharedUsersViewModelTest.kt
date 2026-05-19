@@ -15,15 +15,11 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -55,7 +51,7 @@ class SharedUsersViewModelTest : BaseViewModelTest() {
         every { authManager.profileEmail } returns MutableStateFlow("me@example.com")
         every { noteShareRepository.observeNoteShares(noteId) } returns flow { emit(listOf(testShare)) }
         coEvery { noteRepository.getNoteById(noteId) } returns testNote
-        
+
         viewModel = SharedUsersViewModel(noteRepository, noteShareRepository, authManager)
     }
 
@@ -63,7 +59,7 @@ class SharedUsersViewModelTest : BaseViewModelTest() {
     fun `load updates state with title and shares`() = runTest {
         viewModel.load(noteId)
         advanceUntilIdle()
-        
+
         val state = viewModel.uiState.value
         assertEquals(noteId, state.noteId)
         assertEquals("Shared Note", state.noteTitle)
@@ -76,9 +72,9 @@ class SharedUsersViewModelTest : BaseViewModelTest() {
     fun `refresh calls repository and updates loading state`() = runTest(UnconfinedTestDispatcher()) {
         viewModel.load(noteId)
         advanceUntilIdle()
-        
+
         viewModel.refresh()
-        // Note: isLoading might be false already if the mock is synchronous, 
+        // Note: isLoading might be false already if the mock is synchronous,
         // but we verify the repository call.
         coVerify { noteShareRepository.refreshNoteShares(noteId) }
     }
@@ -88,10 +84,10 @@ class SharedUsersViewModelTest : BaseViewModelTest() {
         coEvery { noteShareRepository.refreshNoteShares(noteId) } throws Exception("Failed")
         viewModel.load(noteId)
         advanceUntilIdle()
-        
+
         viewModel.refresh()
         advanceUntilIdle()
-        
+
         assertEquals(R.string.shared_users_error, viewModel.uiState.value.errorMessageRes)
         assertTrue(!viewModel.uiState.value.isLoading)
     }

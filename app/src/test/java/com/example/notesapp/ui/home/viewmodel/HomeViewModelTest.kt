@@ -48,7 +48,19 @@ class HomeViewModelTest : BaseViewModelTest() {
             sortKey = "2",
             deviceId = "dev",
             createdAt = 0,
-            updatedAt = 0
+            updatedAt = 0,
+            isFavorite = true
+        ),
+        Note(
+            id = "n3",
+            title = "Another Fav Note",
+            content = "Another Fav Content",
+            folderId = "f1",
+            sortKey = "4",
+            deviceId = "dev",
+            createdAt = 0,
+            updatedAt = 0,
+            isFavorite = true
         )
     )
     private val testSharedNotes = listOf(
@@ -64,6 +76,7 @@ class HomeViewModelTest : BaseViewModelTest() {
             updatedAt = 0
         )
     )
+
     @Before
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(testFolders)
@@ -71,6 +84,7 @@ class HomeViewModelTest : BaseViewModelTest() {
         every { noteRepository.getSharedNotes() } returns flowOf(testSharedNotes)
         viewModel = HomeViewModel(noteRepository, folderRepository)
     }
+
     @Test
     fun `uiState initially shows all notes`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -78,11 +92,12 @@ class HomeViewModelTest : BaseViewModelTest() {
         }
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
-        assertEquals(2, state.recentNotes.size)
+        assertEquals(3, state.recentNotes.size)
         // 2 virtual folders (All Notes, Shared) + 2 test folders = 4
         assertEquals(4, state.recentFolders.size)
         assertEquals("all_notes", state.selectedFolderId)
     }
+
     @Test
     fun `uiState calculates note counts correctly`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
@@ -91,8 +106,8 @@ class HomeViewModelTest : BaseViewModelTest() {
         val state = viewModel.uiState.value
         val f1Model = state.recentFolders.find { it.id == "f1" }
         val favModel = state.recentFolders.find { it.id == "f2" }
-        // f1 contains n1 (owned) and sn1 (shared)
-        assertEquals(2, f1Model?.noteCount)
+        // f1 contains n1 (owned), n3 (owned), and sn1 (shared)
+        assertEquals(3, f1Model?.noteCount)
         assertEquals(1, favModel?.noteCount)
     }
 
@@ -101,8 +116,8 @@ class HomeViewModelTest : BaseViewModelTest() {
         val note = testNotes[0]
         viewModel.renameNote(note, "New Title")
         advanceUntilIdle()
-        io.mockk.coVerify { 
-            noteRepository.save(match { it.id == note.id && it.title == "New Title" }) 
+        io.mockk.coVerify {
+            noteRepository.save(match { it.id == note.id && it.title == "New Title" })
         }
     }
 
@@ -123,17 +138,20 @@ class HomeViewModelTest : BaseViewModelTest() {
     }
 
     @Test
-    fun `selectFolder favorites handles missing Favorites folder`() = runTest {
+    fun `selectFolder favorites filters notes by isFavorite even if Favorites folder is missing`() = runTest {
         every { folderRepository.getFolders() } returns flowOf(listOf(testFolders[0])) // Only f1, no Favorites
         viewModel = HomeViewModel(noteRepository, folderRepository)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.selectFolder("favorites")
         val state = viewModel.uiState.value
         assertEquals("favorites", state.selectedFolderId)
-        assertEquals(0, state.recentNotes.size)
+        // Should show both favorite notes n2 and n3 even if there's no folder named Favorites
+        assertEquals(2, state.recentNotes.size)
+        assertTrue(state.recentNotes.any { it.id == "n2" })
+        assertTrue(state.recentNotes.any { it.id == "n3" })
     }
 
     @Test
@@ -141,7 +159,7 @@ class HomeViewModelTest : BaseViewModelTest() {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
-        
+
         viewModel.selectFolder("shared")
         val state = viewModel.uiState.value
         assertEquals("shared", state.selectedFolderId)

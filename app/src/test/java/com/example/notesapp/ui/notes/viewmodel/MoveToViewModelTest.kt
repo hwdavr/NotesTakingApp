@@ -40,6 +40,7 @@ class MoveToViewModelTest : BaseViewModelTest() {
         assertEquals("work", state.searchQuery)
         assertEquals(listOf("Work"), state.folderResults.map { it.name })
     }
+
     @Test
     fun `folder move hides itself and descendants`() = runTest {
         val viewModel = createViewModel(
@@ -60,6 +61,7 @@ class MoveToViewModelTest : BaseViewModelTest() {
         assertFalse("Child" in names)
         assertTrue("Other" in names)
     }
+
     @Test
     fun `move folder calls folder repository move`() = runTest {
         val folderRepository = FakeMoveFolderRepository(
@@ -77,6 +79,7 @@ class MoveToViewModelTest : BaseViewModelTest() {
         viewModel.moveTo("folder_2") {}
         assertEquals("folder_1" to "folder_2", folderRepository.movedFolder)
     }
+
     @Test
     fun `move note calls note repository move`() = runTest {
         val noteRepository = FakeMoveNoteRepository(

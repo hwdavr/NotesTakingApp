@@ -1,8 +1,8 @@
 package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.FolderEntity
-import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.data.remote.toNoteAccessRole
+import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.NoteAccessRole
 
 fun FolderEntity.toDomain(): Folder = Folder(

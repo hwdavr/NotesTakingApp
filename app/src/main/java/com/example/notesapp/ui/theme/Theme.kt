@@ -28,10 +28,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun NotesTakingAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun NotesTakingAppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) DarkAppColors else LightAppColors
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 

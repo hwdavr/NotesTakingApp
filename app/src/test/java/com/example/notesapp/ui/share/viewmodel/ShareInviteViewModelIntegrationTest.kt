@@ -20,6 +20,7 @@ class ShareInviteViewModelIntegrationTest : BaseViewModelIntegrationTest() {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val scenarioAdapter = moshi.adapter(NoteShareScenario::class.java)
     private val anyAdapter = moshi.adapter(Any::class.java)
+
     @Test
     fun `invite success emits completion event`() = runTest(testDispatcher) {
         val scenario = File("../sharedContracts/test-scenarios/note_share_invite_001.json")
@@ -39,6 +40,7 @@ class ShareInviteViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         assertTrue(eventDeferred.await() is ShareInviteEvent.InviteSucceeded)
         assertEquals(null, viewModel.uiState.value.errorMessageRes)
     }
+
     @Test
     fun `duplicate invite exposes conflict error`() = runTest(testDispatcher) {
         val scenario = File("../sharedContracts/test-scenarios/note_share_duplicate_invite_001.json")

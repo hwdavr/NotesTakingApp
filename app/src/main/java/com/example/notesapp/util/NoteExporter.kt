@@ -68,7 +68,13 @@ class NoteExporter(private val context: Context) {
                     textPaint.textSize = if (block.type == "heading") 18f else 12f
                     val prefix = if (block.type == "bulleted") "• " else ""
                     val fullText = prefix + text
-                    val layout = StaticLayout.Builder.obtain(fullText, 0, fullText.length, textPaint, contentWidth.toInt())
+                    val layout = StaticLayout.Builder.obtain(
+                        fullText,
+                        0,
+                        fullText.length,
+                        textPaint,
+                        contentWidth.toInt()
+                    )
                         .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                         .build()
                     renderer.ensureSpace(layout.height.toFloat())
@@ -96,7 +102,13 @@ class NoteExporter(private val context: Context) {
                             textPaint.textSize = 10f
                             textPaint.isFakeBoldText = false
                             textPaint.color = Color.GRAY
-                            val captionLayout = StaticLayout.Builder.obtain(block.caption, 0, block.caption.length, textPaint, contentWidth.toInt())
+                            val captionLayout = StaticLayout.Builder.obtain(
+                                block.caption,
+                                0,
+                                block.caption.length,
+                                textPaint,
+                                contentWidth.toInt()
+                            )
                                 .setAlignment(Layout.Alignment.ALIGN_CENTER)
                                 .build()
                             renderer.ensureSpace(captionLayout.height.toFloat())
@@ -115,9 +127,25 @@ class NoteExporter(private val context: Context) {
                             textSize = 10f
                             isAntiAlias = true
                         }
-                        renderer.canvas.drawRect(margin, renderer.currentY, margin + contentWidth, renderer.currentY + 50f, borderPaint)
-                        renderer.canvas.drawText("Image Load Error: ${if (block.url.isBlank()) "Empty URL" else "Invalid image or format"}", margin + 10f, renderer.currentY + 20f, errorPaint)
-                        renderer.canvas.drawText("URL: ${block.url.take(60)}${if (block.url.length > 60) "..." else ""}", margin + 10f, renderer.currentY + 40f, errorPaint)
+                        renderer.canvas.drawRect(
+                            margin,
+                            renderer.currentY,
+                            margin + contentWidth,
+                            renderer.currentY + 50f,
+                            borderPaint
+                        )
+                        renderer.canvas.drawText(
+                            "Image Load Error: ${if (block.url.isBlank()) "Empty URL" else "Invalid image or format"}",
+                            margin + 10f,
+                            renderer.currentY + 20f,
+                            errorPaint
+                        )
+                        renderer.canvas.drawText(
+                            "URL: ${block.url.take(60)}${if (block.url.length > 60) "..." else ""}",
+                            margin + 10f,
+                            renderer.currentY + 40f,
+                            errorPaint
+                        )
                         renderer.currentY += 60f
                     }
                 }
@@ -180,7 +208,13 @@ class NoteExporter(private val context: Context) {
             // Calculate row height
             val layouts = row.map { cell ->
                 val cellText = cell.joinToString("") { it.text }
-                StaticLayout.Builder.obtain(cellText, 0, cellText.length, textPaint, (colWidth - 2 * cellPadding).toInt())
+                StaticLayout.Builder.obtain(
+                    cellText,
+                    0,
+                    cellText.length,
+                    textPaint,
+                    (colWidth - 2 * cellPadding).toInt()
+                )
                     .setAlignment(Layout.Alignment.ALIGN_NORMAL)
                     .build()
             }

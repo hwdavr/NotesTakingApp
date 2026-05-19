@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
-import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
@@ -42,6 +42,7 @@ data class NoteEditorUiState(
     val content: String
         get() = document.toPlainText()
 }
+
 @HiltViewModel
 open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,

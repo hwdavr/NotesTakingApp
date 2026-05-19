@@ -63,6 +63,7 @@ fun MoveToScreen(
         }
     )
 }
+
 @Composable
 fun MoveToScreenContent(
     parentPadding: PaddingValues,
@@ -81,7 +82,10 @@ fun MoveToScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(LocalAppColors.current.accentGradientStart, LocalAppColors.current.accentGradientEnd)
+                        colors = listOf(
+                            LocalAppColors.current.accentGradientStart,
+                            LocalAppColors.current.accentGradientEnd
+                        )
                     )
                 )
                 .padding(innerPadding)
@@ -147,6 +151,7 @@ fun MoveToScreenContent(
         }
     }
 }
+
 @Composable
 private fun MoveToTopBar(onBack: () -> Unit) {
     Row(
@@ -170,6 +175,7 @@ private fun MoveToTopBar(onBack: () -> Unit) {
         )
     }
 }
+
 @Composable
 private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
     BasicTextField(
@@ -213,6 +219,7 @@ private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
         }
     )
 }
+
 @Composable
 private fun MoveDestinationRow(name: String, depth: Int, isRoot: Boolean, testTag: String, onClick: () -> Unit) {
     Surface(

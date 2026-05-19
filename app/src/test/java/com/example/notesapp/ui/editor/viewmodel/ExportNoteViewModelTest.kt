@@ -7,6 +7,7 @@ import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.util.NoteExporter
 import io.mockk.*
+import java.io.OutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -15,7 +16,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.io.OutputStream
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExportNoteViewModelTest {
@@ -42,7 +42,8 @@ class ExportNoteViewModelTest {
 
     @Test
     fun `loadNote updates uiState with note`() = runTest {
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
+        val note =
+            Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
         coEvery { noteRepository.getNoteById("n1") } returns note
 
         viewModel.loadNote("n1")
@@ -58,7 +59,8 @@ class ExportNoteViewModelTest {
 
     @Test
     fun `exportToUri calls exporter and updates success state`() = runTest {
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
+        val note =
+            Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
         coEvery { noteRepository.getNoteById("n1") } returns note
         viewModel.loadNote("n1")
 
@@ -79,7 +81,8 @@ class ExportNoteViewModelTest {
 
     @Test
     fun `exportToUri calls exporter for PDF and updates success state`() = runTest {
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
+        val note =
+            Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
         coEvery { noteRepository.getNoteById("n1") } returns note
         viewModel.loadNote("n1")
         viewModel.selectFormat(ExportFormat.PDF)
@@ -98,7 +101,8 @@ class ExportNoteViewModelTest {
 
     @Test
     fun `exportToUri handles exception and updates error state`() = runTest {
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
+        val note =
+            Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
         coEvery { noteRepository.getNoteById("n1") } returns note
         viewModel.loadNote("n1")
 
@@ -116,14 +120,15 @@ class ExportNoteViewModelTest {
     fun `resetStatus clears success and error state`() {
         val uri: Uri = mockk()
         every { contentResolver.openOutputStream(uri) } throws Exception("Export failed")
-        
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
+
+        val note =
+            Note(id = "n1", title = "Title", content = "Content", folderId = "f1", createdAt = 0L, updatedAt = 0L)
         coEvery { noteRepository.getNoteById("n1") } returns note
         viewModel.loadNote("n1")
-        
+
         viewModel.exportToUri(uri)
         assertEquals("Export failed", viewModel.uiState.value.error)
-        
+
         viewModel.resetStatus()
         assertEquals(null, viewModel.uiState.value.error)
         assertTrue(!viewModel.uiState.value.exportSuccess)

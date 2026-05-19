@@ -26,6 +26,7 @@ class CollectionNotesScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
     private val screen = CollectionNotesScreenRobot(composeRule)
+
     @Test
     fun folderCollectionRendersRepositoryChildrenAndOpensNote() {
         var openedNoteId: String? = null
@@ -72,6 +73,7 @@ class CollectionNotesScreenIntegrationTest {
         screen.openItem("My Note")
         assertEquals("note_001", openedNoteId)
     }
+
     @Test
     fun archiveCollectionRendersArchivedFoldersAndNotes() {
         val viewModel = CollectionNotesViewModel(

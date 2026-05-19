@@ -30,6 +30,7 @@ data class MoveToUiState(
     val folderResults: List<MoveToFolderDestination> = emptyList(),
     val canMove: Boolean = false
 )
+
 @HiltViewModel
 class MoveToViewModel @Inject constructor(
     private val folderRepository: FolderRepository,

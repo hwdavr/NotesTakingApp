@@ -21,6 +21,7 @@ import org.junit.runner.RunWith
 class MoveToScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun moveToScreen_rendersActionBarSearchRootAndRecentFolders() {
         val state = MoveToUiState(
@@ -52,6 +53,7 @@ class MoveToScreenTest {
         composeRule.onNodeWithTag("move_to_folder_folder_1").assertIsDisplayed()
         composeRule.onNodeWithText("Work").assertIsDisplayed()
     }
+
     @Test
     fun moveToScreen_searchInputEmitsQuery() {
         var query = ""

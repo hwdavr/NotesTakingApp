@@ -51,7 +51,11 @@ fun FolderRow(
             Text(text = name, color = LocalAppColors.current.textPrimary, style = MaterialTheme.typography.bodyLarge)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = count, color = LocalAppColors.current.textSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = count,
+                color = LocalAppColors.current.textSecondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
             if (onAddClick != null) {
                 Surface(
                     onClick = onAddClick,
@@ -67,7 +71,11 @@ fun FolderRow(
                     )
                 }
             } else {
-                Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = LocalAppColors.current.textSecondary)
+                Icon(
+                    Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = LocalAppColors.current.textSecondary
+                )
             }
         }
     }

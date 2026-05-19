@@ -2,7 +2,6 @@ package com.example.notesapp.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.notesapp.util.DeviceIdProvider
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -29,7 +28,7 @@ class DeviceIdProviderTest {
 
         val provider = DeviceIdProvider(context)
         assertEquals("existing-id", provider.deviceId)
-        
+
         // Verify no new ID was generated
         verify(exactly = 0) { editor.putString(any(), any()) }
     }

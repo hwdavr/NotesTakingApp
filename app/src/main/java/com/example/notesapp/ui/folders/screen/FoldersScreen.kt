@@ -41,7 +41,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -106,6 +105,7 @@ fun FoldersScreen(
         onMoveNote = onMoveNote
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoldersScreenContent(
@@ -144,7 +144,10 @@ fun FoldersScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(LocalAppColors.current.accentGradientStart, LocalAppColors.current.accentGradientEnd)
+                        colors = listOf(
+                            LocalAppColors.current.accentGradientStart,
+                            LocalAppColors.current.accentGradientEnd
+                        )
                     )
                 )
                 .padding(innerPadding)
@@ -256,7 +259,6 @@ fun FoldersScreenContent(
                     }
                 }
             }
-
         }
     }
     if (selectedFolderForQuickAdd != null) {
@@ -474,6 +476,7 @@ fun FoldersScreenContent(
         )
     }
 }
+
 @Composable
 private fun CollectionStats(
     allNotes: Int,
@@ -504,6 +507,7 @@ private fun CollectionStats(
         )
     }
 }
+
 @Composable
 private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onClick: () -> Unit) {
     Row(
@@ -550,6 +554,7 @@ private fun CollectionStatRow(icon: ImageVector, label: String, count: Int, onCl
         )
     }
 }
+
 @Composable
 private fun NotesTreeHeader(onAddClick: () -> Unit) {
     Row(
@@ -574,6 +579,7 @@ private fun NotesTreeHeader(onAddClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 private fun FolderTreeRow(
     item: FolderTreeItem.FolderItem,
@@ -652,6 +658,7 @@ private fun FolderTreeRow(
         }
     }
 }
+
 @Composable
 private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActions: () -> Unit) {
     Row(
@@ -694,6 +701,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderAddActionsSheet(
@@ -749,6 +757,7 @@ private fun FolderAddActionsSheet(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FolderItemActionsSheet(

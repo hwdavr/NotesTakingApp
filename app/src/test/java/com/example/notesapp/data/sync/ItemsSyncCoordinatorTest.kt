@@ -35,9 +35,9 @@ class ItemsSyncCoordinatorTest {
         )
         coEvery { api.listItems(any()) } returns apiItems
         coEvery { noteDao.getNoteById("n1") } returns null
-        
+
         coordinator.syncAll()
-        
+
         coVerify { folderDao.clearAll() }
         coVerify { noteDao.clearAll() }
         coVerify { folderDao.insertAll(any()) }
@@ -46,7 +46,8 @@ class ItemsSyncCoordinatorTest {
 
     @Test
     fun `syncAll pushes local updates if version is higher`() = runTest {
-        val remoteItem = ApiItem(id = "n1", userId = "u1", type = "note", parentId = "f1", name = "Old", content = "Old", sortKey = "s1", version = 1L, deviceId = "d1", lastSyncedVersion = 0L, deletedAt = null, createdAt = "2024-01-01T00:00:00Z", updatedAt = "2024-01-01T00:00:00Z")
+        val remoteItem =
+            ApiItem(id = "n1", userId = "u1", type = "note", parentId = "f1", name = "Old", content = "Old", sortKey = "s1", version = 1L, deviceId = "d1", lastSyncedVersion = 0L, deletedAt = null, createdAt = "2024-01-01T00:00:00Z", updatedAt = "2024-01-01T00:00:00Z")
         val localNote = NoteEntity(
             id = "n1",
             title = "New",
@@ -58,13 +59,15 @@ class ItemsSyncCoordinatorTest {
             createdAt = 0L,
             updatedAt = 0L
         )
-        
-        coEvery { api.listItems(any()) } returns listOf(remoteItem) andThen listOf(remoteItem.copy(version = 2, content = "New"))
+
+        coEvery {
+            api.listItems(any())
+        } returns listOf(remoteItem) andThen listOf(remoteItem.copy(version = 2, content = "New"))
         coEvery { noteDao.getNoteById("n1") } returns localNote
         coEvery { api.updateNoteContent(any(), any()) } returns mockk()
-        
+
         coordinator.syncAll()
-        
+
         coVerify { api.updateNoteContent("n1", match { it.content == "New" && it.lastSyncedVersion == 1L }) }
     }
 }

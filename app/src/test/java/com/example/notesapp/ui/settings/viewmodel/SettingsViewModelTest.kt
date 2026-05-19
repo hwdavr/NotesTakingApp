@@ -16,12 +16,14 @@ class SettingsViewModelTest : BaseViewModelTest() {
     private val isLoggedIn = MutableStateFlow(false)
     private val profileEmail = MutableStateFlow<String?>(null)
     private lateinit var viewModel: SettingsViewModel
+
     @Before
     fun setup() {
         every { authManager.isLoggedIn } returns isLoggedIn
         every { authManager.profileEmail } returns profileEmail
         viewModel = SettingsViewModel(authManager)
     }
+
     @Test
     fun `logout calls authManager logout`() {
         val context: Context = mockk()
@@ -30,12 +32,14 @@ class SettingsViewModelTest : BaseViewModelTest() {
         viewModel.logout(context, onSuccess, onError)
         verify { authManager.logout(context, any(), any()) }
     }
+
     @Test
     fun `profile title defaults to Guest when logged out`() {
         isLoggedIn.value = false
         profileEmail.value = "user@example.com"
         assertEquals("Guest", viewModel.uiState.value.profileTitle)
     }
+
     @Test
     fun `profile title uses email when logged in`() {
         isLoggedIn.value = true

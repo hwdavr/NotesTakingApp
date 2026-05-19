@@ -17,7 +17,11 @@ fun SectionTitle(title: String, actionLabel: String? = null) {
     ) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
         if (actionLabel != null) {
-            Text(text = actionLabel, color = LocalAppColors.current.textSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = actionLabel,
+                color = LocalAppColors.current.textSecondary,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

@@ -2,8 +2,8 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.FolderRepository
-import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.text
@@ -48,6 +48,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         updatedAt = 1000L,
         accessRole = NoteAccessRole.READ_ONLY
     )
+
     @Before
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(emptyList())
@@ -55,6 +56,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         coEvery { noteRepository.getNoteById("readonly") } returns readOnlyNote
         viewModel = NoteEditorViewModel(noteRepository, folderRepository)
     }
+
     @Test
     fun `load with noteId updates uiState`() = runTest {
         viewModel.load("n1")
@@ -65,6 +67,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("Content", state.content)
         assertTrue(state.isEditable)
     }
+
     @Test
     fun `load read only note disables editing`() = runTest {
         viewModel.load("readonly")
@@ -75,6 +78,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("Locked content", state.content)
         assertTrue(!state.isEditable)
     }
+
     @Test
     fun `load without noteId generates new id`() = runTest {
         viewModel.load(null)
@@ -83,6 +87,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertTrue(state.noteId?.startsWith("note_") == true)
         assertEquals("", state.title)
     }
+
     @Test
     fun `load without noteId after loading a note resets state`() = runTest {
         viewModel.load("n1")
@@ -92,6 +97,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("", state.title)
         assertEquals("", state.content)
     }
+
     @Test
     fun `onTitleChange updates state and schedules auto-save`() = runTest {
         viewModel.load("n1")
@@ -101,6 +107,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         advanceTimeBy(2001)
         coVerify { noteRepository.save(match { it.title == "New Title" }) }
     }
+
     @Test
     fun `save calls repository save`() = runTest {
         viewModel.load("n1")
@@ -118,6 +125,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         }
         assertTrue(called)
     }
+
     @Test
     fun `addImageBlock adds image block and saves structured json`() = runTest {
         viewModel.load("n1")
@@ -139,6 +147,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
             )
         }
     }
+
     @Test
     fun `onTextBlockChange splits newline into separate text blocks`() = runTest {
         viewModel.load("n1")
@@ -150,6 +159,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("First line", textBlocks[0].children.joinToString("") { it.text })
         assertEquals("Second line", textBlocks[1].children.joinToString("") { it.text })
     }
+
     @Test
     fun `addTableBlock updates table cell and saves structured json`() = runTest {
         viewModel.load("n1")
@@ -171,6 +181,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
             )
         }
     }
+
     @Test
     fun `updateTableCell strips newlines`() = runTest {
         viewModel.load("n1")
@@ -183,6 +194,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val cellText = updatedTableBlock.rows[1][0].joinToString("") { it.text }
         assertEquals("Alice Bob", cellText)
     }
+
     @Test
     fun `delete calls repository delete`() = runTest {
         viewModel.load("n1")
@@ -191,13 +203,14 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         coVerify { noteRepository.delete(match { it.id == "n1" }) }
         assertTrue(called)
     }
+
     @Test
     fun `toggleFavorite updates state and saves note`() = runTest {
         viewModel.load("n1")
         viewModel.toggleFavorite()
         assertTrue(viewModel.uiState.value.isFavorite)
         coVerify { noteRepository.save(match { it.id == "n1" && it.isFavorite }) }
-        
+
         viewModel.toggleFavorite()
         assertTrue(!viewModel.uiState.value.isFavorite)
         coVerify { noteRepository.save(match { it.id == "n1" && !it.isFavorite }) }
@@ -242,10 +255,10 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.addParagraphBlock() // Now we have 2 blocks
         val blocks = viewModel.uiState.value.document.blocks
         assertEquals(2, blocks.size)
-        
+
         val blockToDelete = blocks[1].id
         viewModel.deleteBlock(blockToDelete)
-        
+
         assertEquals(1, viewModel.uiState.value.document.blocks.size)
         assertEquals(blocks[0].id, viewModel.uiState.value.focusedBlockId)
     }
@@ -344,9 +357,9 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.updateSelection(0, 5) // "Title" is at 0-5? No, "Content" is the text in load("n1")
         // testNote has title "Title" and content "Content"
         // But wait, the mapper fromContent("Content") will have "Content" as text.
-        
+
         viewModel.toggleBlockMark(block.id, "bold")
-        
+
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         assertTrue(updatedBlock.children.any { "bold" in it.marks })
     }
@@ -356,10 +369,10 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.load(null)
         viewModel.onContentChange("**Bold** Text")
         val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
-        
+
         viewModel.updateSelection(0, 8) // "**Bold**"
         viewModel.toggleBlockMark(block.id, "bold")
-        
+
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         assertEquals("Bold Text", updatedBlock.text())
     }

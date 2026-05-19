@@ -26,12 +26,12 @@ import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
-import com.example.notesapp.ui.share.screen.ManageAccessScreen
 import com.example.notesapp.ui.notes.screen.CollectionNotesScreen
 import com.example.notesapp.ui.notes.screen.MoveToScreen
 import com.example.notesapp.ui.notes.viewmodel.MoveToViewModel
 import com.example.notesapp.ui.onboarding.screen.OnboardingScreen
 import com.example.notesapp.ui.settings.screen.SettingsScreen
+import com.example.notesapp.ui.share.screen.ManageAccessScreen
 import com.example.notesapp.ui.share.screen.ShareInviteScreen
 import com.example.notesapp.ui.share.screen.SharedUsersScreen
 
@@ -48,6 +48,7 @@ fun AppNavGraph(authManager: AuthManager, activity: Context) {
         }
     )
 }
+
 @Composable
 fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit) {
     val navController = rememberNavController()

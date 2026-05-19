@@ -10,9 +10,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -28,8 +27,10 @@ class FoldersViewModelTest : BaseViewModelTest() {
     private lateinit var viewModel: FoldersViewModel
 
     private val folder1 = Folder(id = "f1", name = "Work", createdAt = 1000L, updatedAt = 1000L)
-    private val folder2 = Folder(id = "f2", name = "Personal", parentFolderId = "f1", createdAt = 1000L, updatedAt = 1000L)
-    private val note1 = Note(id = "n1", title = "Note 1", content = "Content", folderId = "f1", createdAt = 1000L, updatedAt = 1000L)
+    private val folder2 =
+        Folder(id = "f2", name = "Personal", parentFolderId = "f1", createdAt = 1000L, updatedAt = 1000L)
+    private val note1 =
+        Note(id = "n1", title = "Note 1", content = "Content", folderId = "f1", createdAt = 1000L, updatedAt = 1000L)
 
     private val foldersFlow = MutableStateFlow(listOf(folder1, folder2))
     private val notesFlow = MutableStateFlow(listOf(note1))
@@ -45,7 +46,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
         coEvery { noteRepository.getArchivedNoteCount() } returns 0
         coEvery { noteRepository.getActiveNoteCountForFolder(any()) } returns 0
         every { noteRepository.getSharedNotes() } returns sharedNotesFlow
-        
+
         viewModel = FoldersViewModel(folderRepository, noteRepository)
     }
 
@@ -57,7 +58,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
         // Root: f1
         // Children of f1: n1 (note), f2 (folder)
         assertEquals(3, items.size)
-        
+
         val f1Item = items[0] as FolderTreeItem.FolderItem
         assertEquals("f1", f1Item.folder.id)
         val n1Item = items[1] as FolderTreeItem.NoteItem
@@ -100,7 +101,7 @@ class FoldersViewModelTest : BaseViewModelTest() {
         // f1 contains f2 and n1
         viewModel.deleteFolder(folder1)
         advanceUntilIdle()
-        
+
         coVerify { noteRepository.delete(match { it.id == "n1" }) }
         coVerify { folderRepository.delete(match { it.id == "f2" }) }
         coVerify { folderRepository.delete(match { it.id == "f1" }) }
@@ -115,10 +116,18 @@ class FoldersViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `uiState contains shared items when provided`() = runTest {
-        val sharedNote = Note(id = "sn1", title = "Shared Note", content = "Shared Content", isShared = true, createdAt = 1000L, updatedAt = 1000L)
+        val sharedNote =
+            Note(
+                id = "sn1",
+                title = "Shared Note",
+                content = "Shared Content",
+                isShared = true,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
         sharedNotesFlow.value = listOf(sharedNote)
         advanceUntilIdle()
-        
+
         val state = viewModel.uiState.value
         assertEquals(1, state.sharedTreeItems.size)
         val item = state.sharedTreeItems[0] as FolderTreeItem.NoteItem
@@ -128,14 +137,22 @@ class FoldersViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `search filters both owned and shared notes`() = runTest {
-        val sharedNote = Note(id = "sn1", title = "Shared Note", content = "Shared Content", isShared = true, createdAt = 1000L, updatedAt = 1000L)
+        val sharedNote =
+            Note(
+                id = "sn1",
+                title = "Shared Note",
+                content = "Shared Content",
+                isShared = true,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
         sharedNotesFlow.value = listOf(sharedNote)
         backgroundScope.launch { viewModel.uiState.collect {} }
         advanceUntilIdle()
 
         viewModel.onSearchChanged("Shared")
         advanceUntilIdle()
-        
+
         val state = viewModel.uiState.value
         // Note: In search mode, treeItems should contain everything matching
         assertEquals(1, state.treeItems.size)

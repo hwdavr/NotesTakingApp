@@ -6,7 +6,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -99,8 +98,8 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
-import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
@@ -109,69 +108,70 @@ import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditorScreen(
-        parentPadding: PaddingValues,
-        noteId: String?,
-        folderId: String? = null,
-        onBack: () -> Unit,
-        onShareNote: (String) -> Unit,
-        onMoveNote: (String) -> Unit,
-        onExportNote: (String) -> Unit,
-        viewModel: NoteEditorViewModel = hiltViewModel()
+    parentPadding: PaddingValues,
+    noteId: String?,
+    folderId: String? = null,
+    onBack: () -> Unit,
+    onShareNote: (String) -> Unit,
+    onMoveNote: (String) -> Unit,
+    onExportNote: (String) -> Unit,
+    viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(noteId, folderId) { viewModel.load(noteId, folderId) }
     NoteEditorScreenContent(
-            parentPadding = parentPadding,
-            noteId = noteId,
-            state = state,
-            onBack = onBack,
-            onShareRequested = { viewModel.shareCurrentNote(onShareNote) },
-            onDelete = { viewModel.delete(onDone = onBack) },
-            onTitleChange = viewModel::onTitleChange,
-            onRename = viewModel::rename,
-            onToggleFavorite = viewModel::toggleFavorite,
-            onMoveNote = { state.noteId?.let { onMoveNote(it) } },
-            onExportNote = { state.noteId?.let { onExportNote(it) } },
-            onTextBlockChange = viewModel::onTextBlockChange,
-            onToggleMark = viewModel::toggleBlockMark,
-            onAddParagraph = viewModel::addParagraphBlock,
-            onAddImage = viewModel::addImageBlock,
-            onImageChange = viewModel::updateImageBlock,
-            onAddTable = viewModel::addTableBlock,
-            onTableCellChange = viewModel::updateTableCell,
-            onFolderSelected = viewModel::onFolderSelected,
-            onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
-            onBlockFocused = viewModel::setFocusedBlock,
-            onSelectionChange = viewModel::updateSelection,
-            onDeleteBlock = viewModel::deleteBlock
+        parentPadding = parentPadding,
+        noteId = noteId,
+        state = state,
+        onBack = onBack,
+        onShareRequested = { viewModel.shareCurrentNote(onShareNote) },
+        onDelete = { viewModel.delete(onDone = onBack) },
+        onTitleChange = viewModel::onTitleChange,
+        onRename = viewModel::rename,
+        onToggleFavorite = viewModel::toggleFavorite,
+        onMoveNote = { state.noteId?.let { onMoveNote(it) } },
+        onExportNote = { state.noteId?.let { onExportNote(it) } },
+        onTextBlockChange = viewModel::onTextBlockChange,
+        onToggleMark = viewModel::toggleBlockMark,
+        onAddParagraph = viewModel::addParagraphBlock,
+        onAddImage = viewModel::addImageBlock,
+        onImageChange = viewModel::updateImageBlock,
+        onAddTable = viewModel::addTableBlock,
+        onTableCellChange = viewModel::updateTableCell,
+        onFolderSelected = viewModel::onFolderSelected,
+        onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
+        onBlockFocused = viewModel::setFocusedBlock,
+        onSelectionChange = viewModel::updateSelection,
+        onDeleteBlock = viewModel::deleteBlock
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoteEditorScreenContent(
-        parentPadding: PaddingValues,
-        noteId: String?,
-        state: NoteEditorUiState,
-        onBack: () -> Unit,
-        onShareRequested: () -> Unit,
-        onDelete: () -> Unit,
-        onTitleChange: (String) -> Unit,
-        onRename: (String) -> Unit,
-        onToggleFavorite: () -> Unit,
-        onMoveNote: () -> Unit,
-        onExportNote: () -> Unit,
-        onTextBlockChange: (String, String) -> Unit,
-        onToggleMark: (String, String) -> Unit,
-        onAddParagraph: () -> Unit,
-        onAddImage: () -> Unit,
-        onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
-        onAddTable: () -> Unit,
-        onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-        onFolderSelected: (String?) -> Unit,
-        onToggleFormattingToolbar: () -> Unit,
-        onBlockFocused: (String?) -> Unit,
-        onSelectionChange: (Int, Int) -> Unit,
-        onDeleteBlock: (String) -> Unit
+    parentPadding: PaddingValues,
+    noteId: String?,
+    state: NoteEditorUiState,
+    onBack: () -> Unit,
+    onShareRequested: () -> Unit,
+    onDelete: () -> Unit,
+    onTitleChange: (String) -> Unit,
+    onRename: (String) -> Unit,
+    onToggleFavorite: () -> Unit,
+    onMoveNote: () -> Unit,
+    onExportNote: () -> Unit,
+    onTextBlockChange: (String, String) -> Unit,
+    onToggleMark: (String, String) -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
+    onAddTable: () -> Unit,
+    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onFolderSelected: (String?) -> Unit,
+    onToggleFormattingToolbar: () -> Unit,
+    onBlockFocused: (String?) -> Unit,
+    onSelectionChange: (Int, Int) -> Unit,
+    onDeleteBlock: (String) -> Unit
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
@@ -179,250 +179,251 @@ fun NoteEditorScreenContent(
     var renameTextFieldValue by remember { mutableStateOf("") }
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
     val breadcrumbText =
-            buildBreadcrumb(
-                    folders = state.availableFolders,
-                    selectedFolder = selectedFolder,
-                    title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
-            )
+        buildBreadcrumb(
+            folders = state.availableFolders,
+            selectedFolder = selectedFolder,
+            title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
+        )
     val activeTextBlockId =
-            state.focusedBlockId
-                    ?: state.document
-                            .blocks
-                            .filterIsInstance<EditorBlock.TextBlock>()
-                            .firstOrNull()
-                            ?.id
+        state.focusedBlockId
+            ?: state.document
+                .blocks
+                .filterIsInstance<EditorBlock.TextBlock>()
+                .firstOrNull()
+                ?.id
     Scaffold(
-            modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
-            containerColor = Color.White,
-            contentWindowInsets = WindowInsets(0)
+        modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
+        containerColor = Color.White,
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
-                modifier =
-                        Modifier.fillMaxSize()
-                                .background(Color.White)
-                                .padding(innerPadding)
-                                .navigationBarsPadding()
-                                .imePadding()
+            modifier =
+            Modifier.fillMaxSize()
+                .background(Color.White)
+                .padding(innerPadding)
+                .navigationBarsPadding()
+                .imePadding()
         ) {
             EditorTopBar(
-                    onBack = onBack,
-                    onShare = onShareRequested,
-                    onMore = { showNoteActionsSheet = true }
+                onBack = onBack,
+                onShare = onShareRequested,
+                onMore = { showNoteActionsSheet = true }
             )
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
             Column(
-                    modifier =
-                            Modifier.weight(1f)
-                                    .fillMaxWidth()
-                                    .background(Color(0xFFF4F7FF))
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier =
+                Modifier.weight(1f)
+                    .fillMaxWidth()
+                    .background(Color(0xFFF4F7FF))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 ExposedDropdownMenuBox(
-                        expanded = folderMenuExpanded,
-                        onExpandedChange = {
-                            if (state.isEditable) {
-                                folderMenuExpanded = !folderMenuExpanded
-                            }
+                    expanded = folderMenuExpanded,
+                    onExpandedChange = {
+                        if (state.isEditable) {
+                            folderMenuExpanded = !folderMenuExpanded
                         }
+                    }
                 ) {
                     Surface(
-                            modifier = Modifier.menuAnchor().fillMaxWidth(),
-                            color = Color(0xFFEAF1FF),
-                            shape = RoundedCornerShape(8.dp),
-                            onClick = {
-                                if (state.isEditable) {
-                                    folderMenuExpanded = true
-                                }
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        color = Color(0xFFEAF1FF),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = {
+                            if (state.isEditable) {
+                                folderMenuExpanded = true
                             }
+                        }
                     ) {
                         Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                    imageVector = Icons.Outlined.Link,
-                                    contentDescription = null,
-                                    tint = Color(0xFF7281A7),
-                                    modifier = Modifier.size(16.dp)
+                                imageVector = Icons.Outlined.Link,
+                                contentDescription = null,
+                                tint = Color(0xFF7281A7),
+                                modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                    text = breadcrumbText,
-                                    modifier = Modifier.weight(1f),
-                                    color = Color(0xFF7281A7),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                text = breadcrumbText,
+                                modifier = Modifier.weight(1f),
+                                color = Color(0xFF7281A7),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
                     ExposedDropdownMenu(
-                            expanded = folderMenuExpanded,
-                            onDismissRequest = { folderMenuExpanded = false }
+                        expanded = folderMenuExpanded,
+                        onDismissRequest = { folderMenuExpanded = false }
                     ) {
                         DropdownMenuItem(
-                                text = { Text(stringResource(R.string.editor_no_folder)) },
-                                onClick = {
-                                    onFolderSelected(null)
-                                    folderMenuExpanded = false
-                                }
+                            text = { Text(stringResource(R.string.editor_no_folder)) },
+                            onClick = {
+                                onFolderSelected(null)
+                                folderMenuExpanded = false
+                            }
                         )
                         state.availableFolders.forEach { folder ->
                             DropdownMenuItem(
-                                    text = { Text(folder.name) },
-                                    onClick = {
-                                        onFolderSelected(folder.id)
-                                        folderMenuExpanded = false
-                                    }
+                                text = { Text(folder.name) },
+                                onClick = {
+                                    onFolderSelected(folder.id)
+                                    folderMenuExpanded = false
+                                }
                             )
                         }
                     }
                 }
                 Surface(
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                        color = Color.White,
-                        shape = RoundedCornerShape(8.dp)
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    color = Color.White,
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Column(
-                            modifier =
-                                    Modifier.fillMaxSize()
-                                            .verticalScroll(rememberScrollState())
-                                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        modifier =
+                        Modifier.fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         OutlinedTextField(
-                                value = state.title,
-                                onValueChange = onTitleChange,
-                                modifier = Modifier.fillMaxWidth(),
-                                placeholder = {
-                                    Text(
-                                            text =
-                                                    stringResource(
-                                                            R.string.editor_title_placeholder
-                                                    ),
-                                            color = Color(0xFFAAB8C2)
-                                    )
-                                },
-                                textStyle =
-                                        MaterialTheme.typography.headlineSmall.copy(
-                                                fontWeight = FontWeight.ExtraBold,
-                                                fontSize = 24.sp,
-                                                color = Color(0xFF1F2A44)
-                                        ),
-                                colors = editorFieldColors(),
-                                singleLine = true,
-                                enabled = state.isEditable
+                            value = state.title,
+                            onValueChange = onTitleChange,
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = {
+                                Text(
+                                    text =
+                                    stringResource(
+                                        R.string.editor_title_placeholder
+                                    ),
+                                    color = Color(0xFFAAB8C2)
+                                )
+                            },
+                            textStyle =
+                            MaterialTheme.typography.headlineSmall.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 24.sp,
+                                color = Color(0xFF1F2A44)
+                            ),
+                            colors = editorFieldColors(),
+                            singleLine = true,
+                            enabled = state.isEditable
                         )
                         DocumentBlockList(
-                                blocks = state.document.blocks,
-                                isEditable = state.isEditable,
-                                onTextBlockChange = onTextBlockChange,
-                                onImageChange = onImageChange,
-                                onTableCellChange = onTableCellChange,
-                                onBlockFocused = onBlockFocused,
-                                onSelectionChange = onSelectionChange,
-                                onDeleteBlock = onDeleteBlock,
-                                focusedBlockId = state.focusedBlockId
+                            blocks = state.document.blocks,
+                            isEditable = state.isEditable,
+                            onTextBlockChange = onTextBlockChange,
+                            onImageChange = onImageChange,
+                            onTableCellChange = onTableCellChange,
+                            onBlockFocused = onBlockFocused,
+                            onSelectionChange = onSelectionChange,
+                            onDeleteBlock = onDeleteBlock,
+                            focusedBlockId = state.focusedBlockId
                         )
                     }
                 }
             }
             HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
             EditorBottomBar(
-                    activeTextBlockId = activeTextBlockId,
-                    isEditable = state.isEditable,
-                    isFormattingToolbarVisible = state.isFormattingToolbarVisible,
-                    onToggleMark = onToggleMark,
-                    onAddParagraph = onAddParagraph,
-                    onAddImage = onAddImage,
-                    onAddTable = onAddTable,
-                    onToggleFormattingToolbar = onToggleFormattingToolbar
+                activeTextBlockId = activeTextBlockId,
+                isEditable = state.isEditable,
+                isFormattingToolbarVisible = state.isFormattingToolbarVisible,
+                onToggleMark = onToggleMark,
+                onAddParagraph = onAddParagraph,
+                onAddImage = onAddImage,
+                onAddTable = onAddTable,
+                onToggleFormattingToolbar = onToggleFormattingToolbar
             )
         }
         if (showNoteActionsSheet) {
             val currentNote =
-                    Note(
-                            id = state.noteId.orEmpty(),
-                            title = state.title,
-                            content = state.document.toJsonString(),
-                            folderId = state.folderId,
-                            sortKey = "",
-                            version = 0,
-                            deviceId = "",
-                            createdAt = state.createdAt,
-                            updatedAt = System.currentTimeMillis(),
-                            isFavorite = state.isFavorite,
-                            accessRole = if (state.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
-                    )
+                Note(
+                    id = state.noteId.orEmpty(),
+                    title = state.title,
+                    content = state.document.toJsonString(),
+                    folderId = state.folderId,
+                    sortKey = "",
+                    version = 0,
+                    deviceId = "",
+                    createdAt = state.createdAt,
+                    updatedAt = System.currentTimeMillis(),
+                    isFavorite = state.isFavorite,
+                    accessRole = if (state.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
+                )
             EditorNoteActionsSheet(
-                    note = currentNote,
-                    onDismiss = { showNoteActionsSheet = false },
-                    onAddToFavorites = {
-                        onToggleFavorite()
-                        showNoteActionsSheet = false
-                    },
-                    onMoveTo = {
-                        showNoteActionsSheet = false
-                        onMoveNote()
-                    },
-                    onRename = {
-                        showNoteActionsSheet = false
-                        renameTextFieldValue = state.title
-                        showRenameDialog = true
-                    },
-                    onDelete = {
-                        showNoteActionsSheet = false
-                        onDelete()
-                    },
-                    onExport = {
-                        showNoteActionsSheet = false
-                        onExportNote()
-                    }
+                note = currentNote,
+                onDismiss = { showNoteActionsSheet = false },
+                onAddToFavorites = {
+                    onToggleFavorite()
+                    showNoteActionsSheet = false
+                },
+                onMoveTo = {
+                    showNoteActionsSheet = false
+                    onMoveNote()
+                },
+                onRename = {
+                    showNoteActionsSheet = false
+                    renameTextFieldValue = state.title
+                    showRenameDialog = true
+                },
+                onDelete = {
+                    showNoteActionsSheet = false
+                    onDelete()
+                },
+                onExport = {
+                    showNoteActionsSheet = false
+                    onExportNote()
+                }
             )
         }
         if (showRenameDialog) {
             AlertDialog(
-                    onDismissRequest = { showRenameDialog = false },
-                    title = { Text(stringResource(R.string.folders_rename_note_title)) },
-                    text = {
-                        OutlinedTextField(
-                                value = renameTextFieldValue,
-                                onValueChange = { renameTextFieldValue = it },
-                                label = { Text(stringResource(R.string.folders_note_title_label)) },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                    confirmButton = {
-                        Button(
-                                onClick = {
-                                    onRename(renameTextFieldValue)
-                                    showRenameDialog = false
-                                }
-                        ) { Text(stringResource(R.string.folders_create_action)) }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showRenameDialog = false }) {
-                            Text(stringResource(R.string.folders_cancel_action))
+                onDismissRequest = { showRenameDialog = false },
+                title = { Text(stringResource(R.string.folders_rename_note_title)) },
+                text = {
+                    OutlinedTextField(
+                        value = renameTextFieldValue,
+                        onValueChange = { renameTextFieldValue = it },
+                        label = { Text(stringResource(R.string.folders_note_title_label)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onRename(renameTextFieldValue)
+                            showRenameDialog = false
                         }
+                    ) { Text(stringResource(R.string.folders_create_action)) }
+                },
+                dismissButton = {
+                    Button(onClick = { showRenameDialog = false }) {
+                        Text(stringResource(R.string.folders_cancel_action))
                     }
+                }
             )
         }
     }
 }
+
 @Composable
 private fun DocumentBlockList(
-        blocks: List<EditorBlock>,
-        isEditable: Boolean,
-        onTextBlockChange: (String, String) -> Unit,
-        onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
-        onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-        onBlockFocused: (String?) -> Unit,
-        onSelectionChange: (Int, Int) -> Unit,
-        onDeleteBlock: (String) -> Unit,
-        focusedBlockId: String?
+    blocks: List<EditorBlock>,
+    isEditable: Boolean,
+    onTextBlockChange: (String, String) -> Unit,
+    onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
+    onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onBlockFocused: (String?) -> Unit,
+    onSelectionChange: (Int, Int) -> Unit,
+    onDeleteBlock: (String) -> Unit,
+    focusedBlockId: String?
 ) {
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     LaunchedEffect(focusedBlockId) {
@@ -434,305 +435,320 @@ private fun DocumentBlockList(
         }
     }
     Column(
-            modifier = Modifier.fillMaxWidth().testTag("rich_document_blocks"),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        modifier = Modifier.fillMaxWidth().testTag("rich_document_blocks"),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         blocks.forEach { block ->
             val focusRequester = focusRequesters.getOrPut(block.id) { FocusRequester() }
             when (block) {
                 is EditorBlock.TextBlock ->
-                        TextDocumentBlock(
-                                block = block,
-                                isEditable = isEditable,
-                                onChange = { onTextBlockChange(block.id, it) },
-                                onFocus = { onBlockFocused(block.id) },
-                                onSelectionChange = onSelectionChange,
-                                onDelete = { onDeleteBlock(block.id) },
-                                focusRequester = focusRequester
-                        )
+                    TextDocumentBlock(
+                        block = block,
+                        isEditable = isEditable,
+                        onChange = { onTextBlockChange(block.id, it) },
+                        onFocus = { onBlockFocused(block.id) },
+                        onSelectionChange = onSelectionChange,
+                        onDelete = { onDeleteBlock(block.id) },
+                        focusRequester = focusRequester
+                    )
                 is EditorBlock.ImageBlock ->
-                        ImageDocumentBlock(
-                                block = block,
-                                isEditable = isEditable,
-                                onUrlChange = { onImageChange(block.id, it, null) },
-                                onCaptionChange = { onImageChange(block.id, null, it) },
-                                onDelete = { onDeleteBlock(block.id) }
-                        )
+                    ImageDocumentBlock(
+                        block = block,
+                        isEditable = isEditable,
+                        onUrlChange = { onImageChange(block.id, it, null) },
+                        onCaptionChange = { onImageChange(block.id, null, it) },
+                        onDelete = { onDeleteBlock(block.id) }
+                    )
                 is EditorBlock.TableBlock ->
-                        TableDocumentBlock(
-                                block = block,
-                                isEditable = isEditable,
-                                onCellChange = { row, cell, value ->
-                                    onTableCellChange(block.id, row, cell, value)
-                                }
-                        )
+                    TableDocumentBlock(
+                        block = block,
+                        isEditable = isEditable,
+                        onCellChange = { row, cell, value ->
+                            onTableCellChange(block.id, row, cell, value)
+                        }
+                    )
             }
         }
     }
 }
+
 @Composable
 private fun TextDocumentBlock(
-        block: EditorBlock.TextBlock,
-        isEditable: Boolean,
-        onChange: (String) -> Unit,
-        onFocus: () -> Unit,
-        onSelectionChange: (Int, Int) -> Unit,
-        onDelete: () -> Unit,
-        focusRequester: FocusRequester
+    block: EditorBlock.TextBlock,
+    isEditable: Boolean,
+    onChange: (String) -> Unit,
+    onFocus: () -> Unit,
+    onSelectionChange: (Int, Int) -> Unit,
+    onDelete: () -> Unit,
+    focusRequester: FocusRequester
 ) {
     var textFieldValue by
-            remember(block.id) { mutableStateOf(TextFieldValue(block.toAnnotatedString())) }
+        remember(block.id) { mutableStateOf(TextFieldValue(block.toAnnotatedString())) }
     val currentAnnotatedText = block.toAnnotatedString()
     if (textFieldValue.annotatedString != currentAnnotatedText) {
         textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
     }
     BasicTextField(
-            value = textFieldValue,
-            readOnly = !isEditable,
-            onValueChange = {
-                val selectionChanged = textFieldValue.selection != it.selection
-                val textChanged = textFieldValue.text != it.text
-                textFieldValue = it
-                if (textChanged) {
-                    onChange(it.text)
-                }
-                if (selectionChanged) {
-                    onSelectionChange(it.selection.start, it.selection.end)
-                }
-            },
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { if (it.isFocused) onFocus() }
-                            .onPreviewKeyEvent { event ->
-                                if (event.key == Key.Backspace && textFieldValue.text.isEmpty()) {
-                                    onDelete()
-                                    true
-                                } else {
-                                    false
-                                }
-                            }
-                            .testTag("editor_text_block_${block.id}"),
-            textStyle =
-                    MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = if (block.type == "heading") 22.sp else 14.sp,
-                            color = Color(0xFF1F2A44),
-                            lineHeight = if (block.type == "heading") 28.sp else 20.sp,
-                            fontWeight =
-                                    if (block.type == "heading") FontWeight.Bold
-                                    else FontWeight.Normal
-                    ),
-            cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-            decorationBox = { innerTextField ->
-                OutlinedTextFieldDefaults.DecorationBox(
-                        value = textFieldValue.text,
-                        innerTextField = innerTextField,
-                        enabled = isEditable,
-                        singleLine = false,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = remember { MutableInteractionSource() },
-                        placeholder = {
-                            Text(
-                                    text = stringResource(R.string.editor_content_placeholder),
-                                    color = Color(0xFFAAB8C2)
-                            )
-                        },
-                        leadingIcon =
-                                if (block.type == "bulleted") {
-                                    { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
-                                } else {
-                                    null
-                                },
-                        colors = editorFieldColors(),
-                        container = {
-                            OutlinedTextFieldDefaults.ContainerBox(
-                                    enabled = isEditable,
-                                    isError = false,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    colors = editorFieldColors(),
-                                    shape = OutlinedTextFieldDefaults.shape
-                            )
-                        },
-                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
-                )
+        value = textFieldValue,
+        readOnly = !isEditable,
+        onValueChange = {
+            val selectionChanged = textFieldValue.selection != it.selection
+            val textChanged = textFieldValue.text != it.text
+            textFieldValue = it
+            if (textChanged) {
+                onChange(it.text)
             }
+            if (selectionChanged) {
+                onSelectionChange(it.selection.start, it.selection.end)
+            }
+        },
+        modifier =
+        Modifier.fillMaxWidth()
+            .focusRequester(focusRequester)
+            .onFocusChanged { if (it.isFocused) onFocus() }
+            .onPreviewKeyEvent { event ->
+                if (event.key == Key.Backspace && textFieldValue.text.isEmpty()) {
+                    onDelete()
+                    true
+                } else {
+                    false
+                }
+            }
+            .testTag("editor_text_block_${block.id}"),
+        textStyle =
+        MaterialTheme.typography.bodyLarge.copy(
+            fontSize = if (block.type == "heading") 22.sp else 14.sp,
+            color = Color(0xFF1F2A44),
+            lineHeight = if (block.type == "heading") 28.sp else 20.sp,
+            fontWeight =
+            if (block.type == "heading") {
+                FontWeight.Bold
+            } else {
+                FontWeight.Normal
+            }
+        ),
+        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+        decorationBox = { innerTextField ->
+            OutlinedTextFieldDefaults.DecorationBox(
+                value = textFieldValue.text,
+                innerTextField = innerTextField,
+                enabled = isEditable,
+                singleLine = false,
+                visualTransformation = VisualTransformation.None,
+                interactionSource = remember { MutableInteractionSource() },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.editor_content_placeholder),
+                        color = Color(0xFFAAB8C2)
+                    )
+                },
+                leadingIcon =
+                if (block.type == "bulleted") {
+                    { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
+                } else {
+                    null
+                },
+                colors = editorFieldColors(),
+                container = {
+                    OutlinedTextFieldDefaults.ContainerBox(
+                        enabled = isEditable,
+                        isError = false,
+                        interactionSource = remember { MutableInteractionSource() },
+                        colors = editorFieldColors(),
+                        shape = OutlinedTextFieldDefaults.shape
+                    )
+                },
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+            )
+        }
     )
 }
 private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
     return buildAnnotatedString {
         children.forEach { child ->
             withStyle(
-                    SpanStyle(
-                            fontWeight =
-                                    if ("bold" in child.marks) FontWeight.Bold
-                                    else FontWeight.Normal,
-                            fontStyle =
-                                    if ("italic" in child.marks) FontStyle.Italic
-                                    else FontStyle.Normal,
-                            background =
-                                    if ("code" in child.marks) Color(0xFFF4F7FF)
-                                    else Color.Transparent
-                    )
+                SpanStyle(
+                    fontWeight =
+                    if ("bold" in child.marks) {
+                        FontWeight.Bold
+                    } else {
+                        FontWeight.Normal
+                    },
+                    fontStyle =
+                    if ("italic" in child.marks) {
+                        FontStyle.Italic
+                    } else {
+                        FontStyle.Normal
+                    },
+                    background =
+                    if ("code" in child.marks) {
+                        Color(0xFFF4F7FF)
+                    } else {
+                        Color.Transparent
+                    }
+                )
             ) { append(child.text) }
         }
     }
 }
+
 @Composable
 private fun ImageDocumentBlock(
-        block: EditorBlock.ImageBlock,
-        isEditable: Boolean,
-        onUrlChange: (String) -> Unit,
-        onCaptionChange: (String) -> Unit,
-        onDelete: () -> Unit
+    block: EditorBlock.ImageBlock,
+    isEditable: Boolean,
+    onUrlChange: (String) -> Unit,
+    onCaptionChange: (String) -> Unit,
+    onDelete: () -> Unit
 ) {
     Surface(
-            modifier = Modifier.fillMaxWidth().testTag("editor_image_block_${block.id}"),
-            color = Color(0xFFF4F7FF),
-            shape = RoundedCornerShape(8.dp)
+        modifier = Modifier.fillMaxWidth().testTag("editor_image_block_${block.id}"),
+        color = Color(0xFFF4F7FF),
+        shape = RoundedCornerShape(8.dp)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
                     Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
                 }
                 if (block.url.isNotBlank()) {
                     SubcomposeAsyncImage(
-                            model =
-                                    ImageRequest.Builder(LocalContext.current)
-                                            .data(block.url)
-                                            .crossfade(true)
-                                            .build(),
-                            contentDescription = block.caption.ifBlank { "Image" },
-                            modifier =
-                                    Modifier.fillMaxWidth()
-                                            .height(200.dp)
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .testTag("editor_image_preview_${block.id}"),
-                            contentScale = ContentScale.Crop,
-                            loading = { ShimmerEffect() },
-                            error = {
-                                Box(
-                                        modifier =
-                                                Modifier.fillMaxSize()
-                                                        .background(Color(0xFFFDE7E9)),
-                                        contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                            imageVector = Icons.Default.Error,
-                                            contentDescription = "Error loading image",
-                                            tint = Color(0xFFC0392B)
-                                    )
-                                }
+                        model =
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(block.url)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = block.caption.ifBlank { "Image" },
+                        modifier =
+                        Modifier.fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .testTag("editor_image_preview_${block.id}"),
+                        contentScale = ContentScale.Crop,
+                        loading = { ShimmerEffect() },
+                        error = {
+                            Box(
+                                modifier =
+                                Modifier.fillMaxSize()
+                                    .background(Color(0xFFFDE7E9)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Error,
+                                    contentDescription = "Error loading image",
+                                    tint = Color(0xFFC0392B)
+                                )
                             }
+                        }
                     )
                 }
                 BasicTextField(
-                        value = block.url,
-                        readOnly = !isEditable,
-                        onValueChange = onUrlChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                        decorationBox = { innerTextField ->
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                    value = block.url,
-                                    innerTextField = innerTextField,
+                    value = block.url,
+                    readOnly = !isEditable,
+                    onValueChange = onUrlChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = block.url,
+                            innerTextField = innerTextField,
+                            enabled = isEditable,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember { MutableInteractionSource() },
+                            placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
+                            colors = editorFieldColors(),
+                            container = {
+                                OutlinedTextFieldDefaults.ContainerBox(
                                     enabled = isEditable,
-                                    singleLine = true,
-                                    visualTransformation = VisualTransformation.None,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
+                                    isError = false,
+                                    interactionSource =
+                                    remember { MutableInteractionSource() },
                                     colors = editorFieldColors(),
-                                    container = {
-                                        OutlinedTextFieldDefaults.ContainerBox(
-                                                enabled = isEditable,
-                                                isError = false,
-                                                interactionSource =
-                                                        remember { MutableInteractionSource() },
-                                                colors = editorFieldColors(),
-                                                shape = OutlinedTextFieldDefaults.shape
-                                        )
-                                    },
-                                    contentPadding =
-                                            PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                                    shape = OutlinedTextFieldDefaults.shape
+                                )
+                            },
+                            contentPadding =
+                            PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 )
                 BasicTextField(
-                        value = block.caption,
-                        readOnly = !isEditable,
-                        onValueChange = onCaptionChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = MaterialTheme.typography.bodyMedium,
-                        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                        decorationBox = { innerTextField ->
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                    value = block.caption,
-                                    innerTextField = innerTextField,
+                    value = block.caption,
+                    readOnly = !isEditable,
+                    onValueChange = onCaptionChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    decorationBox = { innerTextField ->
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = block.caption,
+                            innerTextField = innerTextField,
+                            enabled = isEditable,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember { MutableInteractionSource() },
+                            placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
+                            colors = editorFieldColors(),
+                            container = {
+                                OutlinedTextFieldDefaults.ContainerBox(
                                     enabled = isEditable,
-                                    singleLine = true,
-                                    visualTransformation = VisualTransformation.None,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
+                                    isError = false,
+                                    interactionSource =
+                                    remember { MutableInteractionSource() },
                                     colors = editorFieldColors(),
-                                    container = {
-                                        OutlinedTextFieldDefaults.ContainerBox(
-                                                enabled = isEditable,
-                                                isError = false,
-                                                interactionSource =
-                                                        remember { MutableInteractionSource() },
-                                                colors = editorFieldColors(),
-                                                shape = OutlinedTextFieldDefaults.shape
-                                        )
-                                    },
-                                    contentPadding =
-                                            PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
+                                    shape = OutlinedTextFieldDefaults.shape
+                                )
+                            },
+                            contentPadding =
+                            PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 )
             }
             IconButton(
-                    onClick = onDelete,
-                    enabled = isEditable,
-                    modifier =
-                            Modifier.align(Alignment.TopEnd)
-                                    .padding(4.dp)
-                                    .size(32.dp)
-                                    .testTag("editor_image_block_delete_${block.id}")
+                onClick = onDelete,
+                enabled = isEditable,
+                modifier =
+                Modifier.align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .size(32.dp)
+                    .testTag("editor_image_block_delete_${block.id}")
             ) {
                 Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Delete Image",
-                        tint = Color(0xFF7281A7),
-                        modifier = Modifier.size(20.dp)
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Delete Image",
+                    tint = Color(0xFF7281A7),
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
     }
 }
+
 @Composable
 private fun TableDocumentBlock(
-        block: EditorBlock.TableBlock,
-        isEditable: Boolean,
-        onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit
+    block: EditorBlock.TableBlock,
+    isEditable: Boolean,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit
 ) {
     Column(
-            modifier = Modifier.fillMaxWidth().testTag("editor_table_block_${block.id}"),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+        modifier = Modifier.fillMaxWidth().testTag("editor_table_block_${block.id}"),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
         Column(
-                modifier =
-                        Modifier.fillMaxWidth()
-                                .border(1.dp, Color(0xFFD9E2FF), RoundedCornerShape(4.dp))
-                                .clip(RoundedCornerShape(4.dp))
+            modifier =
+            Modifier.fillMaxWidth()
+                .border(1.dp, Color(0xFFD9E2FF), RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(4.dp))
         ) {
             block.rows.forEachIndexed { rowIndex, row ->
                 if (rowIndex > 0) {
@@ -744,19 +760,19 @@ private fun TableDocumentBlock(
                             VerticalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
                         }
                         BasicTextField(
-                                value = cell.joinToString("") { it.text },
-                                readOnly = !isEditable,
-                                onValueChange = { onCellChange(rowIndex, cellIndex, it) },
-                                modifier =
-                                        Modifier.weight(1f)
-                                                .padding(horizontal = 8.dp, vertical = 6.dp)
-                                                .testTag(
-                                                        "editor_table_cell_${block.id}_${rowIndex}_$cellIndex"
-                                                ),
-                                textStyle =
-                                        MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                                cursorBrush = SolidColor(Color(0xFF6E7BFF)),
-                                singleLine = true
+                            value = cell.joinToString("") { it.text },
+                            readOnly = !isEditable,
+                            onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+                            modifier =
+                            Modifier.weight(1f)
+                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                .testTag(
+                                    "editor_table_cell_${block.id}_${rowIndex}_$cellIndex"
+                                ),
+                            textStyle =
+                            MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                            cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                            singleLine = true
                         )
                     }
                 }
@@ -764,23 +780,24 @@ private fun TableDocumentBlock(
         }
     }
 }
+
 @Composable
 private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> Unit) {
     Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBack) {
             Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.collection_notes_back),
-                    tint = Color(0xFF1F2A44)
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.collection_notes_back),
+                tint = Color(0xFF1F2A44)
             )
         }
         Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IconButton(onClick = onShare) {
                 Icon(Icons.Outlined.Share, contentDescription = null, tint = Color(0xFF1F2A44))
@@ -791,64 +808,66 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
         }
     }
 }
+
 @Composable
 private fun EditorBottomBar(
-        activeTextBlockId: String?,
-        isEditable: Boolean,
-        isFormattingToolbarVisible: Boolean,
-        onToggleMark: (String, String) -> Unit,
-        onAddParagraph: () -> Unit,
-        onAddImage: () -> Unit,
-        onAddTable: () -> Unit,
-        onToggleFormattingToolbar: () -> Unit
+    activeTextBlockId: String?,
+    isEditable: Boolean,
+    isFormattingToolbarVisible: Boolean,
+    onToggleMark: (String, String) -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onAddTable: () -> Unit,
+    onToggleFormattingToolbar: () -> Unit
 ) {
     if (!isEditable) return
     if (isFormattingToolbarVisible) {
         FormattingBottomBar(
-                activeTextBlockId = activeTextBlockId,
-                onToggleMark = onToggleMark,
-                onHideToolbar = onToggleFormattingToolbar
+            activeTextBlockId = activeTextBlockId,
+            onToggleMark = onToggleMark,
+            onHideToolbar = onToggleFormattingToolbar
         )
     } else {
         DefaultBottomBar(
-                onToggleFormattingToolbar = onToggleFormattingToolbar,
-                onAddParagraph = onAddParagraph,
-                onAddImage = onAddImage,
-                onAddTable = onAddTable
+            onToggleFormattingToolbar = onToggleFormattingToolbar,
+            onAddParagraph = onAddParagraph,
+            onAddImage = onAddImage,
+            onAddTable = onAddTable
         )
     }
 }
+
 @Composable
 private fun DefaultBottomBar(
-        onToggleFormattingToolbar: () -> Unit,
-        onAddParagraph: () -> Unit,
-        onAddImage: () -> Unit,
-        onAddTable: () -> Unit
+    onToggleFormattingToolbar: () -> Unit,
+    onAddParagraph: () -> Unit,
+    onAddImage: () -> Unit,
+    onAddTable: () -> Unit
 ) {
     LazyRow(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 4.dp)
-                            .testTag("editor_default_bottom_bar"),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.CenterVertically
+        modifier =
+        Modifier.fillMaxWidth()
+            .height(56.dp)
+            .background(Color.White)
+            .padding(horizontal = 4.dp)
+            .testTag("editor_default_bottom_bar"),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         item {
             EditorBarButton(
-                    onClick = onAddParagraph,
-                    modifier = Modifier.testTag("editor_add_paragraph")
+                onClick = onAddParagraph,
+                modifier = Modifier.testTag("editor_add_paragraph")
             ) { Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF)) }
         }
         item {
             Box(
-                    modifier =
-                            Modifier.size(36.dp)
-                                    .background(Color(0xFFEAF1FF), RoundedCornerShape(8.dp))
-                                    .clickable(onClick = onToggleFormattingToolbar)
-                                    .testTag("editor_toggle_formatting"),
-                    contentAlignment = Alignment.Center
+                modifier =
+                Modifier.size(36.dp)
+                    .background(Color(0xFFEAF1FF), RoundedCornerShape(8.dp))
+                    .clickable(onClick = onToggleFormattingToolbar)
+                    .testTag("editor_toggle_formatting"),
+                contentAlignment = Alignment.Center
             ) { Text("Aa", color = Color(0xFF6E7BFF), fontSize = 16.sp, fontWeight = FontWeight.Bold) }
         }
         item {
@@ -874,18 +893,18 @@ private fun DefaultBottomBar(
         item {
             EditorBarButton(onClick = {}) {
                 Icon(
-                        Icons.AutoMirrored.Outlined.Undo,
-                        contentDescription = null,
-                        tint = Color(0xFF7281A7)
+                    Icons.AutoMirrored.Outlined.Undo,
+                    contentDescription = null,
+                    tint = Color(0xFF7281A7)
                 )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
                 Icon(
-                        Icons.AutoMirrored.Outlined.Redo,
-                        contentDescription = null,
-                        tint = Color(0xFF7281A7)
+                    Icons.AutoMirrored.Outlined.Redo,
+                    contentDescription = null,
+                    tint = Color(0xFF7281A7)
                 )
             }
         }
@@ -912,122 +931,120 @@ private fun DefaultBottomBar(
         item {
             EditorBarButton(onClick = {}) {
                 Icon(
-                        Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFF7281A7)
+                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = Color(0xFF7281A7)
                 )
             }
         }
     }
 }
+
 @Composable
 private fun FormattingBottomBar(
-        activeTextBlockId: String?,
-        onToggleMark: (String, String) -> Unit,
-        onHideToolbar: () -> Unit
+    activeTextBlockId: String?,
+    onToggleMark: (String, String) -> Unit,
+    onHideToolbar: () -> Unit
 ) {
     LazyRow(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .height(56.dp)
-                            .background(Color.White)
-                            .padding(horizontal = 4.dp)
-                            .testTag("editor_formatting_bottom_bar"),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.CenterVertically
+        modifier =
+        Modifier.fillMaxWidth()
+            .height(56.dp)
+            .background(Color.White)
+            .padding(horizontal = 4.dp)
+            .testTag("editor_formatting_bottom_bar"),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         item {
             EditorBarButton(
-                    onClick = { /* Body click */},
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                onClick = { /* Body click */ },
+                modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 Text("Body", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 14.sp)
             }
         }
         item {
             EditorBarButton(
-                    onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } },
-                    modifier = Modifier.testTag("editor_bold_action")
+                onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } },
+                modifier = Modifier.testTag("editor_bold_action")
             ) {
                 Text(
-                        "B",
-                        color = Color(0xFF6E7BFF),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.ExtraBold
+                    "B",
+                    color = Color(0xFF6E7BFF),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
         }
         item {
             EditorBarButton(
-                    onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } },
-                    modifier = Modifier.testTag("editor_italic_action")
+                onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } },
+                modifier = Modifier.testTag("editor_italic_action")
             ) {
                 Text(
-                        "I",
-                        color = Color(0xFF6E7BFF),
-                        fontSize = 18.sp,
-                        fontStyle = FontStyle.Italic,
-                        fontWeight = FontWeight.Bold
+                    "I",
+                    color = Color(0xFF6E7BFF),
+                    fontSize = 18.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
         item {
-            EditorBarButton(onClick = { /* underline logic */}) {
+            EditorBarButton(onClick = { /* underline logic */ }) {
                 Text("U", color = Color(0xFF1F2A44), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
         item {
-            EditorBarButton(onClick = { /* strikethrough logic */}) {
+            EditorBarButton(onClick = { /* strikethrough logic */ }) {
                 Text("S", color = Color(0xFF7281A7), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
         item {
-            EditorBarButton(onClick = { /* link logic */}) {
+            EditorBarButton(onClick = { /* link logic */ }) {
                 Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
             }
         }
         item {
-            EditorBarButton(onClick = { /* code logic */}) {
+            EditorBarButton(onClick = { /* code logic */ }) {
                 Text("<>", color = Color(0xFF1F2A44), fontWeight = FontWeight.Bold)
             }
         }
         item {
-            EditorBarButton(onClick = { /* formula logic */}) {
+            EditorBarButton(onClick = { /* formula logic */ }) {
                 Text("fx", color = Color(0xFF7281A7), fontWeight = FontWeight.Bold)
             }
         }
         item {
             EditorBarButton(
-                    onClick = onHideToolbar,
-                    modifier = Modifier.testTag("editor_hide_formatting")
+                onClick = onHideToolbar,
+                modifier = Modifier.testTag("editor_hide_formatting")
             ) {
                 Icon(Icons.Outlined.KeyboardHide, contentDescription = null, tint = Color(0xFF7281A7))
             }
         }
     }
 }
+
 @Composable
-private fun EditorBarButton(
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
-) {
+private fun EditorBarButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
-            modifier = modifier.size(width = 40.dp, height = 48.dp).clickable(onClick = onClick),
-            contentAlignment = Alignment.Center
+        modifier = modifier.size(width = 40.dp, height = 48.dp).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) { content() }
 }
+
 @Composable
-private fun editorFieldColors() =
-        OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent,
-                cursorColor = Color(0xFF6E7BFF)
-        )
+private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    disabledBorderColor = Color.Transparent,
+    cursorColor = Color(0xFF6E7BFF)
+)
 private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, title: String): String {
     if (selectedFolder == null) {
         return "Notes / $title"
@@ -1047,24 +1064,25 @@ private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, titl
         append(title)
     }
 }
+
 @Composable
 private fun ShimmerEffect() {
     val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
     val alpha by
-            infiniteTransition.animateFloat(
-                    initialValue = 0.2f,
-                    targetValue = 0.5f,
-                    animationSpec =
-                            infiniteRepeatable(
-                                    animation = tween(1000),
-                                    repeatMode = RepeatMode.Reverse
-                            ),
-                    label = "alpha"
-            )
+        infiniteTransition.animateFloat(
+            initialValue = 0.2f,
+            targetValue = 0.5f,
+            animationSpec =
+            infiniteRepeatable(
+                animation = tween(1000),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alpha"
+        )
     Box(
-            modifier =
-                    Modifier.fillMaxWidth()
-                            .height(200.dp)
-                            .background(Color(0xFFEAF1FF).copy(alpha = alpha))
+        modifier =
+        Modifier.fillMaxWidth()
+            .height(200.dp)
+            .background(Color(0xFFEAF1FF).copy(alpha = alpha))
     )
 }

@@ -24,6 +24,7 @@ data class SharedUsersUiState(
     val users: List<SharedUserUiModel> = emptyList(),
     val errorMessageRes: Int? = null
 )
+
 @HiltViewModel
 class SharedUsersViewModel @Inject constructor(
     private val noteRepository: NoteRepository,

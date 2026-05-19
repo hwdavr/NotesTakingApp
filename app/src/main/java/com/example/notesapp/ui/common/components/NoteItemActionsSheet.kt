@@ -114,6 +114,7 @@ fun NoteItemActionsSheet(
         }
     }
 }
+
 @Composable
 fun SheetActionRow(
     icon: ImageVector,

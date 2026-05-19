@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 data class SettingsUiState(
     val profileTitle: String = "Guest"
 )
+
 @HiltViewModel
 open class SettingsViewModel @Inject constructor(
     private val authManager: AuthManager

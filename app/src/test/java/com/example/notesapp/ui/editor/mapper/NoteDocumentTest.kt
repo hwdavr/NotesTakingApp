@@ -94,7 +94,7 @@ class NoteDocumentTest {
     fun `parseInlineMarkdown handles various combinations`() {
         val text = "Normal **Bold** *Italic* `Code` Mix"
         val result = parseInlineMarkdown(text)
-        
+
         assertEquals(7, result.size)
         assertEquals("Normal ", result[0].text)
         assertEquals("Bold", result[1].text)
@@ -113,11 +113,11 @@ class NoteDocumentTest {
         val h = parseMarkdownTextBlock(text = "# Heading")
         assertEquals("heading", h.type)
         assertEquals("Heading", h.children[0].text)
-        
+
         val b = parseMarkdownTextBlock(text = "- Item")
         assertEquals("bulleted", b.type)
         assertEquals("Item", b.children[0].text)
-        
+
         val p = parseMarkdownTextBlock(text = "Paragraph")
         assertEquals("paragraph", p.type)
         assertEquals("Paragraph", p.children[0].text)
@@ -134,10 +134,19 @@ class NoteDocumentTest {
         )
         val json = original.toJsonString()
         val restored = NoteDocument.fromContent(json)
-        
+
         assertEquals(original.blocks.size, restored.blocks.size)
-        assertEquals((original.blocks[0] as EditorBlock.TextBlock).type, (restored.blocks[0] as EditorBlock.TextBlock).type)
-        assertEquals((original.blocks[1] as EditorBlock.ImageBlock).url, (restored.blocks[1] as EditorBlock.ImageBlock).url)
-        assertEquals((original.blocks[2] as EditorBlock.TableBlock).rows.size, (restored.blocks[2] as EditorBlock.TableBlock).rows.size)
+        assertEquals(
+            (original.blocks[0] as EditorBlock.TextBlock).type,
+            (restored.blocks[0] as EditorBlock.TextBlock).type
+        )
+        assertEquals(
+            (original.blocks[1] as EditorBlock.ImageBlock).url,
+            (restored.blocks[1] as EditorBlock.ImageBlock).url
+        )
+        assertEquals(
+            (original.blocks[2] as EditorBlock.TableBlock).rows.size,
+            (restored.blocks[2] as EditorBlock.TableBlock).rows.size
+        )
     }
 }

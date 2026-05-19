@@ -1,6 +1,5 @@
 package com.example.notesapp.ui.home.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.folder.FolderRepository
@@ -58,12 +57,7 @@ open class HomeViewModel @Inject constructor(
             "all_notes" -> notes
             "shared" -> shared
             "favorites" -> {
-                val favFolder = folders.find { it.name.equals("Favorites", ignoreCase = true) }
-                if (favFolder != null) {
-                    notes.filter { it.folderId == favFolder.id }
-                } else {
-                    emptyList()
-                }
+                notes.filter { it.isFavorite }
             }
             else -> notes.filter { it.folderId == selectedId }
         }

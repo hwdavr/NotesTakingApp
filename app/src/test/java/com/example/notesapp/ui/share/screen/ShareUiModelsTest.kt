@@ -50,6 +50,7 @@ class ShareUiModelsTest {
         assertEquals(AccessRole.VIEWER, users[2].role)
         assertTrue(users[2].isPending)
     }
+
     @Test
     fun `isValidInviteEmail accepts standard email and rejects invalid values`() {
         assertTrue(isValidInviteEmail("invitee@example.com"))

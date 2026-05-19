@@ -8,7 +8,6 @@ import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Date
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,14 +21,20 @@ class NoteExporterTest {
         val content = NoteDocument(
             blocks = listOf(
                 EditorBlock.TextBlock(type = "heading", children = listOf(RichText("Test Heading"))),
-                EditorBlock.TextBlock(type = "paragraph", children = listOf(RichText("This is a test paragraph with some text."))),
+                EditorBlock.TextBlock(
+                    type = "paragraph",
+                    children = listOf(RichText("This is a test paragraph with some text."))
+                ),
                 EditorBlock.TableBlock(
                     rows = listOf(
                         listOf(listOf(RichText("Header 1")), listOf(RichText("Header 2"))),
                         listOf(listOf(RichText("Cell 1")), listOf(RichText("Cell 2")))
                     )
                 ),
-                EditorBlock.ImageBlock(url = "android.resource://com.example.notesapp/drawable/ic_launcher_foreground", caption = "Test Image")
+                EditorBlock.ImageBlock(
+                    url = "android.resource://com.example.notesapp/drawable/ic_launcher_foreground",
+                    caption = "Test Image"
+                )
             )
         ).toJsonString()
         val note = Note(

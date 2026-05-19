@@ -17,6 +17,7 @@ import org.junit.runner.RunWith
 class SettingsScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun settingsScreen_rendersCorrectly() {
         composeRule.setContent {
@@ -56,6 +57,7 @@ class SettingsScreenTest {
         composeRule.onNodeWithText("Privacy Policy").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Terms of Use").performScrollTo().assertIsDisplayed()
     }
+
     @Test
     fun settingsScreen_showsProfileEmailWhenProvided() {
         composeRule.setContent {

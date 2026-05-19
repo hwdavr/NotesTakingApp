@@ -16,7 +16,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -41,6 +40,7 @@ abstract class BaseViewModelIntegrationTest {
     protected lateinit var noteRepository: NoteRepositoryImpl
     protected lateinit var noteShareRepository: NoteShareRepositoryImpl
     protected val testDispatcher = kotlinx.coroutines.test.UnconfinedTestDispatcher()
+
     @Before
     fun baseSetup() {
         Dispatchers.setMain(testDispatcher)
@@ -64,6 +64,7 @@ abstract class BaseViewModelIntegrationTest {
         noteRepository = NoteRepositoryImpl(fakeNoteDao, apiService, syncCoordinator, fakeDeviceIdProvider)
         noteShareRepository = NoteShareRepositoryImpl(fakeNoteShareDao, apiService)
     }
+
     @After
     fun baseTeardown() {
         mockWebServer.shutdown()

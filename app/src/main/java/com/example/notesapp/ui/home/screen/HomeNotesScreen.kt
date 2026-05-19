@@ -180,7 +180,9 @@ fun HomeNotesScreenContent(
                                         },
                                         meta = when {
                                             note.isShared -> stringResource(R.string.home_shared_pill)
-                                            state.noteActions[note.id]?.isFavorite == true -> stringResource(R.string.folders_stat_favorites)
+                                            state.noteActions[note.id]?.isFavorite == true -> stringResource(
+                                                R.string.folders_stat_favorites
+                                            )
                                             else -> ""
                                         },
                                         color = cardColors[note.colorIndex],
@@ -327,10 +329,10 @@ private fun FolderChipsRow(items: List<FolderUiModel>, selectedId: String, onSel
             isSelected = selectedId == "shared",
             onClick = { onSelect("shared") }
         )
-        items.filter { 
-            it.id != "all_notes" && 
-            it.id != "shared" && 
-            !it.name.equals("Favorites", ignoreCase = true) 
+        items.filter {
+            it.id != "all_notes" &&
+                it.id != "shared" &&
+                !it.name.equals("Favorites", ignoreCase = true)
         }.forEach { folder ->
             FolderPill(
                 name = folder.name,

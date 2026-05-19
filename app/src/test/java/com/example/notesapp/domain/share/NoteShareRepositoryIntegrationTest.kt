@@ -16,6 +16,7 @@ class NoteShareRepositoryIntegrationTest : BaseViewModelIntegrationTest() {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val scenarioAdapter = moshi.adapter(NoteShareScenario::class.java)
     private val anyAdapter = moshi.adapter(Any::class.java)
+
     @Test
     fun `refreshNoteShares maps api shares into domain`() = runTest {
         val scenario = File("../sharedContracts/test-scenarios/note_shares_list_001.json")
@@ -36,6 +37,7 @@ class NoteShareRepositoryIntegrationTest : BaseViewModelIntegrationTest() {
         assertEquals(NoteShareAccessRole.VIEWER, shares[1].accessRole)
         assertEquals(NoteShareStatus.PENDING, shares[1].status)
     }
+
     @Test
     fun `inviteNoteShare stores created share`() = runTest {
         val scenario = File("../sharedContracts/test-scenarios/note_share_invite_001.json")

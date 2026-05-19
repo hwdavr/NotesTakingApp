@@ -148,10 +148,10 @@ fun ExportNoteScreen(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    onClick = { 
+                    onClick = {
                         val extension = if (state.selectedFormat == ExportFormat.Markdown) ".md" else ".pdf"
                         val filename = (note.title.ifBlank { "note" }) + extension
-                        launcher.launch(filename) 
+                        launcher.launch(filename)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,13 +182,9 @@ fun ExportNoteScreen(
         }
     }
 }
+
 @Composable
-private fun FormatOption(
-    title: String,
-    icon: ImageVector,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
+private fun FormatOption(title: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
     val borderColor = if (selected) Color(0xFF6E7BFF) else Color(0xFFEAF1FF)
     val backgroundColor = if (selected) Color(0xFFF0F4FF) else Color.White
     Surface(

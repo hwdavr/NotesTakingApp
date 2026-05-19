@@ -12,13 +12,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
+import java.io.IOException
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.IOException
 
 class NoteRepositoryImplTest {
 
@@ -34,7 +34,7 @@ class NoteRepositoryImplTest {
         api = mockk()
         syncCoordinator = mockk()
         deviceIdProvider = mockk()
-        
+
         every { deviceIdProvider.deviceId } returns "device1"
         repository = NoteRepositoryImpl(dao, api, syncCoordinator, deviceIdProvider)
     }
@@ -99,8 +99,17 @@ class NoteRepositoryImplTest {
             version = 1, deviceId = "device1", lastSyncedVersion = 1,
             isFavorite = false, isShared = false, createdAt = 1000L, updatedAt = 2000L, deletedAt = null
         )
-        val note = Note(id = "n1", title = "New", content = "New", folderId = "f2", sortKey = "100", createdAt = 1000L, updatedAt = 1000L)
-        
+        val note =
+            Note(
+                id = "n1",
+                title = "New",
+                content = "New",
+                folderId = "f2",
+                sortKey = "100",
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
+
         val apiItem = ApiItem(
             id = "n1", userId = "u1", type = "note", parentId = "f1",
             name = "New", content = "New", sortKey = "100",
@@ -125,8 +134,18 @@ class NoteRepositoryImplTest {
 
     @Test
     fun `save falls back to local save if api fails`() = runTest {
-        val note = Note(id = "n1", title = "Title", content = "Content", folderId = "f1", sortKey = "100", version = 1, createdAt = 1000L, updatedAt = 1000L)
-        
+        val note =
+            Note(
+                id = "n1",
+                title = "Title",
+                content = "Content",
+                folderId = "f1",
+                sortKey = "100",
+                version = 1,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
+
         coEvery { dao.getNoteById("n1") } returns null
         coEvery { api.createNote(any()) } throws IOException("Network error")
         coEvery { dao.insert(any()) } returns Unit

@@ -55,6 +55,7 @@ import org.junit.runner.RunWith
 class NotesTakingAppComposeUiTestTemplate {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun bottomNavigation_notesTab_isDisplayed() {
         composeRule.setContent {
@@ -63,6 +64,7 @@ class NotesTakingAppComposeUiTestTemplate {
         composeRule.onNodeWithTag("notes_tab").assertIsDisplayed()
         composeRule.onNodeWithTag("notes_screen").assertIsDisplayed()
     }
+
     @Test
     fun bottomNavigation_clickFolders_showsFoldersScreen() {
         composeRule.setContent {
@@ -71,6 +73,7 @@ class NotesTakingAppComposeUiTestTemplate {
         composeRule.onNodeWithTag("folders_tab").performClick()
         composeRule.onNodeWithTag("folders_screen").assertIsDisplayed()
     }
+
     @Test
     fun bottomNavigation_clickSettings_showsSettingsScreen() {
         composeRule.setContent {
@@ -79,6 +82,7 @@ class NotesTakingAppComposeUiTestTemplate {
         composeRule.onNodeWithTag("settings_tab").performClick()
         composeRule.onNodeWithTag("settings_screen").assertIsDisplayed()
     }
+
     @Test
     fun newNoteButton_opensEditor() {
         composeRule.setContent {
@@ -88,6 +92,7 @@ class NotesTakingAppComposeUiTestTemplate {
         composeRule.onNodeWithTag("note_editor_screen").assertIsDisplayed()
     }
 }
+
 @Composable
 private fun PlaceholderBottomNavScreen(selected: String) {
     var currentSelected by remember { mutableStateOf(selected) }
@@ -110,6 +115,7 @@ private fun PlaceholderBottomNavScreen(selected: String) {
         }
     }
 }
+
 @Composable
 private fun PlaceholderNotesScreen(showEditor: Boolean) {
     var isEditorVisible by remember { mutableStateOf(showEditor) }

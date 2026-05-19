@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 class NavigationTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun test_navigation_from_onboarding_to_home() {
         composeRule.setContent {
@@ -57,6 +58,7 @@ class NavigationTest {
         // Home Screen should be visible
         composeRule.onNodeWithText("Recent folders", ignoreCase = true).assertIsDisplayed()
     }
+
     @Test
     fun test_navigation_to_folders() {
         composeRule.setContent {

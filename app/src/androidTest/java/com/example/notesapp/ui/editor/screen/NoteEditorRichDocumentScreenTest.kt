@@ -4,7 +4,6 @@ package com.example.notesapp.ui.editor.screen
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,8 +11,6 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -29,6 +26,7 @@ import org.junit.runner.RunWith
 class NoteEditorRichDocumentScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun richDocumentBlocks_renderImageAndTable() {
         val document = NoteDocument(
@@ -70,6 +68,7 @@ class NoteEditorRichDocumentScreenTest {
         composeRule.onNodeWithTag("editor_image_block_image_1").assertIsDisplayed()
         composeRule.onNodeWithTag("editor_table_block_table_1").assertIsDisplayed()
     }
+
     @Test
     fun imageBlock_deleteButton_triggersCallback() {
         var deletedBlockId: String? = null
@@ -108,6 +107,7 @@ class NoteEditorRichDocumentScreenTest {
         composeRule.onNodeWithTag("editor_image_block_delete_image_1").performClick()
         assertTrue(deletedBlockId == "image_1")
     }
+
     @Test
     fun editorToolbarActions_triggerCallbacks() {
         var addedImage = false

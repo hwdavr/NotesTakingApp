@@ -2,11 +2,9 @@ package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.FolderEntity
-import com.example.notesapp.data.remote.CreateFolderRequest
 import com.example.notesapp.data.remote.ApiItem
 import com.example.notesapp.data.remote.MutationResultDto
 import com.example.notesapp.data.remote.NotesApiService
-import com.example.notesapp.data.remote.RenameItemRequest
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.util.DeviceIdProvider
@@ -14,13 +12,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
+import java.io.IOException
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.io.IOException
 
 class FolderRepositoryImplTest {
 
@@ -36,7 +34,7 @@ class FolderRepositoryImplTest {
         api = mockk()
         syncCoordinator = mockk()
         deviceIdProvider = mockk()
-        
+
         every { deviceIdProvider.deviceId } returns "device1"
         repository = FolderRepositoryImpl(dao, api, syncCoordinator, deviceIdProvider)
     }

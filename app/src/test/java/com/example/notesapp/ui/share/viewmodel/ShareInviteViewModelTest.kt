@@ -4,15 +4,11 @@ import com.example.notesapp.R
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.share.NoteShareAccessRole
 import com.example.notesapp.domain.share.NoteShareRepository
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -20,7 +16,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -64,13 +59,13 @@ class ShareInviteViewModelTest : BaseViewModelTest() {
     fun `invite success emits event`() = runTest(UnconfinedTestDispatcher()) {
         viewModel.load("note1")
         viewModel.onEmailChange("valid@example.com")
-        
+
         val events = mutableListOf<ShareInviteEvent>()
         val job = launch { viewModel.events.collect { events.add(it) } }
-        
+
         viewModel.invite()
         advanceUntilIdle()
-        
+
         assertEquals(1, events.size)
         assertEquals(ShareInviteEvent.InviteSucceeded, events[0])
         coVerify { noteShareRepository.inviteNoteShare("note1", "valid@example.com", NoteShareAccessRole.EDITOR) }
@@ -83,10 +78,10 @@ class ShareInviteViewModelTest : BaseViewModelTest() {
         coEvery { noteShareRepository.inviteNoteShare(any(), any(), any()) } throws Exception("API Error")
         viewModel.load("note1")
         viewModel.onEmailChange("valid@example.com")
-        
+
         viewModel.invite()
         advanceUntilIdle()
-        
+
         assertEquals(R.string.share_invite_generic_error, viewModel.uiState.value.errorMessageRes)
         assertFalse(viewModel.uiState.value.isSubmitting)
     }

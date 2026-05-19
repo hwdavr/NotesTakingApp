@@ -68,6 +68,7 @@ fun CollectionNotesScreen(
         onOpenNote = onOpenNote
     )
 }
+
 @Composable
 fun CollectionNotesScreenContent(
     parentPadding: PaddingValues,
@@ -161,6 +162,7 @@ fun CollectionNotesScreenContent(
         }
     }
 }
+
 @Composable
 private fun CollectionTopBar(title: String, onBack: () -> Unit) {
     Row(
@@ -185,6 +187,7 @@ private fun CollectionTopBar(title: String, onBack: () -> Unit) {
         Spacer(modifier = Modifier.weight(1f))
     }
 }
+
 @Composable
 private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
     Row(
@@ -228,6 +231,7 @@ private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
         )
     }
 }
+
 @Composable
 private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onClick: () -> Unit) {
     Card(
@@ -280,6 +284,7 @@ private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onCli
         }
     }
 }
+
 @Composable
 private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
     Card(
@@ -315,6 +320,7 @@ private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 private fun CollectionAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(

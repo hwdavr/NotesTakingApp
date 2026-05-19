@@ -31,6 +31,7 @@ data class ShareInviteUiState(
 sealed interface ShareInviteEvent {
     data object InviteSucceeded : ShareInviteEvent
 }
+
 @HiltViewModel
 class ShareInviteViewModel @Inject constructor(
     private val noteShareRepository: NoteShareRepository

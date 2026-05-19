@@ -2,8 +2,8 @@ package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.NoteEntity
 import com.example.notesapp.data.remote.toNoteAccessRole
-import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteAccessRole
 
 fun NoteEntity.toDomain(): Note = Note(
     id = id,

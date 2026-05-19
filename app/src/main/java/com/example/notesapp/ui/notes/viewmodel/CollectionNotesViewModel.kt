@@ -33,6 +33,7 @@ data class CollectionNotesUiState(
     val folderId: String? = null,
     val items: List<CollectionItemUiModel> = emptyList()
 )
+
 @HiltViewModel
 open class CollectionNotesViewModel @Inject constructor(
     folderRepository: FolderRepository,

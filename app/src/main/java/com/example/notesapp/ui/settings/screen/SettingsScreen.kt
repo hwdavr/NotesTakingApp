@@ -78,6 +78,7 @@ fun SettingsScreen(
         }
     )
 }
+
 @Composable
 fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "Guest", onLogout: () -> Unit) {
     Scaffold(
@@ -216,6 +217,7 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
         }
     }
 }
+
 // ─── Top App Bar ──────────────────────────────────────────────────────────────
 @Composable
 private fun SettingsTopBar() {
@@ -264,6 +266,7 @@ private fun SettingsTopBar() {
         }
     }
 }
+
 // ─── Hero Banner ─────────────────────────────────────────────────────────────
 @Composable
 private fun HeroBanner(modifier: Modifier = Modifier) {
@@ -349,6 +352,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
         )
     }
 }
+
 // ─── Section header (outside cards) ──────────────────────────────────────────
 @Composable
 private fun SectionHeader(title: String) {
@@ -365,6 +369,7 @@ private fun SectionHeader(title: String) {
             .padding(start = 16.dp, bottom = 6.dp, end = 16.dp)
     )
 }
+
 // ─── Shared card wrapper ──────────────────────────────────────────────────────
 @Composable
 private fun SectionCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -379,6 +384,7 @@ private fun SectionCard(modifier: Modifier = Modifier, content: @Composable () -
         }
     }
 }
+
 // ─── Individual setting row ───────────────────────────────────────────────────
 @Composable
 private fun SettingRowItem(
@@ -437,6 +443,7 @@ private fun SettingRowItem(
         }
     }
 }
+
 // ─── Thin divider between rows ─────────────────────────────────────────────────
 @Composable
 private fun SettingsDivider() {

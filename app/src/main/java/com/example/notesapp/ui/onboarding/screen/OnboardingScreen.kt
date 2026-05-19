@@ -159,6 +159,7 @@ fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun OnboardingScreenPreview() {

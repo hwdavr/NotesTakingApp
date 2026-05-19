@@ -115,7 +115,7 @@ private fun deriveDisplayName(email: String, displayName: String?): String {
             }
         }
         .ifBlank { email }
-    }
+}
 private fun deriveInitials(email: String, displayName: String?): String {
     val source = (displayName ?: email.substringBefore('@')).trim()
     val pieces = source.split(' ', '.', '_', '-').filter { it.isNotBlank() }

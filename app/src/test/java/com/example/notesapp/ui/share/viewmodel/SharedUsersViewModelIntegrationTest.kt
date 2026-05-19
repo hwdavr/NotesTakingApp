@@ -22,6 +22,7 @@ class SharedUsersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val scenarioAdapter = moshi.adapter(NoteShareScenario::class.java)
     private val anyAdapter = moshi.adapter(Any::class.java)
+
     @Test
     fun `load adds local owner row on top of api collaborators`() = runTest {
         fakeNoteDao.insert(

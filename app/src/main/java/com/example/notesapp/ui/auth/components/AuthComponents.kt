@@ -45,6 +45,7 @@ fun validatePassword(password: String): PasswordValidationState {
         hasSpecialChar = password.any { !it.isLetterOrDigit() }
     )
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthHeader(title: String, onBack: () -> Unit) {
@@ -71,6 +72,7 @@ fun AuthHeader(title: String, onBack: () -> Unit) {
         )
     )
 }
+
 @Composable
 fun AuthTextField(
     value: String,
@@ -115,6 +117,7 @@ fun AuthTextField(
         )
     }
 }
+
 @Composable
 fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: String) {
     Column(

@@ -17,6 +17,7 @@ import org.junit.runner.RunWith
 class ShareInviteScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @Test
     fun shareInviteScreen_rendersDesignContentAndSelection() {
         composeRule.setContent {
@@ -50,6 +51,7 @@ class ShareInviteScreenTest {
         composeRule.onNodeWithText("Full access").assertIsDisplayed()
         composeRule.onNodeWithTag("share_invite_cta").assertIsDisplayed()
     }
+
     @Test
     fun sharedUsersCta_triggersNavigationCallback() {
         var clicked = false

@@ -5,7 +5,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasSetTextAction
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -59,10 +58,12 @@ fun TestFoldersScreen(
         )
     }
 }
+
 @RunWith(AndroidJUnit4::class)
 class FoldersScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun folderAddScenario_rendersExpectedFolder() {
@@ -77,6 +78,7 @@ class FoldersScreenTest {
         composeRule.onNodeWithTag("folders_screen").assertIsDisplayed()
         composeRule.onNodeWithText("Work").assertIsDisplayed()
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun searchingWithoutMatches_showsSearchEmptyState() {
@@ -106,6 +108,7 @@ class FoldersScreenTest {
         composeRule.onNodeWithText("No folders or notes match your search.").assertIsDisplayed()
         assertEquals("missing", searchQuery)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun moveFolderAction_emitsMoveFolderCallback() {
@@ -128,6 +131,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(folder, folderToMove)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun moveNoteAction_emitsMoveNoteCallback() {
@@ -150,6 +154,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(note, noteToMove)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun archiveFolder_showsConfirmationDialog_andArchivesOnConfirm() {
@@ -185,6 +190,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(folder, archivedFolder)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun renameFolder_updatesFolderName() {
@@ -225,6 +231,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(folder to "New Name", renamedFolder)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun renameNote_updatesNoteTitle() {
@@ -264,6 +271,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(note to "New Note", renamedNote)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun addToFavoritesNoteAction_emitsFavoriteNoteCallback() {
@@ -289,6 +297,7 @@ class FoldersScreenTest {
         composeRule.waitForIdle()
         assertEquals(note, favoritedNote)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun addToFavoritesFolderAction_emitsFavoriteFolderCallback() {
@@ -333,7 +342,7 @@ class FoldersScreenTest {
         composeRule.setContent {
             TestFoldersScreen(state = state)
         }
-        
+
         // Check for shared section title
         composeRule.onNodeWithText("Shared").assertIsDisplayed()
         // Check for the shared note title

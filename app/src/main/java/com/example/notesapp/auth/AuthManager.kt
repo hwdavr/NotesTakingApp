@@ -37,6 +37,7 @@ open class AuthManager @Inject constructor(
     init {
         checkSession()
     }
+
     /**
      * Launches the Auth0 web login flow.
      */
@@ -63,6 +64,7 @@ open class AuthManager @Inject constructor(
                 }
             )
     }
+
     /**
      * Launches the Auth0 web logout flow.
      */
@@ -86,6 +88,7 @@ open class AuthManager @Inject constructor(
                 }
             )
     }
+
     /**
      * Checks if a valid access token exists in secure storage.
      */

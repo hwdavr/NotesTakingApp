@@ -10,12 +10,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class SmartCollectionCounts(
@@ -38,6 +36,7 @@ data class FoldersUiState(
     val sharedTreeItems: List<FolderTreeItem> = emptyList(),
     val isSearchActive: Boolean = false
 )
+
 @HiltViewModel
 open class FoldersViewModel @Inject constructor(
     private val folderRepository: FolderRepository,
@@ -83,7 +82,7 @@ open class FoldersViewModel @Inject constructor(
                                 it.content.contains(query, ignoreCase = true)
                         }
                         .map { FolderTreeItem.NoteItem(it, 0) }
-                    
+
                     val matchingShared = shared
                         .filter {
                             it.title.contains(query, ignoreCase = true) ||

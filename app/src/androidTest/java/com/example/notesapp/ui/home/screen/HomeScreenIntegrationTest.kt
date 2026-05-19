@@ -21,6 +21,7 @@ class HomeScreenIntegrationTest {
     @get:Rule
     val composeRule = createComposeRule()
     private val screen = HomeScreenRobot(composeRule)
+
     @Test
     fun selectingFolderChipUpdatesRenderedNotesThroughViewModel() {
         val viewModel = HomeViewModel(
@@ -56,6 +57,7 @@ class HomeScreenIntegrationTest {
         screen.assertNoteVisible("Grocery List")
         screen.assertNoteMissing("Project Plan")
     }
+
     @Test
     fun clickingNoteMoreActionsOpensFolderScreenNoteActionsSheet() {
         val viewModel = HomeViewModel(
@@ -85,6 +87,7 @@ class HomeScreenIntegrationTest {
         composeRule.onNodeWithText("Rename").assertIsDisplayed()
         composeRule.onNodeWithText("Archive").assertIsDisplayed()
     }
+
     @Test
     fun favoritingHomeNoteShowsFavoriteBadge() {
         val viewModel = HomeViewModel(
@@ -113,15 +116,22 @@ class HomeScreenIntegrationTest {
         screen.openNoteActions("note_001")
         // Wait for bottom sheet to be visible using tag
         composeRule.waitUntil(10000) {
-            composeRule.onAllNodesWithTag("add_to_favorites_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "add_to_favorites_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("add_to_favorites_action", useUnmergedTree = true).performClick()
         composeRule.waitForIdle()
         composeRule.waitUntil(20000) {
-            composeRule.onAllNodesWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag(
+                "home_note_favorite_badge_note_001",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).assertIsDisplayed()
     }
+
     @Test
     fun folderPillsAreNotDuplicated() {
         val viewModel = HomeViewModel(
