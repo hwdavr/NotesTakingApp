@@ -256,15 +256,7 @@ fun FoldersScreenContent(
                     }
                 }
             }
-            HomeStyleFab(
-                onClick = {
-                    selectedFolderForAdd = null
-                    showAddFolderDialog = true
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 28.dp)
-            )
+
         }
     }
     if (selectedFolderForQuickAdd != null) {
@@ -836,28 +828,7 @@ private fun FolderItemActionsSheet(
         }
     }
 }
-@Composable
-private fun HomeStyleFab(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        color = LocalAppColors.current.textSecondary,
-        shadowElevation = 0.dp
-    ) {
-        Box(
-            modifier = Modifier.size(56.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "+",
-                color = LocalAppColors.current.onSecondary,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
+
 private fun folderIconForName(name: String): ImageVector {
     val normalized = name.lowercase()
     return when {
