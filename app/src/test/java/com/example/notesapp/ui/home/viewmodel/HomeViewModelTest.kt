@@ -167,4 +167,15 @@ class HomeViewModelTest : BaseViewModelTest() {
         assertEquals("sn1", state.recentNotes[0].id)
         assertTrue(state.recentNotes[0].isShared)
     }
+
+    @Test
+    fun `refresh triggers repository sync`() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        viewModel.refresh()
+        advanceUntilIdle()
+        io.mockk.coVerify { folderRepository.sync() }
+        assertFalse(viewModel.uiState.value.isRefreshing)
+    }
 }

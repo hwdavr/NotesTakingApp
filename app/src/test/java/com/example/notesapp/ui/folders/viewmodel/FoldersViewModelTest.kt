@@ -11,11 +11,14 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -158,5 +161,16 @@ class FoldersViewModelTest : BaseViewModelTest() {
         assertEquals(1, state.treeItems.size)
         val item = state.treeItems[0] as FolderTreeItem.NoteItem
         assertEquals("sn1", item.note.id)
+    }
+
+    @Test
+    fun `refresh triggers repository sync`() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        viewModel.refresh()
+        advanceUntilIdle()
+        coVerify { folderRepository.sync() }
+        assertFalse(viewModel.uiState.value.isRefreshing)
     }
 }

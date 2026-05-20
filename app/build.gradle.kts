@@ -11,13 +11,25 @@ if (localPropertiesFile.exists()) {
 
 val auth0ClientId =
     localProperties.getProperty("AUTH0_CLIENT_ID") ?: System.getenv("AUTH0_CLIENT_ID") ?: ""
-val auth0Audience = localProperties.getProperty("AUTH0_AUDIENCE") ?: System.getenv("AUTH0_AUDIENCE") ?: "https://api.example.com/"
-val apiBaseUrl = localProperties.getProperty("API_BASE_URL") ?: System.getenv("API_BASE_URL") ?: "https://api.example.com/"
+val auth0Audience =
+    localProperties.getProperty("AUTH0_AUDIENCE")
+        ?: System.getenv("AUTH0_AUDIENCE")
+        ?: "https://api.example.com/"
+val apiBaseUrl =
+    localProperties.getProperty("API_BASE_URL")
+        ?: System.getenv("API_BASE_URL")
+        ?: "https://api.example.com/"
 
 val firebaseAppId = localProperties.getProperty("FIREBASE_APP_ID") ?: System.getenv("FIREBASE_APP_ID") ?: ""
 val firebaseGroups = localProperties.getProperty("FIREBASE_GROUPS") ?: System.getenv("FIREBASE_GROUPS") ?: "MyAccounts"
-val firebaseReleaseNotes = localProperties.getProperty("FIREBASE_RELEASE_NOTES") ?: System.getenv("FIREBASE_RELEASE_NOTES") ?: "Manual build upload via Gradle"
-val firebaseServiceCredentials = localProperties.getProperty("FIREBASE_SERVICE_CREDENTIALS_FILE") ?: System.getenv("FIREBASE_SERVICE_CREDENTIALS_FILE") ?: ""
+val firebaseReleaseNotes =
+    localProperties.getProperty("FIREBASE_RELEASE_NOTES")
+        ?: System.getenv("FIREBASE_RELEASE_NOTES")
+        ?: "Manual build upload via Gradle"
+val firebaseServiceCredentials =
+    localProperties.getProperty("FIREBASE_SERVICE_CREDENTIALS_FILE")
+        ?: System.getenv("FIREBASE_SERVICE_CREDENTIALS_FILE")
+        ?: ""
 
 plugins {
     id("com.android.application")

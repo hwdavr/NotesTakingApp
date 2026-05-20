@@ -15,5 +15,6 @@ data class HomeUiState(
     val noteActions: Map<String, Note> = emptyMap(),
     val recentFolders: List<FolderUiModel> = emptyList(),
     val selectedFolderId: String = "all_notes",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false
 )

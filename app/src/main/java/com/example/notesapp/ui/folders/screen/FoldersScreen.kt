@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.StickyNote2
 import androidx.compose.material.icons.filled.Star
@@ -43,7 +45,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -102,7 +108,8 @@ fun FoldersScreen(
         onOpenNote = onOpenNote,
         onOpenCollection = onOpenCollection,
         onMoveFolder = onMoveFolder,
-        onMoveNote = onMoveNote
+        onMoveNote = onMoveNote,
+        onRefresh = viewModel::refresh
     )
 }
 
@@ -123,7 +130,8 @@ fun FoldersScreenContent(
     onOpenNote: (String) -> Unit,
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
     onMoveFolder: (Folder) -> Unit = {},
-    onMoveNote: (Note) -> Unit = {}
+    onMoveNote: (Note) -> Unit = {},
+    onRefresh: () -> Unit = {}
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var selectedItemForQuickActions by remember { mutableStateOf<QuickActionItem?>(null) }
@@ -134,6 +142,21 @@ fun FoldersScreenContent(
     var itemToRename by remember { mutableStateOf<QuickActionItem?>(null) }
     var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
     var itemToDelete by remember { mutableStateOf<QuickActionItem?>(null) }
+
+    val pullToRefreshState = rememberPullToRefreshState()
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            onRefresh()
+        }
+    }
+    LaunchedEffect(state.isRefreshing) {
+        if (state.isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         containerColor = Color.Transparent,
@@ -151,6 +174,7 @@ fun FoldersScreenContent(
                     )
                 )
                 .padding(innerPadding)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection)
                 .testTag("folders_screen")
         ) {
             Column(
@@ -186,7 +210,7 @@ fun FoldersScreenContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.treeItems.isEmpty() && state.sharedTreeItems.isEmpty()) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -259,6 +283,12 @@ fun FoldersScreenContent(
                     }
                 }
             }
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                contentColor = LocalAppColors.current.primary,
+                containerColor = LocalAppColors.current.searchBackground
+            )
         }
     }
     if (selectedFolderForQuickAdd != null) {

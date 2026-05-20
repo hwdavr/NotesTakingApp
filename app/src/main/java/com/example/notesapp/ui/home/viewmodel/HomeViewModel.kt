@@ -24,6 +24,7 @@ open class HomeViewModel @Inject constructor(
     private val folderRepository: FolderRepository
 ) : ViewModel() {
     private val selectedFolderId = MutableStateFlow("all_notes")
+    private val isRefreshing = MutableStateFlow(false)
     init {
         viewModelScope.launch {
             folderRepository.sync()
@@ -31,6 +32,18 @@ open class HomeViewModel @Inject constructor(
     }
     fun selectFolder(id: String) {
         selectedFolderId.value = id
+    }
+    fun refresh() {
+        viewModelScope.launch {
+            isRefreshing.value = true
+            try {
+                folderRepository.sync()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isRefreshing.value = false
+            }
+        }
     }
     fun renameNote(note: Note, newName: String) {
         viewModelScope.launch {
@@ -51,8 +64,9 @@ open class HomeViewModel @Inject constructor(
         noteRepository.getActiveNotes(),
         noteRepository.getSharedNotes(),
         folderRepository.getFolders(),
-        selectedFolderId
-    ) { notes, shared, folders, selectedId ->
+        selectedFolderId,
+        isRefreshing
+    ) { notes, shared, folders, selectedId, refreshing ->
         val filteredNotes = when (selectedId) {
             "all_notes" -> notes
             "shared" -> shared
@@ -90,7 +104,8 @@ open class HomeViewModel @Inject constructor(
                 )
             },
             selectedFolderId = selectedId,
-            isLoading = false
+            isLoading = false,
+            isRefreshing = refreshing
         )
     }
         .stateIn(

@@ -34,7 +34,8 @@ data class FoldersUiState(
     val smartCounts: SmartCollectionCounts = SmartCollectionCounts(),
     val treeItems: List<FolderTreeItem> = emptyList(),
     val sharedTreeItems: List<FolderTreeItem> = emptyList(),
-    val isSearchActive: Boolean = false
+    val isSearchActive: Boolean = false,
+    val isRefreshing: Boolean = false
 )
 
 @HiltViewModel
@@ -45,6 +46,7 @@ open class FoldersViewModel @Inject constructor(
     private val searchQuery = MutableStateFlow("")
     private val smartCounts = MutableStateFlow(SmartCollectionCounts())
     private val folderCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    private val isRefreshing = MutableStateFlow(false)
     private val allFolders = folderRepository.getFolders()
     private val allActiveNotes = combine(
         noteRepository.getActiveNotes(),
@@ -58,10 +60,10 @@ open class FoldersViewModel @Inject constructor(
             combine(
                 allFolders,
                 allActiveNotes,
-                searchQuery,
+                combine(searchQuery, isRefreshing) { q, r -> q to r },
                 smartCounts,
                 folderCounts
-            ) { folders, (notes, shared), query, counts, perFolderCounts ->
+            ) { folders, (notes, shared), (query, refreshing), counts, perFolderCounts ->
                 val items = if (query.isBlank()) {
                     buildTree(folders, notes, null, 0, perFolderCounts)
                 } else {
@@ -103,7 +105,8 @@ open class FoldersViewModel @Inject constructor(
                     smartCounts = counts,
                     treeItems = items,
                     sharedTreeItems = sharedItems,
-                    isSearchActive = query.isNotBlank()
+                    isSearchActive = query.isNotBlank(),
+                    isRefreshing = refreshing
                 )
             }.collect { state -> _uiState.value = state }
         }
@@ -111,6 +114,19 @@ open class FoldersViewModel @Inject constructor(
             folderRepository.sync()
         }
         refreshCounts()
+    }
+    fun refresh() {
+        viewModelScope.launch {
+            isRefreshing.value = true
+            try {
+                folderRepository.sync()
+                refreshCounts()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                isRefreshing.value = false
+            }
+        }
     }
     fun onSearchChanged(query: String) {
         searchQuery.value = query

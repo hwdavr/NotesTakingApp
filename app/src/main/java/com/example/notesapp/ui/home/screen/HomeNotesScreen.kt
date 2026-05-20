@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,7 +29,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +60,7 @@ import com.example.notesapp.ui.home.viewmodel.HomeViewModel
 import com.example.notesapp.ui.notes.components.NoteCard
 import com.example.notesapp.ui.theme.LocalAppColors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeNotesScreen(
     parentPadding: PaddingValues,
@@ -73,7 +79,8 @@ fun HomeNotesScreen(
         onAddToFavoritesNote = viewModel::addNoteToFavorites,
         onRenameNote = viewModel::renameNote,
         onDeleteNote = viewModel::deleteNote,
-        onMoveNote = onMoveNote
+        onMoveNote = onMoveNote,
+        onRefresh = viewModel::refresh
     )
 }
 
@@ -88,7 +95,8 @@ fun HomeNotesScreenContent(
     onAddToFavoritesNote: (Note) -> Unit = {},
     onRenameNote: (Note, String) -> Unit = { _, _ -> },
     onDeleteNote: (Note) -> Unit = {},
-    onMoveNote: (Note) -> Unit = {}
+    onMoveNote: (Note) -> Unit = {},
+    onRefresh: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
@@ -108,6 +116,21 @@ fun HomeNotesScreenContent(
             }
         }
     }
+
+    val pullToRefreshState = rememberPullToRefreshState()
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            onRefresh()
+        }
+    }
+    LaunchedEffect(state.isRefreshing) {
+        if (state.isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
+        }
+    }
+
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         containerColor = Color.Transparent,
@@ -122,6 +145,7 @@ fun HomeNotesScreenContent(
                     )
                 )
                 .padding(innerPadding)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection)
         ) {
             Column(
                 modifier = Modifier
@@ -207,6 +231,12 @@ fun HomeNotesScreenContent(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 28.dp)
+            )
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                contentColor = colors.primary,
+                containerColor = colors.searchBackground
             )
         }
     }
@@ -366,7 +396,7 @@ private fun FolderPill(name: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun EmptyNotesState(modifier: Modifier = Modifier, searchActive: Boolean) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         contentAlignment = Alignment.Center
     ) {
         Text(
