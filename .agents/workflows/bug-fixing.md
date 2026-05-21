@@ -15,10 +15,11 @@ This workflow prioritizes root-cause analysis over quick patching.
 
 ## Core Principle
 
-Do not fix symptoms first.
-**The Fix Plan must be approved before any code is written.**
+Do not fix symptoms first. Do not guess — prove it with a failing test.
+**The reproduction test must be RED before the Fix Plan is written.**
+**The Fix Plan must be approved before any fix code is written.**
 
-Pipeline: Understand, Localize & Design → Fix Plan → [User Approval] → Implementation → Code Review → Regression Test → Test Review → Knowledge
+Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Code Review → Test Review → Knowledge
 
 ---
 
@@ -34,7 +35,18 @@ Adapt for bugs:
 - Design the fix (UiState changes if needed)
 
 Output: `docs/changes/<name>/request_analysis/spec.md` with bug context, fault area, and root cause
-Gate: root cause is specific enough that a test can be written to reproduce it
+Gate: root cause is specific enough that a reproduction test can be written
+
+---
+
+### Stage — Bug Reproduction (TDD) ⛔ STOP
+Load: `stages/bug-reproduction.md`
+
+Write a failing test that mechanically proves the root cause before any fix is written.
+
+Output: Failing reproduction test file + `spec.md` updated with Reproduction Test section
+Gate: test exits RED (non-zero), failure message matches root cause, no application code modified
+**STOP — if root cause cannot be reproduced by a test, surface to user before continuing.**
 
 ---
 
@@ -42,9 +54,9 @@ Gate: root cause is specific enough that a test can be written to reproduce it
 Load: `stages/implementation-plan.md`
 
 Adapt — the plan must include:
-- Root cause
+- Root cause (reference the reproduction test as evidence)
 - Proposed fix (minimal)
-- Regression tests to add
+- Which `@Ignore` annotation to remove once the fix is applied
 
 Output: `docs/changes/<name>/coding/implementation_plan.md`
 Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
@@ -72,18 +84,15 @@ Gate: build passes, static analysis passes, architecture rules followed
 
 ---
 
-### Stage — Regression Test (Testing — write test first)
-Load: `stages/testing.md`
-
-**Write the failing regression test before touching the application code** where feasible.
-Gate: regression test fails before fix AND passes after fix
-
----
-
 ### Stage — Test Review
 Load: `stages/test-review.md`
 
-Verify regression test stability and fix coverage.
+Verify the reproduction test (now passing) and any additional tests written during Implementation:
+- Remove any `@Ignore` annotation added in the Bug Reproduction stage
+- Confirm the reproduction test is GREEN after the fix
+- Confirm no regressions in the full suite
+
+Gate: reproduction test passes, full suite exits 0, coverage requirements met
 
 ---
 
@@ -97,5 +106,6 @@ Load: `stages/knowledge-capture.md`
 ## Human-in-the-Loop Confirmation Points
 
 1. **After Bug Context, Localization & Root Cause** — if root cause is uncertain, ask user
-2. **After Fix Plan** — user approves fix plan *(mandatory always)*
-3. **After Test Review** — user confirms the fix before it is merged
+2. **After Bug Reproduction** — if the bug cannot be reproduced by a test, surface to user *(mandatory stop)*
+3. **After Fix Plan** — user approves fix plan *(mandatory always)*
+4. **After Test Review** — user confirms the fix before it is merged
