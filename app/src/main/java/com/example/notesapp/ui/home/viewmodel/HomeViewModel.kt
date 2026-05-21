@@ -68,7 +68,7 @@ open class HomeViewModel @Inject constructor(
         isRefreshing
     ) { notes, shared, folders, selectedId, refreshing ->
         val filteredNotes = when (selectedId) {
-            "all_notes" -> notes
+            "all_notes" -> notes + shared
             "shared" -> shared
             "favorites" -> {
                 notes.filter { it.isFavorite }

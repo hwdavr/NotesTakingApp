@@ -44,7 +44,7 @@
     "ui": {
       "screen": "home",
       "hasSharedPill": true,
-      "initialNoteCount": 1,
+      "initialNoteCount": 2,
       "filteredNoteCount": 1
     }
   }

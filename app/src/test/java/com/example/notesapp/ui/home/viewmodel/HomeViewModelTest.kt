@@ -92,7 +92,9 @@ class HomeViewModelTest : BaseViewModelTest() {
         }
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
-        assertEquals(3, state.recentNotes.size)
+        // All notes should include both active and shared notes
+        assertEquals(4, state.recentNotes.size)
+        assertTrue(state.recentNotes.any { it.id == "sn1" })
         // 2 virtual folders (All Notes, Shared) + 2 test folders = 4
         assertEquals(4, state.recentFolders.size)
         assertEquals("all_notes", state.selectedFolderId)
