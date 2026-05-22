@@ -64,6 +64,7 @@ Existing skills — load the SKILL.md from the relevant folder:
 
 | Skill folder | Used in stage |
 |---|---|
+| `skills/context-management/` | Session start · context drift recovery · switching feature areas |
 | `skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
 | `skills/android-ui-verification/` | Stage — UI Layer |
 | `skills/android-unit-test/` | Stage — Testing |
