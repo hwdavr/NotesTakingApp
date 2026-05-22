@@ -117,6 +117,21 @@ Every change needs a description that stands alone in version control history.
 
 ## Review Process
 
+### Step 0: Load All In-Scope Rule Files (Mandatory)
+
+Before looking at any code, identify which project rule files are in scope and load them all.
+
+| If the diff touches... | Load this rule file |
+|------------------------|--------------------|
+| Any Composable or UI file | `rules/compose-rules.md` |
+| Any user-visible text | `rules/localization-rules.md` |
+| Any layer boundary (ViewModel, Repository, etc.) | `rules/android-architecture.md` |
+| Any navigation code | `rules/navigation-rules.md` |
+| Any API / data layer | `rules/api-contract-rules.md` |
+| Any analytics event | `rules/analytics-rules.md` |
+
+**Do not skip a rule file because you believe the diff is unlikely to violate it.** Load it, scan against it, and record the result explicitly. If you haven't loaded a rule file, you cannot claim its rules were checked.
+
 ### Step 1: Understand the Context
 
 Before looking at code, understand the intent:
@@ -272,6 +287,7 @@ Part of code review is dependency review:
 
 ### Context
 - [ ] I understand what this change does and why
+- [ ] I have loaded all in-scope rule files (Step 0 above) before starting
 
 ### Correctness
 - [ ] Change matches spec/task requirements
@@ -300,6 +316,29 @@ Part of code review is dependency review:
 - [ ] No N+1 patterns
 - [ ] No unbounded operations
 - [ ] Pagination on list endpoints
+
+### Project-Specific Rules
+
+#### compose-rules.md *(if UI changed)*
+- [ ] No hardcoded colors (`Color.White`, `Color(0x...)`, etc.) — all via `LocalAppColors.current.<token>`
+- [ ] New color tokens added to both `LightAppColors` and `DarkAppColors`
+- [ ] No hardcoded strings in `Text()`, labels, or hints — all via `stringResource()`
+- [ ] All interactive elements have `Modifier.testTag(...)` with stable names
+- [ ] Stateless `Content` composable separated from the stateful `Screen` wrapper
+
+#### localization-rules.md *(if UI changed)*
+- [ ] Every new string defined in `strings.xml` with pattern `<screen>_<component>_<type>`
+- [ ] Plural strings use `<plurals>` block
+- [ ] Non-text interactive elements have `contentDescription = stringResource(...)` — not `null`
+
+#### android-architecture.md
+- [ ] No cross-layer imports
+- [ ] No fully-qualified class names inline in function bodies
+- [ ] DTOs not exposed outside data layer
+
+#### navigation-rules.md — PASS / FAIL / N/A
+#### api-contract-rules.md — PASS / FAIL / N/A
+#### analytics-rules.md — PASS / FAIL / N/A
 
 ### Verification
 - [ ] Tests pass
