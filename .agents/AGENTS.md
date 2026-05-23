@@ -71,7 +71,7 @@ Existing skills — load the SKILL.md from the relevant folder:
 | `skills/android-instrumented-ui-test/` | Stage — Testing |
 | `skills/shared-json-scenarios/` | Stage — Testing |
 | `skills/code-review-and-quality/` | Stage — Code Review |
-| `skills/android-code-quality-checks/` | the relevant stage, 08 |
+| `skills/android-code-quality-checks/` | Stage — Code Review |
 | `skills/incremental-implementation/` | Stage — Implementation Plan |
 | `skills/documentation-and-adrs/` | Stage — Knowledge Capture |
 | `skills/karpathy-guidelines/` | Any stage — coding discipline |

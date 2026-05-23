@@ -154,7 +154,7 @@ For each rules file checked, list every violation found (file, line, description
 APPROVED / REVISION REQUIRED — <blocking issue if REVISION REQUIRED>
 ```
 
-Update `summary.md`: mark the relevant stage complete with review verdict.
+Update `summary.md`: mark the Code Review stage complete with review verdict.
 
 ---
 
@@ -177,10 +177,10 @@ Update `summary.md`: mark the relevant stage complete with review verdict.
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
-**REVISION REQUIRED →**
-- Compilation error → return to the stage that introduced it (03 / 04 / 05)
-- Architecture violation → return to the relevant implementation stage
-- Design mismatch → return to the relevant stage (UI)
-- Rule violation (string/color/accessibility) → return to the UI Layer stage
+**REVISION REQUIRED →** Check the active workflow file to identify the correct implementation stage to return to, then apply the fix:
+- Compilation error → return to the implementation stage that introduced it
+- Architecture violation → return to the implementation stage where the violation was introduced (Data Layer, Domain Layer, or UI Layer)
+- Design mismatch → return to the UI implementation stage (UI Layer or Stage 1 — UI Implementation, depending on active workflow)
+- Rule violation (string/color/accessibility) → return to the UI implementation stage
 
 **Iteration cap:** 2 rounds of review. If unresolved after 2 rounds, surface the specific issue to the user for a decision.

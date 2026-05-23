@@ -19,8 +19,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan.md` (the relevant stage output)
-- `request_analysis/spec.md` — UiState and API design from the relevant stage
+- `coding/implementation_plan.md` (Implementation Plan stage output)
+- `request_analysis/spec.md` — UiState and API design from the Requirement, Impact & Design Analysis stage
 
 ---
 
@@ -142,7 +142,9 @@ Produce `coding/coding_report_v<N>.md`:
 <anything intentionally deferred>
 ```
 
-Update `summary.md`: mark the Implementation stage complete.
+Update `summary.md`: mark the Implementation (Data + Domain + UI) stage complete.
+
+Update `request_analysis/tasks.md`: mark each completed task item as `[x]`.
 
 ---
 

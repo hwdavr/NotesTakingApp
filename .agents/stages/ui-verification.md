@@ -13,8 +13,8 @@ Use the cheapest reliable check first — build and static analysis → instrume
 ## Load
 - `skills/android-ui-verification/SKILL.md`
 - `rules/android-architecture.md` — ensure no layer violations (UI importing data classes, etc.)
-- `request_analysis/spec.md` — UiState design and visual specification from the relevant stage
-- `request_analysis/design/` — **original design screenshots** provided by the user in the relevant stage (e.g. `design.png`)
+- `request_analysis/spec.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
+- `request_analysis/design/` — **original design screenshots** provided by the user in the Requirement, Impact & Design Analysis stage (e.g. `design.png`)
 - `coding/implementation_plan.md` — list of changed Composables
 
 ---
@@ -70,7 +70,7 @@ adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml
 **Compare every text string** against the design in `spec.md`. Record any mismatches.
 
 ### 4. Side-by-side comparison against original design screenshot
-Locate the original design screenshot from `request_analysis/design/` (uploaded in the relevant stage).
+Locate the original design screenshot from `request_analysis/design/` (uploaded in the Requirement, Impact & Design Analysis stage).
 
 For each screen state that has a reference design:
 1. Place the original design screenshot and the captured `screenshot.png` side by side.

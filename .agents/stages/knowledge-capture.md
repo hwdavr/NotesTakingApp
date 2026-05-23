@@ -11,8 +11,8 @@ The article principle: "Every time you discover an agent has made a mistake, you
 
 ## Load
 - `skills/documentation-and-adrs/SKILL.md`
-- `coding/review/code_review_v<N>.md` (the relevant stage output)
-- `coding/review/test_review_v<N>.md` (the relevant stage output)
+- `coding/review/code_review_v<N>.md` (Code Review stage output)
+- `coding/review/test_review_v<N>.md` (Test Review stage output)
 - `summary.md` (full change history)
 
 ---

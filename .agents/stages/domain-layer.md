@@ -10,7 +10,7 @@ The domain layer must remain platform-independent.
 
 ## Load
 - `rules/android-architecture.md`
-- `coding/implementation_plan.md` (the relevant stage output)
+- `coding/implementation_plan.md` (Implementation Plan stage output)
 
 ---
 
@@ -25,7 +25,7 @@ The domain layer must remain platform-independent.
 1. Add or update method signatures in the repository interface (defined in domain layer)
 2. Keep interfaces stable and framework-independent
 3. Use `suspend` functions or `Flow` based on existing conventions in the codebase
-4. Confirm the interface change matches the implementation added in the relevant stage
+4. Confirm the interface change matches the implementation added in the Data Layer stage
 
 ### 3. Use case changes
 1. Create or update use cases — one use case does one thing
@@ -58,7 +58,7 @@ Update `coding/coding_report_v<N>.md` with a Domain Layer section:
 <list repository interface changes>
 ```
 
-Update `summary.md`: mark the relevant stage complete.
+Update `summary.md`: mark the Domain Layer stage complete.
 
 ---
 
@@ -66,7 +66,7 @@ Update `summary.md`: mark the relevant stage complete.
 
 **Conditions to pass — all must be mechanically verifiable:**
 - [ ] No Android framework classes imported in domain layer files (`grep -r "import android\." domain/`)
-- [ ] Repository interfaces updated and match the the relevant stage implementation
+- [ ] Repository interfaces updated and match the Data Layer stage implementation
 - [ ] Use cases are single-responsibility (one observable outcome per use case)
 - [ ] New enum domain models include `UNKNOWN` / fallback variant
 - [ ] Build passes: `./gradlew assembleDebug`

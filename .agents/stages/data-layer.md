@@ -11,7 +11,7 @@ Implement in small, working slices. Verify the build passes before proceeding.
 ## Load
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
-- `coding/implementation_plan.md` (the relevant stage output)
+- `coding/implementation_plan.md` (Implementation Plan stage output)
 
 ---
 
@@ -76,7 +76,7 @@ Produce `coding/coding_report_v<N>.md`:
 <anything intentionally deferred>
 ```
 
-Update `summary.md`: mark the relevant stage complete.
+Update `summary.md`: mark the Data Layer stage complete.
 
 ---
 

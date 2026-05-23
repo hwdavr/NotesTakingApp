@@ -100,7 +100,7 @@ Produce `unit_test/test_report_v<N>.md`:
 - Instrumented: <N passed / N total> or SKIPPED
 ```
 
-Update `summary.md`: mark the relevant stage complete with test count and coverage.
+Update `summary.md`: mark the Testing stage complete with test count and coverage.
 
 ---
 
@@ -118,8 +118,8 @@ Update `summary.md`: mark the relevant stage complete with test count and covera
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
 **REVISION REQUIRED →**
-- If `total_tests == 0` → return to the relevant stage, add missing tests
-- If coverage < 80% → return to the relevant stage, add missing unit tests
+- If `total_tests == 0` → return to the Testing stage, add missing tests
+- If coverage < 80% → return to the Testing stage, add missing unit tests
 - If test failures exist → fix the failing tests (which may require fixing application code in Stages 03–05)
 - If a compilation error was introduced → return to the stage that caused it (03 / 04 / 05)
 
