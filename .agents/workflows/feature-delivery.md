@@ -39,20 +39,22 @@ Load: `stages/implementation.md`
 Output: All source files across Data, Domain, and UI layers. `coding/coding_report_v<N>.md`
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
-### Stage — Code Review
+### Stage — Code Review ⛔ STOP
 Load: `stages/code-review.md`
 Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
 Gate: ktlint/detekt passes, architecture and design compliance verified
+**STOP — present `code_review_v<N>.md` to user. Do not proceed to Testing until user explicitly approves.**
 
 ### Stage — Testing
 Load: `stages/testing.md`
 Output: Unit tests, integration tests, shared JSON scenarios
 Gate: tests pass, coverage targets met
 
-### Stage — Test Review
+### Stage — Test Review ⛔ STOP
 Load: `stages/test-review.md`
 Output: `docs/changes/<name>/coding/review/test_review_v<N>.md`
 Gate: overall coverage ≥ 80%, shared scenarios used, regressions verified
+**STOP — present `test_review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ### Stage — Knowledge Capture
 Load: `stages/knowledge-capture.md`

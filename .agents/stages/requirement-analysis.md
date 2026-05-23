@@ -70,14 +70,31 @@ data class ExampleUiState(...)
 1. <assumption>
 ```
 
-Produce **`request_analysis/tasks.md`** and **`summary.md`**.
-*(For `summary.md`, follow the template in `docs/changes/README.md` and generate the Stage Progress table dynamically based on the active workflow's stages.)*
+Produce **`docs/changes/<name>/summary.md`** — create this file **first**, before `spec.md` or `tasks.md`.
+Use the template from `docs/changes/README.md`.
+The Stage Progress table must list every stage from `workflows/feature-delivery.md` in order:
+
+| Stage | Status | Date | Notes |
+|-------|--------|------|-------|
+| Requirement Analysis | ⏳ In Progress | | |
+| Implementation Plan | | | Approved by user: — |
+| Implementation | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Testing | | | |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | |
+
+Mark the Requirement Analysis row as ✅ Complete when this stage's gate passes.
+
+Produce **`request_analysis/tasks.md`**: task breakdown with acceptance criteria.
+*(Both files live under `docs/changes/<name>/`.)*
 
 ---
 
 ## Gate
 
 **Conditions to pass:**
+- [ ] `docs/changes/<name>/summary.md` exists with the Stage Progress table filled in.
 - [ ] `request_analysis/spec.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.
 - [ ] UiState design covers all visual states.

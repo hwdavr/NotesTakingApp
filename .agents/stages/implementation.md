@@ -165,7 +165,7 @@ Update `request_analysis/tasks.md`: mark each completed task item as `[x]`.
 - [ ] UiState covers loading, success, empty, and error states
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
+**APPROVED →** Return to the active workflow file. The next stage is **Code Review** — load `stages/code-review.md` and do not skip it.
 
 **REVISION REQUIRED →** fix the issue at its layer (Data / Domain / UI), re-run `assembleDebug`, re-evaluate gate.
 **Rollback trigger:** Never proceed to the next stage with a failing build.
