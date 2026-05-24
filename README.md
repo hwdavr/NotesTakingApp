@@ -1,46 +1,192 @@
-# NotesTakingApp
+# NotesTakingApp — Agent Harness
 
-Android notes app built with Kotlin, Jetpack Compose, Room, Hilt, Auth0, and a backend API integration driven by the OpenAPI contract in `../NotesAppBackend/openapi.yaml`.
+This repository uses a structured **agent harness** — a set of workflows, stages, rules, and skills that guide AI coding agents to deliver production-quality changes safely and consistently.
 
-## Backend Integration
+This README explains how to set up and use the harness with different coding tools.
 
-The app now uses:
+---
 
-- Auth0 access tokens with the backend API audience
-- Retrofit + Moshi + OkHttp for API calls
-- Room as a local cache for folders and notes
-- Backend item IDs and tree structure based on `parentId`
+## Quick Start for Agents
 
-Set these values in `local.properties` before running the app:
+**Antigravity IDE** injects `AGENTS.md` automatically — skip to step 2.
+All other tools (Codex CLI, Claude, Cursor, Windsurf, Copilot Chat) must load context manually first.
 
-```properties
-AUTH0_CLIENT_ID=your_auth0_native_client_id
-AUTH0_AUDIENCE=https://notes-app.api
-API_BASE_URL=http://10.0.2.2:8080/
+1. **Load context** — Prompt: `Load context for the project` (uses `skills/context-management/`). *(Skip if using Antigravity — already injected.)*
+2. **Pick a workflow** from `.agents/workflows/` that matches your task
+3. **Follow the workflow stages** — each stage tells you what to load next and what gate to pass before advancing
+
+Do not load all rules and skills upfront. Load only what the current stage requires.
+
+
+---
+
+## Feature Delivery Workflow
+
+The diagram below shows the standard pipeline for delivering a new feature. The ⛔ markers are **mandatory human approval gates** — the agent stops and waits before advancing.
+
+```
+┌─────────────────────────────────────┐
+│   📋 Requirement, Impact & Design   │ ◄───────────────────────┐
+└──────────────────┬──────────────────┘                          │
+                   │                                             │
+                   ▼                                             │
+┌─────────────────────────────────────┐                          │
+│  📝 Implementation Plan  ⛔ STOP   │ ── plan rejected ────────┘
+└──────────────────┬──────────────────┘
+                   │  approved
+                   ▼
+┌─────────────────────────────────────┐
+│  ⚙️  Implementation                 │ ◄───────────────────────┐
+│     Data · Domain · UI              │                          │
+└──────────────────┬──────────────────┘                          │
+                   │                                             │
+                   ▼                                             │
+┌─────────────────────────────────────┐                          │
+│  🔍 Code Review  ⛔ STOP           │ ── violation found ──────┘
+└──────────────────┬──────────────────┘
+                   │  approved
+                   ▼
+┌─────────────────────────────────────┐
+│  🧪 Testing                         │ ◄───────────────────────┐
+│     Unit · Integration · UI         │ ── test failure ─────────┘
+└──────────────────┬──────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────┐
+│  ✅ Test Review  ⛔ STOP           │
+└──────────────────┬──────────────────┘
+                   │  approved
+                   ▼
+┌─────────────────────────────────────┐
+│  📚 Knowledge Capture               │
+└─────────────────────────────────────┘
 ```
 
-`API_BASE_URL` defaults to the Android emulator loopback for a backend running on the same machine.
+---
 
-## Harness Engineering
+## Harness Structure
 
-This project utilizes a "Harness Engineering" approach for UI development. This involves iteratively refining the user interface to match the design specifications as closely as possible. 
 
-The process involves:
-1. Taking the original UI design mockups.
-2. Implementing the UI using Jetpack Compose.
-3. Running automated UI tests to capture screenshots of the rendered implementation.
-4. Comparing the rendered screenshots against the original design.
-5. Iterating on the Compose code to fix alignment, colors, typography, and spacing.
-6. Repeating the process until the rendered UI closely matches the original design.
+```
+.agents/
+├── AGENTS.md              ← Start here every session. Root map of the harness.
+├── workflows/             ← Pick one per task. Entry point for all coding work.
+│   ├── feature-delivery.md
+│   ├── bug-fixing.md
+│   ├── create-ui-and-verify.md
+│   └── api-contract-update.md
+├── stages/                ← Step-by-step processes invoked by workflows.
+│   ├── requirement-analysis.md
+│   ├── implementation-plan.md
+│   ├── implementation.md
+│   ├── data-layer.md
+│   ├── domain-layer.md
+│   ├── ui-layer.md
+│   ├── ui-verification.md
+│   ├── testing.md
+│   ├── code-review.md
+│   ├── test-review.md
+│   ├── knowledge-capture.md
+│   └── bug-reproduction.md
+├── rules/                 ← Mandatory constraints. L1 = always loaded. L3 = on-demand.
+│   ├── android-architecture.md   ← L1: load every session
+│   ├── testing-strategy.md       ← L1: load every session
+│   ├── compose-rules.md          ← L3: load when UI changes
+│   ├── api-contract-rules.md     ← L3: load when API layer changes
+│   ├── navigation-rules.md       ← L3: load when navigation changes
+│   ├── localization-rules.md     ← L3: load when strings change
+│   └── analytics-rules.md        ← L3: load when analytics events change
+├── skills/                ← How-to guides. Loaded per stage (L2), not all at once.
+│   ├── spec-driven-development/
+│   ├── incremental-implementation/
+│   ├── android-ui-verification/
+│   ├── android-unit-test/
+│   ├── android-instrumented-ui-test/
+│   ├── android-integration-test/
+│   ├── shared-json-scenarios/
+│   ├── android-code-quality-checks/  ← Code Review step 1: run tools
+│   ├── code-review-and-quality/      ← Code Review step 2: reasoning review
+│   ├── security-and-hardening/
+│   ├── documentation-and-adrs/
+│   ├── karpathy-guidelines/
+│   ├── context-management/
+│   ├── test-driven-development/
+│   └── shipping-and-launch/
+├── gates/                 ← CI checklists. Must pass before advancing stages.
+└── docs/
+    ├── knowledge/         ← Past bugs, pitfalls, architecture decisions (load on-demand).
+    ├── changes/           ← Audit trail — one directory per delivered change.
+    └── templates/         ← Standard output formats for plans, reviews, and tests.
+```
 
-### Example: Settings Screen
+---
 
-Below is an example of the Harness Engineering process applied to the Settings screen.
+## Workflows
 
-**Original Design:**
+Pick the workflow that matches your task:
 
-![Original Settings Design](UX/settings.png)
+| Workflow | When to use |
+|---|---|
+| `feature-delivery.md` | New feature, enhancement, or API integration |
+| `bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
+| `create-ui-and-verify.md` | UI implementation or update from a design |
+| `api-contract-update.md` | Backend API contract change |
 
-**Rendered Implementation (After Iterations):**
+---
 
-![Rendered Settings Implementation](UX/settings_rendered.png)
+## Context Loading Strategy
+
+The harness uses three context layers to keep the agent context window below 40% fill:
+
+| Layer | When | What |
+|---|---|---|
+| **L1 — Always** | Every session | `AGENTS.md` + `rules/android-architecture.md` + `rules/testing-strategy.md` |
+| **L2 — Per stage** | As stages advance | The skill(s) listed in the current stage's **Load** section |
+| **L3 — On demand** | When needed | `docs/knowledge/`, specific `rules/` files, `sharedContracts/openapi.yaml` |
+
+**Do not preload everything.** Load what the current stage requires, nothing more.
+
+---
+
+## Build Commands
+
+```bash
+./gradlew assembleDebug              # build check
+./gradlew testDebugUnitTest          # unit + integration tests
+./gradlew koverLog                   # coverage (must be ≥ 80% overall)
+./gradlew ktlintCheck                # formatting check
+./gradlew ktlintFormat               # auto-fix formatting
+./gradlew detekt                     # static analysis
+./gradlew connectedDebugAndroidTest  # instrumented UI tests (when UI changed)
+```
+
+---
+
+## Distribution
+
+```bash
+./gradlew appDistributionUploadDebug     # Debug build → Firebase App Distribution
+./gradlew appDistributionUploadRelease   # Release build → Firebase App Distribution
+```
+
+---
+
+## UI Verification Process
+
+The harness includes a pixel-accurate UI verification workflow. When a UI change is made:
+
+1. Reference the design mockup from `UX/`
+2. Implement in Jetpack Compose
+3. Run instrumented UI tests to capture screenshots
+4. Compare rendered output against the mockup using `stages/ui-verification.md`
+5. Iterate on layout, colors, typography, and spacing until they match
+
+| Design | Rendered |
+|--------|----------|
+| ![Design](UX/settings.png) | ![Rendered](UX/settings_rendered.png) |
+
+---
+
+## API Contract
+
+The backend contract lives in `sharedContracts/openapi.yaml` and is the single source of truth for DTO shapes. Shared JSON test scenarios in `sharedContracts/test-scenarios/` are consumed by both Android integration tests and the backend test suite.
