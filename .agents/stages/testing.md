@@ -64,7 +64,18 @@ Rules:
 - Do not use `Thread.sleep` — use `waitUntil` or `waitForIdle`
 - One main business scenario per test
 
-### 5. Verify coverage
+### 5. Import hygiene — applies to ALL test layers
+These rules apply to every test file regardless of layer:
+
+- **No fully-qualified class names** inline in property declarations, function parameters, or function bodies — always use a top-level `import` statement
+  - ❌ `private val mock: com.example.auth.AuthManager = io.mockk.mockk(relaxed = true)`
+  - ✅ `import com.example.auth.AuthManager` + `import io.mockk.mockk` then `private val mock: AuthManager = mockk(relaxed = true)`
+- **No wildcard imports** — all imports must be explicit
+  - ❌ `import io.mockk.*`
+  - ✅ `import io.mockk.mockk`, `import io.mockk.every`, `import io.mockk.verify`
+- **Imports sorted lexicographically** with no blank lines between entries
+
+### 6. Verify coverage
 ```bash
 ./gradlew testDebugUnitTest
 ./gradlew koverLog

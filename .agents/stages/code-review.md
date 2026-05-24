@@ -74,7 +74,7 @@ For each changed file with user-visible text:
 - [ ] No UI layer file imports a repository, DAO, or data-layer class directly
 - [ ] No ViewModel imports Retrofit, Room, or data-layer implementation classes
 - [ ] No domain class imports Android framework types (`Context`, `Bundle`, SDK)
-- [ ] No fully-qualified class names used inline in function bodies (e.g. `com.example.Foo()`) — use `import`
+- [ ] No fully-qualified class names used inline in **any** file — production **or** test code (e.g. `com.example.Foo()` in function bodies, `io.mockk.mockk` in property declarations) — use `import`
 - [ ] DTOs are not exposed outside the data layer
 
 #### 3d. `rules/navigation-rules.md` *(if navigation changed)*
@@ -86,7 +86,13 @@ For each changed file with user-visible text:
 #### 3f. `rules/analytics-rules.md` *(if analytics events changed)*
 - [ ] Check against analytics rules — record any violations or mark N/A.
 
-#### 3g. `gates/review-checklist.md` — full checklist
+#### 3g. Test Code Quality *(always apply to all new or modified test files)*
+For every new or modified test file (`src/test/`, `src/androidTest/`):
+- [ ] No fully-qualified class names in property declarations, parameters, or function bodies — use top-level `import` (e.g. no `io.mockk.mockk(...)` or `com.example.auth.AuthManager` inline)
+- [ ] No wildcard imports — all imports must be explicit (e.g. no `import io.mockk.*`, `import kotlinx.coroutines.test.*`)
+- [ ] Imports are sorted lexicographically with no blank lines between them
+
+#### 3h. `gates/review-checklist.md` — full checklist
 Work through every item in the checklist and mark it PASS, FAIL, or N/A. Do not leave items blank.
 
 ### 4. UI Verification (if any Composable changed)

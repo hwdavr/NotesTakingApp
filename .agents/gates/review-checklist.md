@@ -12,7 +12,7 @@ Checklist for reviewing any code change before it is considered complete.
 - [ ] Domain layer has no Android framework imports (`Context`, `Bundle`, SDK types)
 - [ ] DTOs are not exposed outside the data layer
 - [ ] No domain models are used directly in Compose without mapping to UI models (if formatting is needed)
-- [ ] No fully-qualified class names used inline in code — all classes referenced via `import` at the top of the file (e.g. no `com.example.Foo()` in function bodies)
+- [ ] No fully-qualified class names used inline in **any** file — production **or** test code — all classes referenced via `import` at the top of the file (e.g. no `com.example.Foo()` in function bodies, no `io.mockk.mockk` in property declarations)
 
 ---
 
@@ -34,6 +34,12 @@ Checklist for reviewing any code change before it is considered complete.
 - [ ] Shared JSON scenarios used — no inline mock data in test cases
 - [ ] `koverLog` coverage ≥ 80% overall, ≥ 90% for new classes
 - [ ] All tests pass: `./gradlew testDebugUnitTest`
+
+## Test Code Quality
+
+- [ ] No fully-qualified class names in test files — use top-level `import` declarations (e.g. no `io.mockk.mockk(...)` or `com.example.Foo` inline in property/parameter declarations)
+- [ ] No wildcard imports in test files — all imports must be fully explicit (e.g. no `import io.mockk.*`)
+- [ ] Test file imports are sorted lexicographically with no blank lines between them
 
 ---
 
