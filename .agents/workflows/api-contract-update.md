@@ -10,37 +10,59 @@ Use this workflow when:
 
 ---
 
+## Scope
+
+Before starting, identify your scope:
+
+| Scope | Stages to run |
+|-------|--------------|
+| **Full** (contract + repo + UI + tests) | All stages |
+| **Data & Domain only** (contract + repo, no UI changes) | 1 → 2 → 3 → 4 → 6 (lightweight) → 7 → 8 (lightweight). Skip 5, 9. |
+
+---
+
 ## Stages
 
-### Stage 1 — Requirement, Impact & Design Analysis
+### Stage 1 — Requirement, Impact & Design Analysis ✅ Always
 Run: `stages/requirement-analysis.md`
 
 Adapt:
 - API impact classification
 - Design DTO and Domain model changes
 
-### Stage 2 — Implementation Plan ⛔ STOP
+### Stage 2 — Implementation Plan ⛔ STOP ✅ Always
 Run: `stages/implementation-plan.md`
 
 **Stop and present the plan. Do not proceed until approved.**
 
-### Stage 3 — Data Layer
+### Stage 3 — Data Layer ✅ Always
 Run: `stages/data-layer.md`
 
-### Stage 4 — Domain Layer
+### Stage 4 — Domain Layer ✅ Always
 Run: `stages/domain-layer.md`
 
-### Stage 5 — UI Layer (if needed)
+### Stage 5 — UI Layer ⏭️ Skip if no UI changes
 Run: `stages/ui-layer.md`
 
-### Stage 6 — Code Review
+Only run this stage if the contract change surfaces in the UI (new fields displayed, new screens, changed error states).
+
+### Stage 6 — Code Review ⚠️ Lightweight if Data & Domain only
 Run: `stages/code-review.md`
 
-### Stage 7 — Testing
+- Run `android-code-quality-checks` (Ktlint, Detekt, Lint) — always required.
+- Run `code-review-and-quality` reasoning review — focus on DTO mapping, null safety, and error handling. Skip UI axes if Stage 5 was skipped.
+
+### Stage 7 — Testing ✅ Always
 Run: `stages/testing.md`
 
-### Stage 8 — Test Review
+Mandatory: at least one integration test per changed API endpoint using shared JSON scenarios. See `testing-strategy.md`.
+
+### Stage 8 — Test Review ⚠️ Lightweight if Data & Domain only
 Run: `stages/test-review.md`
 
-### Stage 9 — Knowledge Capture
+Verify tests assert the correct layer (`expected.domain` for repo/use case tests). Skip UI test review if Stage 5 was skipped.
+
+### Stage 9 — Knowledge Capture ⏭️ Skip unless change is non-obvious
 Run: `stages/knowledge-capture.md`
+
+Only run if the contract change involves a tricky mapping, a breaking change, a non-standard pattern, or a decision future agents need to understand.
