@@ -19,7 +19,7 @@ Do not fix symptoms first. Do not guess — prove it with a failing test.
 **The reproduction test must be RED before the Fix Plan is written.**
 **The Fix Plan must be approved before any fix code is written.**
 
-Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Code Review → Test Review → Knowledge
+Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
 
 ---
 
@@ -81,6 +81,14 @@ Verify:
 
 Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
 Gate: build passes, static analysis passes, architecture rules followed
+
+---
+
+### Stage — Testing
+Load: `stages/testing.md`
+
+Output: Unit tests, integration tests, shared JSON scenarios
+Gate: tests pass, coverage targets met
 
 ---
 
