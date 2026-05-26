@@ -12,6 +12,7 @@ This is the final gate before implementation begins.
 - `skills/incremental-implementation/SKILL.md`
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
+- `docs/templates/test-plan-template.md`
 - `request_analysis/spec.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
@@ -26,14 +27,15 @@ This is the final gate before implementation begins.
    - API / DTO changes and defensive handling
    - **OpenAPI Verification**: If new API responses are involved, verify if they are already defined in `sharedContracts/openapi.yaml`. If not, explicitly list the updates required in the OpenAPI spec.
    - UI / state implementation (reference the design in `spec.md`)
-   - **Test plan**: (as defined in the implementation plan template). **MANDATORY**: Each new API endpoint must have at least one integration test using shared JSON scenarios.
+   - **Test plan**: Generate a separate test plan document using **`docs/templates/test-plan-template.md`** as the template. Define test cases per class (Mapper, ViewModel, UI) with Given / When / Then and a unique ID for each case. **MANDATORY**: Each new API endpoint must have at least one integration test using a shared JSON scenario.
    - Risks and mitigation
 
 ---
 
 ## Output
 
-Write `coding/implementation_plan.md`.
+Write `coding/implementation_plan.md` (follow `docs/templates/implementation-plan-template.md`).
+Write `coding/test_plan.md` (follow `docs/templates/test-plan-template.md`).
 Update `summary.md`: mark the Implementation Plan stage complete.
 
 ---

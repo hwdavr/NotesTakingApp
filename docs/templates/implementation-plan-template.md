@@ -1,6 +1,6 @@
 # Implementation Plan Template
 
-Use this template when producing the plan in **Stage 02**.
+Use this template when producing the plan in the **Implementation Plan** stage.
 
 ---
 
@@ -86,46 +86,7 @@ States covered:
 
 ## Test Plan
 
-### Test Layer Selection
-| Layer | Included | Reason |
-|-------|----------|--------|
-| Unit tests (`app/src/test/`) | ✅ / ❌ | |
-| Integration tests (`app/src/test/`) | ✅ / ❌ | |
-| Instrumented UI tests (`app/src/androidTest/`) | ✅ / ❌ | |
-
-### Unit Tests
-| Test Class | What It Tests |
-|------------|--------------|
-| `<Class>Test.kt` | Success, Error, Edge cases |
-
-### Integration Tests
-> **MANDATORY**: Each new API endpoint must have at least one integration test using shared JSON scenarios.
-| Test Class | API Endpoint | Shared Scenario File |
-|------------|-------------|---------------------|
-| `<Class>IntegrationTest.kt` | `GET /endpoint` | `scenario.json` |
-
-### Shared JSON Scenarios
-| Scenario File | API Mock | Expected Domain | Expected UI |
-|---------------|----------|-----------------|-------------|
-| `scenario.json` | ✅ | ✅ | ✅ |
-
-Location: `sharedContracts/test-scenarios/`
-
-### Instrumented UI Tests
-| Test Class | Scenarios |
-|------------|-----------|
-| `<Screen>Test.kt` | renders state, interactive elements |
-
-### Coverage Target
-- Overall: ≥ 80%
-- New classes: ≥ 90%
-
-### Verification Commands
-```bash
-./gradlew testDebugUnitTest
-./gradlew koverLog
-./gradlew connectedDebugAndroidTest
-```
+> Produce a separate test plan document using **[`docs/templates/test-plan-template.md`](../templates/test-plan-template.md)** and link it here once created.
 
 ---
 
