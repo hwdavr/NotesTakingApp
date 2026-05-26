@@ -24,39 +24,39 @@ Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implemen
 
 ## Stage Execution
 
-### Stage — Requirement, Impact & Design Analysis
+### Stage 1 — Requirement, Impact & Design Analysis
 Load: `stages/requirement-analysis.md`
-Output: `docs/changes/<name>/request_analysis/spec.md`, `tasks.md`, `summary.md`
+Output: `docs/changes/<name>/request_analysis/spec.md`, `summary.md`
 Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
 
-### Stage — Implementation Plan ⛔ STOP
+### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/changes/<name>/coding/implementation_plan.md`
+Output: `docs/changes/<name>/coding/implementation_plan.md`, `coding/test_plan.md`
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
-### Stage — Implementation (Data + Domain + UI)
+### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
 Output: All source files across Data, Domain, and UI layers. `coding/coding_report_v<N>.md`
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
-### Stage — Code Review ⛔ STOP
+### Stage 4 — Code Review ⛔ STOP
 Load: `stages/code-review.md`
 Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
 Gate: ktlint/detekt passes, architecture and design compliance verified
 **STOP — present `code_review_v<N>.md` to user. Do not proceed to Testing until user explicitly approves.**
 
-### Stage — Testing
+### Stage 5 — Testing
 Load: `stages/testing.md`
 Output: Unit tests, integration tests, shared JSON scenarios
 Gate: tests pass, coverage targets met
 
-### Stage — Test Review ⛔ STOP
+### Stage 6 — Test Review ⛔ STOP
 Load: `stages/test-review.md`
 Output: `docs/changes/<name>/coding/review/test_review_v<N>.md`
 Gate: overall coverage ≥ 80%, shared scenarios used, regressions verified
 **STOP — present `test_review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
-### Stage — Knowledge Capture
+### Stage 7 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
 Output: ADRs, past-bugs, pitfalls, finalized `summary.md`
 Gate: all knowledge artifacts produced

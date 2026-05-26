@@ -41,6 +41,22 @@ Create `docs/changes/<type>-<name>-<YYYYMMDD>/` directory.
 
 If the user provides a design screenshot or mockup, save it to **`request_analysis/design/`** so it can be referenced during UI Verification.
 
+Produce **`docs/changes/<name>/summary.md`** — create this file **first**, before `spec.md`.
+Use the template from `docs/changes/README.md`.
+The Stage Progress table must list every stage from the active workflow in order:
+
+| Stage | Status | Date | Notes |
+|-------|--------|------|-------|
+| Requirement Analysis | ⏳ In Progress | | |
+| Implementation Plan | | | Approved by user: — |
+| Implementation | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Testing | | | |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | |
+
+Mark the Requirement Analysis row as ✅ Complete when this stage's gate passes.
+
 Produce **`request_analysis/spec.md`**:
 ```
 ## Requirement Summary
@@ -70,24 +86,6 @@ data class ExampleUiState(...)
 1. <assumption>
 ```
 
-Produce **`docs/changes/<name>/summary.md`** — create this file **first**, before `spec.md` or `tasks.md`.
-Use the template from `docs/changes/README.md`.
-The Stage Progress table must list every stage from `workflows/feature-delivery.md` in order:
-
-| Stage | Status | Date | Notes |
-|-------|--------|------|-------|
-| Requirement Analysis | ⏳ In Progress | | |
-| Implementation Plan | | | Approved by user: — |
-| Implementation | | | |
-| Code Review | | | APPROVED / REVISION REQUIRED |
-| Testing | | | |
-| Test Review | | | APPROVED / REVISION REQUIRED |
-| Knowledge Capture | | | |
-
-Mark the Requirement Analysis row as ✅ Complete when this stage's gate passes.
-
-Produce **`request_analysis/tasks.md`**: task breakdown with acceptance criteria.
-*(Both files live under `docs/changes/<name>/`.)*
 
 ---
 

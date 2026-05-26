@@ -14,25 +14,25 @@ Use this workflow when:
 ## Stages
 
 ### Stage 1 — UI Implementation
-Run: `stages/ui-layer.md`
+Load: `stages/ui-layer.md`
 
 Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
 
 ### Stage 2 — UI Verification ↩️ Loop
-Run: `stages/ui-verification.md`
+Load: `stages/ui-verification.md`
 
 Compare the implemented UI against the original design screenshot in `request_analysis/design/`.
 
 **Loop rule — if verification FAILS:**
-- Return to **Stage 1** to fix the implementation.
-- Re-run Stage 2 after each fix.
+- Return to **Stage 1 — UI Implementation** to fix the implementation.
+- Re-run **Stage 2 — UI Verification** after each fix.
 - **Maximum 3 loops total.**
 - If still failing after 3 loops, stop and surface the deviation to the user with the screenshot attached.
 
-**PASS →** proceed to Stage 3.
+**PASS →** proceed to Stage 3 — Code Review.
 
 ### Stage 3 — Code Review
-Run: `stages/code-review.md`
+Load: `stages/code-review.md`
 
 ## Best Practices
 - **Handling Long Content**: For scrollable screens or bottom sheets, ensure the UI handles scrolling properly. In tests, use `performScrollToNode()` to find off-screen elements.

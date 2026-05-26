@@ -144,8 +144,6 @@ Produce `coding/coding_report_v<N>.md`:
 
 Update `summary.md`: mark the Implementation (Data + Domain + UI) stage complete.
 
-Update `request_analysis/tasks.md`: mark each completed task item as `[x]`.
-
 ---
 
 ## Gate

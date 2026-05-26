@@ -25,7 +25,7 @@ Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [
 
 ## Stage Execution
 
-### Stage — Bug Context, Localization & Root Cause
+### Stage 1 — Bug Context, Localization & Root Cause
 Load: `stages/requirement-analysis.md`
 
 Adapt for bugs:
@@ -34,12 +34,12 @@ Adapt for bugs:
 - Root cause statement (triggered when <cond>, causing <behavior>)
 - Design the fix (UiState changes if needed)
 
-Output: `docs/changes/<name>/request_analysis/spec.md` with bug context, fault area, and root cause
+Output: `docs/changes/<name>/request_analysis/spec.md`, `summary.md` (with bug context, fault area, and root cause)
 Gate: root cause is specific enough that a reproduction test can be written
 
 ---
 
-### Stage — Bug Reproduction (TDD) ⛔ STOP
+### Stage 2 — Bug Reproduction (TDD) ⛔ STOP
 Load: `stages/bug-reproduction.md`
 
 Write a failing test that mechanically proves the root cause before any fix is written.
@@ -50,7 +50,7 @@ Gate: test exits RED (non-zero), failure message matches root cause, no applicat
 
 ---
 
-### Stage — Fix Plan ⛔ STOP
+### Stage 3 — Fix Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
 
 Adapt — the plan must include:
@@ -63,7 +63,7 @@ Gate: **STOP — present fix plan to user. Do not proceed until user explicitly 
 
 ---
 
-### Stage — Implementation (Data + Domain + UI as needed)
+### Stage 4 — Implementation (Data + Domain + UI as needed)
 Load: `stages/implementation.md`
 
 Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
@@ -71,7 +71,7 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied
 
 ---
 
-### Stage — Code Review
+### Stage 5 — Code Review
 Load: `stages/code-review.md`
 
 Verify:
@@ -84,7 +84,7 @@ Gate: build passes, static analysis passes, architecture rules followed
 
 ---
 
-### Stage — Testing
+### Stage 6 — Testing
 Load: `stages/testing.md`
 
 Output: Unit tests, integration tests, shared JSON scenarios
@@ -92,7 +92,7 @@ Gate: tests pass, coverage targets met
 
 ---
 
-### Stage — Test Review
+### Stage 7 — Test Review
 Load: `stages/test-review.md`
 
 Verify the reproduction test (now passing) and any additional tests written during Implementation:
@@ -104,7 +104,7 @@ Gate: reproduction test passes, full suite exits 0, coverage requirements met
 
 ---
 
-### Stage — Knowledge Capture
+### Stage 8 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
 
 **Always** record the bug in `docs/knowledge/past-bugs/`.
