@@ -75,6 +75,8 @@ Q1. <question>
 
 Write **`docs/current/requirement-summary.md`** following **`docs/templates/requirement-summary-template.md`** exactly.
 
+**Save Design Screenshot**: If the user provides a design screenshot, mockup, or layout visual in their prompt, you **MUST** save the original design screenshot to **`docs/current/design/`** at this stage so that it is permanently preserved and can be referenced during Slice Planning and UI implementation.
+
 ---
 
 ## Gate — ⛔ MANDATORY STOP
@@ -82,6 +84,7 @@ Write **`docs/current/requirement-summary.md`** following **`docs/templates/requ
 **Present `requirement-summary.md` to the user and confirm:**
 
 - [ ] Every section is filled — no `⚠️ OPEN QUESTION` or `⚠️ Unanswered` markers remain
+- [ ] Original design screenshot saved to `docs/current/design/` (if UI changes are involved and mockup is provided)
 - [ ] Expected behaviors are concrete and independently testable
 - [ ] Non-goals are explicit (scope is bounded)
 - [ ] All assumptions are listed and accepted by the user

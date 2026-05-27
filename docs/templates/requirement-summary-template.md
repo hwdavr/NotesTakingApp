@@ -7,6 +7,12 @@ Use this template when producing the requirement summary in the **Feature Requir
 
 ---
 
+## Design Reference
+
+- Original Mockup: [design_mockup.png](./docs/current/design/design_mockup.png) (if design/UI is provided)
+
+---
+
 ## User Goal
 
 > As a [user type], I want to [action] so that [outcome].
