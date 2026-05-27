@@ -18,6 +18,10 @@ This workflow is for production-grade delivery — not quick prototyping.
 Do not jump directly into coding.
 **The Implementation Plan must be approved before any code is written.**
 
+**Sliced Plan Pickup & Routing**:
+- **If the user prompt outlines a specific, clear requirement**: Execute and perform analysis based directly on the user's explicit requirement.
+- **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check the task progress in `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details. Fulfill this pipeline specifically for that task.
+
 Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
 
 ---
@@ -58,8 +62,8 @@ Gate: overall coverage ≥ 80%, shared scenarios used, regressions verified
 
 ### Stage 7 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
-Output: ADRs, past-bugs, pitfalls, finalized `summary.md`
-Gate: all knowledge artifacts produced
+Output: ADRs, past-bugs, pitfalls, finalized `summary.md`, updated `docs/current/progress.md` (marking the task as Complete)
+Gate: all knowledge artifacts produced, task marked Complete in progress file (if active)
 
 ---
 

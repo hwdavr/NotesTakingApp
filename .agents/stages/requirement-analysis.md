@@ -20,7 +20,11 @@ Do not write any code in this stage.
 ## Execute
 
 ### 1. Requirement & Impact Analysis
-1. Read the user story, ticket, or product requirement in full.
+0. **Task Pickup Check & Routing**:
+   - **If the user prompt outlines a specific, clear requirement**: Perform the analysis and execute based directly on the user's explicit requirement.
+   - **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details.
+   - The `spec.md` you create/update in this stage will be dedicated specifically to the resolved target task or requirement.
+1. Read the resolved requirement or picked-up task details in full (resolved in Step 0).
 2. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 3. Classify changes (`modify`, `extend`, `new`, `delete`).
 4. **API & Contract Check**:

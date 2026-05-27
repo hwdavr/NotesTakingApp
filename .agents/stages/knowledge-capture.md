@@ -53,6 +53,11 @@ Update `summary.md` to mark all stages complete and record the final state:
 - <path> — <description>
 ```
 
+### 7. Mark Task Complete in Sliced Plan
+If a sliced plan exists in `docs/current/progress.md`:
+1. Find the task that you just completed in `docs/current/progress.md`.
+2. Update its progress status to ✅ Complete and set its completion date.
+
 ---
 
 ## Output
@@ -63,6 +68,7 @@ Zero or more of:
 - `docs/knowledge/pitfalls/<slug>.md`
 - Updated `rules/<rule-file>.md`
 - Finalized `summary.md`
+- Updated `docs/current/progress.md` (if a sliced plan is active)
 
 ---
 
@@ -75,5 +81,6 @@ Zero or more of:
 - [ ] Any non-obvious pitfall is recorded in `docs/knowledge/pitfalls/`
 - [ ] `rules/` files updated if a coding convention changed
 - [ ] `summary.md` is finalized with all stages marked ✅ Complete
+- [ ] `docs/current/progress.md` is updated to mark the completed task as ✅ Complete (if a sliced plan is active)
 
 **APPROVED →** Change is complete. Notify the user that the workflow pipeline is done.
