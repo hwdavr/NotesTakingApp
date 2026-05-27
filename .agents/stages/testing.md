@@ -15,14 +15,14 @@ The article principle: write the failing test *before* touching the application 
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `coding/implementation_plan.md` — test plan section
+- `coding/implementation_plan_t<taskId>.md` — test plan section
 
 ---
 
 ## Execute
 
 ### 1. Execute Planned Tests
-Read the approved test plan in `coding/test_plan.md` to identify the test layers and test cases required for this task.
+Read the approved test plan in `coding/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
 
 ### 2. Unit tests (`app/src/test/`)
 Write unit tests for all new or modified:
@@ -92,7 +92,7 @@ Record every result number in the output report below. Do not summarize — copy
 New or updated test files.
 New or updated shared JSON scenarios in `sharedContracts/test-scenarios/`.
 
-Produce `unit_test/test_report_v<N>.md`:
+Produce `unit_test/test_report_t<taskId>_v<N>.md` (e.g. `test_report_t1_v1.md` for Task 1):
 ```
 ## Test Report — v<N>
 
@@ -113,7 +113,7 @@ Produce `unit_test/test_report_v<N>.md`:
 - Instrumented: <N passed / N total> or SKIPPED
 ```
 
-Update `summary.md`: mark the Testing stage complete with test count and coverage.
+Update `summary_t<taskId>.md`: mark the Testing stage complete with test count and coverage.
 
 ---
 
@@ -126,7 +126,7 @@ Update `summary.md`: mark the Testing stage complete with test count and coverag
 - [ ] At least one integration test per new or changed API endpoint
 - [ ] Shared JSON scenarios used — no inline mock response data in test files
 - [ ] Instrumented tests pass (if added): `./gradlew connectedDebugAndroidTest`
-- [ ] `unit_test/test_report_v<N>.md` exists with coverage numbers filled in verbatim
+- [ ] `unit_test/test_report_t<taskId>_v<N>.md` exists with coverage numbers filled in verbatim
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

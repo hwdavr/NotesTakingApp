@@ -13,8 +13,8 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan.md` (Implementation Plan stage output)
-- `request_analysis/spec.md` — UiState design from the Requirement, Impact & Design Analysis stage
+- `coding/implementation_plan_t<taskId>.md` (Implementation Plan stage output)
+- `request_analysis/spec_t<taskId>.md` — UiState design from the Requirement, Impact & Design Analysis stage
 
 ---
 
@@ -64,7 +64,7 @@ Updated / created:
 - Navigation graph (if changed)
 - `strings.xml` (for all new copy)
 
-Update `coding/coding_report_v<N>.md` with a UI Layer section:
+Update `coding/coding_report_t<taskId>_v<N>.md` with a UI Layer section (e.g. `coding_report_t1_v1.md` for Task 1):
 ```
 ## UI Layer Changes
 
@@ -79,7 +79,7 @@ Update `coding/coding_report_v<N>.md` with a UI Layer section:
 <list key testTag values added>
 ```
 
-Update `summary.md`: mark the UI Layer stage complete.
+Update `summary_t<taskId>.md`: mark the UI Layer stage complete.
 
 ---
 

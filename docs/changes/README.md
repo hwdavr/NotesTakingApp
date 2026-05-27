@@ -66,8 +66,8 @@ Template:
 
 > *Agent Instruction: Generate this table dynamically based on the stages defined in the active workflow (e.g., `workflows/feature-delivery.md` or `workflows/bug-fixing.md`). List all the stages required by the workflow in order, without numbers, and update the status as you progress.*
 
-| Stage | Status | Date | Notes |
-|-------|--------|------|-------|
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
 | Requirement Analysis | ✅ / ⏳ / ❌ | | |
 | Implementation Plan | | | Approved by user: yes/no |
 | Implementation | | | |

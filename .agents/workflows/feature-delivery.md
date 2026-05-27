@@ -30,33 +30,33 @@ Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implemen
 
 ### Stage 1 — Requirement, Impact & Design Analysis
 Load: `stages/requirement-analysis.md`
-Output: `docs/changes/<name>/request_analysis/spec.md`, `summary.md`
+Output: `docs/changes/<name>/request_analysis/spec_t<taskId>.md`, `summary_t<taskId>.md`
 Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
 
 ### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/changes/<name>/coding/implementation_plan.md`, `coding/test_plan.md`
+Output: `docs/changes/<name>/coding/implementation_plan_t<taskId>.md`, `coding/test_plan_t<taskId>.md`
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
 ### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
-Output: All source files across Data, Domain, and UI layers. `coding/coding_report_v<N>.md`
+Output: All source files across Data, Domain, and UI layers. `coding/coding_report_t<taskId>_v<N>.md`
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
 ### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_v<N>.md`
+Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_t<taskId>_v<N>.md`
 Gate: tests pass, coverage targets met
 
 ### Stage 5 — Code + Test Review ⛔ STOP
 Load: `stages/review.md`
-Output: `docs/changes/<name>/coding/review/review_v<N>.md`
+Output: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`
 Gate: build/lint/detekt pass, architecture and design compliance verified, test quality confirmed
-**STOP — present `review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
+**STOP — present `review_t<taskId>_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ### Stage 6 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
-Output: ADRs, past-bugs, pitfalls, finalized `summary.md`, updated `docs/current/progress.md` (marking the task as Complete)
+Output: ADRs, past-bugs, pitfalls, finalized `summary_t<taskId>.md`, updated `docs/current/progress.md` (marking the task as Complete)
 Gate: all knowledge artifacts produced, task marked Complete in progress file (if active)
 
 ---

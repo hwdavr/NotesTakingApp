@@ -11,9 +11,9 @@ The article principle: "Every time you discover an agent has made a mistake, you
 
 ## Load
 - `skills/documentation-and-adrs/SKILL.md`
-- `coding/review/code_review_v<N>.md` (Code Review stage output)
-- `coding/review/test_review_v<N>.md` (Test Review stage output)
-- `summary.md` (full change history)
+- `coding/review/code_review_t<taskId>_v<N>.md` (Code Review stage output)
+- `coding/review/test_review_t<taskId>_v<N>.md` (Test Review stage output)
+- `summary_t<taskId>.md` (full change history)
 
 ---
 
@@ -42,8 +42,8 @@ Ask: "Is there a constraint we followed in this change that should be encoded in
 ### 5. Update shared JSON scenarios
 If new or changed scenarios were created, confirm they are committed to `sharedContracts/test-scenarios/` and cross-referenced with the endpoint in `sharedContracts/openapi.yaml`.
 
-### 6. Finalize summary.md
-Update `summary.md` to mark all stages complete and record the final state:
+### 6. Finalize summary_t<taskId>.md
+Update `summary_t<taskId>.md` to mark all stages complete and record the final state:
 ```
 ## Change Summary — <name>
 
@@ -67,7 +67,7 @@ Zero or more of:
 - `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md`
 - `docs/knowledge/pitfalls/<slug>.md`
 - Updated `rules/<rule-file>.md`
-- Finalized `summary.md`
+- Finalized `summary_t<taskId>.md`
 - Updated `docs/current/progress.md` (if a sliced plan is active)
 
 ---
@@ -80,7 +80,7 @@ Zero or more of:
 - [ ] Any bug that could recur is recorded in `docs/knowledge/past-bugs/`
 - [ ] Any non-obvious pitfall is recorded in `docs/knowledge/pitfalls/`
 - [ ] `rules/` files updated if a coding convention changed
-- [ ] `summary.md` is finalized with all stages marked ✅ Complete
+- [ ] `summary_t<taskId>.md` is finalized with all stages marked ✅ Complete
 - [ ] `docs/current/progress.md` is updated to mark the completed task as ✅ Complete (if a sliced plan is active)
 
 **APPROVED →** Change is complete. Notify the user that the workflow pipeline is done.

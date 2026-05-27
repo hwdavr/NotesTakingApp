@@ -23,9 +23,9 @@ Load **all** of the following before starting the review. Do not skip any rule f
 - `rules/api-contract-rules.md` *(if API or data layer changed)*
 - `rules/analytics-rules.md`   *(if analytics events changed)*
 - `gates/review-checklist.md`
-- `coding/coding_report_v<N>.md`
-- `unit_test/test_report_v<N>.md` (Testing stage output — source of truth for test results)
-- `request_analysis/spec.md` (for design compliance)
+- `coding/coding_report_t<taskId>_v<N>.md`
+- `unit_test/test_report_t<taskId>_v<N>.md` (Testing stage output — source of truth for test results)
+- `request_analysis/spec_t<taskId>.md` (for design compliance)
 
 ---
 
@@ -43,7 +43,7 @@ Run all checks and record results:
 ```
 
 #### A2. Architecture & Design Validation
-Review every changed file against the designs in `spec.md`:
+Review every changed file against the designs in `spec_t<taskId>.md`:
 - **UiState compliance**: Does the implementation match the designed `UiState`?
 - **Layer boundary check**:
   - UI → Presentation only
@@ -113,7 +113,7 @@ Verify secrets, PII logging, and backward compatibility.
 ### Part B — Test Review
 
 #### B1. Read the test report
-Open `unit_test/test_report_v<N>.md`. Do not re-run `testDebugUnitTest` or `koverLog` — these results are already recorded by the Testing stage.
+Open `unit_test/test_report_t<taskId>_v<N>.md`. Do not re-run `testDebugUnitTest` or `koverLog` — these results are already recorded by the Testing stage.
 
 #### B2. Coverage distribution review
 From the report's coverage numbers, assess:
@@ -141,10 +141,10 @@ If this was a bug fix:
 ## Output
 
 Produce both:
-1. `coding/review/review_v<N>.md` by copying and filling in the template from `docs/templates/review-template.md`.
-2. `coding/review/test_review_v<N>.md` by copying and filling in the template from `docs/templates/test-review-template.md`.
+1. `coding/review/review_t<taskId>_v<N>.md` by copying and filling in the template from `docs/templates/review-template.md`.
+2. `coding/review/test_review_t<taskId>_v<N>.md` by copying and filling in the template from `docs/templates/test-review-template.md`.
 
-Update `summary.md`: mark the Review stage complete with overall verdict.
+Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdict.
 
 ---
 
@@ -162,7 +162,7 @@ Update `summary.md`: mark the Review stage complete with overall verdict.
 - [ ] `api-contract-rules.md` — all checks PASS or N/A
 - [ ] `analytics-rules.md` — all checks PASS or N/A
 - [ ] `gates/review-checklist.md` — every item marked PASS or N/A
-- [ ] UI matches the designed states in `spec.md`
+- [ ] UI matches the designed states in `spec_t<taskId>.md`
 
 **Test review conditions — all must pass:**
 - [ ] Test report confirms: `testDebugUnitTest` exit code 0
@@ -173,8 +173,8 @@ Update `summary.md`: mark the Review stage complete with overall verdict.
 - [ ] Regression test confirmed failing-before / passing-after (for bug fixes)
 
 **Artifact conditions:**
-- [ ] `coding/review/review_v<N>.md` exists with all sections completed and overall verdict filled in
-- [ ] `coding/review/test_review_v<N>.md` exists with all sections completed and overall verdict filled in
+- [ ] `coding/review/review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
+- [ ] `coding/review/test_review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

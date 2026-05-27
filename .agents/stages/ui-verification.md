@@ -3,7 +3,7 @@
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
 ## Purpose
-Verify that the implemented UI renders correctly and matches the design specified in `spec.md`.
+Verify that the implemented UI renders correctly and matches the design specified in `spec_t<taskId>.md`.
 This stage runs after implementation is complete and before (or as part of) the code review.
 
 Use the cheapest reliable check first — build and static analysis → instrumented UI tests → visual screenshot verification.
@@ -13,9 +13,9 @@ Use the cheapest reliable check first — build and static analysis → instrume
 ## Load
 - `skills/android-ui-verification/SKILL.md`
 - `rules/android-architecture.md` — ensure no layer violations (UI importing data classes, etc.)
-- `request_analysis/spec.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
+- `request_analysis/spec_t<taskId>.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
 - `request_analysis/design/` — **original design screenshots** provided by the user in the Requirement, Impact & Design Analysis stage (e.g. `design.png`)
-- `coding/implementation_plan.md` — list of changed Composables
+- `coding/implementation_plan_t<taskId>.md` — list of changed Composables
 
 ---
 
@@ -67,7 +67,7 @@ adb shell input swipe 540 1200 540 400
 adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml
 ```
 
-**Compare every text string** against the design in `spec.md`. Record any mismatches.
+**Compare every text string** against the design in `spec_t<taskId>.md`. Record any mismatches.
 
 ### 4. Side-by-side comparison against original design screenshot
 Locate the original design screenshot from `request_analysis/design/` (uploaded in the Requirement, Impact & Design Analysis stage).
@@ -87,7 +87,7 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 
 ### 5. Checklist — what to verify
 - [ ] Screen is shown with no crash
-- [ ] All text strings match the design (`spec.md`)
+- [ ] All text strings match the design (`spec_t<taskId>.md`)
 - [ ] Correct content renders from mocked / real data
 - [ ] CTAs visible and correctly enabled/disabled per state
 - [ ] Loading / empty / error / success states all render
@@ -129,7 +129,7 @@ Produce `coding/ui_verification_v<N>.md`:
 PASS / FAIL — <reason if fail>
 ```
 
-Update `summary.md`: mark UI Verification stage complete.
+Update `summary_t<taskId>.md`: mark UI Verification stage complete.
 
 ---
 

@@ -21,8 +21,8 @@ Load **all** of the following before starting the review. Do not skip any rule f
 - `rules/api-contract-rules.md` *(if API or data layer changed)*
 - `rules/analytics-rules.md`   *(if analytics events changed)*
 - `gates/review-checklist.md`
-- `coding/coding_report_v<N>.md`
-- `request_analysis/spec.md` (for design compliance)
+- `coding/coding_report_t<taskId>_v<N>.md`
+- `request_analysis/spec_t<taskId>.md` (for design compliance)
 
 ---
 
@@ -38,7 +38,7 @@ Run all checks and record results:
 ```
 
 ### 2. Architecture & Design Validation
-Review every changed file against the designs in `spec.md`:
+Review every changed file against the designs in `spec_t<taskId>.md`:
 - **UiState compliance**: Does the implementation match the designed `UiState`?
 - **Layer boundary check**:
   - UI → Presentation only
@@ -113,7 +113,7 @@ Verify secrets, PII logging, and backward compatibility.
 
 ## Output
 
-Produce `coding/review/code_review_v<N>.md` using `docs/templates/review-template.md`. The report **must** include all of the following sections — none may be omitted:
+Produce `coding/review/code_review_t<taskId>_v<N>.md` using `docs/templates/review-template.md`. The report **must** include all of the following sections — none may be omitted:
 
 ```
 ## Code Review — v<N>
@@ -127,7 +127,7 @@ Produce `coding/review/code_review_v<N>.md` using `docs/templates/review-templat
 | lintDebug | ✅ PASS / ❌ FAIL |
 
 ### Architecture & Design Validation
-- [ ] UiState matches design in spec.md
+- [ ] UiState matches design in spec_t<taskId>.md
 - [ ] Layer boundaries respected (no violations)
 - [ ] DI scopes are correct
 - [ ] Domain layer is pure
@@ -160,7 +160,7 @@ For each rules file checked, list every violation found (file, line, description
 APPROVED / REVISION REQUIRED — <blocking issue if REVISION REQUIRED>
 ```
 
-Update `summary.md`: mark the Code Review stage complete with review verdict.
+Update `summary_t<taskId>.md`: mark the Code Review stage complete with review verdict.
 
 ---
 
@@ -178,8 +178,8 @@ Update `summary.md`: mark the Code Review stage complete with review verdict.
 - [ ] `api-contract-rules.md` — all checks PASS or N/A (zero open violations)
 - [ ] `analytics-rules.md` — all checks PASS or N/A (zero open violations)
 - [ ] `gates/review-checklist.md` — every item marked PASS or N/A (none left blank)
-- [ ] UI matches the designed states in `spec.md`
-- [ ] `coding/review/code_review_v<N>.md` exists with verdict filled in and all Per-Rule Violations sections completed
+- [ ] UI matches the designed states in `spec_t<taskId>.md`
+- [ ] `coding/review/code_review_t<taskId>_v<N>.md` exists with verdict filled in and all Per-Rule Violations sections completed
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

@@ -19,7 +19,7 @@ For trivially small changes, skip this stage and go directly to the Implementati
 - `docs/templates/progress-template.md`
 - **Requirement input** — read the path from the active workflow's `Input:` line:
   - feature-planning workflow → `docs/current/requirement-summary.md`
-  - Other workflows → `request_analysis/spec.md`
+  - Other workflows → `request_analysis/spec_t<taskId>.md`
 
 ---
 

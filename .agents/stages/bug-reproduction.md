@@ -19,7 +19,7 @@ Do not implement any fix in this stage.
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `request_analysis/spec.md` — root cause statement
+- `request_analysis/spec_t<taskId>.md` — root cause statement
 
 ---
 
@@ -43,7 +43,7 @@ Follow the **Prove-It Pattern** from `skills/test-driven-development/SKILL.md`:
 1. Name the test so it reads as a specification of the failure:
    - Pattern: `"given <precondition>, when <action>, then <expected outcome>"`
    - Example: `"given a note with empty title, when saving, then an error state is emitted"`
-2. Write the minimal test that targets the root cause statement in `spec.md`.
+2. Write the minimal test that targets the root cause statement in `spec_t<taskId>.md`.
 3. Do **not** write the fix. Do **not** adjust application code to make the test pass.
 4. Use shared JSON scenarios if an API response is involved — do not inline mock data.
 5. Add `@Ignore("BUG: <short description> — remove when fixed")` if the test would block CI before the fix lands; remove the annotation in the Implementation stage.
@@ -72,7 +72,7 @@ Do not advance until you have observed a RED result.
 
 The new (failing) reproduction test file, committed with `@Ignore` if needed.
 
-Append to `request_analysis/spec.md`:
+Append to `request_analysis/spec_t<taskId>.md`:
 
 ```
 ## Reproduction Test
@@ -85,7 +85,7 @@ Append to `request_analysis/spec.md`:
 - Failure message: <paste the key assertion failure line>
 ```
 
-Update `summary.md`: mark this stage complete.
+Update `summary_t<taskId>.md`: mark this stage complete.
 
 ---
 
@@ -93,10 +93,10 @@ Update `summary.md`: mark this stage complete.
 
 **Conditions to pass — all must be mechanically verifiable:**
 
-- [ ] A reproduction test exists that targets the root cause statement in `spec.md`
+- [ ] A reproduction test exists that targets the root cause statement in `spec_t<taskId>.md`
 - [ ] `./gradlew testDebugUnitTest` (or `connectedDebugAndroidTest`) exits **non-zero** for the new test, confirming RED
 - [ ] The failure message matches the root cause — not a compilation error or unrelated assertion
 - [ ] No application source code has been modified in this stage
-- [ ] `spec.md` is updated with the Reproduction Test section
+- [ ] `spec_t<taskId>.md` is updated with the Reproduction Test section
 
 **APPROVED →** Return to the active workflow file and proceed to the Fix Plan stage.
