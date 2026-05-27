@@ -3,7 +3,9 @@
 > **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
 
 ## Purpose
-Write and verify all tests for the change.
+Write all tests for the change and mechanically verify they pass.
+This stage **generates** — it does not evaluate quality. That is the Test Review stage's job.
+
 The article principle: write the failing test *before* touching the application code for bug fixes and new behavior.
 
 ---
@@ -75,13 +77,14 @@ These rules apply to every test file regardless of layer:
   - ✅ `import io.mockk.mockk`, `import io.mockk.every`, `import io.mockk.verify`
 - **Imports sorted lexicographically** with no blank lines between entries
 
-### 6. Verify coverage
+### 6. Run and record results
 ```bash
 ./gradlew testDebugUnitTest
 ./gradlew koverLog
 ```
-- Overall: ≥ 80%
-- New ViewModel and domain classes: ≥ 90%
+If instrumented tests were added: `./gradlew connectedDebugAndroidTest`
+
+Record every result number in the output report below. Do not summarize — copy actual pass/fail counts and coverage percentages verbatim from the tool output.
 
 ---
 
@@ -102,11 +105,11 @@ Produce `unit_test/test_report_v<N>.md`:
 ### Shared JSON Scenarios
 - <scenario file> — <endpoint> — <covers: success / 4xx / 5xx / malformed>
 
-### Coverage (from koverLog)
+### Coverage (verbatim from koverLog output)
 - Overall: X%
 - New classes: X%
 
-### Test Results
+### Test Results (verbatim from Gradle output)
 - Unit + Integration: <N passed / N total>
 - Instrumented: <N passed / N total> or SKIPPED
 ```
@@ -124,7 +127,7 @@ Update `summary.md`: mark the Testing stage complete with test count and coverag
 - [ ] At least one integration test per new or changed API endpoint
 - [ ] Shared JSON scenarios used — no inline mock response data in test files
 - [ ] Instrumented tests pass (if added): `./gradlew connectedDebugAndroidTest`
-- [ ] `unit_test/test_report_v<N>.md` exists with coverage numbers filled in
+- [ ] `unit_test/test_report_v<N>.md` exists with coverage numbers filled in verbatim
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

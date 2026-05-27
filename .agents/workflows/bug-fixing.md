@@ -19,7 +19,7 @@ Do not fix symptoms first. Do not guess — prove it with a failing test.
 **The reproduction test must be RED before the Fix Plan is written.**
 **The Fix Plan must be approved before any fix code is written.**
 
-Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
+Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Testing → Review → Knowledge
 
 ---
 
@@ -71,40 +71,30 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied
 
 ---
 
-### Stage 5 — Code Review
-Load: `stages/code-review.md`
-
-Verify:
-- Minimal fix — no unrelated changes
-- Logic matches root cause
-- Architecture rules followed
-
-Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
-Gate: build passes, static analysis passes, architecture rules followed
-
----
-
-### Stage 6 — Testing
+### Stage 5 — Testing
 Load: `stages/testing.md`
 
-Output: Unit tests, integration tests, shared JSON scenarios
+Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_v<N>.md`
 Gate: tests pass, coverage targets met
 
 ---
 
-### Stage 7 — Test Review
-Load: `stages/test-review.md`
+### Stage 6 — Code + Test Review ⛔ STOP
+Load: `stages/review.md`
 
-Verify the reproduction test (now passing) and any additional tests written during Implementation:
+For bug fixes, additionally verify in Part B (Test Review):
 - Remove any `@Ignore` annotation added in the Bug Reproduction stage
 - Confirm the reproduction test is GREEN after the fix
 - Confirm no regressions in the full suite
+- The minimal-fix constraint: no unrelated changes slipped in
 
-Gate: reproduction test passes, full suite exits 0, coverage requirements met
+Output: `docs/changes/<name>/coding/review/review_v<N>.md`
+Gate: build passes, static analysis passes, architecture rules followed, reproduction test GREEN, no regressions
+**STOP — present `review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ---
 
-### Stage 8 — Knowledge Capture
+### Stage 7 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
 
 **Always** record the bug in `docs/knowledge/past-bugs/`.
@@ -116,4 +106,4 @@ Load: `stages/knowledge-capture.md`
 1. **After Bug Context, Localization & Root Cause** — if root cause is uncertain, ask user
 2. **After Bug Reproduction** — if the bug cannot be reproduced by a test, surface to user *(mandatory stop)*
 3. **After Fix Plan** — user approves fix plan *(mandatory always)*
-4. **After Test Review** — user confirms the fix before it is merged
+4. **After Code + Test Review** — user confirms the fix before it is merged *(mandatory always)*

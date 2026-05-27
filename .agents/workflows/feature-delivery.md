@@ -22,7 +22,7 @@ Do not jump directly into coding.
 - **If the user prompt outlines a specific, clear requirement**: Execute and perform analysis based directly on the user's explicit requirement.
 - **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check the task progress in `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details. Fulfill this pipeline specifically for that task.
 
-Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Code Review → Testing → Test Review → Knowledge
+Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Testing → Review → Knowledge
 
 ---
 
@@ -43,24 +43,18 @@ Load: `stages/implementation.md`
 Output: All source files across Data, Domain, and UI layers. `coding/coding_report_v<N>.md`
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
-### Stage 4 — Code Review ⛔ STOP
-Load: `stages/code-review.md`
-Output: `docs/changes/<name>/coding/review/code_review_v<N>.md`
-Gate: ktlint/detekt passes, architecture and design compliance verified
-**STOP — present `code_review_v<N>.md` to user. Do not proceed to Testing until user explicitly approves.**
-
-### Stage 5 — Testing
+### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios
+Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_v<N>.md`
 Gate: tests pass, coverage targets met
 
-### Stage 6 — Test Review ⛔ STOP
-Load: `stages/test-review.md`
-Output: `docs/changes/<name>/coding/review/test_review_v<N>.md`
-Gate: overall coverage ≥ 80%, shared scenarios used, regressions verified
-**STOP — present `test_review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
+### Stage 5 — Code + Test Review ⛔ STOP
+Load: `stages/review.md`
+Output: `docs/changes/<name>/coding/review/review_v<N>.md`
+Gate: build/lint/detekt pass, architecture and design compliance verified, test quality confirmed
+**STOP — present `review_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
-### Stage 7 — Knowledge Capture
+### Stage 6 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
 Output: ADRs, past-bugs, pitfalls, finalized `summary.md`, updated `docs/current/progress.md` (marking the task as Complete)
 Gate: all knowledge artifacts produced, task marked Complete in progress file (if active)
@@ -71,8 +65,10 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 | Failure | Return to |
 |---------|-----------|
-| Compilation error or Code quality/Architecture violation | Implementation (Data + Domain + UI) |
-| Test failure or Coverage gap | Testing |
+| Compilation error | Implementation (Data + Domain + UI) |
+| Test failure or Coverage gap | Testing (fix implementation if needed, then re-test) |
+| Architecture/rule violation found in Review | Implementation (Data + Domain + UI) |
+| Test quality issue found in Review | Testing |
 | Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
 
 ---
@@ -81,5 +77,4 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 1. **After Requirement, Impact & Design Analysis** — user confirms assumptions and designs
 2. **After Implementation Plan** — user approves implementation plan *(mandatory always)*
-3. **After Code Review** — user reviews the code before testing
-4. **After Test Review** — user reviews the full change before merge
+3. **After Code + Test Review** — user reviews verified, working code and tests before merge *(mandatory always)*

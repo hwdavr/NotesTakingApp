@@ -29,10 +29,10 @@ Compare the implemented UI against the original design screenshot in `request_an
 - **Maximum 3 loops total.**
 - If still failing after 3 loops, stop and surface the deviation to the user with the screenshot attached.
 
-**PASS →** proceed to Stage 3 — Code Review.
+**PASS →** proceed to Stage 3 — Code + Test Review.
 
-### Stage 3 — Code Review
-Load: `stages/code-review.md`
+### Stage 3 — Code + Test Review
+Load: `stages/review.md`
 
 ## Best Practices
 - **Handling Long Content**: For scrollable screens or bottom sheets, ensure the UI handles scrolling properly. In tests, use `performScrollToNode()` to find off-screen elements.

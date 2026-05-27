@@ -163,7 +163,7 @@ Update `summary.md`: mark the Implementation (Data + Domain + UI) stage complete
 - [ ] UiState covers loading, success, empty, and error states
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** Return to the active workflow file. The next stage is **Code Review** — load `stages/code-review.md` and do not skip it.
+**APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `stages/testing.md` and write all required tests.
 
 **REVISION REQUIRED →** fix the issue at its layer (Data / Domain / UI), re-run `assembleDebug`, re-evaluate gate.
 **Rollback trigger:** Never proceed to the next stage with a failing build.

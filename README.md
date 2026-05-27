@@ -42,18 +42,13 @@ The diagram below shows the standard pipeline for delivering a new feature. The 
                    │                                             │
                    ▼                                             │
 ┌─────────────────────────────────────┐                          │
-│  🔍 Code Review  ⛔ STOP           │ ── violation found ──────┘
-└──────────────────┬──────────────────┘
-                   │  approved
-                   ▼
-┌─────────────────────────────────────┐
-│  🧪 Testing                         │ ◄───────────────────────┐
-│     Unit · Integration · UI         │ ── test failure ─────────┘
-└──────────────────┬──────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────┐
-│  ✅ Test Review  ⛔ STOP           │
+│  🧪 Testing                         │ ◄───────────────────────┐│
+│     Unit · Integration · UI         │ ── test failure ─────────┘│
+└──────────────────┬──────────────────┘                          │
+                   │                                             │
+                   ▼                                             │
+┌─────────────────────────────────────┐                          │
+│  🔍 Code + Test Review  ⛔ STOP     │ ── violation found ──────┘
 └──────────────────┬──────────────────┘
                    │  approved
                    ▼
@@ -84,8 +79,7 @@ The diagram below shows the standard pipeline for delivering a new feature. The 
 │   ├── ui-layer.md
 │   ├── ui-verification.md
 │   ├── testing.md
-│   ├── code-review.md
-│   ├── test-review.md
+│   ├── review.md              ← Single evaluator pass covering implementation + tests
 │   ├── knowledge-capture.md
 │   └── bug-reproduction.md
 ├── rules/                 ← Mandatory constraints. L1 = always loaded. L3 = on-demand.
