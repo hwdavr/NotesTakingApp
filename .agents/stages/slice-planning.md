@@ -34,13 +34,7 @@ Review the requirement input document (path defined by the calling workflow) and
 
 ### 2. Choose a Slicing Strategy
 
-**Strongly Prefer Vertical Slices**: Always default to the **Vertical Slices** strategy to ensure that each slice delivers an end-to-end, testable user value and leaves the codebase in a clean, shippable state. Only choose another strategy if there is a compelling structural blocker.
-
-| Strategy | When to use |
-|----------|------------|
-| **Vertical slices** | **Preferred**. Build one complete, end-to-end user-visible flow per slice (Data → Domain → UI → Tests). |
-| **Contract-first** | When the API contract is highly uncertain. Define the contract in Slice 0, implement against mocks in parallel. |
-| **Risk-first** | When one specific architectural part carries high risk or extreme technical uncertainty. Spike that piece first. |
+**Strongly Prefer Vertical Slices**: Always default to the **Vertical Slices** strategy to ensure that each slice delivers an end-to-end, testable user value and leaves the codebase in a clean, shippable state. 
 
 ### 3. Define Tasks
 
