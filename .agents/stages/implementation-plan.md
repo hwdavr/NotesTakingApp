@@ -19,16 +19,31 @@ This is the final gate before implementation begins.
 
 ## Execute
 
-1. Using all outputs from the Requirement, Impact & Design Analysis stage, compile a complete implementation plan. **You MUST follow the structure and sections in `docs/templates/implementation-plan-template.md` exactly.**
+### Step 1: Generate Implementation Plan
+Using all outputs from the **Requirement, Impact & Design Analysis** stage, compile a complete implementation plan. 
 
-2. The plan must include:
-   - Files to create / modify / delete
-   - Domain model changes
-   - API / DTO changes and defensive handling
-   - **OpenAPI Verification**: If new API responses are involved, verify if they are already defined in `sharedContracts/openapi.yaml`. If not, explicitly list the updates required in the OpenAPI spec.
-   - UI / state implementation (reference the design in `spec.md`)
-   - **Test plan**: Generate a separate test plan document using **`docs/templates/test-plan-template.md`** as the template. Define test cases per class (Mapper, ViewModel, UI) with Given / When / Then and a unique ID for each case. **MANDATORY**: Each new API endpoint must have at least one integration test using a shared JSON scenario.
-   - Risks and mitigation
+> [!IMPORTANT]
+> You **MUST** follow the structure and sections in [implementation-plan-template.md](./docs/templates/implementation-plan-template.md) exactly.
+
+The implementation plan must include:
+- **File Breakdown**: List all files to create, modify, or delete.
+- **Domain Models**: Detail any new or modified domain model fields.
+- **API & DTO Layer**: Outline DTO changes and defensive parsing logic.
+- **OpenAPI Verification**: 
+  - Check if any new/modified endpoints are in `sharedContracts/openapi.yaml`.
+  - If not, explicitly list the OpenAPI spec changes required.
+- **UiState Implementation**: Define the new fields and states matching the spec's designed state structure.
+- **Navigation Flow**: Reference routes, arguments, and backstack details from the design.
+- **Risks & Mitigations**: Identify technical risks (such as payload changes, synchronization issues, database migration) and document their mitigation strategies.
+
+### Step 2: Generate Test Plan
+Create a separate, comprehensive test plan document following [test-plan-template.md](./docs/templates/test-plan-template.md).
+
+The test plan must include:
+- **Test Layer Selection**: Read `rules/testing-strategy.md` to decide the minimum test layers needed (start at the lowest layer that provides enough confidence).
+- **Required Tests Coverage**: Check the active task's "Required tests" table in `docs/current/task-list.md` and ensure all specified test cases are explicitly covered in your test plan.
+- **Test Case Definition**: Define test cases per class (Mapper, ViewModel, UI) with Given/When/Then and a unique ID for each test case.
+- **API Integration Tests**: **MANDATORY** to include at least one integration test using a shared JSON scenario for each affected API endpoint.
 
 ---
 

@@ -21,9 +21,8 @@ The article principle: write the failing test *before* touching the application 
 
 ## Execute
 
-### 1. Select test layers
-Read `rules/testing-strategy.md` to decide the minimum layers required.
-Default: always start at the lowest layer that gives enough confidence.
+### 1. Execute Planned Tests
+Read the approved test plan in `coding/test_plan.md` to identify the test layers and test cases required for this task.
 
 ### 2. Unit tests (`app/src/test/`)
 Write unit tests for all new or modified:

@@ -140,68 +140,9 @@ If this was a bug fix:
 
 ## Output
 
-Produce `coding/review/review_v<N>.md` using `docs/templates/review-template.md`:
-
-```
-## Code + Test Review — v<N>
-
-### Part A — Code Review
-
-#### Build & Quality Results
-| Check | Result |
-|-------|--------|
-| assembleDebug | ✅ PASS / ❌ FAIL |
-| ktlintCheck | ✅ PASS / ❌ FAIL |
-| detekt | ✅ PASS / ❌ FAIL |
-| lintDebug | ✅ PASS / ❌ FAIL |
-
-#### Architecture & Design Validation
-- [ ] UiState matches design in spec.md
-- [ ] Layer boundaries respected (no violations)
-- [ ] DI scopes are correct
-- [ ] Domain layer is pure
-
-#### Per-Rule Violations
-<For each rules file checked, list every violation (file, line, description) or "No violations found.">
-
-#### gates/review-checklist.md — Full Results
-<Paste the completed checklist with every item marked PASS / FAIL / N/A>
-
-#### Code Verdict
-APPROVED / REVISION REQUIRED — <blocking issue if REVISION REQUIRED>
-
----
-
-### Part B — Test Review
-
-#### Test Results (from test_report_v<N>.md — not re-run)
-| Check | Result |
-|-------|--------|
-| testDebugUnitTest | ✅ PASS / ❌ FAIL |
-| koverLog overall | ✅ X% (target ≥ 80%) |
-| koverLog new classes | ✅ X% (target ≥ 90%) |
-| connectedDebugAndroidTest | ✅ PASS / SKIPPED |
-
-#### Coverage Distribution
-- <class name>: X% — <note if borderline or missing branch>
-
-#### Test Quality Findings
-- [ ] Naming follows descriptive pattern
-- [ ] Assertions are specific (no tautological asserts)
-- [ ] Unit tests are fully isolated (no real dependencies)
-- [ ] Shared JSON scenarios used — no inline mock payloads
-- [ ] Edge cases and error states covered per API endpoint
-- [ ] Import hygiene: no fully-qualified names, no wildcards, sorted imports
-- [ ] Regression test confirmed failing-before / passing-after (if bug fix)
-
-#### Test Verdict
-APPROVED / REVISION REQUIRED — <specific blocking issue with file + line reference>
-
----
-
-### Overall Verdict
-APPROVED / REVISION REQUIRED — <summary of any blocking issues>
-```
+Produce both:
+1. `coding/review/review_v<N>.md` by copying and filling in the template from `docs/templates/review-template.md`.
+2. `coding/review/test_review_v<N>.md` by copying and filling in the template from `docs/templates/test-review-template.md`.
 
 Update `summary.md`: mark the Review stage complete with overall verdict.
 
@@ -231,8 +172,9 @@ Update `summary.md`: mark the Review stage complete with overall verdict.
 - [ ] All API endpoints have error-path coverage (4xx, 5xx, malformed, unknown enum)
 - [ ] Regression test confirmed failing-before / passing-after (for bug fixes)
 
-**Artifact condition:**
+**Artifact conditions:**
 - [ ] `coding/review/review_v<N>.md` exists with all sections completed and overall verdict filled in
+- [ ] `coding/review/test_review_v<N>.md` exists with all sections completed and overall verdict filled in
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 
