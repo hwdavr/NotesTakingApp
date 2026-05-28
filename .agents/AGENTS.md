@@ -48,6 +48,7 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | `workflows/bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
 | `workflows/create-ui-and-verify.md` | UI implementation or update from a design |
 | `workflows/api-contract-update.md` | Backend API contract change |
+| `workflows/review-and-fix.md` | Independent review of an existing change by a second agent, followed by a targeted fix pass |
 
 ---
 ## Skills Index
