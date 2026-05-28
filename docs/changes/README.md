@@ -59,7 +59,7 @@ Template:
 # Change Summary — {name}
 
 **Type**: feature / bugfix / api / refactor
-**Started**: YYYY-MM-DD
+**Started**: YYYY-MM-DD HH:MM
 **Status**: In Progress / Complete
 
 ## Stage Progress
@@ -68,7 +68,7 @@ Template:
 
 | Stage | Status | Timestamp | Notes |
 |-------|--------|-----------|-------|
-| Requirement Analysis | ✅ / ⏳ / ❌ | | |
+| Requirement Analysis | ✅ / ⏳ / ❌ | YYYY-MM-DD HH:MM | |
 | Implementation Plan | | | Approved by user: yes/no |
 | Implementation | | | |
 | Code Review | | | APPROVED / REVISION REQUIRED |

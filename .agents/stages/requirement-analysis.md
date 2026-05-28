@@ -51,7 +51,7 @@ The Stage Progress table must list every stage from the active workflow in order
 
 | Stage | Status | Timestamp | Notes |
 |-------|--------|-----------|-------|
-| Requirement Analysis | ⏳ In Progress | | |
+| Requirement Analysis | ⏳ In Progress | YYYY-MM-DD HH:MM | |
 | Implementation Plan | | | Approved by user: — |
 | Implementation | | | |
 | Code Review | | | APPROVED / REVISION REQUIRED |

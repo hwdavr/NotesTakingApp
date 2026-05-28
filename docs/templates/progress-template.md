@@ -8,7 +8,7 @@
 ## Current Task
 
 **Active task**: Task N — <Short Name>
-**Started**: YYYY-MM-DD
+**Started**: YYYY-MM-DD HH:MM
 
 ---
 
@@ -29,11 +29,11 @@
 Record the outcome of every mandatory stop (⛔) below.
 Append a new row each time a gate is reached.
 
-| Date | Task | Gate | Outcome | Notes |
-|------|------|------|---------|-------|
-| YYYY-MM-DD | Task 1 | Implementation Plan | ✅ Approved | |
-| YYYY-MM-DD | Task 1 | Code Review | ✅ Approved | |
-| YYYY-MM-DD | Task 1 | Test Review | ✅ Approved | |
+| Timestamp | Task | Gate | Outcome | Notes |
+|-----------|------|------|---------|-------|
+| YYYY-MM-DD HH:MM | Task 1 | Implementation Plan | ✅ Approved | |
+| YYYY-MM-DD HH:MM | Task 1 | Code Review | ✅ Approved | |
+| YYYY-MM-DD HH:MM | Task 1 | Test Review | ✅ Approved | |
 
 ---
 
@@ -41,6 +41,6 @@ Append a new row each time a gate is reached.
 
 > Log anything that caused a task to stall or required a design decision mid-flight.
 
-| Date | Task | Description | Resolution |
-|------|------|-------------|------------|
+| Timestamp | Task | Description | Resolution |
+|-----------|------|-------------|------------|
 | | | | |
