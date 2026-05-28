@@ -30,8 +30,36 @@ class ItemsSyncCoordinatorTest {
     @Test
     fun `syncAll pulls and saves items`() = runTest {
         val apiItems = listOf(
-            ApiItem(id = "n1", userId = "u1", type = "note", parentId = "f1", name = "Title", content = "Content", sortKey = "s1", version = 1L, deviceId = "d1", lastSyncedVersion = 0L, deletedAt = null, createdAt = "2024-01-01T00:00:00Z", updatedAt = "2024-01-01T00:00:00Z"),
-            ApiItem(id = "f1", userId = "u1", type = "folder", parentId = null, name = "Work", content = "", sortKey = "s2", version = 1L, deviceId = "d1", lastSyncedVersion = 0L, deletedAt = null, createdAt = "2024-01-01T00:00:00Z", updatedAt = "2024-01-01T00:00:00Z")
+            ApiItem(
+                id = "n1",
+                userId = "u1",
+                type = "note",
+                parentId = "f1",
+                name = "Title",
+                content = "Content",
+                sortKey = "s1",
+                version = 1L,
+                deviceId = "d1",
+                lastSyncedVersion = 0L,
+                deletedAt = null,
+                createdAt = "2024-01-01T00:00:00Z",
+                updatedAt = "2024-01-01T00:00:00Z"
+            ),
+            ApiItem(
+                id = "f1",
+                userId = "u1",
+                type = "folder",
+                parentId = null,
+                name = "Work",
+                content = "",
+                sortKey = "s2",
+                version = 1L,
+                deviceId = "d1",
+                lastSyncedVersion = 0L,
+                deletedAt = null,
+                createdAt = "2024-01-01T00:00:00Z",
+                updatedAt = "2024-01-01T00:00:00Z"
+            )
         )
         coEvery { api.listItems(any()) } returns apiItems
         coEvery { noteDao.getNoteById("n1") } returns null
@@ -47,7 +75,21 @@ class ItemsSyncCoordinatorTest {
     @Test
     fun `syncAll pushes local updates if version is higher`() = runTest {
         val remoteItem =
-            ApiItem(id = "n1", userId = "u1", type = "note", parentId = "f1", name = "Old", content = "Old", sortKey = "s1", version = 1L, deviceId = "d1", lastSyncedVersion = 0L, deletedAt = null, createdAt = "2024-01-01T00:00:00Z", updatedAt = "2024-01-01T00:00:00Z")
+            ApiItem(
+                id = "n1",
+                userId = "u1",
+                type = "note",
+                parentId = "f1",
+                name = "Old",
+                content = "Old",
+                sortKey = "s1",
+                version = 1L,
+                deviceId = "d1",
+                lastSyncedVersion = 0L,
+                deletedAt = null,
+                createdAt = "2024-01-01T00:00:00Z",
+                updatedAt = "2024-01-01T00:00:00Z"
+            )
         val localNote = NoteEntity(
             id = "n1",
             title = "New",

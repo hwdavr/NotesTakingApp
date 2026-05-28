@@ -214,3 +214,8 @@ kover {
         }
     }
 }
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$rootDir/detekt.yml"))
+}

@@ -4,12 +4,15 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapp.di.IoDispatcher
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.util.NoteExporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +35,7 @@ class ExportNoteViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val noteRepository: NoteRepository,
     private val noteExporter: NoteExporter,
-    @com.example.notesapp.di.IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ExportUiState())
     val uiState: StateFlow<ExportUiState> = _uiState.asStateFlow()

@@ -78,7 +78,6 @@ fun ManageAccessScreen(
         noteTitle = state.noteTitle.ifBlank { stringResource(R.string.editor_untitled_note) },
         users = state.users,
         isLoading = state.isLoading,
-        isSubmitting = state.isSubmitting,
         errorMessageRes = state.errorMessageRes,
         isConfirmEnabled = state.isConfirmEnabled,
         onBack = onBack,
@@ -93,7 +92,6 @@ fun ManageAccessScreenContent(
     noteTitle: String,
     users: List<ManageAccessUserUiModel>,
     isLoading: Boolean,
-    isSubmitting: Boolean,
     errorMessageRes: Int?,
     isConfirmEnabled: Boolean,
     onBack: () -> Unit,
@@ -367,6 +365,7 @@ private fun ManageAccessPermissionOption(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun ManageAccessScreenPreview() {
     NotesTakingAppTheme {
         ManageAccessScreenContent(
@@ -395,7 +394,6 @@ private fun ManageAccessScreenPreview() {
                 )
             ),
             isLoading = false,
-            isSubmitting = false,
             errorMessageRes = null,
             isConfirmEnabled = true,
             onBack = {},

@@ -46,12 +46,6 @@ import com.example.notesapp.ui.share.viewmodel.ShareInviteEvent
 import com.example.notesapp.ui.share.viewmodel.ShareInviteViewModel
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 
-data class InvitePermissionUiModel(
-    val id: String,
-    val title: String,
-    val subtitle: String
-)
-
 @Composable
 fun ShareInviteScreen(
     parentPadding: PaddingValues,
@@ -286,6 +280,7 @@ private fun NoteShareAccessRole.toPermissionId(): String = when (this) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun ShareInviteScreenPreview() {
     NotesTakingAppTheme {
         ShareInviteScreenContent(
@@ -305,3 +300,9 @@ private fun ShareInviteScreenPreview() {
         )
     }
 }
+
+data class InvitePermissionUiModel(
+    val id: String,
+    val title: String,
+    val subtitle: String
+)

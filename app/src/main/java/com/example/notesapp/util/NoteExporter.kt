@@ -254,7 +254,8 @@ class NoteExporter(private val context: Context) {
             if (::currentPage.isInitialized) {
                 pdfDocument.finishPage(currentPage)
             }
-            currentPage = pdfDocument.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create())
+            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber++).create()
+            currentPage = pdfDocument.startPage(pageInfo)
             canvas = currentPage.canvas
             currentY = margin
         }

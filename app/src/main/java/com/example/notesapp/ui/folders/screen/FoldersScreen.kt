@@ -114,6 +114,7 @@ fun FoldersScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun FoldersScreenContent(
     parentPadding: PaddingValues,

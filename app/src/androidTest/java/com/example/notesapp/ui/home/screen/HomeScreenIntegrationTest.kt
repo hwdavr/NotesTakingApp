@@ -1,8 +1,16 @@
 package com.example.notesapp.ui.home.screen
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertDoesNotExist
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.FakeFolderRepository

@@ -347,6 +347,7 @@ private fun AccessRolePill(role: AccessRole) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun SharedUsersScreenPreview() {
     NotesTakingAppTheme {
         SharedUsersScreenContent(
