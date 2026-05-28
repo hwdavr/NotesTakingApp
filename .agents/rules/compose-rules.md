@@ -3,6 +3,9 @@
 ## Purpose
 Rules for writing Jetpack Compose UI in this project.
 
+> **Enforcement Matrix** — each rule below is tagged as Scripted 🤖 / Evaluator 🧠 / Human 👁️  
+> in [`compose-rules-enforcement-matrix.md`](../../docs/rules-matrix/compose-rules-enforcement-matrix.md).
+
 ---
 
 ## Composable Responsibilities

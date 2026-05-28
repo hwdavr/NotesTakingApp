@@ -40,7 +40,10 @@ Run all checks and record results:
 ./gradlew ktlintCheck
 ./gradlew detekt
 ./gradlew lintDebug
+bash scripts/check-compose-rules.sh
 ```
+
+Record the `check-compose-rules.sh` exit code and any flagged violations in the **Build & Test Results** table of the review report.
 
 #### A2. Architecture & Design Validation
 Review every changed file against the designs in `spec_t<taskId>.md`:
@@ -60,13 +63,52 @@ Review every changed file against the designs in `spec_t<taskId>.md`:
 For every rules file loaded in the **Load** section, scan every changed file against it and record each violation explicitly. Work through each rule file in turn:
 
 ##### A3a. `rules/compose-rules.md`
-For each changed Composable:
-- [ ] No hardcoded colors — all via `LocalAppColors.current.<token>` (no `Color(0x...)`, `Color.White`, `Color.Black`, etc.)
-- [ ] All new color tokens added to **both** `LightAppColors` and `DarkAppColors` in `AppColors.kt`
-- [ ] No hardcoded strings in any `Text()`, `Button()`, hint, or label — all via `stringResource()`
-- [ ] All interactive elements have `Modifier.testTag(...)` with stable, descriptive names
-- [ ] Stateless Content composable separated from the stateful Screen wrapper
-- [ ] No lambda created inline in composable body — all passed as parameters
+
+Only run this section if the change touches Compose (UI `*.kt`) files. Otherwise mark the entire section N/A in the review report.
+
+**Step 1 — Run the script (Scripted rules)**
+
+The script has already run in A1. Refer to its output to fill in the 🤖 rows in the Compose Rules Enforcement table. Mark each as ✅ (no violations) or ❌ (violations — list them in the Violations column).
+
+Rules automatically covered by the script:
+- **1.6** No hardcoded strings (`Text()`, `label=`, etc.) → Check 1
+- **1.7** No hardcoded colors `Color(0x...)` / named `Color.*` → Check 2a/2b
+- **1.3 / 2.2** `hiltViewModel()` / `viewModel()` not in `*Content` → Check 4
+- **1.4** No repository/use-case calls inside Composable → Check 5
+- **3.1** Files with interactive elements but no `testTag` → Check 3
+- **3.3** No string interpolation in `testTag` values → Check 6
+- **4.1** All user-visible text uses `stringResource()` → Check 1
+- **5.1** No `Color(0x...)` outside `AppColors.kt` → Check 2a
+- **5.2** No named `Color.*` outside `AppColors.kt` → Check 2b
+- **8.1** `LazyColumn` instead of `Column + forEach` → Check 7
+
+**Step 2 — Evaluate remaining rules (Evaluator rules)**
+
+For each changed Composable file, read the source and evaluate the following rules that the script cannot check:
+- **1.1** Composable receives `UiState` + callbacks as params — no data objects from lower layers exposed directly
+- **1.2** Composable only renders state — no sorting, filtering, or formatting logic inside composable body
+- **1.5** No business logic or data transformation anywhere inside the composable body
+- **2.1** Each screen has a `*Screen` stateful wrapper and a `*Content` stateless composable pair
+- **2.3** UI tests target `*Content`, not `*Screen` (check test files)
+- **3.2** Key content containers (list items, empty/error states, loading indicators, nav elements) have `testTag`
+- **3.3** `testTag` names are descriptive — flag any `"btn"`, `"item"`, or single-word tags
+- **4.2** String resource keys follow `<screen>_<element>_<type>` naming pattern
+- **5.3** Colors accessed via `LocalAppColors.current.<token>` — not via module-level `val` workarounds
+- **5.4** Color token names describe semantic purpose (`textSecondary`) not value (`gray`)
+- **5.5** Any new color added to **both** `LightAppColors` and `DarkAppColors` in `AppColors.kt`
+- **6.1** Repeated UI structure extracted to `components/` when it appears on more than one screen
+- **6.2** Components with internal state or complexity extracted to their own composable
+- **6.3** Each component has one visual responsibility
+- **7.1** State hoisted to the lowest common ancestor that needs it
+- **7.2** State not hoisted higher than necessary
+- **7.3** No `remember {}` inside `*Content` composables
+- **8.2** Stable types passed as parameters (no raw `List<>`, `Map<>`, inline lambdas that cause recomposition)
+- **8.3** `key()` used in `items()` / `itemsIndexed()` when items have stable IDs
+- **8.4** Lambdas passed as parameters — not created inside the composable body
+
+**Step 3 — Mark unchecked rules**
+
+For any rule in the Compose Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human` in the review report. This flags it explicitly for human review before merge.
 
 ##### A3b. `rules/localization-rules.md`
 For each changed file with user-visible text:
@@ -154,8 +196,11 @@ Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdi
 - [ ] `assembleDebug` — exit code 0
 - [ ] `ktlintCheck` — exit code 0
 - [ ] `detekt` — exit code 0
+- [ ] `check-compose-rules.sh` — exit code 0 (or skipped with no Compose changes)
 - [ ] No architecture or layer violations found
-- [ ] `compose-rules.md` — all checks PASS or N/A
+- [ ] Compose Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
+- [ ] All `❌` compose rule violations are either fixed or explicitly accepted with justification
+- [ ] All `👁️ Human` rows have been acknowledged by the human reviewer before merge
 - [ ] `localization-rules.md` — all checks PASS or N/A
 - [ ] `android-architecture.md` — all checks PASS or N/A
 - [ ] `navigation-rules.md` — all checks PASS or N/A
