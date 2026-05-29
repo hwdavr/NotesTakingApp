@@ -20,7 +20,36 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Parse arguments
+SCAN_ALL=false
+if [[ "${1:-}" == "--all" ]]; then
+    SCAN_ALL=true
+    shift
+fi
+
 SOURCE_ROOT="${1:-$PROJECT_ROOT/app/src/main/java}"
+
+# Determine which files to scan
+kt_files=()
+if [[ "$SCAN_ALL" == "true" ]]; then
+    mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+else
+    # Find all Kotlin files that are modified, staged, or untracked in Git
+    if git rev-parse --is-inside-work-tree &>/dev/null; then
+        mapfile -t kt_files < <(
+            {
+                git diff --name-only --diff-filter=d HEAD 2>/dev/null
+                git diff --name-only --cached --diff-filter=d 2>/dev/null
+                git ls-files --others --exclude-standard 2>/dev/null
+            } | grep '\.kt$' | sort -u | sed "s|^|$PROJECT_ROOT/|" | grep "^$SOURCE_ROOT/"
+        )
+    fi
+    # If no changed files or not in git, fallback to all files
+    if [[ ${#kt_files[@]} -eq 0 ]]; then
+        mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+    fi
+fi
 
 # ---------- colour helpers ---------------------------------------------------
 RED='\033[0;31m'
@@ -43,35 +72,56 @@ if command -v rg &>/dev/null; then
     _search() {
         local pattern="$1"; shift
         local rg_args=()
-        local path=""
+        local files=()
+        local excludes=()
         while [[ $# -gt 0 ]]; do
             case "$1" in
                 --type)    rg_args+=(--type "$2"); shift 2 ;;
                 --type=*)  rg_args+=("$1");         shift   ;;
-                --exclude) rg_args+=(--glob "!$2"); shift 2 ;;
-                --)        shift; path="$1";         shift   ;;
+                --exclude) excludes+=("$2"); rg_args+=(--glob "!$2" --glob "!**/$2"); shift 2 ;;
+                --)        shift; files+=("$@");    break   ;;
                 *)         rg_args+=("$1");          shift   ;;
             esac
         done
-        rg --color never -n "${rg_args[@]}" "$pattern" ${path:+"$path"} || true
+        if [[ ${#excludes[@]} -gt 0 && ${#files[@]} -gt 0 ]]; then
+            local filtered_files=()
+            local file exclude skip
+            for file in "${files[@]}"; do
+                skip=false
+                for exclude in "${excludes[@]}"; do
+                    if [[ "$(basename "$file")" == "$exclude" ]]; then
+                        skip=true
+                        break
+                    fi
+                done
+                if [[ "$skip" == "false" ]]; then
+                    filtered_files+=("$file")
+                fi
+            done
+            files=("${filtered_files[@]}")
+        fi
+        if [[ ${#files[@]} -eq 0 ]]; then
+            return 0
+        fi
+        rg --color never -n "${rg_args[@]}" "$pattern" "${files[@]}" || true
     }
 else
     _search() {
         local pattern="$1"; shift
         local grep_args=()
         local include="--include=*.kt"
-        local path=""
+        local files=()
         while [[ $# -gt 0 ]]; do
             case "$1" in
                 --type) shift 2 ;;                          # default is *.kt already
                 --type=kotlin) shift ;;
                 --multiline|--pcre2) shift ;;               # grep -P handles these
                 --exclude) grep_args+=("--exclude=$2"); shift 2 ;;
-                --) shift; path="$1"; shift ;;
+                --) shift; files+=("$@"); break ;;
                 *) grep_args+=("$1"); shift ;;
             esac
         done
-        grep -rn -P "$include" "${grep_args[@]}" "$pattern" ${path:+"$path"} 2>/dev/null || true
+        grep -rn -P "$include" "${grep_args[@]}" "$pattern" "${files[@]}" 2>/dev/null || true
     }
 fi
 
@@ -100,15 +150,19 @@ _run_check() {
 
     _rule_header "$rule_name"
 
-    local results
-    results=$(_search "$pattern" "$@" -- "$SOURCE_ROOT" 2>/dev/null || true)
+    local results=""
+    if [[ ${#kt_files[@]} -gt 0 ]]; then
+        results=$(_search "$pattern" "$@" -- "${kt_files[@]}" 2>/dev/null || true)
+    fi
 
     if [[ -z "$results" ]]; then
         echo -e "    ${GREEN}✓ No violations${RESET}"
     else
         while IFS= read -r line; do
-            _print_match "$line"
-            (( TOTAL_VIOLATIONS++ ))
+            if [[ -n "$line" ]]; then
+                _print_match "$line"
+                (( TOTAL_VIOLATIONS++ ))
+            fi
         done <<< "$results"
     fi
 }
@@ -128,12 +182,17 @@ echo -e "  ${YELLOW}All user-visible text must use stringResource(), not raw str
 
 _run_check \
     'Text() called with a raw string literal (not stringResource)' \
-    'Text\s*\(\s*"[^"]{1,}' \
+    '\bText\s*\(\s*"[^"]{1,}' \
     --type kotlin
 
 _run_check \
     'Button/label/placeholder/hint set as a hardcoded string' \
     '(label|title|placeholder|hint)\s*=\s*"[^"]' \
+    --type kotlin
+
+_run_check \
+    'Local UI label variable set as a hardcoded string' \
+    'val\s+\w*(Label|Text|Title|Placeholder|Description|Action)\w*\s*=\s*"[^"]' \
     --type kotlin
 
 # ── 2. Hardcoded Colors ───────────────────────────────────────────────────────
@@ -159,7 +218,6 @@ echo -e "  ${YELLOW}Button, IconButton, FloatingActionButton, etc. should have M
 echo -e "  ${YELLOW}Heuristic: flags files with interactive elements but zero testTag references.${RESET}"
 
 _rule_header 'Files containing interactive Composables but no testTag'
-mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
 no_tag_files=()
 for f in "${kt_files[@]}"; do
     if grep -qP '(Button|FloatingActionButton|IconButton|Chip|Switch|Checkbox|RadioButton|Slider|DropdownMenu|ExposedDropdownMenuBox)\s*\(' "$f" 2>/dev/null; then
@@ -208,6 +266,11 @@ _run_check \
     'testTag with string interpolation (unstable, ID-dependent)' \
     'testTag\s*\(\s*"[^"]*\$\{?' \
     --type kotlin
+
+_run_check \
+    'testTag with string concatenation or derived value (unstable, ID-dependent)' \
+    'testTag\s*\(\s*("[^"]*"\s*\+|[A-Za-z_][A-Za-z0-9_]*\s*\+|[^)]*(lowercase|replace)\s*\()' \
+    --type kotlin --pcre2
 
 # ── 7. Performance — Column + forEach Instead of LazyColumn ──────────────────
 _header "7 · Performance — Column + forEach Instead of LazyColumn"

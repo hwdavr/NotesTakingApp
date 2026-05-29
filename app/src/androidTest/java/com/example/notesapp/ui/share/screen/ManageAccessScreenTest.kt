@@ -1,7 +1,6 @@
 package com.example.notesapp.ui.share.screen
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -35,14 +34,13 @@ class ManageAccessScreenTest {
                         name = "Ben Lee",
                         email = "ben@notesapp.com",
                         initials = "BL",
-                        accentColor = Color(0xFF6E56CF),
+                        accentColorIndex = 0,
                         currentPermission = ManageAccessPermission.EDITOR,
                         selectedPermission = ManageAccessPermission.EDITOR,
                         isPending = false
                     )
                 ),
                 isLoading = false,
-                isSubmitting = false,
                 errorMessageRes = null,
                 isConfirmEnabled = true,
                 onBack = {},
@@ -75,14 +73,13 @@ class ManageAccessScreenTest {
                         name = "Ben Lee",
                         email = "ben@notesapp.com",
                         initials = "BL",
-                        accentColor = Color(0xFF6E56CF),
+                        accentColorIndex = 0,
                         currentPermission = ManageAccessPermission.EDITOR,
                         selectedPermission = ManageAccessPermission.VIEWER,
                         isPending = false
                     )
                 ),
                 isLoading = false,
-                isSubmitting = false,
                 errorMessageRes = null,
                 isConfirmEnabled = true,
                 onBack = {},
@@ -108,14 +105,13 @@ class ManageAccessScreenTest {
                         name = "Ben Lee",
                         email = "ben@notesapp.com",
                         initials = "BL",
-                        accentColor = Color(0xFF6E56CF),
+                        accentColorIndex = 0,
                         currentPermission = ManageAccessPermission.EDITOR,
                         selectedPermission = ManageAccessPermission.EDITOR,
                         isPending = false
                     )
                 ),
                 isLoading = false,
-                isSubmitting = false,
                 errorMessageRes = null,
                 isConfirmEnabled = false,
                 onBack = {},

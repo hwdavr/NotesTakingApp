@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.R
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,9 +46,10 @@ fun NoteItemActionsSheet(
     onRename: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = colors.surface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Column(
@@ -66,7 +68,7 @@ fun NoteItemActionsSheet(
                 Icon(
                     imageVector = Icons.Outlined.Description,
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
@@ -74,11 +76,11 @@ fun NoteItemActionsSheet(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFF2F343A)
+                        color = colors.textPrimary
                     )
                 )
             }
-            HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
+            HorizontalDivider(color = colors.divider, thickness = 1.dp)
             SheetActionRow(
                 icon = if (note.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                 label = stringResource(
@@ -107,8 +109,8 @@ fun NoteItemActionsSheet(
                 icon = Icons.Outlined.Archive,
                 label = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
-                iconTint = Color(0xFFC44A4A),
-                textColor = Color(0xFFC44A4A),
+                iconTint = colors.error,
+                textColor = colors.error,
                 modifier = Modifier.testTag("delete_item_action")
             )
         }
@@ -121,8 +123,8 @@ fun SheetActionRow(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    iconTint: Color = Color(0xFF4C5560),
-    textColor: Color = Color(0xFF2F343A)
+    iconTint: Color = LocalAppColors.current.textSecondary,
+    textColor: Color = LocalAppColors.current.textPrimary
 ) {
     Row(
         modifier = modifier

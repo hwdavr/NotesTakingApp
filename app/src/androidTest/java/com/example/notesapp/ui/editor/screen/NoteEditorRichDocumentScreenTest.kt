@@ -64,9 +64,9 @@ class NoteEditorRichDocumentScreenTest {
             )
         }
         composeRule.onNodeWithTag("rich_document_blocks").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_text_block_text_1").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_image_block_image_1").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_table_block_table_1").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_text_block").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_image_block").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_table_block").assertIsDisplayed()
     }
 
     @Test
@@ -104,7 +104,7 @@ class NoteEditorRichDocumentScreenTest {
                 onDeleteBlock = { deletedBlockId = it }
             )
         }
-        composeRule.onNodeWithTag("editor_image_block_delete_image_1").performClick()
+        composeRule.onNodeWithTag("editor_image_block_delete").performClick()
         assertTrue(deletedBlockId == "image_1")
     }
 

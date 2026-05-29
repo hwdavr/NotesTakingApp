@@ -123,7 +123,7 @@ class FoldersScreenTest {
                 onMoveFolder = { folderToMove = it }
             )
         }
-        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.onNodeWithTag("folder_more_actions").performClick()
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag("move_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
@@ -146,7 +146,7 @@ class FoldersScreenTest {
                 onMoveNote = { noteToMove = it }
             )
         }
-        composeRule.onNodeWithTag("note_more_actions_n1").performClick()
+        composeRule.onNodeWithTag("note_more_actions").performClick()
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag("move_item_action", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
         }
@@ -170,7 +170,7 @@ class FoldersScreenTest {
             )
         }
         // 1. Open more actions for folder f1
-        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.onNodeWithTag("folder_more_actions").performClick()
         // 2. Wait for and click archive in the action sheet
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag(
@@ -206,7 +206,7 @@ class FoldersScreenTest {
             )
         }
         // 1. Open more actions
-        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.onNodeWithTag("folder_more_actions").performClick()
         // 2. Click Rename in the action sheet
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag(
@@ -247,7 +247,7 @@ class FoldersScreenTest {
             )
         }
         // 1. Open more actions
-        composeRule.onNodeWithTag("note_more_actions_n1").performClick()
+        composeRule.onNodeWithTag("note_more_actions").performClick()
         // 2. Click Rename in the action sheet
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag(
@@ -286,7 +286,7 @@ class FoldersScreenTest {
                 onAddToFavoritesNote = { favoritedNote = it }
             )
         }
-        composeRule.onNodeWithTag("note_more_actions_n1").performClick()
+        composeRule.onNodeWithTag("note_more_actions").performClick()
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag(
                 "add_to_favorites_action",
@@ -312,7 +312,7 @@ class FoldersScreenTest {
                 onAddToFavoritesFolder = { favoritedFolder = it }
             )
         }
-        composeRule.onNodeWithTag("folder_more_actions_f1").performClick()
+        composeRule.onNodeWithTag("folder_more_actions").performClick()
         composeRule.waitUntil(10000) {
             composeRule.onAllNodesWithTag(
                 "add_to_favorites_action",

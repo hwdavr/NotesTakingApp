@@ -6,6 +6,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.example.notesapp.ui.theme.LocalAppColors
 
@@ -15,7 +17,8 @@ fun AddFab(onClick: () -> Unit) {
         onClick = onClick,
         containerColor = LocalAppColors.current.primary,
         contentColor = LocalAppColors.current.onPrimary,
-        shape = RoundedCornerShape(18.dp)
+        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier.testTag("add_fab")
     ) {
         Icon(Icons.Filled.Add, contentDescription = "Add")
     }

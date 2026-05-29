@@ -1,7 +1,6 @@
 package com.example.notesapp.ui.share.screen
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -33,7 +32,7 @@ class SharedUsersScreenTest {
                         name = "Hannah Lee",
                         email = "hannah.lee@example.com",
                         initials = "HL",
-                        accentColor = Color(0xFF6E7BFF),
+                        accentColorIndex = 0,
                         role = AccessRole.OWNER,
                         isPending = false
                     )

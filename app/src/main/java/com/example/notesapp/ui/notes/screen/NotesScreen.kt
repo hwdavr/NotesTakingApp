@@ -68,17 +68,34 @@ fun NotesScreen(
                         search = it
                         viewModel.onSearchChanged(it)
                     },
-                    placeholder = "Search notes"
+                    placeholder = stringResource(R.string.notes_search_placeholder)
                 )
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SectionTitle(title = "Recent folders", actionLabel = "See all")
-                    FolderChipsRow(items = listOf("Personal", "Work", "Ideas"))
+                    SectionTitle(
+                        title = stringResource(R.string.notes_recent_folders_title),
+                        actionLabel = stringResource(R.string.notes_see_all_action)
+                    )
+                    FolderChipsRow(
+                        items = listOf(
+                            stringResource(R.string.notes_folder_personal),
+                            stringResource(R.string.notes_folder_work),
+                            stringResource(R.string.notes_folder_ideas)
+                        )
+                    )
                 }
             }
             item {
-                SectionTitle(title = if (state.notes.isEmpty()) "No notes yet" else "Latest notes")
+                SectionTitle(
+                    title = stringResource(
+                        if (state.notes.isEmpty()) {
+                            R.string.notes_no_notes_title
+                        } else {
+                            R.string.notes_latest_notes_title
+                        }
+                    )
+                )
             }
             if (state.notes.isEmpty() && !state.isLoading) {
                 item {
@@ -93,9 +110,7 @@ fun NotesScreen(
                         NoteCard(
                             title = note.title,
                             preview = note.preview,
-                            meta = buildString {
-                                append("Note • Updated")
-                            },
+                            meta = stringResource(R.string.notes_updated_meta),
                             color = cardColors[note.colorIndex]
                         )
                     }

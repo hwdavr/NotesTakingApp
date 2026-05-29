@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,9 +35,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.R
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
+    val colors = LocalAppColors.current
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -110,11 +112,12 @@ fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
                             elevation = 14.dp,
                             shape = RoundedCornerShape(999.dp),
                             clip = false,
-                            ambientColor = Color(0x446E63F6),
-                            spotColor = Color(0x446E63F6)
-                        ),
+                            ambientColor = colors.primary.copy(alpha = 0.26f),
+                            spotColor = colors.primary.copy(alpha = 0.26f)
+                        )
+                        .testTag("onboarding_signup_button"),
                     shape = RoundedCornerShape(999.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.transparent),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Box(
@@ -122,7 +125,7 @@ fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
                             .fillMaxSize()
                             .background(
                                 brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFF7A69FF), Color(0xFF5D4BF2))
+                                    colors = listOf(colors.primary, colors.secondary)
                                 ),
                                 shape = RoundedCornerShape(999.dp)
                             ),
@@ -130,7 +133,7 @@ fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
                     ) {
                         Text(
                             text = stringResource(R.string.onboarding_create_account),
-                            color = Color.White,
+                            color = colors.onPrimary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -143,16 +146,16 @@ fun OnboardingScreen(onLoginClick: () -> Unit, onSignupClick: () -> Unit) {
                 ) {
                     Text(
                         text = stringResource(R.string.onboarding_have_account),
-                        color = Color(0xFF4B4B57),
+                        color = colors.textSecondary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = stringResource(R.string.onboarding_log_in),
-                        color = Color(0xFF6E63F6),
+                        color = colors.primary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.clickable { onLoginClick() }
+                        modifier = Modifier.clickable { onLoginClick() }.testTag("onboarding_login_text")
                     )
                 }
             }

@@ -43,8 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.ui.editor.viewmodel.ExportFormat
 import com.example.notesapp.ui.editor.viewmodel.ExportNoteViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +68,7 @@ fun ExportNoteScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val successMessage = stringResource(R.string.export_success)
     val errorMessage = stringResource(R.string.export_error)
+    val colors = LocalAppColors.current
     LaunchedEffect(noteId) {
         viewModel.loadNote(noteId)
     }
@@ -96,17 +98,20 @@ fun ExportNoteScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.export_title)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(
+                        onClick = onBack,
+                        modifier = Modifier.testTag("export_back_button")
+                    ) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = colors.surface
                 )
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color(0xFFF8FAFF)
+        containerColor = colors.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -120,7 +125,7 @@ fun ExportNoteScreen(
                     text = note.title.ifBlank { stringResource(R.string.editor_untitled_note) },
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1F2A44)
+                        color = colors.textPrimary
                     )
                 )
                 Spacer(modifier = Modifier.height(32.dp))
@@ -129,7 +134,7 @@ fun ExportNoteScreen(
                     modifier = Modifier.align(Alignment.Start),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF7281A7)
+                        color = colors.textSecondary
                     )
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -156,16 +161,17 @@ fun ExportNoteScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .clip(RoundedCornerShape(16.dp))
+                        .testTag("export_submit_button"),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6E7BFF)
+                        containerColor = colors.primary
                     ),
                     enabled = !state.isExporting
                 ) {
                     if (state.isExporting) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = Color.White,
+                            color = colors.onPrimary,
                             strokeWidth = 2.dp
                         )
                     } else {
@@ -177,7 +183,7 @@ fun ExportNoteScreen(
                     }
                 }
             } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF6E7BFF))
+                CircularProgressIndicator(color = colors.primary)
             }
         }
     }
@@ -185,14 +191,16 @@ fun ExportNoteScreen(
 
 @Composable
 private fun FormatOption(title: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
-    val borderColor = if (selected) Color(0xFF6E7BFF) else Color(0xFFEAF1FF)
-    val backgroundColor = if (selected) Color(0xFFF0F4FF) else Color.White
+    val colors = LocalAppColors.current
+    val borderColor = if (selected) colors.primary else colors.border
+    val backgroundColor = if (selected) colors.highlight else colors.surface
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .border(2.dp, borderColor, RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .testTag("export_format_option"),
         color = backgroundColor
     ) {
         Row(
@@ -203,13 +211,13 @@ private fun FormatOption(title: String, icon: ImageVector, selected: Boolean, on
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFFEAF1FF), RoundedCornerShape(12.dp)),
+                    .background(colors.border, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF6E7BFF),
+                    tint = colors.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -218,21 +226,21 @@ private fun FormatOption(title: String, icon: ImageVector, selected: Boolean, on
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF1F2A44)
+                    color = colors.textPrimary
                 )
             )
             if (selected) {
                 Icon(
                     imageVector = Icons.Outlined.CheckCircle,
                     contentDescription = null,
-                    tint = Color(0xFF6E7BFF),
+                    tint = colors.primary,
                     modifier = Modifier.size(24.dp)
                 )
             } else {
                 Box(
                     modifier = Modifier
                         .size(24.dp)
-                        .border(2.dp, Color(0xFFEAF1FF), RoundedCornerShape(12.dp))
+                        .border(2.dp, colors.border, RoundedCornerShape(12.dp))
                 )
             }
         }

@@ -108,6 +108,7 @@ import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -196,15 +197,16 @@ fun NoteEditorScreenContent(
                 .filterIsInstance<EditorBlock.TextBlock>()
                 .firstOrNull()
                 ?.id
+    val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
-        containerColor = Color.White,
+        containerColor = colors.surface,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
             modifier =
             Modifier.fillMaxSize()
-                .background(Color.White)
+                .background(colors.surface)
                 .padding(innerPadding)
                 .navigationBarsPadding()
                 .imePadding()
@@ -214,12 +216,12 @@ fun NoteEditorScreenContent(
                 onShare = onShareRequested,
                 onMore = { showNoteActionsSheet = true }
             )
-            HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
+            HorizontalDivider(color = colors.border, thickness = 1.dp)
             Column(
                 modifier =
                 Modifier.weight(1f)
                     .fillMaxWidth()
-                    .background(Color(0xFFF4F7FF))
+                    .background(colors.background)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -233,7 +235,7 @@ fun NoteEditorScreenContent(
                 ) {
                     Surface(
                         modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        color = Color(0xFFEAF1FF),
+                        color = colors.border,
                         shape = RoundedCornerShape(8.dp),
                         onClick = {
                             if (state.isEditable) {
@@ -249,13 +251,13 @@ fun NoteEditorScreenContent(
                             Icon(
                                 imageVector = Icons.Outlined.Link,
                                 contentDescription = null,
-                                tint = Color(0xFF7281A7),
+                                tint = colors.textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
                                 text = breadcrumbText,
                                 modifier = Modifier.weight(1f),
-                                color = Color(0xFF7281A7),
+                                color = colors.textSecondary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 maxLines = 1,
@@ -287,7 +289,7 @@ fun NoteEditorScreenContent(
                 }
                 Surface(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
-                    color = Color.White,
+                    color = colors.surface,
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Column(
@@ -307,14 +309,14 @@ fun NoteEditorScreenContent(
                                     stringResource(
                                         R.string.editor_title_placeholder
                                     ),
-                                    color = Color(0xFFAAB8C2)
+                                    color = colors.textTertiary
                                 )
                             },
                             textStyle =
                             MaterialTheme.typography.headlineSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 24.sp,
-                                color = Color(0xFF1F2A44)
+                                color = colors.textPrimary
                             ),
                             colors = editorFieldColors(),
                             singleLine = true,
@@ -334,7 +336,7 @@ fun NoteEditorScreenContent(
                     }
                 }
             }
-            HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
+            HorizontalDivider(color = colors.border, thickness = 1.dp)
             EditorBottomBar(
                 activeTextBlockId = activeTextBlockId,
                 isEditable = state.isEditable,
@@ -487,9 +489,22 @@ private fun TextDocumentBlock(
     onDelete: () -> Unit,
     focusRequester: FocusRequester
 ) {
+    val colors = LocalAppColors.current
     var textFieldValue by
-        remember(block.id) { mutableStateOf(TextFieldValue(block.toAnnotatedString())) }
-    val currentAnnotatedText = block.toAnnotatedString()
+        remember(block.id) {
+            mutableStateOf(
+                TextFieldValue(
+                    block.toAnnotatedString(
+                        codeBackground = colors.background,
+                        transparentBackground = colors.transparent
+                    )
+                )
+            )
+        }
+    val currentAnnotatedText = block.toAnnotatedString(
+        codeBackground = colors.background,
+        transparentBackground = colors.transparent
+    )
     if (textFieldValue.annotatedString != currentAnnotatedText) {
         textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
     }
@@ -519,11 +534,11 @@ private fun TextDocumentBlock(
                     false
                 }
             }
-            .testTag("editor_text_block_${block.id}"),
+            .testTag("editor_text_block"),
         textStyle =
         MaterialTheme.typography.bodyLarge.copy(
             fontSize = if (block.type == "heading") 22.sp else 14.sp,
-            color = Color(0xFF1F2A44),
+            color = colors.textPrimary,
             lineHeight = if (block.type == "heading") 28.sp else 20.sp,
             fontWeight =
             if (block.type == "heading") {
@@ -532,7 +547,7 @@ private fun TextDocumentBlock(
                 FontWeight.Normal
             }
         ),
-        cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+        cursorBrush = SolidColor(colors.primary),
         decorationBox = { innerTextField ->
             OutlinedTextFieldDefaults.DecorationBox(
                 value = textFieldValue.text,
@@ -544,12 +559,13 @@ private fun TextDocumentBlock(
                 placeholder = {
                     Text(
                         text = stringResource(R.string.editor_content_placeholder),
-                        color = Color(0xFFAAB8C2)
+                        color = colors.textTertiary
                     )
                 },
                 leadingIcon =
                 if (block.type == "bulleted") {
-                    { Text("•", color = Color(0xFF7281A7), fontSize = 20.sp) }
+                    val bulletChar = "•"
+                    { Text(bulletChar, color = colors.textSecondary, fontSize = 20.sp) }
                 } else {
                     null
                 },
@@ -568,7 +584,11 @@ private fun TextDocumentBlock(
         }
     )
 }
-private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
+
+private fun EditorBlock.TextBlock.toAnnotatedString(
+    codeBackground: Color,
+    transparentBackground: Color
+): AnnotatedString {
     return buildAnnotatedString {
         children.forEach { child ->
             withStyle(
@@ -587,9 +607,9 @@ private fun EditorBlock.TextBlock.toAnnotatedString(): AnnotatedString {
                     },
                     background =
                     if ("code" in child.marks) {
-                        Color(0xFFF4F7FF)
+                        codeBackground
                     } else {
-                        Color.Transparent
+                        transparentBackground
                     }
                 )
             ) { append(child.text) }
@@ -606,8 +626,8 @@ private fun ImageDocumentBlock(
     onDelete: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth().testTag("editor_image_block_${block.id}"),
-        color = Color(0xFFF4F7FF),
+        modifier = Modifier.fillMaxWidth().testTag("editor_image_block"),
+        color = LocalAppColors.current.background,
         shape = RoundedCornerShape(8.dp)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -619,35 +639,40 @@ private fun ImageDocumentBlock(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF6E7BFF))
-                    Text("Image", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44))
+                    Icon(Icons.Outlined.Image, contentDescription = null, tint = LocalAppColors.current.primary)
+                    Text(
+                        stringResource(R.string.editor_image_label),
+                        fontWeight = FontWeight.Bold,
+                        color = LocalAppColors.current.textPrimary
+                    )
                 }
                 if (block.url.isNotBlank()) {
+                    val imageDescription = block.caption.ifBlank { stringResource(R.string.editor_image_label) }
                     SubcomposeAsyncImage(
                         model =
                         ImageRequest.Builder(LocalContext.current)
                             .data(block.url)
                             .crossfade(true)
                             .build(),
-                        contentDescription = block.caption.ifBlank { "Image" },
+                        contentDescription = imageDescription,
                         modifier =
                         Modifier.fillMaxWidth()
                             .height(200.dp)
                             .clip(RoundedCornerShape(4.dp))
-                            .testTag("editor_image_preview_${block.id}"),
+                            .testTag("editor_image_preview"),
                         contentScale = ContentScale.Crop,
                         loading = { ShimmerEffect() },
                         error = {
                             Box(
                                 modifier =
                                 Modifier.fillMaxSize()
-                                    .background(Color(0xFFFDE7E9)),
+                                    .background(LocalAppColors.current.error.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Error,
-                                    contentDescription = "Error loading image",
-                                    tint = Color(0xFFC0392B)
+                                    contentDescription = stringResource(R.string.editor_image_error_description),
+                                    tint = LocalAppColors.current.error
                                 )
                             }
                         }
@@ -659,7 +684,7 @@ private fun ImageDocumentBlock(
                     onValueChange = onUrlChange,
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyMedium,
-                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    cursorBrush = SolidColor(LocalAppColors.current.primary),
                     decorationBox = { innerTextField ->
                         OutlinedTextFieldDefaults.DecorationBox(
                             value = block.url,
@@ -668,7 +693,12 @@ private fun ImageDocumentBlock(
                             singleLine = true,
                             visualTransformation = VisualTransformation.None,
                             interactionSource = remember { MutableInteractionSource() },
-                            placeholder = { Text("Image URL", color = Color(0xFFAAB8C2)) },
+                            placeholder = {
+                                Text(
+                                    stringResource(R.string.editor_image_url_placeholder),
+                                    color = LocalAppColors.current.textTertiary
+                                )
+                            },
                             colors = editorFieldColors(),
                             container = {
                                 OutlinedTextFieldDefaults.ContainerBox(
@@ -691,7 +721,7 @@ private fun ImageDocumentBlock(
                     onValueChange = onCaptionChange,
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyMedium,
-                    cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                    cursorBrush = SolidColor(LocalAppColors.current.primary),
                     decorationBox = { innerTextField ->
                         OutlinedTextFieldDefaults.DecorationBox(
                             value = block.caption,
@@ -700,7 +730,12 @@ private fun ImageDocumentBlock(
                             singleLine = true,
                             visualTransformation = VisualTransformation.None,
                             interactionSource = remember { MutableInteractionSource() },
-                            placeholder = { Text("Caption", color = Color(0xFFAAB8C2)) },
+                            placeholder = {
+                                Text(
+                                    stringResource(R.string.editor_caption_placeholder),
+                                    color = LocalAppColors.current.textTertiary
+                                )
+                            },
                             colors = editorFieldColors(),
                             container = {
                                 OutlinedTextFieldDefaults.ContainerBox(
@@ -725,12 +760,12 @@ private fun ImageDocumentBlock(
                 Modifier.align(Alignment.TopEnd)
                     .padding(4.dp)
                     .size(32.dp)
-                    .testTag("editor_image_block_delete_${block.id}")
+                    .testTag("editor_image_block_delete")
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Delete Image",
-                    tint = Color(0xFF7281A7),
+                    contentDescription = stringResource(R.string.editor_delete_image_description),
+                    tint = LocalAppColors.current.textSecondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -745,24 +780,29 @@ private fun TableDocumentBlock(
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().testTag("editor_table_block_${block.id}"),
+        modifier = Modifier.fillMaxWidth().testTag("editor_table_block"),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        Text("Table", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 13.sp)
+        Text(
+            stringResource(R.string.editor_table_label),
+            fontWeight = FontWeight.Bold,
+            color = LocalAppColors.current.textPrimary,
+            fontSize = 13.sp
+        )
         Column(
             modifier =
             Modifier.fillMaxWidth()
-                .border(1.dp, Color(0xFFD9E2FF), RoundedCornerShape(4.dp))
+                .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
                 .clip(RoundedCornerShape(4.dp))
         ) {
             block.rows.forEachIndexed { rowIndex, row ->
                 if (rowIndex > 0) {
-                    HorizontalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
+                    HorizontalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
                 }
                 Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                     row.forEachIndexed { cellIndex, cell ->
                         if (cellIndex > 0) {
-                            VerticalDivider(color = Color(0xFFD9E2FF), thickness = 1.dp)
+                            VerticalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
                         }
                         BasicTextField(
                             value = cell.joinToString("") { it.text },
@@ -771,12 +811,10 @@ private fun TableDocumentBlock(
                             modifier =
                             Modifier.weight(1f)
                                 .padding(horizontal = 8.dp, vertical = 6.dp)
-                                .testTag(
-                                    "editor_table_cell_${block.id}_${rowIndex}_$cellIndex"
-                                ),
+                                .testTag("editor_table_cell"),
                             textStyle =
                             MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                            cursorBrush = SolidColor(Color(0xFF6E7BFF)),
+                            cursorBrush = SolidColor(LocalAppColors.current.primary),
                             singleLine = true
                         )
                     }
@@ -797,7 +835,7 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.collection_notes_back),
-                tint = Color(0xFF1F2A44)
+                tint = LocalAppColors.current.textPrimary
             )
         }
         Row(
@@ -805,10 +843,10 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IconButton(onClick = onShare) {
-                Icon(Icons.Outlined.Share, contentDescription = null, tint = Color(0xFF1F2A44))
+                Icon(Icons.Outlined.Share, contentDescription = null, tint = LocalAppColors.current.textPrimary)
             }
             IconButton(onClick = onMore) {
-                Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = Color(0xFF1F2A44))
+                Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = LocalAppColors.current.textPrimary)
             }
         }
     }
@@ -849,11 +887,12 @@ private fun DefaultBottomBar(
     onAddImage: () -> Unit,
     onAddTable: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
             .height(56.dp)
-            .background(Color.White)
+            .background(colors.surface)
             .padding(horizontal = 4.dp)
             .testTag("editor_default_bottom_bar"),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -863,36 +902,55 @@ private fun DefaultBottomBar(
             EditorBarButton(
                 onClick = onAddParagraph,
                 modifier = Modifier.testTag("editor_add_paragraph")
-            ) { Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = Color(0xFF6E7BFF)) }
+            ) { Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = colors.primary) }
         }
         item {
             Box(
                 modifier =
                 Modifier.size(36.dp)
-                    .background(Color(0xFFEAF1FF), RoundedCornerShape(8.dp))
+                    .background(colors.border, RoundedCornerShape(8.dp))
                     .clickable(onClick = onToggleFormattingToolbar)
                     .testTag("editor_toggle_formatting"),
                 contentAlignment = Alignment.Center
-            ) { Text("Aa", color = Color(0xFF6E7BFF), fontSize = 16.sp, fontWeight = FontWeight.Bold) }
-        }
-        item {
-            EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.CheckBox, contentDescription = null, tint = Color(0xFF1F2A44))
+            ) {
+                Text(
+                    stringResource(R.string.editor_format_text_style),
+                    color = colors.primary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
+                Icon(
+                    Icons.Outlined.CheckBox,
+                    contentDescription = null,
+                    tint = colors.textPrimary
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Text("@", color = Color(0xFF1F2A44), fontWeight = FontWeight.Bold)
+                Icon(
+                    Icons.Outlined.Link,
+                    contentDescription = null,
+                    tint = colors.textPrimary
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = Color(0xFF7281A7))
+                Text(
+                    stringResource(R.string.editor_mention_action),
+                    color = colors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        item {
+            EditorBarButton(onClick = {}) {
+                Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = colors.textSecondary)
             }
         }
         item {
@@ -900,7 +958,7 @@ private fun DefaultBottomBar(
                 Icon(
                     Icons.AutoMirrored.Outlined.Undo,
                     contentDescription = null,
-                    tint = Color(0xFF7281A7)
+                    tint = colors.textSecondary
                 )
             }
         }
@@ -909,28 +967,28 @@ private fun DefaultBottomBar(
                 Icon(
                     Icons.AutoMirrored.Outlined.Redo,
                     contentDescription = null,
-                    tint = Color(0xFF7281A7)
+                    tint = colors.textSecondary
                 )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = Color(0xFF7281A7))
+                Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = colors.textSecondary)
             }
         }
         item {
             EditorBarButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
-                Icon(Icons.Outlined.Image, contentDescription = null, tint = Color(0xFF7281A7))
+                Icon(Icons.Outlined.Image, contentDescription = null, tint = colors.textSecondary)
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.Mic, contentDescription = null, tint = Color(0xFF7281A7))
+                Icon(Icons.Outlined.Mic, contentDescription = null, tint = colors.textSecondary)
             }
         }
         item {
             EditorBarButton(onClick = onAddTable, modifier = Modifier.testTag("editor_add_table")) {
-                Icon(Icons.Outlined.TableChart, contentDescription = null, tint = Color(0xFF7281A7))
+                Icon(Icons.Outlined.TableChart, contentDescription = null, tint = colors.textSecondary)
             }
         }
         item {
@@ -938,7 +996,7 @@ private fun DefaultBottomBar(
                 Icon(
                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = Color(0xFF7281A7)
+                    tint = colors.textSecondary
                 )
             }
         }
@@ -951,11 +1009,12 @@ private fun FormattingBottomBar(
     onToggleMark: (String, String) -> Unit,
     onHideToolbar: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
             .height(56.dp)
-            .background(Color.White)
+            .background(colors.surface)
             .padding(horizontal = 4.dp)
             .testTag("editor_formatting_bottom_bar"),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -966,7 +1025,12 @@ private fun FormattingBottomBar(
                 onClick = { /* Body click */ },
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                Text("Body", fontWeight = FontWeight.Bold, color = Color(0xFF1F2A44), fontSize = 14.sp)
+                Text(
+                    stringResource(R.string.editor_format_body),
+                    fontWeight = FontWeight.Bold,
+                    color = colors.textPrimary,
+                    fontSize = 14.sp
+                )
             }
         }
         item {
@@ -975,8 +1039,8 @@ private fun FormattingBottomBar(
                 modifier = Modifier.testTag("editor_bold_action")
             ) {
                 Text(
-                    "B",
-                    color = Color(0xFF6E7BFF),
+                    stringResource(R.string.editor_bold_action),
+                    color = colors.primary,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -988,8 +1052,8 @@ private fun FormattingBottomBar(
                 modifier = Modifier.testTag("editor_italic_action")
             ) {
                 Text(
-                    "I",
-                    color = Color(0xFF6E7BFF),
+                    stringResource(R.string.editor_italic_action),
+                    color = colors.primary,
                     fontSize = 18.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold
@@ -998,27 +1062,49 @@ private fun FormattingBottomBar(
         }
         item {
             EditorBarButton(onClick = { /* underline logic */ }) {
-                Text("U", color = Color(0xFF1F2A44), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.editor_underline_action),
+                    color = colors.textPrimary,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         item {
             EditorBarButton(onClick = { /* strikethrough logic */ }) {
-                Text("S", color = Color(0xFF7281A7), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.editor_strikethrough_action),
+                    color = colors.textSecondary,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         item {
             EditorBarButton(onClick = { /* link logic */ }) {
-                Icon(Icons.Outlined.Link, contentDescription = null, tint = Color(0xFF1F2A44))
+                Icon(
+                    Icons.Outlined.Link,
+                    contentDescription = null,
+                    tint = colors.textPrimary
+                )
             }
         }
         item {
             EditorBarButton(onClick = { /* code logic */ }) {
-                Text("<>", color = Color(0xFF1F2A44), fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.editor_code_action),
+                    color = colors.textPrimary,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         item {
             EditorBarButton(onClick = { /* formula logic */ }) {
-                Text("fx", color = Color(0xFF7281A7), fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.editor_formula_action),
+                    color = colors.textSecondary,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
         item {
@@ -1026,7 +1112,11 @@ private fun FormattingBottomBar(
                 onClick = onHideToolbar,
                 modifier = Modifier.testTag("editor_hide_formatting")
             ) {
-                Icon(Icons.Outlined.KeyboardHide, contentDescription = null, tint = Color(0xFF7281A7))
+                Icon(
+                    Icons.Outlined.KeyboardHide,
+                    contentDescription = null,
+                    tint = colors.textSecondary
+                )
             }
         }
     }
@@ -1042,13 +1132,13 @@ private fun EditorBarButton(onClick: () -> Unit, modifier: Modifier = Modifier, 
 
 @Composable
 private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = Color.Transparent,
-    unfocusedContainerColor = Color.Transparent,
-    disabledContainerColor = Color.Transparent,
-    focusedBorderColor = Color.Transparent,
-    unfocusedBorderColor = Color.Transparent,
-    disabledBorderColor = Color.Transparent,
-    cursorColor = Color(0xFF6E7BFF)
+    focusedContainerColor = LocalAppColors.current.transparent,
+    unfocusedContainerColor = LocalAppColors.current.transparent,
+    disabledContainerColor = LocalAppColors.current.transparent,
+    focusedBorderColor = LocalAppColors.current.transparent,
+    unfocusedBorderColor = LocalAppColors.current.transparent,
+    disabledBorderColor = LocalAppColors.current.transparent,
+    cursorColor = LocalAppColors.current.primary
 )
 private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, title: String): String {
     if (selectedFolder == null) {
@@ -1072,7 +1162,9 @@ private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, titl
 
 @Composable
 private fun ShimmerEffect() {
-    val infiniteTransition = rememberInfiniteTransition(label = "shimmer")
+    val shimmerAnimationName = "shimmer"
+    val infiniteTransition = rememberInfiniteTransition(label = shimmerAnimationName)
+    val alphaAnimationName = "alpha"
     val alpha by
         infiniteTransition.animateFloat(
             initialValue = 0.2f,
@@ -1082,12 +1174,12 @@ private fun ShimmerEffect() {
                 animation = tween(1000),
                 repeatMode = RepeatMode.Reverse
             ),
-            label = "alpha"
+            label = alphaAnimationName
         )
     Box(
         modifier =
         Modifier.fillMaxWidth()
             .height(200.dp)
-            .background(Color(0xFFEAF1FF).copy(alpha = alpha))
+            .background(LocalAppColors.current.border.copy(alpha = alpha))
     )
 }
