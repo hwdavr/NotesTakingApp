@@ -16,7 +16,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import com.example.notesapp.domain.share.NoteShareException
+
 
 data class ShareInviteUiState(
     val noteId: String = "",
@@ -66,15 +67,22 @@ class ShareInviteViewModel @Inject constructor(
                 )
                 _uiState.update { it.copy(isSubmitting = false) }
                 _events.emit(ShareInviteEvent.InviteSucceeded)
-            } catch (exception: Exception) {
-                val errorRes = when ((exception as? HttpException)?.code()) {
-                    409 -> R.string.share_invite_duplicate_error
+            } catch (exception: NoteShareException) {
+                val errorRes = when (exception) {
+                    is NoteShareException.DuplicateShareException -> R.string.share_invite_duplicate_error
                     else -> R.string.share_invite_generic_error
                 }
                 _uiState.update {
                     it.copy(
                         isSubmitting = false,
                         errorMessageRes = errorRes
+                    )
+                }
+            } catch (ignoredException: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isSubmitting = false,
+                        errorMessageRes = R.string.share_invite_generic_error
                     )
                 }
             }
