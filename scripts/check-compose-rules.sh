@@ -6,8 +6,11 @@
 # compose-rules.md constraints. Uses ripgrep (rg) when available, falls back
 # to grep -P otherwise.
 #
+# NOTE: Hardcoded-string checks (stringResource violations) have been moved
+# to check-localization-rules.sh which owns all localization-rules.md checks.
+#
 # Usage:
-#   ./scripts/check-compose-rules.sh [<source-root>]
+#   ./scripts/check-compose-rules.sh [--all] [<source-root>]
 #
 # <source-root> defaults to app/src/main/java
 #
@@ -176,26 +179,7 @@ echo -e "${BOLD}  Compose Rules Checker — $(date '+%Y-%m-%d %H:%M:%S')${RESET}
 echo -e "${BOLD}======================================================${RESET}"
 echo -e "  Source root: ${SOURCE_ROOT}\n"
 
-# ── 1. Hardcoded Strings ──────────────────────────────────────────────────────
-_header "1 · Hardcoded Strings"
-echo -e "  ${YELLOW}All user-visible text must use stringResource(), not raw string literals.${RESET}"
-
-_run_check \
-    'Text() called with a raw string literal (not stringResource)' \
-    '\bText\s*\(\s*"[^"]{1,}' \
-    --type kotlin
-
-_run_check \
-    'Button/label/placeholder/hint set as a hardcoded string' \
-    '(label|title|placeholder|hint)\s*=\s*"[^"]' \
-    --type kotlin
-
-_run_check \
-    'Local UI label variable set as a hardcoded string' \
-    'val\s+\w*(Label|Text|Title|Placeholder|Description|Action)\w*\s*=\s*"[^"]' \
-    --type kotlin
-
-# ── 2. Hardcoded Colors ───────────────────────────────────────────────────────
+# ── 1. Hardcoded Colors ───────────────────────────────────────────────────────
 _header "2 · Hardcoded Colors"
 echo -e "  ${YELLOW}Use LocalAppColors.current.<token> — never Color(0x...) or Color.Red etc.${RESET}"
 echo -e "  ${YELLOW}AppColors.kt is excluded (it is the canonical definition file).${RESET}"
@@ -212,8 +196,8 @@ _run_check \
     --type kotlin \
     --exclude 'AppColors.kt'
 
-# ── 3. Missing testTag on Interactive Elements ────────────────────────────────
-_header "3 · Missing testTag — Interactive Elements"
+# ── 2. Missing testTag on Interactive Elements ────────────────────────────────
+_header "2 · Missing testTag — Interactive Elements"
 echo -e "  ${YELLOW}Button, IconButton, FloatingActionButton, etc. should have Modifier.testTag(...).${RESET}"
 echo -e "  ${YELLOW}Heuristic: flags files with interactive elements but zero testTag references.${RESET}"
 
@@ -235,8 +219,8 @@ else
     done
 fi
 
-# ── 4. ViewModel Inside Content Composables ───────────────────────────────────
-_header "4 · ViewModel Imported Inside Content Composables"
+# ── 3. ViewModel Inside Content Composables ───────────────────────────────────
+_header "3 · ViewModel Imported Inside Content Composables"
 echo -e "  ${YELLOW}hiltViewModel() / viewModel() must only appear in the stateful wrapper, not in *Content composables.${RESET}"
 
 _run_check \
@@ -249,8 +233,8 @@ _run_check \
     '(?s)fun\s+\w+Content\b[^{]*\{[^}]*\bviewModel\s*\(' \
     --type kotlin --multiline --pcre2
 
-# ── 5. Business Logic in Composables ─────────────────────────────────────────
-_header "5 · Business Logic Inside Composables"
+# ── 4. Business Logic in Composables ─────────────────────────────────────────
+_header "4 · Business Logic Inside Composables"
 echo -e "  ${YELLOW}Composables must not call repositories or use cases directly.${RESET}"
 
 _run_check \
@@ -258,8 +242,8 @@ _run_check \
     '(?s)@Composable\b[^{]*fun\s+\w+[^{]*\{[^}]*(Repository|UseCase|DataSource)\s*\.' \
     --type kotlin --multiline --pcre2
 
-# ── 6. Unstable testTag Values ────────────────────────────────────────────────
-_header "6 · Unstable testTag Values"
+# ── 5. Unstable testTag Values ────────────────────────────────────────────────
+_header "5 · Unstable testTag Values"
 echo -e "  ${YELLOW}testTag must use stable, descriptive strings — not dynamic IDs or string interpolation.${RESET}"
 
 _run_check \
@@ -272,8 +256,8 @@ _run_check \
     'testTag\s*\(\s*("[^"]*"\s*\+|[A-Za-z_][A-Za-z0-9_]*\s*\+|[^)]*(lowercase|replace)\s*\()' \
     --type kotlin --pcre2
 
-# ── 7. Performance — Column + forEach Instead of LazyColumn ──────────────────
-_header "7 · Performance — Column + forEach Instead of LazyColumn"
+# ── 6. Performance — Column + forEach Instead of LazyColumn ──────────────────
+_header "6 · Performance — Column + forEach Instead of LazyColumn"
 echo -e "  ${YELLOW}Prefer LazyColumn for lists to avoid rendering all items eagerly.${RESET}"
 
 _run_check \
@@ -292,6 +276,7 @@ if [[ $TOTAL_VIOLATIONS -eq 0 ]]; then
     exit 0
 else
     echo -e "${RED}${BOLD}  ✗ $TOTAL_VIOLATIONS violation(s) found — see above${RESET}"
+    echo -e "${BOLD}  Hint: run check-localization-rules.sh for string resource violations${RESET}"
     echo -e "${BOLD}======================================================${RESET}"
     exit 1
 fi

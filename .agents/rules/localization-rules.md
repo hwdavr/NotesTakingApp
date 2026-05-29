@@ -3,6 +3,10 @@
 ## Purpose
 Rules for handling all user-visible text in this project.
 
+> **Enforcement Matrix** — each rule below is tagged as Scripted 🤖 / Evaluator 🧠 / Human 👁️  
+> in [`localization-rules-enforcement-matrix.md`](../../docs/rules-matrix/localization-rules-enforcement-matrix.md).  
+> Scripted checks run via [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh).
+
 ---
 
 ## String Resources Are Mandatory

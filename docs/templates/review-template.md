@@ -25,6 +25,7 @@ Use this template when producing the review summary in the relevant stage.
 | `detekt` | ✅ PASS / ❌ FAIL | |
 | `lintDebug` | ✅ PASS / ❌ FAIL | |
 | `check-compose-rules.sh` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED (no Compose changes) | |
+| `check-localization-rules.sh` | ✅ PASS / ❌ FAIL | |
 | `check-architecture-rules.sh` | ✅ PASS / ❌ FAIL | |
 
 ---
@@ -53,7 +54,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 | 1.3 Never calls ViewModel directly | 🤖 Check 4 + 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 | 1.4 No use case / repository calls | 🤖 Check 5 + 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 | 1.5 No business logic / data transformation | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
-| 1.6 No hardcoded strings — uses `stringResource()` | 🤖 Check 1 | ✅ / ❌ | |
+| 1.6 No hardcoded strings — uses `stringResource()` | 🤖 `check-localization-rules.sh` | ✅ / ❌ | |
 | 1.7 No hardcoded colors — uses `LocalAppColors` | 🤖 Check 2 | ✅ / ❌ | |
 
 ### Section 2 — Stateless / Stateful Pattern
@@ -76,7 +77,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 
 | Rule | How Checked | Status | Violations |
 |------|-------------|--------|------------|
-| 4.1 All user-visible text uses `stringResource()` | 🤖 Check 1 | ✅ / ❌ | |
+| 4.1 All user-visible text uses `stringResource()` | 🤖 `check-localization-rules.sh` | ✅ / ❌ | |
 | 4.2 Resource keys follow `<screen>_<element>_<type>` naming | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 
 ### Section 5 — Colors
@@ -115,6 +116,70 @@ For each rule, record how it was checked for **this change** and its outcome.
 | 8.4 Lambdas passed as parameters, not created inline | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 
 ### Compose Rule Violations Detail
+
+> List each violation found above. Delete this section if there are none.
+
+- **Rule X.Y** — `<file>:<line>`: `<description>`
+
+---
+
+## Localization Rules Enforcement
+
+> Skip this section entirely if the change adds no user-visible text and no Kotlin UI file is modified.
+
+For each rule, record how it was checked for **this change** and its outcome.
+
+**Status key**
+
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | Checked — no violations found |
+| ❌ | Checked — violation(s) found (list below) |
+| 👁️ **Human** | Not checked by script or AI — requires human review before merge |
+| ⏭ | Not applicable to this change |
+
+### Section 1 — String Resources Are Mandatory
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 1.1 `Text()` uses `stringResource()` — no raw string literals | 🤖 Check 1 | ✅ / ❌ | |
+| 1.2 Composable params (`label=`, `placeholder=`, etc.) use `stringResource()` | 🤖 Check 2 | ✅ / ❌ | |
+| 1.3 Local UI label variables not assigned raw strings | 🤖 Check 3 | ✅ / ❌ | |
+
+### Section 2 — Where to Define Strings
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 2.1 All strings defined in `strings.xml` | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+
+### Section 3 — Naming Convention
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 3.1 Resource keys follow `<screen>_<component>_<type>` pattern | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+
+### Section 4 — Plural Strings
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 4.1 Count-dependent text uses `<plurals>` — not conditional string concatenation | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+| 4.2 Plurals accessed via `pluralStringResource()` | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+
+### Section 5 — Dynamic Content
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 5.1 Strings with runtime values use format arguments in `strings.xml` | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+| 5.2 Format arguments passed via `stringResource(R.string.key, arg)` | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+
+### Section 6 — Content Descriptions
+
+| Rule | How Checked | Status | Violations |
+|------|-------------|--------|------------|
+| 6.1 Non-text interactive elements have `contentDescription = stringResource(...)` | 🤖 Check 4 + 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
+| 6.2 `contentDescription` never `null` on interactive icons | 🤖 Check 4 | ✅ / ❌ | |
+
+### Localization Rule Violations Detail
 
 > List each violation found above. Delete this section if there are none.
 

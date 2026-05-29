@@ -6,7 +6,7 @@ Rules from [`compose-rules.md`](../../.agents/rules/compose-rules.md), categoris
 
 | Badge | Meaning |
 |---|---|
-| 🤖 **Scripted** | [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) detects this automatically on every CI run |
+| 🤖 **Scripted** | [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) or [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) detects this automatically on every CI run |
 | 🧠 **Evaluator** | AI code review can reliably identify this — pattern recognition, semantic understanding |
 | 👁️ **Human** | Requires design judgement, visual inspection, or context that neither script nor AI can fully substitute |
 
@@ -23,7 +23,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 | 1.3 | Callbacks called on interaction — Composable never calls ViewModel directly | 🤖 Scripted + 🧠 Evaluator | Check 4: `hiltViewModel()` / `viewModel()` inside `*Content` | Script catches direct hiltViewModel calls; AI catches subtler patterns |
 | 1.4 | No use case or repository calls inside Composable | 🤖 Scripted + 🧠 Evaluator | Check 5: `Repository`/`UseCase`/`DataSource` pattern match | Script is heuristic; AI validates edge cases |
 | 1.5 | No business logic or data transformation inside Composable | 🧠 Evaluator | — | Too semantic for a script; AI checks for sorting, filtering, formatting inside composable bodies |
-| 1.6 | No hardcoded strings — must use `stringResource()` | 🤖 Scripted | Check 1: raw string literals in `Text()`, `label=`, etc. | |
+| 1.6 | No hardcoded strings — must use `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` Checks 1–3 | Moved to localization script — compose script no longer owns this |
 | 1.7 | No hardcoded colors — must use `LocalAppColors.current.<token>` | 🤖 Scripted | Check 2: `Color(0x...)` and named `Color.*` constants | `AppColors.kt` is excluded from the check |
 
 ---
@@ -52,7 +52,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 | # | Rule | Enforcement | Script Check | Notes |
 |---|------|-------------|-------------|-------|
-| 4.1 | All user-visible text uses `stringResource()` | 🤖 Scripted | Check 1 | |
+| 4.1 | All user-visible text uses `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` Checks 1–3 | Owned by localization script |
 | 4.2 | String resource keys follow `<screen>_<element>_<type>` naming convention | 🧠 Evaluator | — | Naming convention; AI verifies format at review time |
 
 ---
@@ -104,12 +104,13 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 | Category | Count | Rules |
 |---|---|---|
-| 🤖 Scripted only | 5 | 1.6, 1.7, 4.1, 5.1, 5.2 |
+| 🤖 Scripted only | 4 | 1.7, 5.1, 5.2, 8.1 |
 | 🧠 Evaluator only | 12 | 1.2, 1.5, 2.1, 2.3, 3.2, 4.2, 5.3, 5.4, 6.2, 7.3, 8.2, 8.3 |
 | 👁️ Human only | 0 | — |
 | 🤖 + 🧠 Scripted + Evaluator | 6 | 1.3, 1.4, 2.2, 3.1, 3.3, 8.4 |
 | 👁️ + 🧠 Human + Evaluator | 5 | 5.5, 6.1, 6.3, 7.1, 7.2 |
-| **Total rules** | **28** | |
+| 🤖 Scripted (via localization script) | 2 | 1.6, 4.1 |
+| **Total rules** | **29** | |
 
 > [!NOTE]
 > No rule is **Human-only**. Every rule can be at least partially enforced by AI review. Rules marked 👁️ Human still benefit from human design review as a final sanity check — the AI coverage alone is not considered sufficient confidence.
@@ -122,11 +123,13 @@ The [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) script curr
 
 | Script Check | Rules Covered |
 |---|---|
-| **Check 1** — Raw string literals in `Text()`, `label=`, etc. | 1.6 · 4.1 |
-| **Check 2a** — `Color(0x...)` outside `AppColors.kt` | 1.7 · 5.1 |
-| **Check 2b** — Named `Color.*` constants outside `AppColors.kt` | 1.7 · 5.2 |
+| **Check 1** — `Color(0x...)` outside `AppColors.kt` | 1.7 · 5.1 |
+| **Check 2** — Named `Color.*` constants outside `AppColors.kt` | 1.7 · 5.2 |
 | **Check 3** — Files with interactive elements but no `testTag` | 3.1 |
 | **Check 4** — `hiltViewModel()` / `viewModel()` in `*Content` composables | 1.3 · 2.2 |
 | **Check 5** — `Repository`/`UseCase`/`DataSource` call inside `@Composable` | 1.4 |
 | **Check 6** — String interpolation in `testTag` values | 3.3 |
 | **Check 7** — `Column { ... .forEach {` pattern | 8.1 |
+
+> [!NOTE]
+> String-resource checks (rules 1.6 · 4.1) are now owned by [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh). See the [Localization Rules Enforcement Matrix](localization-rules-enforcement-matrix.md) for details.

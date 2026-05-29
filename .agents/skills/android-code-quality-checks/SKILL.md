@@ -65,6 +65,7 @@ Android Lint checks for Android-specific problems.
    ```bash
    ./gradlew ktlintCheck detekt lintDebug
    bash scripts/check-compose-rules.sh
+   bash scripts/check-localization-rules.sh
    bash scripts/check-architecture-rules.sh
    ```
 
@@ -97,4 +98,5 @@ The task is complete when:
 - [ ] `./gradlew detekt` passes.
 - [ ] `./gradlew lintDebug` passes (0 errors).
 - [ ] `bash scripts/check-compose-rules.sh` passes (0 violations).
+- [ ] `bash scripts/check-localization-rules.sh` passes (0 violations).
 - [ ] `bash scripts/check-architecture-rules.sh` passes (0 violations).

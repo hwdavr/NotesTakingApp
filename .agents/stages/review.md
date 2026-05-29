@@ -41,10 +41,11 @@ Run all checks and record results:
 ./gradlew detekt
 ./gradlew lintDebug
 bash scripts/check-compose-rules.sh
+bash scripts/check-localization-rules.sh
 bash scripts/check-architecture-rules.sh
 ```
 
-Record the exit code and any flagged violations from both scripts in the **Build & Test Results** table of the review report.
+Record the exit code and any flagged violations from all three scripts in the **Build & Test Results** table of the review report.
 
 #### A2. Architecture & Design Validation
 Review every changed file against the designs in `spec_t<taskId>.md`:
@@ -112,11 +113,33 @@ For each changed Composable file, read the source and evaluate the following rul
 For any rule in the Compose Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human` in the review report. This flags it explicitly for human review before merge.
 
 ##### A3b. `rules/localization-rules.md`
-For each changed file with user-visible text:
-- [ ] Every `Text()` call uses `stringResource()` or `pluralStringResource()`
-- [ ] Every new string is defined in `strings.xml` with the pattern `<screen>_<component>_<type>`
-- [ ] Plural strings use `<plurals>` — not conditional string concatenation
-- [ ] All non-text interactive elements have `contentDescription = stringResource(...)` — not `null`
+
+Only skip this section if the change adds no user-visible text and no Kotlin UI file is modified. Otherwise mark the entire section N/A in the review report.
+
+**Step 1 — Run the script (Scripted rules)**
+
+The script has already run in A1. Refer to its output to fill in the 🤖 rows in the Localization Rules Enforcement table. Mark each as ✅ (no violations) or ❌ (violations — list them in the Violations column).
+
+Rules automatically covered by the script:
+- **1.1** `Text()` called with a raw string literal → Check 1
+- **1.2** `label=`, `title=`, `placeholder=`, `hint=` set as a raw string → Check 2
+- **1.3** Local UI label variables assigned a raw string → Check 3
+- **6.2** `contentDescription = null` on interactive icons → Check 4
+
+**Step 2 — Evaluate remaining rules (Evaluator rules)**
+
+For each changed source file and `strings.xml`, read the code and evaluate the following rules that the script cannot check:
+- **2.1** All new string values are defined in `strings.xml` — not as Kotlin `const val` or companion object properties
+- **3.1** Every new string resource key follows the `<screen>_<component>_<type>` naming pattern
+- **4.1** Any count-dependent text uses `<plurals>` — not `if (count == 1)` string concatenation
+- **4.2** Plural strings are accessed via `pluralStringResource()` at the call site
+- **5.1** Strings with dynamic values use format arguments (`%s`, `%d`) in `strings.xml` — not string concatenation in Kotlin
+- **5.2** Format arguments are passed correctly via `stringResource(R.string.key, arg)` at the call site
+- **6.1** All non-text interactive elements (icon buttons, image buttons) have a non-null `contentDescription = stringResource(...)` — not missing entirely
+
+**Step 3 — Mark unchecked rules**
+
+For any rule in the Localization Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human`.
 
 ##### A3c. `rules/android-architecture.md`
 
@@ -248,14 +271,17 @@ Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdi
 - [ ] `ktlintCheck` — exit code 0
 - [ ] `detekt` — exit code 0
 - [ ] `check-compose-rules.sh` — exit code 0 (or skipped with no Compose changes)
+- [ ] `check-localization-rules.sh` — exit code 0
 - [ ] `check-architecture-rules.sh` — exit code 0
 - [ ] Compose Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
 - [ ] All `❌` compose rule violations are either fixed or explicitly accepted with justification
 - [ ] All compose `👁️ Human` rows acknowledged by the human reviewer before merge
+- [ ] Localization Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
+- [ ] All `❌` localization rule violations are either fixed or explicitly accepted with justification
+- [ ] All localization `👁️ Human` rows acknowledged by the human reviewer before merge
 - [ ] Architecture Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
 - [ ] All `❌` architecture rule violations are either fixed or explicitly accepted with justification
 - [ ] All architecture `👁️ Human` rows (including rule 8.5) acknowledged by the human reviewer before merge
-- [ ] `localization-rules.md` — all checks PASS or N/A
 - [ ] `navigation-rules.md` — all checks PASS or N/A
 - [ ] `api-contract-rules.md` — all checks PASS or N/A
 - [ ] `analytics-rules.md` — all checks PASS or N/A
