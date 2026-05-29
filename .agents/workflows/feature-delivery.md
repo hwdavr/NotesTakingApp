@@ -49,7 +49,7 @@ Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_re
 Gate: tests pass, coverage targets met
 
 ### Stage 5 — Code + Test Review ⛔ STOP
-Do not run this stage yourself. Do not load `stages/review.md`. Do not produce a review report.
+Do not run this stage yourself.
 
 **STOP — inform the user that Stage 4 (Testing) is complete and instruct them to run the `/review-and-fix` workflow to perform the code and test review. Do not proceed to Stage 6 until the user explicitly confirms that the review is done and approved.**
 

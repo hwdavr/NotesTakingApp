@@ -44,22 +44,59 @@ Do not write any code in this stage.
 Create `docs/changes/<type>-<name>-<YYYYMMDD>/` directory.
 
 If the user provides a design screenshot or mockup, save it to **`request_analysis/design/`** so it can be referenced during UI Verification.
-
+1c2
 Produce **`docs/changes/<name>/summary_t<taskId>.md`** — create this file **first**, before `spec_t<taskId>.md` (e.g. `summary_t1.md` for Task 1).
 Use the template from `docs/changes/README.md`.
-The Stage Progress table must list every stage from the active workflow in order:
+The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
+
+**`feature-delivery` workflow:**
 
 | Stage | Status | Timestamp | Notes |
 |-------|--------|-----------|-------|
 | Requirement Analysis | ⏳ In Progress | YYYY-MM-DD HH:MM | |
 | Implementation Plan | | | Approved by user: — |
 | Implementation | | | |
-| Code Review | | | APPROVED / REVISION REQUIRED |
 | Testing | | | |
+| Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | |
+
+**`bug-fixing` workflow:**
+
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| Bug Context & Root Cause | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| Bug Reproduction | | | Reproduction test: RED |
+| Fix Plan | | | Approved by user: — |
+| Implementation | | | |
+| Testing | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
 | Test Review | | | APPROVED / REVISION REQUIRED |
 | Knowledge Capture | | | |
 
-Mark the Requirement Analysis row as ✅ Complete when this stage's gate passes.
+**`api-contract-update` workflow:**
+
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| Requirement Analysis | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| Implementation Plan | | | Approved by user: — |
+| Data Layer | | | |
+| Domain Layer | | | |
+| UI Layer | | | Skipped if no UI changes |
+| Testing | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | Skipped if straightforward |
+
+**`create-ui-and-verify` workflow:**
+
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| UI Implementation | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| UI Verification | | | Loop count: — |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+
+Mark the first row as ✅ Complete when this stage's gate passes.
 
 Produce **`request_analysis/spec_t<taskId>.md`** (e.g. `spec_t1.md` for Task 1):
 ```

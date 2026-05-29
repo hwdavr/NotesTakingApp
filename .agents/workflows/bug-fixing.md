@@ -80,17 +80,18 @@ Gate: tests pass, coverage targets met
 ---
 
 ### Stage 6 — Code + Test Review ⛔ STOP
-Load: `stages/review.md`
 
-For bug fixes, additionally verify in Part B (Test Review):
-- Remove any `@Ignore` annotation added in the Bug Reproduction stage
-- Confirm the reproduction test is GREEN after the fix
-- Confirm no regressions in the full suite
+Run the `/review-and-fix` workflow in full (Code Review → Test Review).
+
+For bug fixes, the Test Review stage must additionally verify:
+- Any `@Ignore` annotation added in the Bug Reproduction stage has been removed
+- The reproduction test is GREEN after the fix
+- No regressions in the full suite
 - The minimal-fix constraint: no unrelated changes slipped in
 
-Output: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`
+Output: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`, `test_review_t<taskId>_v<N>.md`
 Gate: build passes, static analysis passes, architecture rules followed, reproduction test GREEN, no regressions
-**STOP — present `review_t<taskId>_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
+**⛔ STOP — present both review reports to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ---
 

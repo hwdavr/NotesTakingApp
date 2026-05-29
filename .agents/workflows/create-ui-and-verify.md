@@ -31,8 +31,9 @@ Compare the implemented UI against the original design screenshot in `request_an
 
 **PASS →** proceed to Stage 3 — Code + Test Review.
 
-### Stage 3 — Code + Test Review
-Load: `stages/review.md`
+### Stage 3 — Code + Test Review ⛔ STOP
+
+Run the `/review` workflow in full (Code Review → Test Review).
 
 ## Best Practices
 - **Handling Long Content**: For scrollable screens or bottom sheets, ensure the UI handles scrolling properly. In tests, use `performScrollToNode()` to find off-screen elements.
