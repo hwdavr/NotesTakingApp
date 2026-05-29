@@ -23,7 +23,7 @@ This is the final gate before implementation begins.
 Using all outputs from the **Requirement, Impact & Design Analysis** stage, compile a complete implementation plan. 
 
 > [!IMPORTANT]
-> You **MUST** follow the structure and sections in [implementation-plan-template.md](./docs/templates/implementation-plan-template.md) exactly.
+> You **MUST** follow the structure and sections in [implementation-plan-template.md](docs/templates/implementation-plan-template.md) exactly.
 
 The implementation plan must include:
 - **File Breakdown**: List all files to create, modify, or delete.
@@ -37,7 +37,7 @@ The implementation plan must include:
 - **Risks & Mitigations**: Identify technical risks (such as payload changes, synchronization issues, database migration) and document their mitigation strategies.
 
 ### Step 2: Generate Test Plan
-Create a separate, comprehensive test plan document following [test-plan-template.md](./docs/templates/test-plan-template.md).
+Create a separate, comprehensive test plan document following [test-plan-template.md](docs/templates/test-plan-template.md).
 
 The test plan must include:
 - **Test Layer Selection**: Read `rules/testing-strategy.md` to decide the minimum test layers needed (start at the lowest layer that provides enough confidence).
