@@ -65,6 +65,7 @@ Android Lint checks for Android-specific problems.
    ```bash
    ./gradlew ktlintCheck detekt lintDebug
    bash scripts/check-compose-rules.sh
+   bash scripts/check-architecture-rules.sh
    ```
 
 2. **Fix Formatting First**: Run `ktlintFormat` to handle low-hanging fruit.
@@ -96,3 +97,4 @@ The task is complete when:
 - [ ] `./gradlew detekt` passes.
 - [ ] `./gradlew lintDebug` passes (0 errors).
 - [ ] `bash scripts/check-compose-rules.sh` passes (0 violations).
+- [ ] `bash scripts/check-architecture-rules.sh` passes (0 violations).

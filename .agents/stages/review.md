@@ -41,9 +41,10 @@ Run all checks and record results:
 ./gradlew detekt
 ./gradlew lintDebug
 bash scripts/check-compose-rules.sh
+bash scripts/check-architecture-rules.sh
 ```
 
-Record the `check-compose-rules.sh` exit code and any flagged violations in the **Build & Test Results** table of the review report.
+Record the exit code and any flagged violations from both scripts in the **Build & Test Results** table of the review report.
 
 #### A2. Architecture & Design Validation
 Review every changed file against the designs in `spec_t<taskId>.md`:
@@ -118,11 +119,61 @@ For each changed file with user-visible text:
 - [ ] All non-text interactive elements have `contentDescription = stringResource(...)` — not `null`
 
 ##### A3c. `rules/android-architecture.md`
-- [ ] No UI layer file imports a repository, DAO, or data-layer class directly
-- [ ] No ViewModel imports Retrofit, Room, or data-layer implementation classes
-- [ ] No domain class imports Android framework types (`Context`, `Bundle`, SDK)
-- [ ] No fully-qualified class names used inline in any file — production or test code
-- [ ] DTOs are not exposed outside the data layer
+
+Only skip this section if the change touches no Kotlin source files. Otherwise mark the entire section N/A in the review report.
+
+**Step 1 — Run the script (Scripted rules)**
+
+The script has already run in A1. Refer to its output to fill in the 🤖 rows in the Architecture Rules Enforcement table. Mark each as ✅ (no violations) or ❌ (violations — list them in the Violations column).
+
+Rules automatically covered by the script:
+- **1.1 / 1.6** UI files with `data.(remote|local|repository)` imports → §1a
+- **1.4** UI files importing DTO/Entity/Request/Response types → §1b
+- **1.5** UI files calling `ApiService.*` or DAO directly → §1c §1d
+- **2.6** ViewModel importing Retrofit / Room / calling ApiService → §2a §2b §2c
+- **2.9** ViewModel importing `data.(remote|local)` packages → §2d
+- **3.1** Domain files importing `android.*` / `androidx.*` → §3a
+- **3.2** Domain files importing `ui.*` → §3e
+- **3.3** Domain files importing `retrofit2.*` → §3b
+- **3.4** Domain files importing `androidx.room.*` → §3c
+- **3.5** Domain files importing `data.*` → §3d
+- **4.1** Non-data-layer files importing DTO/Entity → §4a
+- **4.2** Data-layer files referencing `UiState` → §4b
+- **5.3** ViewModel with ≥3 `StateFlow<Boolean>` → §5a
+- **2.5 / 5.4** Permanent state fields named `showDialog`, `navigateTo`, etc. → §5b
+- **6.1** Domain files importing DTO types → §6b
+- **6.3** UI files importing DTO/ApiModel types → §6a
+- **7.2** RepositoryImpl missing `@Singleton` → §7b
+- **3.1 / 7.4** Domain constructors receiving `Context` → §7a
+- **8.1** Fully-qualified class names used inline → §8a
+- **8.2** `enqueue` / `execute` / `await` in ViewModel bodies → §8b
+- **8.3** `when/if` on domain model fields inside `@Composable` → §8c
+- **8.4** ViewModel without matching test file → §8d
+- **9.1–9.4** Misplaced ViewModel / UseCase / RepositoryImpl / Mapper files → §9a–d
+
+**Step 2 — Evaluate remaining rules (Evaluator rules)**
+
+For each changed source file, read the code and evaluate the following rules that the script cannot check:
+- **1.2** No business rules (sorting, filtering, validation logic) inside Composable or Fragment
+- **1.3** UI never parses or interprets API response fields directly
+- **2.1** Each ViewModel has one primary `StateFlow<*UiState>` — not multiple independent streams
+- **2.2** ViewModel injects domain use cases or repository interfaces — not concrete data implementations
+- **2.3** Domain → UI model mapping is invoked in ViewModel or mapper, not inside Composables
+- **2.4** All three states (loading / success / error) are represented in UiState and rendered
+- **2.7** ViewModel body contains no Room / file I/O calls
+- **2.8** Complex business logic lives in a UseCase, not inline in ViewModel `launch {}` blocks
+- **4.3** Data-layer classes contain no NavController references or route strings
+- **5.1** Screen renders from a single consolidated UiState — not from multiple scattered streams
+- **5.2** `sealed class` used only when screen modes are truly distinct — prefer `data class` with nullable fields
+- **6.2** Domain → UI mapping is invoked in Presentation layer only — not inside Composables or data classes
+- **6.4** Composable parameters are domain or UI model types — no raw API response objects passed in
+- **7.1** All dependencies are provided via Hilt — no manual `= MyRepository()` construction
+- **7.3** Hilt modules use `@ViewModelScoped` for ViewModel-bound bindings
+- **9.5** Domain → UI mapper files live under `ui/**/mapper/` — not in `domain/`
+
+**Step 3 — Mark unchecked rules**
+
+For any rule in the Architecture Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human`. Rule **8.5** (AI-generated code reviewed before merge) is always `👁️ Human`.
 
 ##### A3d. `rules/navigation-rules.md` *(if navigation changed)*
 - [ ] Check against navigation rules — record any violations or mark N/A.
@@ -197,12 +248,14 @@ Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdi
 - [ ] `ktlintCheck` — exit code 0
 - [ ] `detekt` — exit code 0
 - [ ] `check-compose-rules.sh` — exit code 0 (or skipped with no Compose changes)
-- [ ] No architecture or layer violations found
+- [ ] `check-architecture-rules.sh` — exit code 0
 - [ ] Compose Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
 - [ ] All `❌` compose rule violations are either fixed or explicitly accepted with justification
-- [ ] All `👁️ Human` rows have been acknowledged by the human reviewer before merge
+- [ ] All compose `👁️ Human` rows acknowledged by the human reviewer before merge
+- [ ] Architecture Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
+- [ ] All `❌` architecture rule violations are either fixed or explicitly accepted with justification
+- [ ] All architecture `👁️ Human` rows (including rule 8.5) acknowledged by the human reviewer before merge
 - [ ] `localization-rules.md` — all checks PASS or N/A
-- [ ] `android-architecture.md` — all checks PASS or N/A
 - [ ] `navigation-rules.md` — all checks PASS or N/A
 - [ ] `api-contract-rules.md` — all checks PASS or N/A
 - [ ] `analytics-rules.md` — all checks PASS or N/A
