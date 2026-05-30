@@ -19,6 +19,7 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
+- `rules/observability.md`
 - `coding/implementation_plan_t<taskId>.md` (Implementation Plan stage output)
 - `request_analysis/spec_t<taskId>.md` — UiState and API design from the Requirement, Impact & Design Analysis stage
 
@@ -100,6 +101,7 @@ Implement in this order.
 3. Emit one-off events (navigation, toast, dialog) via a separate `Channel<Event>`
 4. Call use cases only — **never call repositories or data sources directly**
 5. Do not import `retrofit2.*`, `androidx.room.*`, or any data-layer class
+6. Add structured logs at state transitions and error boundaries — follow `rules/observability.md` for tag format and level selection (DEBUG for state snapshots, WARN for recoverable errors, ERROR for failures)
 
 #### 3.2 UI model and mapper
 1. Create or update UI model data classes if the domain model needs formatting for display
@@ -161,6 +163,7 @@ Update `summary_t<taskId>.md`: mark the Implementation (Data + Domain + UI) stag
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings
 - [ ] All interactive elements have `Modifier.testTag(...)` with a stable name
 - [ ] UiState covers loading, success, empty, and error states
+- [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `stages/testing.md` and write all required tests.

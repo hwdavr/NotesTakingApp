@@ -20,9 +20,9 @@ Load context in layers to keep the context window below 40% fill. More is not be
 
 | Layer | When | What to load |
 |-------|------|-------------|
-| **L1 — Always** | Every session | This file + `rules/android-architecture.md` + `rules/testing-strategy.md` |
+| **L1 — Always** | Every session | This file + `.agents/rules/android-architecture.md` + `.agents/rules/testing-strategy.md` |
 | **L2 — Phase-triggered** | Per stage | The skill(s) listed in the current stage's **Load** section |
-| **L3 — On-demand** | When needed | `docs/knowledge/` docs, specific `rules/` files, `sharedContracts/openapi.yaml` |
+| **L3 — On-demand** | When needed | `docs/knowledge/` docs, specific `.agents/rules/` files, `sharedContracts/openapi.yaml` |
 
 Do not preload all rules and all skills at once. Load what the current stage requires.
 
@@ -30,12 +30,12 @@ Do not preload all rules and all skills at once. Load what the current stage req
 ## Harness Structure
 | Folder | Purpose |
 |--------|---------|
-| `workflows/` | **Start here.** Pick the workflow that matches the task. |
-| `stages/` | Step-by-step processes invoked by workflows. |
-| `rules/` | Mandatory constraints (L1 core + L3 on-demand). |
-| `skills/` | How-to guides — loaded per stage (L2). |
+| `.agents/workflows/` | **Start here.** Pick the workflow that matches the task. |
+| `.agents/stages/` | Step-by-step processes invoked by workflows. |
+| `.agents/rules/` | Mandatory constraints (L1 core + L3 on-demand). |
+| `.agents/skills/` | How-to guides — loaded per stage (L2). |
+| `.agents/gates/` | CI checks and review/release checklists. |
 | `docs/templates/` | Standard output formats for plans, reviews, tests. |
-| `gates/` | CI checks and review/release checklists. |
 | `docs/knowledge/` | Past bugs, pitfalls, architecture decisions (L3). |
 | `docs/changes/` | Audit trail — one directory per delivered change. |
 
@@ -43,13 +43,13 @@ Do not preload all rules and all skills at once. Load what the current stage req
 ## Workflows
 | Workflow | When to use |
 |----------|-------------|
-| `workflows/feature-planning.md` | Complex feature that needs slicing into tasks before implementation |
-| `workflows/feature-delivery.md` | Implement a single task (from a plan or a simple feature) |
-| `workflows/bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
-| `workflows/create-ui-and-verify.md` | UI implementation or update from a design |
-| `workflows/api-contract-update.md` | Backend API contract change |
-| `workflows/review.md` | Code review + test review of an existing change — produces both review reports and stops for user decision |
-| `workflows/review-and-fix.md` | Independent review (via `/review`) followed by a targeted fix pass |
+| `.agents/workflows/feature-planning.md` | Complex feature that needs slicing into tasks before implementation |
+| `.agents/workflows/feature-delivery.md` | Implement a single task (from a plan or a simple feature) |
+| `.agents/workflows/bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
+| `.agents/workflows/create-ui-and-verify.md` | UI implementation or update from a design |
+| `.agents/workflows/api-contract-update.md` | Backend API contract change |
+| `.agents/workflows/review.md` | Code review + test review of an existing change — produces both review reports and stops for user decision |
+| `.agents/workflows/review-and-fix.md` | Independent review (via `/review`) followed by a targeted fix pass |
 
 ---
 ## Skills Index
@@ -57,18 +57,18 @@ Existing skills — load the SKILL.md from the relevant folder:
 
 | Skill folder | Used in stage |
 |---|---|
-| `skills/context-management/` | Session start · context drift recovery · switching feature areas |
-| `skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
-| `skills/android-ui-verification/` | Stage — UI Layer |
-| `skills/android-unit-test/` | Stage — Testing |
-| `skills/android-instrumented-ui-test/` | Stage — Testing |
-| `skills/shared-json-scenarios/` | Stage — Testing |
-| `skills/android-code-quality-checks/` | Stage — Code + Test Review · **step 1**: run Ktlint, Detekt, Lint and fix all violations first |
-| `skills/code-review-and-quality/` | Stage — Code + Test Review · **step 2**: multi-axis reasoning review (correctness, arch, security, performance) |
-| `skills/incremental-implementation/` | Stage — Slice Planning · Stage — Implementation Plan |
-| `skills/documentation-and-adrs/` | Stage — Knowledge Capture |
-| `skills/karpathy-guidelines/` | Any stage — coding discipline |
-| `skills/security-and-hardening/` | Stage — Code + Test Review (security-sensitive changes) |
+| `.agents/skills/context-management/` | Session start · context drift recovery · switching feature areas |
+| `.agents/skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
+| `.agents/skills/android-ui-verification/` | Stage — UI Layer |
+| `.agents/skills/android-unit-test/` | Stage — Testing |
+| `.agents/skills/android-instrumented-ui-test/` | Stage — Testing |
+| `.agents/skills/shared-json-scenarios/` | Stage — Testing |
+| `.agents/skills/android-code-quality-checks/` | Stage — Code + Test Review · **step 1**: run Ktlint, Detekt, Lint and fix all violations first |
+| `.agents/skills/code-review-and-quality/` | Stage — Code + Test Review · **step 2**: multi-axis reasoning review (correctness, arch, security, performance) |
+| `.agents/skills/incremental-implementation/` | Stage — Slice Planning · Stage — Implementation Plan |
+| `.agents/skills/documentation-and-adrs/` | Stage — Knowledge Capture |
+| `.agents/skills/karpathy-guidelines/` | Any stage — coding discipline |
+| `.agents/skills/security-and-hardening/` | Stage — Code + Test Review (security-sensitive changes) |
 
 ---
 ## Non-negotiable Rules
