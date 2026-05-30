@@ -3,8 +3,20 @@
 # check-architecture-rules.sh
 #
 # Checks Kotlin source files for violations of the project's
-# android-architecture.md constraints. Uses ripgrep (rg) when available,
-# falls back to grep -P otherwise.
+# android-architecture.md constraints that CANNOT be covered by Detekt's
+# ForbiddenImport rule.
+#
+# Import-based layer boundary checks are now owned by Detekt (detekt.yml
+# forbidden-imports section). Do not add import checks here — add them there.
+#
+# Remaining checks (what this script owns):
+#   Section 1  — UI body-level violations (DAO/API/Repo called inside Composable body)
+#   Section 2  — ViewModel body-level violations (direct Retrofit call)
+#   Section 5  — State management smells (multiple StateFlow<Boolean>, one-off event fields)
+#   Section 7  — DI scoping (Context in domain constructor, missing @Singleton on RepositoryImpl)
+#   Section 8  — Forbidden patterns (fully-qualified inline names, business logic in Composable,
+#                ViewModel missing test file)
+#   Section 9  — Package structure (ViewModel / UseCase / RepositoryImpl misplaced, Mapper in domain)
 #
 # Usage:
 #   ./scripts/check-architecture-rules.sh [--all] [<source-root>]
@@ -54,18 +66,6 @@ else
         mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
     fi
 fi
-
-# Helper: filter kt_files to those under a given directory
-_files_under() {
-    local dir="$1"
-    local result=()
-    for f in "${kt_files[@]}"; do
-        if [[ "$f" == "$dir"/* ]]; then
-            result+=("$f")
-        fi
-    done
-    echo "${result[@]}"
-}
 
 # ---------- colour helpers ----------------------------------------------------
 RED='\033[0;31m'
@@ -149,14 +149,12 @@ _run_check() {
     local extra_args=()
     local scoped_files=("${kt_files[@]}")
 
-    # Allow caller to pass --files arr... as final args after --
     local new_args=()
     local in_files=false
     for arg in "$@"; do
         if [[ "$arg" == "--" ]]; then
             in_files=true
         elif [[ "$in_files" == "true" ]]; then
-            # caller passes pre-filtered file list; ignore default kt_files
             scoped_files=("$@")
             break
         else
@@ -183,12 +181,10 @@ _run_check() {
     fi
 }
 
-# Variant that operates on an explicit file list (already filtered by layer)
 _run_check_files() {
     local rule_name="$1"
     local pattern="$2"
     shift 2
-    # remaining args: [grep/rg flags...] then file list
     local grep_flags=()
     local files=()
     local reading_files=false
@@ -229,10 +225,10 @@ domain_files=()
 data_files=()
 viewmodel_files=()
 for f in "${kt_files[@]}"; do
-    [[ "$f" == "$UI_ROOT"/* ]]     && ui_files+=("$f")
+    [[ "$f" == "$UI_ROOT"/*     ]] && ui_files+=("$f")
     [[ "$f" == "$DOMAIN_ROOT"/* ]] && domain_files+=("$f")
-    [[ "$f" == "$DATA_ROOT"/* ]]   && data_files+=("$f")
-    [[ "$f" == *"/viewmodel/"* ]]  && viewmodel_files+=("$f")
+    [[ "$f" == "$DATA_ROOT"/*   ]] && data_files+=("$f")
+    [[ "$f" == *"/viewmodel/"*  ]] && viewmodel_files+=("$f")
 done
 
 # =============================================================================
@@ -246,61 +242,28 @@ echo -e "  Source root : ${SOURCE_ROOT}"
 echo -e "  Files scanned: ${#kt_files[@]}"
 echo -e "    UI files    : ${#ui_files[@]}"
 echo -e "    Domain files: ${#domain_files[@]}"
-echo -e "    Data files  : ${#data_files[@]}\n"
+echo -e "    Data files  : ${#data_files[@]}"
+echo -e ""
+echo -e "  ${YELLOW}NOTE: Import-based layer boundary checks run via Detekt (detekt.yml).${RESET}"
+echo -e "  ${YELLOW}      Run './gradlew detekt' to verify import rules.${RESET}\n"
 
 # =============================================================================
-# SECTION 1 — UI LAYER VIOLATIONS
+# SECTION 1 — UI LAYER — BODY-LEVEL VIOLATIONS
+# (Import checks removed — now owned by Detekt ForbiddenImport)
 # =============================================================================
-_header "1 · UI Layer — Forbidden Imports & Direct Data Access"
-echo -e "  ${YELLOW}UI must not import data-layer classes, call repositories, or call Retrofit directly.${RESET}"
+_header "1 · UI Layer — Direct Data Access Inside Composable Bodies"
+echo -e "  ${YELLOW}UI must not call DAOs, API services, repositories, or use cases directly.${RESET}"
 
-# 1a. UI importing data layer packages
-_rule_header 'UI files importing data layer packages (data.remote / data.local / data.repository)'
-ui_import_data_violations=()
-for f in "${ui_files[@]}"; do
-    if grep -qP 'import com\.example\.notesapp\.data\.(remote|local|repository)\.' "$f" 2>/dev/null; then
-        ui_import_data_violations+=("$f")
-    fi
-done
-if [[ ${#ui_import_data_violations[@]} -eq 0 ]]; then
-    echo -e "    ${GREEN}✓ No violations${RESET}"
-else
-    for f in "${ui_import_data_violations[@]}"; do
-        # Show the offending import lines
-        while IFS= read -r line; do
-            [[ -n "$line" ]] && _print_match "$line" && (( TOTAL_VIOLATIONS++ ))
-        done < <(grep -nP 'import com\.example\.notesapp\.data\.(remote|local|repository)\.' "$f" 2>/dev/null || true)
-    done
-fi
-
-# 1b. UI importing DTO types from the project's own data layer (ApiModels, *Dto, *Entity, *Request, *Response)
+# 1a. UI calling Room DAO methods directly in Composable bodies
 if [[ ${#ui_files[@]} -gt 0 ]]; then
     _run_check_files \
-        'UI files importing project DTO / Entity / Request / Response types' \
-        'import com\.example\.notesapp\.data\.(remote|local)\.(ApiModels|ApiItem|.*Dto|.*Entity|.*Request|.*Response)' \
-        --type kotlin --pcre2 \
-        --files "${ui_files[@]}"
-fi
-
-# 1c. UI calling Retrofit (service) directly
-if [[ ${#ui_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'UI Composable calling Retrofit API service directly' \
-        'ApiService\s*\.' \
-        --type kotlin \
-        --files "${ui_files[@]}"
-fi
-
-# 1d. UI calling Room DAO directly
-if [[ ${#ui_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'UI Composable calling Room DAO directly' \
+        'UI Composable calling Room DAO directly (body-level call)' \
         '\bDao\b.*\.(get|insert|update|delete|query)\b' \
         --type kotlin \
         --files "${ui_files[@]}"
 fi
 
-# 1e. Repository called directly inside @Composable function bodies
+# 1b. Repository or UseCase called directly inside @Composable function bodies
 if [[ ${#ui_files[@]} -gt 0 ]]; then
     _run_check_files \
         'Composable calling repository or use case directly (not via ViewModel)' \
@@ -310,126 +273,19 @@ if [[ ${#ui_files[@]} -gt 0 ]]; then
 fi
 
 # =============================================================================
-# SECTION 2 — PRESENTATION LAYER VIOLATIONS
+# SECTION 2 — PRESENTATION LAYER — BODY-LEVEL VIOLATIONS
+# (Import checks removed — now owned by Detekt ForbiddenImport)
 # =============================================================================
-_header "2 · Presentation Layer — ViewModel Forbidden Imports"
-echo -e "  ${YELLOW}ViewModels must not import Retrofit, Room, or data-source implementation classes.${RESET}"
+_header "2 · Presentation Layer — Direct Retrofit Calls in ViewModel Bodies"
+echo -e "  ${YELLOW}ViewModels must not call Retrofit API services directly — only through use cases / repositories.${RESET}"
 
-# 2a. ViewModel importing Retrofit
-if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'ViewModel importing Retrofit classes' \
-        'import retrofit2\.' \
-        --type kotlin \
-        --files "${viewmodel_files[@]}"
-fi
-
-# 2b. ViewModel importing Room / DAO directly
-if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'ViewModel importing Room / DAO classes' \
-        'import androidx\.room\.|import.*\.(.*Dao)\b' \
-        --type kotlin \
-        --files "${viewmodel_files[@]}"
-fi
-
-# 2c. ViewModel calling Retrofit API service directly
+# 2a. ViewModel calling Retrofit API service directly in function bodies
 if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
     _run_check_files \
         'ViewModel calling Retrofit API service directly' \
         '\bApiService\s*\.\s*(get|post|put|patch|delete|create|fetch|update)\b' \
         --pcre2 --type kotlin \
         --files "${viewmodel_files[@]}"
-fi
-
-# 2d. ViewModel importing data-layer implementation packages
-if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'ViewModel importing data-layer implementation (remote/local) packages' \
-        'import com\.example\.notesapp\.data\.(remote|local)\.' \
-        --type kotlin \
-        --files "${viewmodel_files[@]}"
-fi
-
-# =============================================================================
-# SECTION 3 — DOMAIN LAYER VIOLATIONS
-# =============================================================================
-_header "3 · Domain Layer — Android Framework Imports"
-echo -e "  ${YELLOW}Domain layer must stay platform-independent — no Android SDK, Retrofit, or Room imports.${RESET}"
-
-# 3a. Domain importing Android framework
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file importing Android framework classes (android.* / androidx.*)' \
-        'import (android\.|androidx\.)' \
-        --type kotlin \
-        --files "${domain_files[@]}"
-fi
-
-# 3b. Domain importing Retrofit
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file importing Retrofit' \
-        'import retrofit2\.' \
-        --type kotlin \
-        --files "${domain_files[@]}"
-fi
-
-# 3c. Domain importing Room
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file importing Room' \
-        'import androidx\.room\.' \
-        --type kotlin \
-        --files "${domain_files[@]}"
-fi
-
-# 3d. Domain importing data layer
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file importing data-layer implementation classes' \
-        'import com\.example\.notesapp\.data\.' \
-        --type kotlin \
-        --files "${domain_files[@]}"
-fi
-
-# 3e. Domain importing UI classes
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file importing UI layer classes' \
-        'import com\.example\.notesapp\.ui\.' \
-        --type kotlin \
-        --files "${domain_files[@]}"
-fi
-
-# =============================================================================
-# SECTION 4 — DATA LAYER VIOLATIONS
-# =============================================================================
-_header "4 · Data Layer — DTO Exposure & UI State Logic"
-echo -e "  ${YELLOW}DTOs / Entities must not leak into presentation or UI layers.${RESET}"
-
-# 4a. Any non-data-layer file importing DTO / Entity types
-# Exclude di/ (Hilt modules legitimately wire data-layer classes) and data/ itself
-non_data_files=()
-for f in "${kt_files[@]}"; do
-    [[ "$f" != "$DATA_ROOT"/* && "$f" != "$BASE_PKG/di/"* ]] && non_data_files+=("$f")
-done
-
-if [[ ${#non_data_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Non-data-layer file (outside di/) importing DTO / Entity from data.remote or data.local' \
-        'import com\.example\.notesapp\.data\.(remote|local)\.' \
-        --type kotlin \
-        --files "${non_data_files[@]}"
-fi
-
-# 4b. Data layer containing UiState references
-if [[ ${#data_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Data layer file referencing UiState (UI state logic must not live in data layer)' \
-        '\bUiState\b' \
-        --type kotlin \
-        --files "${data_files[@]}"
 fi
 
 # =============================================================================
@@ -456,7 +312,7 @@ else
     done
 fi
 
-# 5b. One-off events stored as permanent state fields (Boolean/String UiState fields named isShown/isVisible)
+# 5b. One-off events stored as permanent state fields
 if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
     _run_check_files \
         'One-off event stored as a permanent UiState field (use Channel/SharedFlow instead)' \
@@ -466,36 +322,12 @@ if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
 fi
 
 # =============================================================================
-# SECTION 6 — MAPPING RULES
-# =============================================================================
-_header "6 · Mapping Rules — DTO-to-UI shortcuts"
-echo -e "  ${YELLOW}Mapping must only happen in the correct layer: DTO→Domain in data, Domain→UI in presentation.${RESET}"
-
-# 6a. UI files containing project-specific DTO/ApiModel type references
-if [[ ${#ui_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'UI file referencing project DTO / ApiModel / Entity types directly' \
-        'import com\.example\.notesapp\.data\.(remote|local)\.(ApiItem|ApiModels|MutationResultDto|.*Dto|.*Entity)' \
-        --type kotlin --pcre2 \
-        --files "${ui_files[@]}"
-fi
-
-# 6b. Domain files referencing project-specific DTO types
-if [[ ${#domain_files[@]} -gt 0 ]]; then
-    _run_check_files \
-        'Domain file referencing project DTO / ApiModel / Entity types' \
-        'import com\.example\.notesapp\.data\.(remote|local)\.(ApiItem|ApiModels|.*Dto|.*Entity)' \
-        --type kotlin --pcre2 \
-        --files "${domain_files[@]}"
-fi
-
-# =============================================================================
 # SECTION 7 — DEPENDENCY INJECTION
 # =============================================================================
 _header "7 · Dependency Injection — Hilt Scoping"
-echo -e "  ${YELLOW}Singletons must be @Singleton, ViewModel deps @ViewModelScoped. Context must not leak into domain/data.${RESET}"
+echo -e "  ${YELLOW}Singletons must be @Singleton, ViewModel deps @ViewModelScoped. Context must not leak into domain.${RESET}"
 
-# 7a. Context injected into domain layer
+# 7a. Context injected into domain layer classes
 if [[ ${#domain_files[@]} -gt 0 ]]; then
     _run_check_files \
         'Domain class receiving Context as constructor / inject parameter' \
@@ -538,25 +370,25 @@ _run_check \
     --type kotlin --pcre2 \
     --exclude 'build.gradle.kts'
 
-# 8b. ViewModel calling Retrofit directly (any file)
+# 8b. ViewModel calling Retrofit directly (any file, multiline pattern)
 _run_check \
     'Direct Retrofit API call in ViewModel (must go through repository/use case)' \
     'class\s+\w+ViewModel[^{]*\{[^}]*\.\s*(enqueue|execute|await)\s*\(' \
     --type kotlin --multiline --pcre2
 
-# 8c. Business rules inside Composable
+# 8c. Business rules (domain-model branches) inside Composable bodies
 _run_check \
     'Calculation / business logic branch inside @Composable (if/when on domain models)' \
     '(?s)@Composable\b[^{]*fun\s+\w+[^{]*\{[^}]*(when\s*\(\s*\w+\s*\)\s*\{|if\s*\([^)]*\.(status|state|type|role)\b)' \
     --type kotlin --multiline --pcre2
 
-# 8d. Adding feature code without test file (heuristic — ViewModel without matching *Test.kt)
+# 8d. ViewModels missing a corresponding *Test.kt or *IntegrationTest.kt
 _rule_header 'ViewModels missing a corresponding *Test.kt or *IntegrationTest.kt'
 test_root="$PROJECT_ROOT/app/src/test"
 missing_tests=()
 for f in "${viewmodel_files[@]}"; do
     vm_name="$(basename "$f" .kt)"
-    if ! find "$test_root" -name "${vm_name}Test.kt" -o -name "${vm_name}IntegrationTest.kt" 2>/dev/null | grep -q .; then
+    if ! find "$test_root" \( -name "${vm_name}Test.kt" -o -name "${vm_name}IntegrationTest.kt" \) 2>/dev/null | grep -q .; then
         missing_tests+=("${f#$PROJECT_ROOT/}")
     fi
 done
@@ -632,17 +464,20 @@ else
     done
 fi
 
-# 9d. Mapper files in wrong layer (DTO→Domain mapper must be in data/, Domain→UI mapper must be in ui/)
+# 9d. Mapper files in wrong layer (DTO→Domain mapper must be in data/, Domain→UI in ui/)
 _rule_header 'DTO→Domain mapper placed outside data/ layer'
+mapper_violations=false
 for f in "${kt_files[@]}"; do
     fname="$(basename "$f")"
-    # Files named *Mapper.kt in data layer are fine; in domain layer is a smell
     if [[ "$fname" == *Mapper* ]] && [[ "$f" == "$DOMAIN_ROOT"/* ]]; then
         _print_match "${f#$PROJECT_ROOT/} (mapper belongs in data/ or ui/, not domain/)"
         (( TOTAL_VIOLATIONS++ ))
+        mapper_violations=true
     fi
 done
-echo -e "    ${GREEN}✓ Check complete${RESET}" 2>/dev/null || true
+if [[ "$mapper_violations" == "false" ]]; then
+    echo -e "    ${GREEN}✓ No violations${RESET}"
+fi
 
 # =============================================================================
 # SUMMARY
