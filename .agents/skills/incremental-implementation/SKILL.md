@@ -63,17 +63,6 @@ Slice 4: Delete a task (delete + API + UI + confirmation)
 
 Each slice delivers working end-to-end functionality.
 
-### Contract-First Slicing
-
-When backend and frontend need to develop in parallel:
-
-```
-Slice 0: Define the API contract (types, interfaces, OpenAPI spec)
-Slice 1a: Implement backend against the contract + API tests
-Slice 1b: Implement frontend against mock data matching the contract
-Slice 2: Integrate and test end-to-end
-```
-
 ### Risk-First Slicing
 
 Tackle the riskiest or most uncertain piece first:

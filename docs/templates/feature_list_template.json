@@ -17,14 +17,16 @@
       "id": "chat-001",
       "priority": 1,
       "area": "chat",
-      "title": "Create a new conversation",
-      "user_visible_behavior": "A user can click New Chat and see a fresh empty conversation.",
+      "title": "Create a new note",
+      "description": "Implement the domain use case and local database schema additions to create a new empty note and post to server.",
+      "ui_design": "docs/current/design/home_screen.png",
+      "user_visible_behavior": "A user can click + floating action button at home to create a new empty note.",
       "status": "not_started",
       "verification": [
-        "Open the app.",
-        "Click New Chat.",
-        "Verify a new conversation appears in the sidebar.",
-        "Verify the main panel shows an empty conversation state."
+        "Launch the app by instrumented test",
+        "Click + floating action button at home.",
+        "Verify the empty note UI is displayed",
+        "Verify a POST API call is called with the correct note data"
       ],
       "evidence": [],
       "notes": ""
@@ -34,6 +36,8 @@
       "priority": 2,
       "area": "chat",
       "title": "Send a message in the current conversation",
+      "description": "Implement the sendMessage Retrofit API endpoint mapping and save the sent message into the local Room database thread.",
+      "ui_design": "Pencil: Discussion Bottom Sheet",
       "user_visible_behavior": "A user can submit a message and see it appear in the active thread.",
       "status": "not_started",
       "verification": [
@@ -50,6 +54,8 @@
       "priority": 3,
       "area": "chat",
       "title": "Persist the active conversation list",
+      "description": "Implement automatic offline syncing using a WorkManager sync worker that triggers when internet is restored.",
+      "ui_design": "Figma: Sidebar Navigation",
       "user_visible_behavior": "A user sees previously created conversations after restarting the app.",
       "status": "not_started",
       "verification": [

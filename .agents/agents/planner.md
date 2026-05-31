@@ -43,7 +43,7 @@ The Planner agent is responsible for executing the **`/feature-planning`** workf
 The Planner's primary deliverables are the requirements, feature slices, and the sprint contract:
 
 1.  **`requirement-summary.md`** & **`feature_list.json`**: Generated during `/feature-planning` stage executions.
-2.  **`sprint-contract.md`**: Compiled by strictly following the structure defined in the **[`sprint-contract-template.md`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/docs/templates/sprint-contract-template.md)**.
+2.  **`sprint-contract.md`**: Compiled by strictly following the structure defined in the **[`sprint-contract-template.md`](docs/templates/sprint-contract-template.md)**.
 
 > [!IMPORTANT]
 > Once `sprint-contract.md` is compiled, the Planner **MUST NOT** start implementing and must hand off `sprint-contract.md` directly to the **Generator**.

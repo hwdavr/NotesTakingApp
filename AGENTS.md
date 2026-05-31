@@ -40,6 +40,14 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | `docs/changes/` | Audit trail — one directory per delivered change. |
 
 ---
+## Agent Roles
+| Role | Responsibility | Primary Actions |
+|---|---|---|
+| **Planner** | Defines requirements & architectural slices | Creates implementation plans & vertical slice checklists |
+| **Coder** | Implements robust features & solves tasks | Delivers clean Kotlin/Compose/Room changes incrementally |
+| **Evaluator** | Performs automated & manual quality gates | Runs code quality checks, static analysis, & test coverage reviews |
+
+---
 ## Workflows
 | Workflow | When to use |
 |----------|-------------|

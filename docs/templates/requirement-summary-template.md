@@ -53,7 +53,7 @@ Use this template when producing the requirement summary in the **Feature Requir
 
 ---
 
-## Assumptions
+## Explicit Assumptions
 
 | # | Assumption | Risk if Wrong |
 |---|------------|---------------|

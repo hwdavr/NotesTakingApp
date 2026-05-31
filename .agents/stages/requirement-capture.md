@@ -49,7 +49,7 @@ Technical or platform constraints already known (e.g. "must support minSdk 24", 
 **Non-Goals**
 What is explicitly out of scope for this feature. Be specific.
 
-**Assumptions**
+**Explicit Assumptions**
 Things assumed to be true that have not been confirmed. Each assumption is a risk — flag it.
 
 **Open Questions**

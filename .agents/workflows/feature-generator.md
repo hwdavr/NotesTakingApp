@@ -13,7 +13,9 @@ Use this workflow when you are acting as the **Generator** (Implementer) agent. 
 
 ### Stage 1 — Orient
 Before making any changes or planning code, gather complete session and git context.
-*   **Action**: Read active logs in `docs/current/progress.md` (or the session logs), examine the active planned slices in `docs/current/feature_list.json`, and run recent git history analysis (`git log -n 5 --oneline`).
+*   **Action**: Read the active requirement in `docs/current/requirement-summary.md`, read active logs in `docs/
+  current/progress.md` (or the session logs), examine the active planned slices in `docs/current/feature_list.json`, and
+  run recent git history analysis (`git log -n 5 --oneline`).
 *   **Objective**: Reconstruct exactly what was done in the previous session and identify the current active feature context.
 
 ### Stage 2 — Setup
@@ -39,18 +41,14 @@ Focus on a single, isolated slice to avoid scope creep and cognitive overload.
 *   **Objective**: Update the feature status to `in_progress` in the JSON file. Do not work on multiple features in parallel.
 
 ### Stage 5 — Implement
-Build out the selected feature across the necessary layers.
-*   **Action**: Surgical coding of the feature using your *Generator* standards:
-    *   Implement Data schemas, mappers, domain use cases, and view models.
-    *   Ensure all compose screens remain stateless and interactive elements have `testTag` definitions.
-*   **Objective**: Compile cleanly via `./gradlew assembleDebug` after implementation.
+Load and execute **`stages/implementation.md`** to build out the selected feature across the necessary layers.
+*   **Action**: Load the implementation stage and perform surgical coding using your *Generator* standards (Data, Domain, and UI layers).
+*   **Objective**: All layers successfully implemented and `./gradlew assembleDebug` compiles cleanly.
 
 ### Stage 6 — Test
-Verify the correctness of the implemented behavior visually and logically.
-*   **Action**: Implement matching unit and integration test suites:
-    *   Verify through the actual UI/API, not just isolated unit tests.
-    *   Confirm line coverage targets (overall project **≥ 80%**, ViewModel & Use Case **≥ 90%**).
-*   **Objective**: All local tests pass cleanly.
+Load and execute **`stages/testing.md`** to verify the correctness of the implemented behavior visually and logically.
+*   **Action**: Load the testing stage and implement matching unit, integration, and UI test suites. Verify through the actual UI/API and meet code coverage targets (overall project **≥ 80%**, ViewModel & Use Case **≥ 90%**).
+*   **Objective**: All local tests pass cleanly and coverage targets are fully met.
 
 
 ### Stage 7 — Fix
