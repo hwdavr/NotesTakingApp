@@ -17,6 +17,7 @@ For trivially small changes, skip this stage and go directly to the Implementati
 - `skills/incremental-implementation/SKILL.md`
 - `docs/templates/feature_list_template.json`
 - `docs/templates/progress-template.md`
+- `docs/templates/sprint-contract-template.md`
 - **Requirement input** — read the path from the active workflow's `Input:` line:
   - feature-planning workflow → `docs/current/requirement-summary.md`
   - Other workflows → `request_analysis/spec_t<taskId>.md`
@@ -32,7 +33,11 @@ Review the requirement input document (path defined by the calling workflow) and
 - Is there a natural dependency order (e.g. DB schema must exist before the ViewModel can query it)?
 - Which part carries the highest technical risk or most uncertainty?
 
-### 2. Choose a Slicing Strategy
+### 2. Compile Sprint Contract
+
+Decompose the high-level requirement into a detailed scope, acceptance criteria, and verification plan. Strictly follow the structure in `docs/templates/sprint-contract-template.md` to generate `sprint-contract.md`. Fill in the Sprint ID, Feature Name, In Scope, Out of Scope, Roles, Acceptance Criteria, and the Verification Plan mapping to the acceptance criteria.
+
+### 3. Choose a Slicing Strategy
 
 **Strongly Prefer Vertical Slices**: Always default to the **Vertical Slices** strategy to ensure that each slice delivers an end-to-end, testable user value and leaves the codebase in a clean, shippable state. 
 
@@ -41,7 +46,7 @@ Review the requirement input document (path defined by the calling workflow) and
 - *Too broad*: "Implement the shopping cart"
 - *Too narrow*: "Create the name field on the Cart model"
 
-### 3. Define Features inside `feature_list.json`
+### 4. Define Features inside `feature_list.json`
 
 For each slice, you must populate the `features` list in the `feature_list.json` schema. Define each task completely, ensuring that each field is explained and adheres to the following definitions:
 
@@ -59,10 +64,11 @@ For each slice, you must populate the `features` list in the `feature_list.json`
 
 Each task must change **one logical thing** and do it completely, ensuring the codebase is never left in a broken or non-compiling state.
 
-### 4. Order Tasks
+### 5. Order Tasks
 
 Place the riskiest or most foundational slice first.
 Express the dependency order explicitly (linear or branching).
+
 
 ---
 
@@ -70,10 +76,11 @@ Express the dependency order explicitly (linear or branching).
 
 Write the **feature list** following `docs/templates/feature_list_template.json`.
 Write the **progress file** following `docs/templates/progress-template.md`.
+Write the **sprint contract** following `docs/templates/sprint-contract-template.md`.
 
 Output paths are defined by the calling workflow:
-- **feature-planning workflow** → `docs/current/feature_list.json` and `docs/current/progress.md`
-- **Other workflows** → `request_analysis/feature_list.json` and `coding/progress.md`
+- **feature-planning workflow** → `docs/current/feature_list.json`, `docs/current/progress.md`, and `docs/current/sprint-contract.md`
+- **Other workflows** → `request_analysis/feature_list.json`, `coding/progress.md`, and `request_analysis/sprint-contract.md`
 
 Pre-populate the task list with all slices.
 Set Feature 1 to `in_progress`, all others to `not_started`.
@@ -90,6 +97,7 @@ The user must confirm:
 - [ ] No feature is too large (completable in a single session)
 - [ ] Feature descriptions are clear, instructing exactly what to do
 - [ ] Verification steps are concrete, machine-executable shell commands (returning binary PASS/FAIL)
+- [ ] The sprint-contract is compiled with explicit acceptance criteria and a corresponding verification plan
 
 **APPROVED by user →** Return to the active workflow file and proceed to the next stage.
 

@@ -13,9 +13,12 @@ Use this workflow when you are acting as the **Generator** (Implementer) agent. 
 
 ### Stage 1 — Orient
 Before making any changes or planning code, gather complete session and git context.
-*   **Action**: Read the active requirement in `docs/current/requirement-summary.md`, read active logs in `docs/
-  current/progress.md` (or the session logs), examine the active planned slices in `docs/current/feature_list.json`, and
-  run recent git history analysis (`git log -n 5 --oneline`).
+*   **Action**:
+    1. Read `sprint-contract.md` for scope and acceptance criteria.
+    2. Read `evaluator-rubric.md` for final quality evidence and issues requires follow-up.
+    3. Read active logs in `docs/current/progress.md` (or the session logs).
+    4. Examine the active planned slices in `docs/current/feature_list.json`.
+    5. Run recent git history analysis (`git log -n 5 --oneline`).
 *   **Objective**: Reconstruct exactly what was done in the previous session and identify the current active feature context.
 
 ### Stage 2 — Setup
