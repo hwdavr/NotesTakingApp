@@ -29,12 +29,12 @@ Gate: **STOP — present `requirement-summary.md` to user. Every open question m
 ### Stage 2 — Slice Planning
 Load: `stages/slice-planning.md`
 Input: `docs/current/requirement-summary.md`
-Output: `docs/current/feature_list.json`, `docs/current/progress.md`
-Gate: **STOP — present `feature_list.json` to user. Do not proceed until user explicitly approves the task breakdown.**
+Output: `docs/current/feature_list.json`, `docs/current/progress.md`, `docs/current/sprint-contract.md`
+Gate: **STOP — present `feature_list.json` and `sprint-contract.md` to user. Do not proceed until user explicitly approves the task breakdown and sprint contract.**
 
 ---
 
 ## Human-in-the-Loop Confirmation Points
 
 1. **After Feature Requirement Capture** — User confirms the requirements are complete, all questions are answered, and approves `requirement-summary.md`.
-2. **After Slice Planning** — User approves the sliced features list and priorities in `feature_list.json` before any implementation work begins.
+2. **After Slice Planning** — User approves the sliced features list, priorities, and `sprint-contract.md` before any implementation work begins.
