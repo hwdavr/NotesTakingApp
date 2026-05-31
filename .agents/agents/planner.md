@@ -29,7 +29,7 @@ The Planner must strictly adhere to and enforce these non-negotiable guidelines 
 ---
 ## 📋 Assigned Workflow & Stages
 
-The Planner agent is responsible for executing the **`/feature-planning`** workflow ([feature-planning.md](file:///mnt/data/Projects/NotesApp/NotesTakingApp/.agents/workflows/feature-planning.md)), which consists of two stages:
+The Planner agent is responsible for executing the **`/feature-planning`** workflow ([feature-planning.md](../workflows/feature-planning.md)), which consists of two stages:
 
 | Stage | Process Description | Outputs Produced |
 | :--- | :--- | :--- |

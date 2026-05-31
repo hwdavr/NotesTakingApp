@@ -27,13 +27,13 @@ The reviewer and the fixer can be the same agent, but they must operate in seque
 
 ### Stage 1 — Review ⛔ STOP
 
-Run the `/review` workflow in full (Code Review → Test Review). Do not proceed until the `/review` workflow has completed and both reports are presented to the user.
+Run the `/feature-evaluation` workflow in full (Code Review → Test Review). Do not proceed until the `/feature-evaluation` workflow has completed and both reports are presented to the user.
 
-**Output** (produced by `/review`):
+**Output** (produced by `/feature-evaluation`):
 - Code review report: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`
 - Test review report: `docs/changes/<name>/coding/review/test_review_t<taskId>_v<N>.md`
 
-**⛔ STOP — the `/review` workflow stops after Test Review and presents both reports.**
+**⛔ STOP — the `/feature-evaluation` workflow stops after Test Review and presents both reports.**
 The user decides whether to proceed to Stage 2 (Fix) or accept findings as-is.
 
 ---

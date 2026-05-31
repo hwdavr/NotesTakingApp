@@ -53,7 +53,7 @@ Mandatory: at least one integration test per changed API endpoint using shared J
 
 ### Stage 7 — Code + Test Review ⚠️ Lightweight if Data & Domain only
 
-Run the `/review` workflow in full (Code Review → Test Review).
+Run the `/feature-evaluation` workflow in full (Code Review → Test Review).
 
 Scope guidance:
 - Code Review: run `android-code-quality-checks` (Ktlint, Detekt, Lint) — always required. Reasoning review focuses on DTO mapping, null safety, and error handling. Skip UI axes if Stage 5 was skipped.

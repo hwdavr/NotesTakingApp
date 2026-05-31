@@ -5,6 +5,7 @@ description: You are a senior Android developer delivering a new feature end-to-
 # Workflow: Feature Delivery
 
 ## When to use
+- Use this workflow when you are acting as the **Generator** (Implementer) agent.
 - Implementing a new feature
 - Enhancing an existing feature
 - Integrating a backend or API change

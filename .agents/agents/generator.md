@@ -48,5 +48,5 @@ The Generator must continuously loop through the pipeline to pick up and impleme
 
 ## 🔄 Agent Handshake & Lifecycle Transitions
 
-*   **Generator ➡️ Evaluator**: Once code compiles (`assembleDebug` passes) and all unit/integration tests are GREEN, the Generator hands over execution to the **Evaluator** by calling the `/review-and-fix` (or `/review`) workflow.
+*   **Generator ➡️ Evaluator**: Once code compiles (`assembleDebug` passes) and all unit/integration tests are GREEN, the Generator hands over execution to the **Evaluator** by calling the `/review-and-fix` (or `/feature-evaluation`) workflow.
 *   **Evaluator ➡️ Generator (Fix Loop)**: If the Evaluator identifies compilation errors, test regressions, formatting issues, or architectural violations, the work returns to the Generator with clear feedback for a targeted resolution.
