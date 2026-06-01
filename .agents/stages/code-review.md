@@ -227,7 +227,7 @@ Verify secrets, PII logging, and backward compatibility.
 ## Output
 
 Produce:
-- `coding/review/review_t<taskId>_v<N>.md` by copying and filling in the template from `docs/templates/review-template.md`.
+- `coding/review/code_review_t<taskId>_v<N>.md` by copying and filling in the template from `docs/templates/code-review-template.md`.
 
 ---
 
@@ -255,6 +255,6 @@ All conditions must pass before proceeding to `stages/test-review.md`:
 - [ ] `analytics-rules.md` — all checks PASS or N/A
 - [ ] `gates/review-checklist.md` — every item marked PASS or N/A
 - [ ] UI matches the designed states in `spec_t<taskId>.md`
-- [ ] `coding/review/review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
+- [ ] `coding/review/code_review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
 
 **Gate passed →** Continue immediately to `stages/test-review.md`. Do not stop.

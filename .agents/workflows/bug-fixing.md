@@ -89,7 +89,7 @@ For bug fixes, the Test Review stage must additionally verify:
 - No regressions in the full suite
 - The minimal-fix constraint: no unrelated changes slipped in
 
-Output: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`, `test_review_t<taskId>_v<N>.md`
+Output: `docs/changes/<name>/coding/review/code_review_t<taskId>_v<N>.md`, `test_review_t<taskId>_v<N>.md`
 Gate: build passes, static analysis passes, architecture rules followed, reproduction test GREEN, no regressions
 **⛔ STOP — present both review reports to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 

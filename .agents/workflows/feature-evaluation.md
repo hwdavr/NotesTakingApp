@@ -19,8 +19,8 @@ description: You are a senior Android developer running an independent code and 
 Load and execute `stages/code-review.md` in full. Do not stop after this stage — proceed immediately to Stage 2.
 
 **Output**:
-- Code review report: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`
-- If no change directory exists: `review_adhoc.md` in the project root
+- Code review report: `docs/changes/<name>/coding/review/code_review_t<taskId>_v<N>.md`
+- If no change directory exists: `code_review_adhoc.md` in the project root
 
 ---
 
