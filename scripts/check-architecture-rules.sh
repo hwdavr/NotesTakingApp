@@ -17,6 +17,7 @@
 #   Section 8  — Forbidden patterns (fully-qualified inline names, business logic in Composable,
 #                ViewModel missing test file)
 #   Section 9  — Package structure (ViewModel / UseCase / RepositoryImpl misplaced, Mapper in domain)
+#   Section 10 — New suppression directives in the current diff
 #
 # Usage:
 #   ./scripts/check-architecture-rules.sh [--all] [<source-root>]
@@ -477,6 +478,38 @@ for f in "${kt_files[@]}"; do
 done
 if [[ "$mapper_violations" == "false" ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
+fi
+
+# =============================================================================
+# SECTION 10 — SUPPRESSION CONTROL
+# =============================================================================
+_header "10 · Suppression Control"
+echo -e "  ${YELLOW}Agents must fix rule violations, not hide them with suppressions or inline ignores.${RESET}"
+echo -e "  ${YELLOW}A suppression requires an explicit user decision and a documented false-positive rationale.${RESET}"
+
+_rule_header 'New suppression / ignore directives added in this diff'
+suppression_pattern='(@file:Suppress|@Suppress|@SuppressLint|tools:ignore|ktlint-disable|detekt-disable|noinspection|lint:ignore|baseline)'
+suppression_results=""
+if git rev-parse --is-inside-work-tree &>/dev/null; then
+    suppression_results=$(
+        {
+            git diff --unified=0 -- app/src app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
+            git diff --cached --unified=0 -- app/src app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
+        } |
+            grep -E '^\+[^+]' |
+            grep -En "$suppression_pattern" || true
+    )
+fi
+
+if [[ -z "$suppression_results" ]]; then
+    echo -e "    ${GREEN}✓ No new suppressions${RESET}"
+else
+    while IFS= read -r line; do
+        if [[ -n "$line" ]]; then
+            _print_match "$line"
+            (( TOTAL_VIOLATIONS++ ))
+        fi
+    done <<< "$suppression_results"
 fi
 
 # =============================================================================

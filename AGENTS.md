@@ -88,6 +88,7 @@ Existing skills — load the SKILL.md from the relevant folder:
 - **Every new feature must have tests**
 - **Implementation plan must be approved by user before any code is written**
 - **Every stage gate must pass before advancing** — do not skip gates
+- **Do not suppress rule violations** — agents must fix root causes, not add `@Suppress`, `@SuppressLint`, `tools:ignore`, ktlint/detekt disable comments, baselines, or broader excludes unless the user explicitly approves a documented false positive
 
 ---
 ## Build Commands

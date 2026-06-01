@@ -27,6 +27,7 @@ Use this template when producing the review summary in the relevant stage.
 | `check-compose-rules.sh` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED (no Compose changes) | |
 | `check-localization-rules.sh` | ✅ PASS / ❌ FAIL | |
 | `check-architecture-rules.sh` | ✅ PASS / ❌ FAIL | |
+| Suppression audit | ✅ PASS / ❌ FAIL | Confirm no new suppressions, ignores, baselines, or rule exclusions were added to make checks pass. |
 
 ---
 

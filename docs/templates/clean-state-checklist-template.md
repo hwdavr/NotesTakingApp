@@ -10,6 +10,7 @@ Run this checklist before committing and at the end of each session to ensure co
 *   [ ] **Dependency Safety**: Ensure no duplicate dependencies or class conflicts exist in the build configurations.
 *   [ ] **Ktlint Verification**: Run `./gradlew ktlintCheck` and verify that all source code complies with styling standards with zero style violations.
 *   [ ] **Static Analysis**: Run `./gradlew detekt` static analysis and ensure that zero rule violations remain unresolved.
+*   [ ] **Suppression Audit**: Verify that no new `@Suppress`, `@SuppressLint`, `tools:ignore`, ktlint/detekt disable comment, baseline, or broader rule exclusion was added to make checks pass. Any genuine false positive must be approved by the user and documented.
 
 ---
 
