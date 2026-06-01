@@ -2,18 +2,27 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapp.auth.AuthManager
+import com.example.notesapp.domain.comment.model.NoteBlockComment
+import com.example.notesapp.domain.comment.repository.NoteCommentRepository
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.newBlockId
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.MentionDateSuggestion
+import com.example.notesapp.ui.editor.model.MentionNoteSuggestion
+import com.example.notesapp.ui.editor.model.MentionUserSuggestion
+import com.example.notesapp.ui.editor.model.MentionsCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Clock
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -37,7 +46,16 @@ data class NoteEditorUiState(
     val selectionStart: Int = 0,
     val selectionEnd: Int = 0,
     val isFavorite: Boolean = false,
-    val isEditable: Boolean = true
+    val isEditable: Boolean = true,
+    val isDiscussionSheetVisible: Boolean = false,
+    val comments: List<NoteBlockComment> = emptyList(),
+    val activeBlockCommentText: String = "",
+    val mentionDates: List<com.example.notesapp.ui.editor.model.MentionDateSuggestion> = emptyList(),
+    val mentionUsers: List<com.example.notesapp.ui.editor.model.MentionUserSuggestion> = emptyList(),
+    val mentionNotes: List<com.example.notesapp.ui.editor.model.MentionNoteSuggestion> = emptyList(),
+    val isMentionSuggestionsVisible: Boolean = false,
+    val isMentionFooterVisible: Boolean = false,
+    val mentionFooterText: String = ""
 ) {
     val content: String
         get() = document.toPlainText()
@@ -46,11 +64,27 @@ data class NoteEditorUiState(
 @HiltViewModel
 open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
-    private val folderRepository: FolderRepository
+    private val folderRepository: FolderRepository,
+    private val commentRepository: NoteCommentRepository,
+    private val noteShareRepository: NoteShareRepository,
+    private val authManager: AuthManager,
+    private val clock: Clock
 ) : ViewModel() {
+
+    private var localNotes: List<Note> = emptyList()
+    private var noteShares: List<com.example.notesapp.domain.share.NoteShare> = emptyList()
+    private var sharesJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            noteRepository.getActiveNotes().collect { list ->
+                localNotes = list
+            }
+        }
+    }
+
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
-    private fun canEdit(): Boolean = _uiState.value.isEditable
     fun toggleFormattingToolbar() {
         _uiState.value = _uiState.value.copy(
             isFormattingToolbarVisible = !_uiState.value.isFormattingToolbarVisible
@@ -103,19 +137,19 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onTitleChange(value: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         _uiState.value = _uiState.value.copy(title = value)
         scheduleAutoSave()
     }
     fun rename(newName: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         _uiState.value = _uiState.value.copy(title = newName)
         viewModelScope.launch {
             saveInternally()
         }
     }
     fun toggleFavorite() {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         val current = _uiState.value
         val newFavorite = !current.isFavorite
         _uiState.value = current.copy(isFavorite = newFavorite)
@@ -125,7 +159,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onContentChange(value: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         val current = _uiState.value
         val blocks = current.document.blocks
         val firstTextIndex = blocks.indexOfFirst { it is EditorBlock.TextBlock }
@@ -144,7 +178,7 @@ open class NoteEditorViewModel @Inject constructor(
         scheduleAutoSave()
     }
     fun onTextBlockChange(blockId: String, value: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         if (value.contains('\n')) {
             splitTextBlock(blockId, value)
             return
@@ -154,7 +188,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleBlockMark(blockId: String, mark: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         val state = _uiState.value
         val start = state.selectionStart
         val end = state.selectionEnd
@@ -192,16 +226,16 @@ open class NoteEditorViewModel @Inject constructor(
             parseMarkdownTextBlock(id = block.id, text = newText)
         }
     }
-    fun addParagraphBlock() {
-        if (!canEdit()) return
-        appendBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
-    }
-    fun addImageBlock() {
-        if (!canEdit()) return
-        appendBlock(EditorBlock.ImageBlock())
+    fun addBlock(block: EditorBlock) {
+        if (!_uiState.value.isEditable) return
+        val current = _uiState.value
+        _uiState.value = current.copy(
+            document = current.document.copy(blocks = current.document.blocks + block)
+        )
+        scheduleAutoSave()
     }
     fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block is EditorBlock.ImageBlock) {
                 block.copy(
@@ -213,12 +247,8 @@ open class NoteEditorViewModel @Inject constructor(
             }
         }
     }
-    fun addTableBlock() {
-        if (!canEdit()) return
-        appendBlock(EditorBlock.TableBlock())
-    }
     fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TableBlock) return@updateBlock block
             block.copy(
@@ -235,7 +265,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onFolderSelected(folderId: String?) {
-        if (!canEdit()) return
+        if (!_uiState.value.isEditable) return
         _uiState.value = _uiState.value.copy(folderId = folderId)
         scheduleAutoSave()
     }
@@ -315,13 +345,6 @@ open class NoteEditorViewModel @Inject constructor(
             onDone()
         }
     }
-    private fun appendBlock(block: EditorBlock) {
-        val current = _uiState.value
-        _uiState.value = current.copy(
-            document = current.document.copy(blocks = current.document.blocks + block)
-        )
-        scheduleAutoSave()
-    }
     private fun updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
         val current = _uiState.value
         _uiState.value = current.copy(
@@ -374,5 +397,217 @@ open class NoteEditorViewModel @Inject constructor(
             focusedBlockId = nextFocusId
         )
         scheduleAutoSave()
+    }
+    private var commentsJob: Job? = null
+
+    fun setDiscussionSheetVisible(visible: Boolean) {
+        if (visible) {
+            val currentNoteId = _uiState.value.noteId ?: return
+            val currentBlockId = _uiState.value.focusedBlockId
+                ?: _uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
+                ?: return
+
+            if (_uiState.value.focusedBlockId == null) {
+                setFocusedBlock(currentBlockId)
+            }
+
+            _uiState.value = _uiState.value.copy(
+                isDiscussionSheetVisible = true,
+                comments = emptyList(),
+                activeBlockCommentText = ""
+            )
+
+            commentsJob?.cancel()
+            commentsJob = viewModelScope.launch {
+                try {
+                    commentRepository.refreshComments(currentNoteId, currentBlockId)
+                } catch (ignored: Exception) {
+                    // Ignore sync errors
+                }
+
+                commentRepository.observeComments(currentNoteId, currentBlockId).collect { list ->
+                    _uiState.value = _uiState.value.copy(comments = list)
+                }
+            }
+
+            sharesJob?.cancel()
+            sharesJob = viewModelScope.launch {
+                try {
+                    noteShareRepository.refreshNoteShares(currentNoteId)
+                } catch (ignored: Exception) {
+                    // Ignore
+                }
+                noteShareRepository.observeNoteShares(currentNoteId).collect { shares ->
+                    noteShares = shares
+                    filterMentions(_uiState.value.activeBlockCommentText)
+                }
+            }
+        } else {
+            commentsJob?.cancel()
+            commentsJob = null
+            sharesJob?.cancel()
+            sharesJob = null
+            _uiState.value = _uiState.value.copy(isDiscussionSheetVisible = false)
+        }
+    }
+
+    private fun getMentionQuery(text: String): String? {
+        val cursor = _uiState.value.selectionStart
+        if (cursor in 0..text.length) {
+            val lastAt = text.lastIndexOf('@', cursor - 1)
+            if (lastAt != -1) {
+                val sub = text.substring(lastAt + 1, cursor)
+                if (!sub.contains(' ')) {
+                    return sub
+                }
+            }
+        }
+        return null
+    }
+
+    private fun filterMentions(text: String) {
+        val query = getMentionQuery(text)
+        if (query == null) {
+            _uiState.value = _uiState.value.copy(
+                isMentionSuggestionsVisible = false,
+                mentionDates = emptyList(),
+                mentionUsers = emptyList(),
+                mentionNotes = emptyList(),
+                isMentionFooterVisible = false,
+                mentionFooterText = ""
+            )
+            return
+        }
+
+        val calculator = MentionsCalculator(clock)
+
+        // 1. Filter Dates
+        val allDates = calculator.getDateSuggestions()
+        val filteredDates = if (query.isEmpty()) {
+            allDates
+        } else {
+            allDates.filter { it.description.contains(query, ignoreCase = true) }
+        }
+
+        // 2. Filter Users
+        val ownerEmail = authManager.profileEmail.value ?: "me@example.com"
+        val ownerName = ownerEmail.substringBefore('@')
+        val ownerSuggestion = MentionUserSuggestion(
+            email = ownerEmail,
+            displayName = ownerName,
+            isYou = true,
+            isOwner = true,
+            displayBadge = "You",
+            insertText = "@$ownerName"
+        )
+        val collaboratorSuggestions = noteShares.map { share ->
+            val isYou = share.email.equals(ownerEmail, ignoreCase = true)
+            val displayName = share.displayName ?: share.email.substringBefore('@')
+            MentionUserSuggestion(
+                email = share.email,
+                displayName = displayName,
+                isYou = isYou,
+                isOwner = false,
+                displayBadge = if (isYou) "You" else "Guest",
+                insertText = "@$displayName"
+            )
+        }
+        val allUsers = (listOf(ownerSuggestion) + collaboratorSuggestions).distinctBy { it.email }
+        val filteredUsers = if (query.isEmpty()) {
+            allUsers
+        } else {
+            allUsers.filter {
+                it.displayName.contains(query, ignoreCase = true) ||
+                    it.email.contains(query, ignoreCase = true)
+            }
+        }
+
+        // 3. Filter Notes
+        val allNotes = localNotes.map { note ->
+            val folder = _uiState.value.availableFolders.find { it.id == note.folderId }
+            val folderPath = folder?.name ?: "My Notes"
+            MentionNoteSuggestion(
+                id = note.id,
+                title = note.title,
+                folderBreadcrumb = folderPath,
+                insertText = "@${note.title}"
+            )
+        }
+        val filteredNotes = if (query.isEmpty()) {
+            allNotes
+        } else {
+            allNotes.filter {
+                it.title.contains(query, ignoreCase = true) || it.folderBreadcrumb.contains(query, ignoreCase = true)
+            }
+        }
+
+        // Limit to 3 items per section
+        val maxSuggestions = 3
+        val datesLimited = filteredDates.take(maxSuggestions)
+        val usersLimited = filteredUsers.take(maxSuggestions)
+        val notesLimited = filteredNotes.take(maxSuggestions)
+
+        val totalMatches = filteredDates.size + filteredUsers.size + filteredNotes.size
+        val displayedMatches = datesLimited.size + usersLimited.size + notesLimited.size
+        val remaining = totalMatches - displayedMatches
+
+        _uiState.value = _uiState.value.copy(
+            isMentionSuggestionsVisible = true,
+            mentionDates = datesLimited,
+            mentionUsers = usersLimited,
+            mentionNotes = notesLimited,
+            isMentionFooterVisible = remaining > 0,
+            mentionFooterText = if (remaining > 0) "... $remaining more results" else ""
+        )
+    }
+
+    fun onCommentTextChange(text: String) {
+        _uiState.value = _uiState.value.copy(activeBlockCommentText = text)
+        filterMentions(text)
+    }
+
+    fun applyMentionCompletion(insertText: String) {
+        val currentText = _uiState.value.activeBlockCommentText
+        val cursor = _uiState.value.selectionStart
+        if (cursor < 0 || cursor > currentText.length) return
+        val lastAt = currentText.lastIndexOf('@', cursor - 1)
+        if (lastAt == -1) return
+
+        val prefix = currentText.substring(0, lastAt)
+        val suffix = currentText.substring(cursor)
+        val completedText = prefix + insertText + " " + suffix
+
+        _uiState.value = _uiState.value.copy(
+            activeBlockCommentText = completedText,
+            selectionStart = lastAt + insertText.length + 1,
+            selectionEnd = lastAt + insertText.length + 1
+        )
+        filterMentions(completedText)
+    }
+
+    fun sendComment() {
+        val current = _uiState.value
+        val noteId = current.noteId ?: return
+        val blockId = current.focusedBlockId
+            ?: current.document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
+            ?: return
+        val body = current.activeBlockCommentText
+        if (body.isBlank()) return
+
+        viewModelScope.launch {
+            try {
+                commentRepository.addComment(noteId, blockId, body)
+                _uiState.value = _uiState.value.copy(activeBlockCommentText = "")
+                filterMentions("")
+            } catch (ignored: Exception) {
+                // Ignore
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        commentsJob?.cancel()
+        sharesJob?.cancel()
     }
 }

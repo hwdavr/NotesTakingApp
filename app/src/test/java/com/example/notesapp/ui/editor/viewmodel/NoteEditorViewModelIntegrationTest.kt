@@ -2,6 +2,8 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.data.local.NoteEntity
+import com.example.notesapp.domain.comment.repository.NoteCommentRepository
+import io.mockk.mockk
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,6 +18,8 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
+    private val commentRepository: NoteCommentRepository = mockk(relaxed = true)
+    private val authManager: com.example.notesapp.auth.AuthManager = mockk(relaxed = true)
     private lateinit var viewModel: NoteEditorViewModel
 
     @Test
@@ -30,7 +34,16 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(apiMock.getJSONArray("response").toString())
         )
 
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository)
+        io.mockk.every { authManager.profileEmail } returns
+            kotlinx.coroutines.flow.MutableStateFlow("walter@example.com")
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            commentRepository,
+            noteShareRepository,
+            authManager,
+            java.time.Clock.systemDefaultZone()
+        )
         viewModel.load("note_001")
         advanceUntilIdle()
 
@@ -100,7 +113,16 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(syncMock.getJSONArray("response").toString())
         )
         // 4. Load the note into the editor
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository)
+        io.mockk.every { authManager.profileEmail } returns
+            kotlinx.coroutines.flow.MutableStateFlow("walter@example.com")
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            commentRepository,
+            noteShareRepository,
+            authManager,
+            java.time.Clock.systemDefaultZone()
+        )
         viewModel.load("note_001")
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)

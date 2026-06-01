@@ -87,3 +87,19 @@ data class CreateNoteShareRequest(
 data class UpdateNoteShareRequest(
     val accessRole: String
 )
+
+data class ApiNoteBlockComment(
+    val id: String,
+    val noteId: String,
+    val blockId: String,
+    val authorUserId: String,
+    val authorDisplayName: String?,
+    val authorEmail: String?,
+    val body: String,
+    val createdAt: String,
+    val updatedAt: String
+)
+
+data class CreateNoteBlockCommentRequest(
+    val body: String
+)

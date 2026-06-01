@@ -55,11 +55,13 @@
       "description": "Implement floating autocomplete popup trigger when typing `@` or clicking the `@` button in the comment field. Populate dates with predefined calculations (Today, Tomorrow, Next Tuesday 3pm). Populate users with note collaborators from NoteShareRepository + note owner. Populate notes by querying local notes from NoteRepository matching query text. Tapping a suggestion auto-inserts the plain-text/date mention into the cursor position in the comment text field.",
       "ui_design": "docs/current/design/discusion_bottom_sheet.png",
       "user_visible_behavior": "A user typing @ inside the comment box sees a popup with collaborators, dates, and related notes, and tapping a suggestion auto-fills the text field.",
-      "status": "not_started",
+      "status": "passing",
       "verification": [
         "Run Instrumented UI tests to verify mentions trigger, list rendering for users, dates, and notes, and correct completion behavior on click: `./gradlew connectedDebugAndroidTest --tests com.example.notesapp.ui.editor.MentionsAutocompleteTest`"
       ],
-      "evidence": [],
+      "evidence": [
+        "All instrumented Compose UI tests in com.example.notesapp.ui.editor.MentionsAutocompleteTest passed successfully on 2026-06-01 (connectedDebugAndroidTest exit code 0)."
+      ],
       "notes": "Translates ISO date/timestamps to friendly strings upon rendering."
     }
   ]

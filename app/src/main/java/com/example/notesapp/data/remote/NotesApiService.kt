@@ -64,4 +64,17 @@ interface NotesApiService {
 
     @HTTP(method = "DELETE", path = "v1/notes/{itemID}/shares/{shareID}", hasBody = false)
     suspend fun deleteNoteShare(@Path("itemID") itemId: String, @Path("shareID") shareId: String)
+
+    @GET("v1/notes/{itemID}/blocks/{blockID}/comments")
+    suspend fun listNoteBlockComments(
+        @Path("itemID") itemId: String,
+        @Path("blockID") blockId: String
+    ): List<ApiNoteBlockComment>
+
+    @POST("v1/notes/{itemID}/blocks/{blockID}/comments")
+    suspend fun createNoteBlockComment(
+        @Path("itemID") itemId: String,
+        @Path("blockID") blockId: String,
+        @Body request: CreateNoteBlockCommentRequest
+    ): ApiNoteBlockComment
 }

@@ -6,14 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [NoteEntity::class, FolderEntity::class, NoteShareEntity::class],
-    version = 7,
+    entities = [NoteEntity::class, FolderEntity::class, NoteShareEntity::class, NoteBlockCommentEntity::class],
+    version = 8,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun folderDao(): FolderDao
     abstract fun noteShareDao(): NoteShareDao
+    abstract fun noteBlockCommentDao(): NoteBlockCommentDao
     companion object {
         @Volatile
         private var instance: AppDatabase? = null

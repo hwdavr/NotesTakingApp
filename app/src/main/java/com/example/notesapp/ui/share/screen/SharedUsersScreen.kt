@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.share.screen
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +52,7 @@ import com.example.notesapp.R
 import com.example.notesapp.ui.share.model.AccessRole
 import com.example.notesapp.ui.share.model.SharedUserUiModel
 import com.example.notesapp.ui.share.viewmodel.SharedUsersViewModel
+import com.example.notesapp.ui.theme.AppColors
 import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 
@@ -314,33 +317,45 @@ private fun SharedUserRow(user: SharedUserUiModel) {
 @Composable
 private fun AccessRolePill(role: AccessRole) {
     val colors = LocalAppColors.current
-    val backgroundColor = when (role) {
-        AccessRole.OWNER -> colors.roleOwnerBg
-        AccessRole.EDITOR -> colors.roleEditorBg
-        AccessRole.VIEWER -> colors.roleViewerBg
-    }
-    val textColor = when (role) {
-        AccessRole.OWNER -> colors.roleOwnerText
-        AccessRole.EDITOR -> colors.roleEditorText
-        AccessRole.VIEWER -> colors.roleViewerText
-    }
-    val textRes = when (role) {
-        AccessRole.OWNER -> R.string.shared_users_role_owner
-        AccessRole.EDITOR -> R.string.shared_users_role_full_access
-        AccessRole.VIEWER -> R.string.shared_users_role_read_only
-    }
+    val style = role.toPillStyle(colors)
     Surface(
-        color = backgroundColor,
+        color = style.backgroundColor,
         shape = RoundedCornerShape(12.dp)
     ) {
         Text(
-            text = stringResource(textRes),
-            color = textColor,
+            text = stringResource(style.textRes),
+            color = style.textColor,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
         )
     }
+}
+
+private data class AccessRolePillStyle(
+    val backgroundColor: Color,
+    val textColor: Color,
+    @StringRes val textRes: Int
+)
+
+private fun AccessRole.toPillStyle(colors: AppColors): AccessRolePillStyle = when (this) {
+    AccessRole.OWNER -> AccessRolePillStyle(
+        backgroundColor = colors.roleOwnerBg,
+        textColor = colors.roleOwnerText,
+        textRes = R.string.shared_users_role_owner
+    )
+
+    AccessRole.EDITOR -> AccessRolePillStyle(
+        backgroundColor = colors.roleEditorBg,
+        textColor = colors.roleEditorText,
+        textRes = R.string.shared_users_role_full_access
+    )
+
+    AccessRole.VIEWER -> AccessRolePillStyle(
+        backgroundColor = colors.roleViewerBg,
+        textColor = colors.roleViewerText,
+        textRes = R.string.shared_users_role_read_only
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

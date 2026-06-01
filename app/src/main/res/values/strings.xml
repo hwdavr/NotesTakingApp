@@ -137,4 +137,9 @@
     <string name="export_button">Export</string>
     <string name="export_success">Note exported successfully!</string>
     <string name="export_error">Failed to export note.</string>
+    <string name="mention_badge_you">You</string>
+    <string name="mention_badge_guest">Guest</string>
+    <string name="discussion_title">Discussion</string>
+    <string name="discussion_icon_schedule_description">Schedule Suggestion</string>
+    <string name="discussion_icon_note_description">Note Suggestion</string>
 </resources>

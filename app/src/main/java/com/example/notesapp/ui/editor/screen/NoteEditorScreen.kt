@@ -45,6 +45,7 @@ import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.ModeComment
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TableChart
@@ -104,8 +105,11 @@ import com.example.notesapp.R
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
+import com.example.notesapp.ui.editor.components.DiscussionBottomSheet
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.theme.LocalAppColors
@@ -147,7 +151,12 @@ fun NoteEditorScreen(
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
         onSelectionChange = viewModel::updateSelection,
-        onDeleteBlock = viewModel::deleteBlock
+        onDeleteBlock = viewModel::deleteBlock,
+        onShowComments = { viewModel.setDiscussionSheetVisible(true) },
+        onHideComments = { viewModel.setDiscussionSheetVisible(false) },
+        onCommentTextChange = viewModel::onCommentTextChange,
+        onSendComment = viewModel::sendComment,
+        onMentionSelect = viewModel::applyMentionCompletion
     )
 }
 
@@ -177,7 +186,12 @@ fun NoteEditorScreenContent(
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
-    onDeleteBlock: (String) -> Unit
+    onDeleteBlock: (String) -> Unit,
+    onShowComments: () -> Unit = {},
+    onHideComments: () -> Unit = {},
+    onCommentTextChange: (String) -> Unit = {},
+    onSendComment: () -> Unit = {},
+    onMentionSelect: (String) -> Unit = {}
 ) {
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
@@ -345,9 +359,32 @@ fun NoteEditorScreenContent(
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
-                onToggleFormattingToolbar = onToggleFormattingToolbar
+                onToggleFormattingToolbar = onToggleFormattingToolbar,
+                onShowComments = onShowComments
             )
         }
+
+        val activeTextBlockText = state.document.blocks
+            .filterIsInstance<EditorBlock.TextBlock>()
+            .find { it.id == activeTextBlockId }
+            ?.text() ?: ""
+
+        DiscussionBottomSheet(
+            isVisible = state.isDiscussionSheetVisible,
+            comments = state.comments,
+            focusedBlockText = activeTextBlockText,
+            commentText = state.activeBlockCommentText,
+            onCommentTextChange = onCommentTextChange,
+            onSendComment = onSendComment,
+            onDismiss = onHideComments,
+            isMentionSuggestionsVisible = state.isMentionSuggestionsVisible,
+            mentionDates = state.mentionDates,
+            mentionUsers = state.mentionUsers,
+            mentionNotes = state.mentionNotes,
+            isMentionFooterVisible = state.isMentionFooterVisible,
+            mentionFooterText = state.mentionFooterText,
+            onMentionSelect = onMentionSelect
+        )
         if (showNoteActionsSheet) {
             val currentNote =
                 Note(
@@ -861,7 +898,8 @@ private fun EditorBottomBar(
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
-    onToggleFormattingToolbar: () -> Unit
+    onToggleFormattingToolbar: () -> Unit,
+    onShowComments: () -> Unit
 ) {
     if (!isEditable) return
     if (isFormattingToolbarVisible) {
@@ -875,7 +913,8 @@ private fun EditorBottomBar(
             onToggleFormattingToolbar = onToggleFormattingToolbar,
             onAddParagraph = onAddParagraph,
             onAddImage = onAddImage,
-            onAddTable = onAddTable
+            onAddTable = onAddTable,
+            onShowComments = onShowComments
         )
     }
 }
@@ -885,7 +924,8 @@ private fun DefaultBottomBar(
     onToggleFormattingToolbar: () -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
-    onAddTable: () -> Unit
+    onAddTable: () -> Unit,
+    onShowComments: () -> Unit
 ) {
     val colors = LocalAppColors.current
     LazyRow(
@@ -918,6 +958,18 @@ private fun DefaultBottomBar(
                     color = colors.primary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        item {
+            EditorBarButton(
+                onClick = onShowComments,
+                modifier = Modifier.testTag("editor_comment_button")
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ModeComment,
+                    contentDescription = null,
+                    tint = colors.primary
                 )
             }
         }

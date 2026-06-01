@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.R
 import com.example.notesapp.domain.share.NoteShareAccessRole
+import com.example.notesapp.domain.share.NoteShareException
 import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.ui.share.model.isValidInviteEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +17,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.example.notesapp.domain.share.NoteShareException
-
 
 data class ShareInviteUiState(
     val noteId: String = "",

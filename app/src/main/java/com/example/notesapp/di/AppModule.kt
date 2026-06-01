@@ -4,19 +4,23 @@ import android.content.Context
 import com.example.notesapp.BuildConfig
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
+import com.example.notesapp.data.local.NoteBlockCommentDao
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.local.NoteShareDao
 import com.example.notesapp.data.remote.AuthInterceptor
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.repository.FolderRepositoryImpl
+import com.example.notesapp.data.repository.NoteCommentRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
+import com.example.notesapp.domain.comment.repository.NoteCommentRepository
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.util.NoteExporter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import java.time.Clock
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -43,6 +47,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNoteCommentRepository(impl: NoteCommentRepositoryImpl): NoteCommentRepository
     companion object {
         @Provides
         @Singleton
@@ -56,6 +64,9 @@ abstract class AppModule {
 
         @Provides
         fun provideNoteShareDao(database: AppDatabase): NoteShareDao = database.noteShareDao()
+
+        @Provides
+        fun provideNoteBlockCommentDao(database: AppDatabase): NoteBlockCommentDao = database.noteBlockCommentDao()
 
         @Provides
         @Singleton
@@ -89,6 +100,10 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideNotesApiService(retrofit: Retrofit): NotesApiService = retrofit.create(NotesApiService::class.java)
+
+        @Provides
+        @Singleton
+        fun provideClock(): Clock = Clock.systemDefaultZone()
 
         @Provides
         @Singleton

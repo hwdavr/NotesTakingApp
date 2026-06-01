@@ -1,10 +1,14 @@
 package com.example.notesapp.ui.editor.viewmodel
 
+import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.base.BaseViewModelTest
+import com.example.notesapp.domain.comment.model.NoteBlockComment
+import com.example.notesapp.domain.comment.repository.NoteCommentRepository
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.text
 import io.mockk.coEvery
@@ -12,6 +16,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -26,6 +31,9 @@ import org.junit.Test
 class NoteEditorViewModelTest : BaseViewModelTest() {
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private val folderRepository: FolderRepository = mockk(relaxed = true)
+    private val commentRepository: NoteCommentRepository = mockk(relaxed = true)
+    private val noteShareRepository: NoteShareRepository = mockk(relaxed = true)
+    private val authManager: AuthManager = mockk(relaxed = true)
     private lateinit var viewModel: NoteEditorViewModel
     private val testNote = Note(
         id = "n1",
@@ -52,9 +60,19 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Before
     fun setup() {
         every { folderRepository.getFolders() } returns flowOf(emptyList())
+        every { commentRepository.observeComments(any(), any()) } returns flowOf(emptyList())
+        every { noteShareRepository.observeNoteShares(any()) } returns flowOf(emptyList())
+        every { authManager.profileEmail } returns MutableStateFlow("walter@example.com")
         coEvery { noteRepository.getNoteById("n1") } returns testNote
         coEvery { noteRepository.getNoteById("readonly") } returns readOnlyNote
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository)
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            commentRepository,
+            noteShareRepository,
+            authManager,
+            java.time.Clock.systemDefaultZone()
+        )
     }
 
     @Test
@@ -129,7 +147,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `addImageBlock adds image block and saves structured json`() = runTest {
         viewModel.load("n1")
-        viewModel.addImageBlock()
+        viewModel.addBlock(EditorBlock.ImageBlock())
         val imageBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.ImageBlock>().first()
         viewModel.updateImageBlock(imageBlock.id, url = "https://cdn.example.com/image.png", caption = "My image")
         viewModel.save {}
@@ -163,7 +181,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `addTableBlock updates table cell and saves structured json`() = runTest {
         viewModel.load("n1")
-        viewModel.addTableBlock()
+        viewModel.addBlock(EditorBlock.TableBlock())
         val tableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
         viewModel.updateTableCell(tableBlock.id, rowIndex = 1, cellIndex = 0, value = "Alice")
         viewModel.save {}
@@ -185,7 +203,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `updateTableCell strips newlines`() = runTest {
         viewModel.load("n1")
-        viewModel.addTableBlock()
+        viewModel.addBlock(EditorBlock.TableBlock())
         val tableBlock = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TableBlock>().first()
         viewModel.updateTableCell(tableBlock.id, rowIndex = 1, cellIndex = 0, value = "Alice\nBob")
         val updatedTableBlock = viewModel.uiState.value.document.blocks
@@ -252,7 +270,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `deleteBlock removes block and updates focus`() = runTest {
         viewModel.load("n1")
-        viewModel.addParagraphBlock() // Now we have 2 blocks
+        viewModel.addBlock(EditorBlock.TextBlock(children = listOf(RichText("")))) // Now we have 2 blocks
         val blocks = viewModel.uiState.value.document.blocks
         assertEquals(2, blocks.size)
 
@@ -317,9 +335,9 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.onContentChange("Changed content")
         viewModel.onFolderSelected("f2")
         viewModel.toggleFavorite()
-        viewModel.addParagraphBlock()
-        viewModel.addImageBlock()
-        viewModel.addTableBlock()
+        viewModel.addBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
+        viewModel.addBlock(EditorBlock.ImageBlock())
+        viewModel.addBlock(EditorBlock.TableBlock())
         val blockId = viewModel.uiState.value.document.blocks.first().id
         viewModel.onTextBlockChange(blockId, "Edited")
         viewModel.toggleBlockMark(blockId, "bold")
@@ -375,5 +393,63 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
 
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         assertEquals("Bold Text", updatedBlock.text())
+    }
+
+    @Test
+    fun `showDiscussionSheet starts observing comments and updates visibility`() = runTest {
+        viewModel.load("n1")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        viewModel.setFocusedBlock(block.id)
+
+        val dummyComment = NoteBlockComment(
+            id = "c1",
+            noteId = "n1",
+            blockId = block.id,
+            authorUserId = "u1",
+            authorDisplayName = "Walter",
+            authorEmail = "walter@example.com",
+            body = "This is a block comment",
+            createdAt = 1000L,
+            updatedAt = 1000L
+        )
+        every { commentRepository.observeComments("n1", block.id) } returns flowOf(listOf(dummyComment))
+
+        viewModel.setDiscussionSheetVisible(true)
+
+        assertTrue(viewModel.uiState.value.isDiscussionSheetVisible)
+        coVerify { commentRepository.refreshComments("n1", block.id) }
+        advanceUntilIdle()
+        assertEquals(1, viewModel.uiState.value.comments.size)
+        assertEquals("This is a block comment", viewModel.uiState.value.comments[0].body)
+    }
+
+    @Test
+    fun `hideDiscussionSheet hides sheet and resets states`() = runTest {
+        viewModel.load("n1")
+        viewModel.setDiscussionSheetVisible(true)
+        assertTrue(viewModel.uiState.value.isDiscussionSheetVisible)
+
+        viewModel.setDiscussionSheetVisible(false)
+        assertTrue(!viewModel.uiState.value.isDiscussionSheetVisible)
+    }
+
+    @Test
+    fun `onCommentTextChange updates active comment body`() = runTest {
+        viewModel.onCommentTextChange("Typing a reply")
+        assertEquals("Typing a reply", viewModel.uiState.value.activeBlockCommentText)
+    }
+
+    @Test
+    fun `sendComment invokes addComment and resets text input`() = runTest {
+        viewModel.load("n1")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        viewModel.setFocusedBlock(block.id)
+        viewModel.onCommentTextChange("New Comment")
+
+        viewModel.sendComment()
+        advanceUntilIdle()
+
+        coVerify { commentRepository.addComment("n1", block.id, "New Comment") }
+        assertEquals("", viewModel.uiState.value.activeBlockCommentText)
     }
 }
