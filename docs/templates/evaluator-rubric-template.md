@@ -10,6 +10,7 @@ Use this rubric after implementation and before final acceptance.
 | Reliability | Does the result survive restart or rerun without repair? |  |  |
 | Maintainability | Is the code and documentation clear enough for the next session? |  |  |
 | Handoff readiness | Can a fresh session continue work from repo artifacts only? |  |  |
+| Code & Test Review | Do the code quality checks (Ktlint, Detekt, Lint) and comprehensive test reviews pass? |  |  |
 
 ### Overall: 5.0 / 5
 
