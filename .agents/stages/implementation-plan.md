@@ -13,7 +13,7 @@ This is the final gate before implementation begins.
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
 - `docs/templates/test-plan-template.md`
-- `request_analysis/spec_t<taskId>.md` (Requirement, Impact & Design Analysis stage output)
+- `request_analysis/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -49,9 +49,9 @@ The test plan must include:
 
 ## Output
 
-Write `coding/implementation_plan_t<taskId>.md` (follow `docs/templates/implementation-plan-template.md`) (e.g. `implementation_plan_t1.md` for Task 1).
-Write `coding/test_plan_t<taskId>.md` (follow `docs/templates/test-plan-template.md`) (e.g. `test_plan_t1.md` for Task 1).
-Update `summary_t<taskId>.md`: mark the Implementation Plan stage complete.
+Write `coding/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`) (e.g. `implementation_plan_t1.md` for Task 1).
+Write `coding/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`) (e.g. `test_plan_t1.md` for Task 1).
+Update `summary_adhoc.md`: mark the Implementation Plan stage complete.
 
 ---
 
@@ -61,7 +61,7 @@ Update `summary_t<taskId>.md`: mark the Implementation Plan stage complete.
 
 ### Feedback Loop
 1. **Feedback**: The user provides feedback via chat, file comments, or direct edits to the plan.
-2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_t<taskId>.md` and request approval again.
+2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_adhoc.md` and request approval again.
 3. **Approval**: The agent returns to the active workflow file and proceeds to the next stage defined there.
 
 Do not write any code, create any source files, or call any file-editing tools until the user explicitly approves.

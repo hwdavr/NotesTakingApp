@@ -10,7 +10,7 @@ The domain layer must remain platform-independent.
 
 ## Load
 - `rules/android-architecture.md`
-- `coding/implementation_plan_t<taskId>.md` (Implementation Plan stage output)
+- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
 
 ---
 
@@ -43,7 +43,7 @@ The domain layer must remain platform-independent.
 
 ## Output
 
-Update `coding/coding_report_t<taskId>_v<N>.md` with a Domain Layer section (e.g. `coding_report_t1_v1.md` for Task 1):
+Update `coding/coding_report_adhoc_v<N>.md` with a Domain Layer section (e.g. `coding_report_t1_v1.md` for Task 1):
 ```
 ## Domain Layer Changes
 
@@ -58,7 +58,7 @@ Update `coding/coding_report_t<taskId>_v<N>.md` with a Domain Layer section (e.g
 <list repository interface changes>
 ```
 
-Update `summary_t<taskId>.md`: mark the Domain Layer stage complete.
+Update `summary_adhoc.md`: mark the Domain Layer stage complete.
 
 ---
 
