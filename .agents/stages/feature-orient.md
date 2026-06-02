@@ -44,7 +44,7 @@ Before making any changes or planning code, gather complete session and git cont
 ## Key Decisions
 <major decisions made during this change>
 
-## Files Changed
+## Files Changed`
 <summary list of files created, modified, or deleted>
 
 ## Knowledge Artifacts

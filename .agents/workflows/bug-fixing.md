@@ -79,19 +79,21 @@ Gate: tests pass, coverage targets met
 
 ---
 
-### Stage 6 — Code + Test Review ⛔ STOP
+### Stage 6 — Code Quality Fix ⛔ STOP
+Load: `stages/code-quality-fix.md`
 
-Run the `/review-and-fix` workflow in full (Code Review → Test Review).
+Run the code-quality-fix stage to verify complete baseline correctness.
 
-For bug fixes, the Test Review stage must additionally verify:
+For bug fixes, additionally verify:
 - Any `@Ignore` annotation added in the Bug Reproduction stage has been removed
 - The reproduction test is GREEN after the fix
 - No regressions in the full suite
 - The minimal-fix constraint: no unrelated changes slipped in
 
-Output: `docs/changes/<name>/coding/review/code_review_t<taskId>_v<N>.md`, `test_review_t<taskId>_v<N>.md`
-Gate: build passes, static analysis passes, architecture rules followed, reproduction test GREEN, no regressions
-**⛔ STOP — present both review reports to user. Do not proceed to Knowledge Capture until user explicitly approves.**
+Gate:
+- All conditions in `stages/code-quality-fix.md` pass
+- The reproduction test is GREEN after the fix
+- **⛔ STOP — present results to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ---
 

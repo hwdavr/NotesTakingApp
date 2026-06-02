@@ -60,20 +60,9 @@ Load and execute **`stages/testing.md`** to verify the correctness of the implem
 *   **Objective**: All local tests pass cleanly, coverage targets are fully met, and verification evidence is documented in the summary.
 
 
-### Stage 7 — Fix
-Run all static check suites, lint rules, and custom compliance rules. Resolve and fix all reported violations before proceeding.
-*   **Action**:
-    1. Execute the following set of checks to verify complete quality baseline correctness:
-        ```bash
-        ./gradlew assembleDebug
-        ./gradlew ktlintCheck
-        ./gradlew detekt
-        ./gradlew lintDebug
-        bash scripts/check-compose-rules.sh
-        bash scripts/check-localization-rules.sh
-        bash scripts/check-architecture-rules.sh
-        ```
-    2. **Update `summary_{feature_id}.md`** to mark the **Fix** stage status to completed (✅) once all style checks pass with 0 violations.
+### Stage 7 — Code Quality Fix
+Load and execute **`stages/code-quality-fix.md`** to run all static check suites, lint rules, and custom compliance rules, and resolve all violations.
+*   **Action**: Load and execute **`stages/code-quality-fix.md`**.
 *   **Objective**: Diagnose and resolve all formatting, quality, localization, and architectural style guidelines issues, logging check success in `summary_{feature_id}.md`.
 
 ### Stage 8 — Update State

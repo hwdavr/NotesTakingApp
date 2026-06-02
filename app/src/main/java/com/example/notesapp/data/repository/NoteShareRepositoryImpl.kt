@@ -6,14 +6,13 @@ import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.UpdateNoteShareRequest
 import com.example.notesapp.domain.share.NoteShare
 import com.example.notesapp.domain.share.NoteShareAccessRole
+import com.example.notesapp.domain.share.NoteShareException
 import com.example.notesapp.domain.share.NoteShareRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
-import com.example.notesapp.domain.share.NoteShareException
-
 
 @Singleton
 class NoteShareRepositoryImpl @Inject constructor(
