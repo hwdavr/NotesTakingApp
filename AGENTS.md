@@ -92,7 +92,7 @@ Existing skills — load the SKILL.md from the relevant folder:
 
 ---
 ## Build Commands
-This project runs in WSL. Ensure the correct WSL environment before running Gradle.
+Run Gradle commands from the project root.
 
 ```bash
 ./gradlew assembleDebug              # build check

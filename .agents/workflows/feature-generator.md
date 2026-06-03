@@ -93,8 +93,8 @@ Ensure that the final repository state is clean, verified, and fully prepared fo
 
 > [!IMPORTANT]
 > **Checklist & Handoff Policy**:
-> 1. **Run Clean State Checklist**: Execute and verify every single item in the **[`clean-state-checklist-template.md`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/docs/templates/clean-state-checklist-template.md)**. All checklist checks (Build, Architecture, Runtime, Testing, Observability, Cleanliness, Documentation) **MUST** pass before making the final session commits.
-> 2. **Produce Session Handoff**: Create or update the **`docs/current/session-handoff.md`** file by strictly following the format and fields defined in **[`session-handoff-template.md`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/docs/templates/session-handoff-template.md)**. Detail what is working, what changed, unverified paths, risks, and next steps.
+> 1. **Run Clean State Checklist**: Execute and verify every single item in the **[`clean-state-checklist-template.md`](../../docs/templates/clean-state-checklist-template.md)**. All checklist checks (Build, Architecture, Runtime, Testing, Observability, Cleanliness, Documentation) **MUST** pass before making the final session commits.
+> 2. **Produce Session Handoff**: Create or update the **`docs/current/session-handoff.md`** file by strictly following the format and fields defined in **[`session-handoff-template.md`](../../docs/templates/session-handoff-template.md)**. Detail what is working, what changed, unverified paths, risks, and next steps.
 > 3. **Commit Handoff Artifacts**: Once the checklist passes and the handoff file is written, commit these files to register the successful session exit:
 >    ```bash
 >    git add docs/current/session-handoff.md

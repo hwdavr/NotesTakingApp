@@ -1,12 +1,12 @@
 # Architecture Rules — Enforcement Matrix
 
-Rules from [`android-architecture.md`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/.agents/rules/android-architecture.md), categorised by how each is enforced.
+Rules from [`android-architecture.md`](../../.agents/rules/android-architecture.md), categorised by how each is enforced.
 
 **Legend**
 
 | Badge | Meaning |
 |---|---|
-| 🤖 **Scripted** | [`check-architecture-rules.sh`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/scripts/check-architecture-rules.sh) detects this automatically on every CI run |
+| 🤖 **Scripted** | [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) detects this automatically on every CI run |
 | 🧠 **Evaluator** | AI code review can reliably identify this — pattern recognition, semantic understanding |
 | 👁️ **Human** | Requires design judgement, visual inspection, or context that neither script nor AI can fully substitute |
 
@@ -140,7 +140,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 ## Script Coverage Map
 
-The [`check-architecture-rules.sh`](file:///mnt/data/Projects/NotesApp/NotesTakingApp/scripts/check-architecture-rules.sh) script currently covers:
+The [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) script currently covers:
 
 | Script Section | Rules Covered |
 |---|---|

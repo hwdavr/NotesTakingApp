@@ -70,8 +70,3 @@ bash scripts/check-compose-rules.sh
 ```
 Run when the change modifies Composable screens or navigation.
 
----
-
-## Environment Note
-
-This project runs in WSL. Ensure the WSL terminal has the correct environment set before running Gradle commands.
