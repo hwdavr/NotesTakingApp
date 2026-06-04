@@ -11,7 +11,7 @@ Implement in small, working slices. Verify the build passes before proceeding.
 ## Load
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
-- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
 
 ---
 

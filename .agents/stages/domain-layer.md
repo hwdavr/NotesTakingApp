@@ -10,7 +10,7 @@ The domain layer must remain platform-independent.
 
 ## Load
 - `rules/android-architecture.md`
-- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
 
 ---
 

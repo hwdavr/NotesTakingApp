@@ -12,9 +12,9 @@ Use this workflow when you are acting as the **Generator** (Implementer) agent. 
 ## 🔄 Stage Execution Pipeline
 
 ### Stage 1 — Orient
-Before making any changes or planning code, gather complete session and git context.
+Before making any changes or planning code, gather complete session and git context. Select the next task to implement.
 *   **Action**: Load and execute **`stages/feature-orient.md`**.
-*   **Objective**: Reconstruct exactly what was done in the previous session, establish the single source of truth (`summary_{feature_id}.md`), and identify the current active feature context.
+*   **Objective**: Reconstruct exactly what was done in the previous session, establish the single source of truth (`summary_{feature_id}.md`), identify the current active feature context, and select the next task from `docs/current/feature_list.json`.
 
 ### Stage 2 — Setup
 Verify target emulator/device runtime environment readiness.
@@ -37,35 +37,26 @@ Ensure that the existing codebase compiles and all tests pass before making any 
     2. **Update `summary_{feature_id}.md`** to mark the **Verify Baseline** stage status to completed (✅) with notes and current timestamp.
 *   **Objective**: Confirm the repository is in a perfectly stable, compilable, and green state. If the baseline is broken, stop and fix existing regressions first! Register status in `summary_{feature_id}.md`.
 
-### Stage 4 — Select One Task
-Focus on a single, isolated slice to avoid scope creep and cognitive overload.
-*   **Action**:
-    1. Review the prioritized list in `docs/current/feature_list.json` and pick the highest-priority incomplete item (status `not_started`).
-    2. Update the feature status to `in_progress` in the JSON file. Do not work on multiple features in parallel.
-    3. **Update `summary_{feature_id}.md`** to mark the **Select One Task** stage status to completed (✅), and set the active slice/feature under development.
-*   **Objective**: Ensure the team works on exactly one prioritized slice at a time, documenting it clearly in task logs and the summary.
-
-### Stage 5 — Implement
+### Stage 4 — Implement
 Load and execute **`stages/implementation.md`** to build out the selected feature across the necessary layers.
 *   **Action**:
     1. Load the implementation stage and perform surgical coding using your *Generator* standards (Data, Domain, and UI layers).
     2. **Update `summary_{feature_id}.md`** to mark the **Implement** stage status to completed (✅) with list of created/modified files.
 *   **Objective**: All layers successfully implemented, `./gradlew assembleDebug` compiles cleanly, and progress is logged in the summary.
 
-### Stage 6 — Test
+### Stage 5 — Test
 Load and execute **`stages/testing.md`** to verify the correctness of the implemented behavior visually and logically.
 *   **Action**:
     1. Load the testing stage and implement matching unit, integration, and UI test suites. Verify through the actual UI/API and meet code coverage targets (overall project **≥ 80%**, ViewModel & Use Case **≥ 90%**).
     2. **Update `summary_{feature_id}.md`** to mark the **Test** stage status to completed (✅) detailing coverage percentages and passed test counts.
 *   **Objective**: All local tests pass cleanly, coverage targets are fully met, and verification evidence is documented in the summary.
 
-
-### Stage 7 — Code Quality Fix
+### Stage 6 — Code Quality Fix
 Load and execute **`stages/code-quality-fix.md`** to run all static check suites, lint rules, and custom compliance rules, and resolve all violations.
 *   **Action**: Load and execute **`stages/code-quality-fix.md`**.
 *   **Objective**: Diagnose and resolve all formatting, quality, localization, and architectural style guidelines issues, logging check success in `summary_{feature_id}.md`.
 
-### Stage 8 — Update State
+### Stage 7 — Update State
 Update repository history and project task logs to reflect completion.
 
 > [!IMPORTANT]
@@ -88,7 +79,7 @@ Update repository history and project task logs to reflect completion.
     2. **Update `summary_{feature_id}.md`** to mark the **Update State** stage status to completed (✅), logging the commit hash and verification execution outcome.
 *   **Objective**: Ensure all state updates are backed by mechanical, verifiable evidence.
 
-### Stage 9 — Clean Exit
+### Stage 8 — Clean Exit
 Ensure that the final repository state is clean, verified, and fully prepared for the next developer or agent session.
 
 > [!IMPORTANT]

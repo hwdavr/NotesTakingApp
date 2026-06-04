@@ -20,8 +20,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
 - `rules/observability.md`
-- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
-- `request_analysis/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
+- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `docs/current/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -122,27 +122,6 @@ Implement in this order.
 ---
 
 ## Output
-
-Produce `coding/coding_report_{feature_id}>_v<N>.md` (e.g. `coding_report_comment001_v1.md` for feature comment001):
-```
-## Coding Report — {feature_id} — v<N>
-
-### Files Changed
-| File | Layer | Action | Notes |
-|------|-------|--------|-------|
-
-### Key Decisions
-<any non-obvious implementation choices>
-
-### UiState Implemented
-<confirm loading / success / empty / error coverage>
-
-### testTags Added
-<list key testTag values>
-
-### Known Gaps
-<anything intentionally deferred>
-```
 
 Update `summary_{feature_id}.md`: mark the Implementation (Data + Domain + UI) stage complete.
 

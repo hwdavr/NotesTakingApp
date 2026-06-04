@@ -13,8 +13,8 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
-- `request_analysis/spec_adhoc.md` — UiState design from the Requirement, Impact & Design Analysis stage
+- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `docs/current/spec_adhoc.md` — UiState design from the Requirement, Impact & Design Analysis stage
 
 ---
 

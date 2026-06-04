@@ -13,7 +13,7 @@ This is the final gate before implementation begins.
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
 - `docs/templates/test-plan-template.md`
-- `request_analysis/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
+- `docs/current/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -49,8 +49,8 @@ The test plan must include:
 
 ## Output
 
-Write `coding/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`).
-Write `coding/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`).
+Write `docs/current/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`).
+Write `docs/current/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`).
 Update `summary_adhoc.md`: mark the Implementation Plan stage complete.
 
 ---

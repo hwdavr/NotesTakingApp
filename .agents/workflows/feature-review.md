@@ -29,9 +29,9 @@ Read all four baseline documents produced by the `/feature-delivery` workflow be
 
 | Document | Location | What to extract |
 |---|---|---|
-| `spec_adhoc.md` | `docs/changes/<name>/request_analysis/` | Acceptance Criteria · Scope · Exclusions |
-| `implementation_plan_adhoc.md` | `docs/changes/<name>/coding/` | Approved architecture · layer breakdown · file list |
-| `test_plan_adhoc.md` | `docs/changes/<name>/coding/` | Approved test strategy · scenarios · coverage targets |
+| `spec_adhoc.md` | `docs/current/` | Acceptance Criteria · Scope · Exclusions |
+| `implementation_plan_adhoc.md` | `docs/current/` | Approved architecture · layer breakdown · file list |
+| `test_plan_adhoc.md` | `docs/current/` | Approved test strategy · scenarios · coverage targets |
 
 > [!IMPORTANT]
 > If any of these files are missing, **immediately flag it as a blocking gap** in the Stage 5 rubric (`Handoff readiness` category). Do not silently skip a missing baseline — absent plans mean the review has no ground truth to compare against.
@@ -43,9 +43,7 @@ After reading, summarise the key constraints and open decisions you will verify 
 ### Stage 2: Code Review
 Load and execute `stages/code-review.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
-**Output**:
-- Code review report: `docs/changes/<name>/coding/review/code_review_t<taskId>_v<N>.md`
-- If no change directory exists: `code_review_adhoc.md` in the project root
+- Code review report: `docs/current/code_review_adhoc.md`
 
 ---
 
@@ -53,8 +51,7 @@ Load and execute `stages/code-review.md` in full to perform static analysis and 
 Load and execute `stages/test-review.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
 
 **Output**:
-- Test review report: `docs/changes/<name>/coding/review/test_review_t<taskId>_v<N>.md`
-- If no change directory exists: `test_review_adhoc.md` in the project root
+- Test review report: `docs/current/test_review_adhoc.md`
 
 ---
 

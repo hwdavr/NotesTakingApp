@@ -34,7 +34,7 @@ Adapt for bugs:
 - Root cause statement (triggered when <cond>, causing <behavior>)
 - Design the fix (UiState changes if needed)
 
-Output: `docs/changes/<name>/request_analysis/spec_adhoc.md`, `summary_adhoc.md` (with bug context, fault area, and root cause)
+Output: `docs/current/spec_adhoc.md`, `docs/current/summary_adhoc.md` (with bug context, fault area, and root cause)
 Gate: root cause is specific enough that a reproduction test can be written
 
 ---
@@ -58,7 +58,7 @@ Adapt — the plan must include:
 - Proposed fix (minimal)
 - Which `@Ignore` annotation to remove once the fix is applied
 
-Output: `docs/changes/<name>/coding/implementation_plan_adhoc.md`
+Output: `docs/current/implementation_plan_adhoc.md`
 Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---
@@ -74,7 +74,7 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied
 ### Stage 5 — Testing
 Load: `stages/testing.md`
 
-Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_adhoc_v<N>.md`
+Output: Unit tests, integration tests, shared JSON scenarios.
 Gate: tests pass, coverage targets met
 
 ---

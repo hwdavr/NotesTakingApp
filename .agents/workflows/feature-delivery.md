@@ -31,22 +31,22 @@ Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implemen
 
 ### Stage 1 — Requirement, Impact & Design Analysis
 Load: `stages/requirement-analysis.md`
-Output: `docs/changes/<name>/request_analysis/spec_adhoc.md`, `summary_adhoc.md`
+Output: `docs/current/spec_adhoc.md`, `docs/current/summary_adhoc.md`
 Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
 
 ### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/changes/<name>/coding/implementation_plan_adhoc.md`, `coding/test_plan_adhoc.md`
+Output: `docs/current/implementation_plan_adhoc.md`, `docs/current/test_plan_adhoc.md`
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
 ### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
-Output: All source files across Data, Domain, and UI layers. `coding/coding_report_adhoc.md`
+Output: All source files across Data, Domain, and UI layers.
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
 ### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_adhoc.md`
+Output: Unit tests, integration tests, shared JSON scenarios.
 Gate: tests pass, coverage targets met
 
 ### Stage 5 — Code + Test Review ⛔ STOP

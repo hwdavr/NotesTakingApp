@@ -15,7 +15,7 @@ The article principle: write the failing test *before* touching the application 
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `coding/test_plan_adhoc.md` — test plan section
+- `docs/current/test_plan_adhoc.md` — test plan section
 
 ---
 
@@ -92,27 +92,6 @@ Record every result number in the output report below. Do not summarize — copy
 New or updated test files.
 New or updated shared JSON scenarios in `sharedContracts/test-scenarios/`.
 
-Produce `unit_test/test_report_t<taskId>_v<N>.md` (e.g. `test_report_t1_v1.md` for Task 1):
-```
-## Test Report — v<N>
-
-### Test Layers Used
-- Unit: <class names>
-- Integration: <class names>
-- Instrumented UI: <class names> or SKIPPED
-
-### Shared JSON Scenarios
-- <scenario file> — <endpoint> — <covers: success / 4xx / 5xx / malformed>
-
-### Coverage (verbatim from koverLog output)
-- Overall: X%
-- New classes: X%
-
-### Test Results (verbatim from Gradle output)
-- Unit + Integration: <N passed / N total>
-- Instrumented: <N passed / N total> or SKIPPED
-```
-
 Update `summary_t<taskId>.md`: mark the Testing stage complete with test count and coverage.
 
 ---
@@ -126,7 +105,6 @@ Update `summary_t<taskId>.md`: mark the Testing stage complete with test count a
 - [ ] At least one integration test per new or changed API endpoint
 - [ ] Shared JSON scenarios used — no inline mock response data in test files
 - [ ] Instrumented tests pass (if added): `./gradlew connectedDebugAndroidTest`
-- [ ] `unit_test/test_report_t<taskId>_v<N>.md` exists with coverage numbers filled in verbatim
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

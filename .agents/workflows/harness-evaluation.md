@@ -32,7 +32,7 @@ When a feature is submitted for review, execute these steps in order:
 Load and execute `stages/code-review.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
 **Output**:
-- Code review report: `docs/changes/<name>/coding/review/code_review_t<taskId>_v<N>.md`
+- Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
 - If no change directory exists: `code_review_adhoc.md` in the project root
 
 ---
@@ -41,7 +41,7 @@ Load and execute `stages/code-review.md` in full to perform static analysis and 
 Load and execute `stages/test-review.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
 
 **Output**:
-- Test review report: `docs/changes/<name>/coding/review/test_review_t<taskId>_v<N>.md`
+- Test review report: `docs/current/coding/review/test_review_t<taskId>_v<N>.md`
 - If no change directory exists: `test_review_adhoc.md` in the project root
 
 ---

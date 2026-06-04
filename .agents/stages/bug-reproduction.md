@@ -19,7 +19,7 @@ Do not implement any fix in this stage.
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `request_analysis/spec_adhoc.md` — root cause statement
+- `docs/current/spec_adhoc.md` — root cause statement
 
 ---
 
@@ -72,7 +72,7 @@ Do not advance until you have observed a RED result.
 
 The new (failing) reproduction test file, committed with `@Ignore` if needed.
 
-Append to `request_analysis/spec_adhoc.md`:
+Append to `docs/current/spec_adhoc.md`:
 
 ```
 ## Reproduction Test
