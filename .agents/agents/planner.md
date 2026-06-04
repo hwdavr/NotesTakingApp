@@ -29,7 +29,7 @@ The Planner must strictly adhere to and enforce these non-negotiable guidelines 
 ---
 ## 📋 Assigned Workflow & Stages
 
-The Planner agent is responsible for executing the **`/feature-planning`** workflow ([feature-planning.md](../workflows/feature-planning.md)), which consists of two stages:
+The Planner agent is responsible for executing the **`/harness-planning`** workflow ([harness-planning.md](../workflows/harness-planning.md)), which consists of two stages:
 
 | Stage | Process Description | Outputs Produced |
 | :--- | :--- | :--- |
@@ -42,7 +42,7 @@ The Planner agent is responsible for executing the **`/feature-planning`** workf
 
 The Planner's primary deliverables are the requirements, feature slices, and the sprint contract:
 
-1.  **`requirement-summary.md`** & **`feature_list.json`**: Generated during `/feature-planning` stage executions.
+1.  **`requirement-summary.md`** & **`feature_list.json`**: Generated during `/harness-planning` stage executions.
 2.  **`sprint-contract.md`**: Compiled by strictly following the structure defined in the **[`sprint-contract-template.md`](docs/templates/sprint-contract-template.md)**.
 
 > [!IMPORTANT]

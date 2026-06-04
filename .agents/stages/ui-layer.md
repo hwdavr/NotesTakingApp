@@ -64,7 +64,7 @@ Updated / created:
 - Navigation graph (if changed)
 - `strings.xml` (for all new copy)
 
-Update `coding/coding_report_adhoc.md` with a UI Layer section (e.g. `coding_report_t1.md` for Task 1):
+Update `coding/coding_report_adhoc.md` with a UI Layer section:
 ```
 ## UI Layer Changes
 

@@ -1,8 +1,8 @@
 ---
-description: You are a senior Android developer implementing features step-by-step using the feature-generator pipeline.
+description: You are a senior Android developer implementing features step-by-step using the harness-generator pipeline.
 ---
 
-# Workflow: Feature Generator
+# Workflow: Harness Generator
 
 ## When to use
 Use this workflow when you are acting as the **Generator** (Implementer) agent. This workflow ensures that you are properly oriented, verify safety baselines, implement features surgical-by-surgical, test continuously on runtime, and commit clean states back to the repository.

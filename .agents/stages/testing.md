@@ -15,7 +15,7 @@ The article principle: write the failing test *before* touching the application 
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `coding/implementation_plan_t<taskId>.md` — test plan section
+- `coding/test_plan_adhoc.md` — test plan section
 
 ---
 

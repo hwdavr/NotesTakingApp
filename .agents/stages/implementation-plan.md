@@ -49,8 +49,8 @@ The test plan must include:
 
 ## Output
 
-Write `coding/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`) (e.g. `implementation_plan_t1.md` for Task 1).
-Write `coding/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`) (e.g. `test_plan_t1.md` for Task 1).
+Write `coding/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`).
+Write `coding/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`).
 Update `summary_adhoc.md`: mark the Implementation Plan stage complete.
 
 ---

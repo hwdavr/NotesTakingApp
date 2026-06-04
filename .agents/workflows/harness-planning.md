@@ -1,8 +1,8 @@
 ---
-description: You are a senior Android developer planning a complex feature by breaking it into deliverable vertical slices.
+description: You are a senior Android developer planning a complex feature by breaking it into deliverable vertical slices — harness-planning workflow.
 ---
 
-# Workflow: Feature Planning
+# Workflow: Harness Planning
 
 ## When to use
 - A feature is complex enough to touch multiple areas of the codebase.

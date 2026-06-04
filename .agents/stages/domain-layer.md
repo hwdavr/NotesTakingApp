@@ -43,7 +43,7 @@ The domain layer must remain platform-independent.
 
 ## Output
 
-Update `coding/coding_report_adhoc.md` with a Domain Layer section (e.g. `coding_report_t1.md` for Task 1):
+Update `coding/coding_report_adhoc.md` with a Domain Layer section:
 ```
 ## Domain Layer Changes
 

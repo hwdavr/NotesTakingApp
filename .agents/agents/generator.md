@@ -37,7 +37,7 @@ The Generator must strictly adhere to the project's development rules:
 
 ## 📋 Assigned Workflow & Execution Policy
 
-The Generator is responsible for executing the **`/feature-generator`** workflow ([feature-generator.md](../workflows/feature-generator.md)). 
+The Generator is responsible for executing the **`/harness-generator`** workflow ([harness-generator.md](../workflows/harness-generator.md)). 
 
 The Generator must continuously loop through the pipeline to pick up and implement tasks:
 1.  **Select Task**: Read `.docs/current/feature_list.json` and pick the highest-priority item with status `"not_started"`.
@@ -48,5 +48,5 @@ The Generator must continuously loop through the pipeline to pick up and impleme
 
 ## 🔄 Agent Handshake & Lifecycle Transitions
 
-*   **Generator ➡️ Evaluator**: Once code compiles (`assembleDebug` passes) and all unit/integration tests are GREEN, the Generator hands over execution to the **Evaluator** by calling the `/review-and-fix` (or `/feature-evaluation`) workflow.
+*   **Generator ➡️ Evaluator**: Once code compiles (`assembleDebug` passes) and all unit/integration tests are GREEN, the Generator hands over execution to the **Evaluator** by calling the `/feature-review` (or `/harness-evaluation`) workflow.
 *   **Evaluator ➡️ Generator (Fix Loop)**: If the Evaluator identifies compilation errors, test regressions, formatting issues, or architectural violations, the work returns to the Generator with clear feedback for a targeted resolution.

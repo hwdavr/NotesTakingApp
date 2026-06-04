@@ -58,6 +58,6 @@ The Evaluator's primary deliverable is the final quality assessment report.
 
 ## 🔄 Agent Handshake & Lifecycle Transitions
 
-*   **Generator ➡️ Evaluator**: The Evaluator is activated when the Generator submits code for review via the `/feature-evaluation` workflow.
+*   **Generator ➡️ Evaluator**: The Evaluator is activated when the Generator submits code for review via the `/harness-evaluation` workflow.
 *   **Evaluator ➡️ Generator (Rejection/Re-Review)**: If Critical or Required findings are found during Stage 2 (Code Review) or Stage 3 (Test Review), the Evaluator halts progression, delivers the finding reports, and transitions control back to the **Generator** for remediation.
 *   **Evaluator ➡️ User (Approval)**: Once all quality metrics pass and findings are resolved, the Evaluator generates the final APPROVED reports and asks the user for permission to merge and complete the workflow.

@@ -1,17 +1,19 @@
 ---
-description: You are a senior Android developer running an independent code and test review of an existing change.
+description: You are a senior Android developer running an independent review of an existing change and fixing all findings before merge.
 ---
 
-# Workflow: Feature Evaluation
+# Workflow: Feature Review
 
 ## When to use
+
 - Use this workflow when you are acting as the **Evaluator** agent.
-- A change has been implemented and tested and is ready for review by the Generator agent.
-- You want a **second-agent review** — a different model/agent reviews code it did not write
-- Post-implementation self-review before presenting findings to the user
+- A change has been implemented by feature-delivery workflow
+- Post-implementation self-review before presenting to the user
 
 ---
-## 1. Core Operating Principles
+
+## Core Principle
+
 1. **Be Adversarial & Skeptical**: Assume the Generator agent wrote incomplete, buggy, or "happy-path-only" code. Your job is to find the cracks.
 2. **Demand Observability & Evidence**: Do not just check the source code. You must run build commands, run lint checks, run the application, and use browser testing tools (e.g., Playwright MCP) to interact with the UI like a real user.
 3. **No Subjective Approvals**: All evaluations must be scored strictly using the categories in `evaluator-rubric.md` and the binary items in `sprint-contract.md`. 
@@ -19,12 +21,22 @@ description: You are a senior Android developer running an independent code and 
 
 ---
 
-## 2. Evaluation Step-by-Step Workflow
+## Stage Execution
 When a feature is submitted for review, execute these steps in order:
 
 ### Stage 1: Read the Baselines
-- Read `sprint-contract.md` to see the agreed **Acceptance Criteria**, **Scope**, and **Exclusions**.
-- Read `feature_list.json` to verify the target feature definition and its current status.
+Read all four baseline documents produced by the `/feature-delivery` workflow before touching any source code or running any checks. These are the single source of truth the review is evaluated against.
+
+| Document | Location | What to extract |
+|---|---|---|
+| `spec_adhoc.md` | `docs/changes/<name>/request_analysis/` | Acceptance Criteria · Scope · Exclusions |
+| `implementation_plan_adhoc.md` | `docs/changes/<name>/coding/` | Approved architecture · layer breakdown · file list |
+| `test_plan_adhoc.md` | `docs/changes/<name>/coding/` | Approved test strategy · scenarios · coverage targets |
+
+> [!IMPORTANT]
+> If any of these files are missing, **immediately flag it as a blocking gap** in the Stage 5 rubric (`Handoff readiness` category). Do not silently skip a missing baseline — absent plans mean the review has no ground truth to compare against.
+
+After reading, summarise the key constraints and open decisions you will verify during Stages 2–4. Use these notes as your checklist anchor throughout the review.
 
 ---
 
@@ -85,3 +97,4 @@ The user decides whether findings are acceptable or fixes are required.
 
 1. **After Stage 5 (Quality Assessment)** — user sees all code findings, test findings, and the final evaluator rubric *(mandatory)*
 2. **Nit/Optional findings** — user decides which to accept *(optional but recommended)*
+

@@ -7,7 +7,7 @@ Implement the full change across all three layers — Data, Domain, and UI — i
 Work in small, vertically-sliced increments: implement one layer, verify the build, then proceed to the next.
 
 > This is the **compact implementation stage** used by `feature-delivery` and `bug-fixing` workflows.
-> For granular layer-by-layer control, use the individual stages `03-data-layer.md`, `04-domain-layer.md`, and `05-ui-layer.md`.
+> For granular layer-by-layer control, use the individual stages `data-layer.md`, `domain-layer.md`, and `ui-layer.md`.
 
 ---
 
@@ -20,8 +20,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
 - `rules/observability.md`
-- `coding/implementation_plan_t<taskId>.md` (Implementation Plan stage output)
-- `request_analysis/spec_t<taskId>.md` — UiState and API design from the Requirement, Impact & Design Analysis stage
+- `coding/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `request_analysis/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -123,9 +123,9 @@ Implement in this order.
 
 ## Output
 
-Produce `coding/coding_report_t<taskId>_v<N>.md` (e.g. `coding_report_t1_v1.md` for Task 1):
+Produce `coding/coding_report_{feature_id}>_v<N>.md` (e.g. `coding_report_comment001_v1.md` for feature comment001):
 ```
-## Coding Report — v<N>
+## Coding Report — {feature_id} — v<N>
 
 ### Files Changed
 | File | Layer | Action | Notes |
@@ -144,7 +144,7 @@ Produce `coding/coding_report_t<taskId>_v<N>.md` (e.g. `coding_report_t1_v1.md` 
 <anything intentionally deferred>
 ```
 
-Update `summary_t<taskId>.md`: mark the Implementation (Data + Domain + UI) stage complete.
+Update `summary_{feature_id}.md`: mark the Implementation (Data + Domain + UI) stage complete.
 
 ---
 

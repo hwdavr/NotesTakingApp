@@ -20,10 +20,6 @@ Do not write any code in this stage.
 ## Execute
 
 ### 1. Requirement & Impact Analysis
-0. **Task Pickup Check & Routing**:
-   - **If the user prompt outlines a specific, clear requirement**: Perform the analysis and execute based directly on the user's explicit requirement.
-   - **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details.
-   - The `spec_t<taskId>.md` you create/update in this stage will be dedicated specifically to the resolved target task or requirement (e.g. `spec_t1.md` for Task 1).
 1. Read the resolved requirement or picked-up task details in full (resolved in Step 0).
 2. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 3. Classify changes (`modify`, `extend`, `new`, `delete`).
@@ -45,7 +41,7 @@ Create `docs/changes/<type>-<name>-<YYYYMMDD>/` directory.
 
 If the user provides a design screenshot or mockup, save it to **`request_analysis/design/`** so it can be referenced during UI Verification.
 1c2
-Produce **`docs/changes/<name>/summary_t<taskId>.md`** — create this file **first**, before `spec_t<taskId>.md` (e.g. `summary_t1.md` for Task 1).
+Produce **`docs/changes/<name>/summary_adhoc.md`** — create this file **first**, before `spec_adhoc.md`.
 Use the template from `docs/changes/README.md`.
 The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
 
@@ -98,7 +94,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 
 Mark the first row as ✅ Complete when this stage's gate passes.
 
-Produce **`request_analysis/spec_t<taskId>.md`** (e.g. `spec_t1.md` for Task 1):
+Produce **`request_analysis/spec_adhoc.md`**:
 ```
 ## Requirement Summary
 <description>
@@ -133,8 +129,8 @@ data class ExampleUiState(...)
 ## Gate
 
 **Conditions to pass:**
-- [ ] `docs/changes/<name>/summary_t<taskId>.md` exists with the Stage Progress table filled in.
-- [ ] `request_analysis/spec_t<taskId>.md` exists with requirement, impact, and design sections filled.
+- [ ] `docs/changes/<name>/summary_adhoc.md` exists with the Stage Progress table filled in.
+- [ ] `request_analysis/spec_adhoc.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.
 - [ ] UiState design covers all visual states.
 - [ ] API change is classified.

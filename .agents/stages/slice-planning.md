@@ -19,7 +19,7 @@ For trivially small changes, skip this stage and go directly to the Implementati
 - `docs/templates/progress-template.md`
 - `docs/templates/sprint-contract-template.md`
 - **Requirement input** — read the path from the active workflow's `Input:` line:
-  - feature-planning workflow → `docs/current/requirement-summary.md`
+  - harness-planning workflow → `docs/current/requirement-summary.md`
   - Other workflows → `request_analysis/spec_t<taskId>.md`
 
 ---
@@ -79,7 +79,7 @@ Write the **progress file** following `docs/templates/progress-template.md`.
 Write the **sprint contract** following `docs/templates/sprint-contract-template.md`.
 
 Output paths are defined by the calling workflow:
-- **feature-planning workflow** → `docs/current/feature_list.json`, `docs/current/progress.md`, and `docs/current/sprint-contract.md`
+- **harness-planning workflow** → `docs/current/feature_list.json`, `docs/current/progress.md`, and `docs/current/sprint-contract.md`
 - **Other workflows** → `request_analysis/feature_list.json`, `coding/progress.md`, and `request_analysis/sprint-contract.md`
 
 Pre-populate the task list with all slices.
