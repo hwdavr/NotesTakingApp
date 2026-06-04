@@ -19,11 +19,7 @@ This workflow is for production-grade delivery — not quick prototyping.
 Do not jump directly into coding.
 **The Implementation Plan must be approved before any code is written.**
 
-**Sliced Plan Pickup & Routing**:
-- **If the user prompt outlines a specific, clear requirement**: Execute and perform analysis based directly on the user's explicit requirement.
-- **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check the task progress in `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details. Fulfill this pipeline specifically for that task.
-
-Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Testing → [Human runs /review-and-fix] → Knowledge
+Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Testing → Code Quality Fix → Knowledge
 
 ---
 
@@ -49,10 +45,10 @@ Load: `stages/testing.md`
 Output: Unit tests, integration tests, shared JSON scenarios.
 Gate: tests pass, coverage targets met
 
-### Stage 5 — Code + Test Review ⛔ STOP
-Do not run this stage yourself.
-
-**STOP — inform the user that Stage 4 (Testing) is complete and instruct them to run the `/review-and-fix` workflow to perform the code and test review. Do not proceed to Stage 6 until the user explicitly confirms that the review is done and approved.**
+### Stage 5 — Code Quality Fix
+Load: `stages/code-quality-fix.md`
+Output: All violations resolved, `summary_adhoc.md` updated.
+Gate: `ktlintCheck`, `detekt`, `lintDebug`, and all custom check scripts exit with code 0
 
 ### Stage 6 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
@@ -65,11 +61,10 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 | Failure | Return to |
 |---------|-----------|
+| Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
 | Compilation error | Implementation (Data + Domain + UI) |
 | Test failure or Coverage gap | Testing (fix implementation if needed, then re-test) |
-| Architecture/rule violation found in Review | Implementation (Data + Domain + UI) |
-| Test quality issue found in Review | Testing |
-| Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
+| Quality check violation | Code Quality Fix (fix root cause, re-run checks) |
 
 ---
 
@@ -77,5 +72,3 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 1. **After Requirement, Impact & Design Analysis** — user confirms assumptions and designs
 2. **After Implementation Plan** — user approves implementation plan *(mandatory always)*
-3. **After Testing** — agent stops and asks user to run `/review-and-fix`. Agent does NOT perform the review itself. *(mandatory always)*
-4. **After `/review-and-fix` completes** — user explicitly confirms review is approved before agent proceeds to Knowledge Capture

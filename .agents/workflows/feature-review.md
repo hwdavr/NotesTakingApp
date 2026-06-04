@@ -77,11 +77,11 @@ The Evaluator's primary deliverable is the final quality assessment report.
 >    *   **Handoff readiness**: Can work continue?
 >    *   **Code & Test Review**: Rate the outcome of static analysis (ktlint, detekt, lint), code structure, and test coverage/robustness from Stages 3 & 4.
 > 2. **Calculate Overall Score**: Formulate a comprehensive overall score summarizing quality.
-> 3. **Harness File Assessment**: Verify that every required repository harness file is present and assess its quality details:
->    *   `feature_list.json`
->    *   `progress.md`
->    *   `session-handoff.md`
->    *   `clean-state-checklist.md`
+> 3. **File Assessment**: Verify that every required repository file is present and assess its quality details:
+>    *   `summary_adhoc.md`
+>    *   `spec_adhoc.md`
+>    *   `implementation_plan_adhoc.md`
+>    *   `test_plan_adhoc.mdd`
 >    *   `evaluator-rubric.md` (This file itself)
 > 4. **Issue Verdict & Follow-Up**: Document the final verdict (`Accept` | `Revise` | `Block`) and explicitly itemize any missing evidence, required fixes, or review triggers in the **Required Follow-Up** block.
 
