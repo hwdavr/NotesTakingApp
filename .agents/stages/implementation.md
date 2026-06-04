@@ -12,6 +12,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 ---
 
 ## Load
+
+**Always load:**
 - `skills/android-ui-verification/SKILL.md`
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
@@ -20,8 +22,14 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
 - `rules/observability.md`
-- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
-- `docs/current/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
+
+**Adhoc workflows** (`feature-delivery`, `bug-fixing`):
+- `docs/current/implementation_plan_adhoc.md` — implementation plan approved by user
+- `docs/current/spec_adhoc.md` — requirement summary, impact analysis, UiState & navigation design
+
+**Harness workflow** (`harness-generator`):
+- `docs/current/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan
+- `docs/current/summary_{feature_id}.md` — single source of truth for the active feature (key decisions, files changed, stage progress)
 
 ---
 

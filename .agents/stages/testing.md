@@ -11,11 +11,19 @@ The article principle: write the failing test *before* touching the application 
 ---
 
 ## Load
+
+**Always load:**
 - `skills/android-unit-test/SKILL.md`
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
 - `rules/testing-strategy.md`
-- `docs/current/test_plan_adhoc.md` — test plan section
+
+**Adhoc workflows** (`feature-delivery`, `bug-fixing`):
+- `docs/current/test_plan_adhoc.md` — test cases, layers, and coverage targets approved by user
+
+**Harness workflow** (`harness-generator`):
+- `docs/current/sprint-contract.md` — verification plan mapped to each acceptance criterion
+- `docs/current/summary_{feature_id}.md` — active feature context and stage progress
 
 ---
 
