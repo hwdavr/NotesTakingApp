@@ -11,7 +11,7 @@ Implement in small, working slices. Verify the build passes before proceeding.
 ## Load
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
-- `docs/current/implementation_plan_adhoc.md` (Implementation Plan stage output)
+- `docs/current/implementation_plan_v<N>.md` (Implementation Plan stage output)
 
 ---
 
@@ -61,7 +61,7 @@ If local storage is affected:
 - Updated / created mapper
 - Updated `sharedContracts/openapi.yaml` (if API changed)
 
-Produce `coding/coding_report_adhoc.md`:
+Produce `coding/coding_report_v<N>.md`:
 ```
 ## Coding Report — Data Layer — v<N>
 
@@ -76,7 +76,7 @@ Produce `coding/coding_report_adhoc.md`:
 <anything intentionally deferred>
 ```
 
-Update `summary_adhoc.md`: mark the Data Layer stage complete.
+Update `summary_v<N>.md`: mark the Data Layer stage complete.
 
 ---
 

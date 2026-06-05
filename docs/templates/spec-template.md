@@ -1,6 +1,6 @@
 # Spec Adhoc — <Feature Name>
 
-Use this template when producing `spec_adhoc.md` in the **Requirement, Impact & Design Analysis** stage for adhoc workflows.
+Use this template when producing `spec_v<N>.md` in the **Requirement, Impact & Design Analysis** stage for adhoc workflows.
 
 **Date**: YYYY-MM-DD
 **Status**: Draft / Final

@@ -13,7 +13,7 @@ This is the final gate before implementation begins.
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
 - `docs/templates/test-plan-template.md`
-- `docs/current/spec_adhoc.md` (Requirement, Impact & Design Analysis stage output)
+- `docs/current/spec_v<N>.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -49,9 +49,9 @@ The test plan must include:
 
 ## Output
 
-Write `docs/current/implementation_plan_adhoc.md` (follow `docs/templates/implementation-plan-template.md`).
-Write `docs/current/test_plan_adhoc.md` (follow `docs/templates/test-plan-template.md`).
-Update `summary_adhoc.md`: mark the Implementation Plan stage complete.
+Write `docs/current/implementation_plan_v<N>.md` (follow `docs/templates/implementation-plan-template.md`).
+Write `docs/current/test_plan_v<N>.md` (follow `docs/templates/test-plan-template.md`).
+Update `summary_v<N>.md`: mark the Implementation Plan stage complete.
 
 ---
 
@@ -61,7 +61,7 @@ Update `summary_adhoc.md`: mark the Implementation Plan stage complete.
 
 ### Feedback Loop
 1. **Feedback**: The user provides feedback via chat, file comments, or direct edits to the plan.
-2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_adhoc.md` and request approval again.
+2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_v<N>.md` and request approval again.
 3. **Approval**: The agent returns to the active workflow file and proceeds to the next stage defined there.
 
 Do not write any code, create any source files, or call any file-editing tools until the user explicitly approves.

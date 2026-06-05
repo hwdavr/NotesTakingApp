@@ -19,7 +19,7 @@ The article principle: write the failing test *before* touching the application 
 - `rules/testing-strategy.md`
 
 **Adhoc workflows** (`feature-delivery`, `bug-fixing`):
-- `docs/current/test_plan_adhoc.md` — test cases, layers, and coverage targets approved by user
+- `docs/current/test_plan_v<N>.md` — test cases, layers, and coverage targets approved by user
 
 **Harness workflow** (`harness-generator`):
 - `docs/current/sprint-contract.md` — verification plan mapped to each acceptance criterion

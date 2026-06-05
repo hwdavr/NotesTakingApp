@@ -29,9 +29,9 @@ Read all four baseline documents produced by the `/feature-delivery` workflow be
 
 | Document | Location | What to extract |
 |---|---|---|
-| `spec_adhoc.md` | `docs/current/` | Acceptance Criteria · Scope · Exclusions |
-| `implementation_plan_adhoc.md` | `docs/current/` | Approved architecture · layer breakdown · file list |
-| `test_plan_adhoc.md` | `docs/current/` | Approved test strategy · scenarios · coverage targets |
+| `spec_v<N>.md` | `docs/current/` | Acceptance Criteria · Scope · Exclusions |
+| `implementation_plan_v<N>.md` | `docs/current/` | Approved architecture · layer breakdown · file list |
+| `test_plan_v<N>.md` | `docs/current/` | Approved test strategy · scenarios · coverage targets |
 
 > [!IMPORTANT]
 > If any of these files are missing, **immediately flag it as a blocking gap** in the Stage 5 rubric (`Handoff readiness` category). Do not silently skip a missing baseline — absent plans mean the review has no ground truth to compare against.
@@ -43,7 +43,7 @@ After reading, summarise the key constraints and open decisions you will verify 
 ### Stage 2: Code Review
 Load and execute `stages/code-review.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
-- Code review report: `docs/current/code_review_adhoc.md`
+- Code review report: `docs/current/code_review_v<N>.md`
 
 ---
 
@@ -51,7 +51,7 @@ Load and execute `stages/code-review.md` in full to perform static analysis and 
 Load and execute `stages/test-review.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
 
 **Output**:
-- Test review report: `docs/current/test_review_adhoc.md`
+- Test review report: `docs/current/test_review_v<N>.md`
 
 ---
 
@@ -78,10 +78,10 @@ The Evaluator's primary deliverable is the final quality assessment report.
 >    *   **Code & Test Review**: Rate the outcome of static analysis (ktlint, detekt, lint), code structure, and test coverage/robustness from Stages 3 & 4.
 > 2. **Calculate Overall Score**: Formulate a comprehensive overall score summarizing quality.
 > 3. **File Assessment**: Verify that every required repository file is present and assess its quality details:
->    *   `summary_adhoc.md`
->    *   `spec_adhoc.md`
->    *   `implementation_plan_adhoc.md`
->    *   `test_plan_adhoc.mdd`
+>    *   `summary_v<N>.md`
+>    *   `spec_v<N>.md`
+>    *   `implementation_plan_v<N>.md`
+>    *   `test_plan_v<N>.mdd`
 >    *   `evaluator-rubric.md` (This file itself)
 > 4. **Issue Verdict & Follow-Up**: Document the final verdict (`Accept` | `Revise` | `Block`) and explicitly itemize any missing evidence, required fixes, or review triggers in the **Required Follow-Up** block.
 

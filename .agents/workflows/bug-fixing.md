@@ -34,7 +34,7 @@ Adapt for bugs:
 - Root cause statement (triggered when <cond>, causing <behavior>)
 - Design the fix (UiState changes if needed)
 
-Output: `docs/current/spec_adhoc.md`, `docs/current/summary_adhoc.md` (with bug context, fault area, and root cause)
+Output: `docs/current/spec_v<N>.md`, `docs/current/summary_v<N>.md` (with bug context, fault area, and root cause)
 Gate: root cause is specific enough that a reproduction test can be written
 
 ---
@@ -44,7 +44,7 @@ Load: `stages/bug-reproduction.md`
 
 Write a failing test that mechanically proves the root cause before any fix is written.
 
-Output: Failing reproduction test file + `spec_adhoc.md` updated with Reproduction Test section
+Output: Failing reproduction test file + `spec_v<N>.md` updated with Reproduction Test section
 Gate: test exits RED (non-zero), failure message matches root cause, no application code modified
 **STOP — if root cause cannot be reproduced by a test, surface to user before continuing.**
 
@@ -58,7 +58,7 @@ Adapt — the plan must include:
 - Proposed fix (minimal)
 - Which `@Ignore` annotation to remove once the fix is applied
 
-Output: `docs/current/implementation_plan_adhoc.md`
+Output: `docs/current/implementation_plan_v<N>.md`
 Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---

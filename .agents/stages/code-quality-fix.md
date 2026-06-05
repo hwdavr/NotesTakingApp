@@ -51,7 +51,7 @@ For any remaining failures or warnings:
 - Surgical changes are preferred over large refactors. Fix root causes, do not suppress rules.
 
 ### 4. Record Results
-**Update `summary_{feature_id}.md`** (or `summary_adhoc.md` depending on the active workflow) to mark the **Code Quality Fix** stage status to completed (✅) with notes and the current timestamp once all style checks pass with 0 violations.
+**Update `summary_{feature_id}.md`** (or `summary_v<N>.md` depending on the active workflow) to mark the **Code Quality Fix** stage status to completed (✅) with notes and the current timestamp once all style checks pass with 0 violations.
 
 ---
 
@@ -71,6 +71,6 @@ Clean git status with all formatting and structural violations fixed.
 - [ ] `bash scripts/check-compose-rules.sh` or `scripts\check-compose-rules.cmd` — exit code 0 (or skipped if no UI changed)
 - [ ] `bash scripts/check-localization-rules.sh` or `scripts\check-localization-rules.cmd` — exit code 0
 - [ ] `bash scripts/check-architecture-rules.sh` or `scripts\check-architecture-rules.cmd` — exit code 0
-- [ ] `summary_{feature_id}.md` (or `summary_adhoc.md`) updated and marked complete
+- [ ] `summary_{feature_id}.md` (or `summary_v<N>.md`) updated and marked complete
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

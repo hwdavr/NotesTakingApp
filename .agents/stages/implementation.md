@@ -24,8 +24,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/observability.md`
 
 **Adhoc workflows** (`feature-delivery`, `bug-fixing`):
-- `docs/current/implementation_plan_adhoc.md` — implementation plan approved by user
-- `docs/current/spec_adhoc.md` — requirement summary, impact analysis, UiState & navigation design
+- `docs/current/implementation_plan_v<N>.md` — implementation plan approved by user
+- `docs/current/spec_v<N>.md` — requirement summary, impact analysis, UiState & navigation design
 
 **Harness workflow** (`harness-generator`):
 - `docs/current/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan

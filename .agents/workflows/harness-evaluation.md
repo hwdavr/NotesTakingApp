@@ -33,7 +33,7 @@ Load and execute `stages/code-review.md` in full to perform static analysis and 
 
 **Output**:
 - Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
-- If no change directory exists: `code_review_adhoc.md` in the project root
+- If no change directory exists: `code_review_v<N>.md` in the project root
 
 ---
 
@@ -42,7 +42,7 @@ Load and execute `stages/test-review.md` in full to evaluate test coverage, asse
 
 **Output**:
 - Test review report: `docs/current/coding/review/test_review_t<taskId>_v<N>.md`
-- If no change directory exists: `test_review_adhoc.md` in the project root
+- If no change directory exists: `test_review_v<N>.md` in the project root
 
 ---
 

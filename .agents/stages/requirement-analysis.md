@@ -20,7 +20,8 @@ Do not write any code in this stage.
 ## Execute
 
 ### 1. Requirement & Impact Analysis
-1. Read the resolved requirement or picked-up task details in full.
+1. Read the user's feature request in full. Do not assume anything that is not explicitly stated.
+2. **Read `evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
 2. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 3. Classify changes (`modify`, `extend`, `new`, `delete`).
 4. **API & Contract Check**:
@@ -41,7 +42,7 @@ Create `docs/current/` directory.
 
 If the user provides a design screenshot or mockup, save it to **`docs/current/design/`** so it can be referenced during UI Verification.
 
-Produce **`docs/current/summary_adhoc.md`** — create this file **first**, before `spec_adhoc.md`.
+Produce **`docs/current/summary_v<N>.md`** — create this file **first**, before `spec_v<N>.md`.
 Use the template from `docs/templates/` (e.g. `docs/templates/progress-template.md`).
 The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
 
@@ -94,7 +95,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 
 Mark the first row as ✅ Complete when this stage's gate passes.
 
-Produce **`spec_adhoc.md`** (inside `docs/current/`).
+Produce **`spec_v<N>.md`** (inside `docs/current/`).
 Use the template from `docs/templates/spec-template.md`.
 
 ---
@@ -102,8 +103,8 @@ Use the template from `docs/templates/spec-template.md`.
 ## Gate
 
 **Conditions to pass:**
-- [ ] `docs/current/summary_adhoc.md` exists with the Stage Progress table filled in.
-- [ ] `docs/current/spec_adhoc.md` exists with requirement, impact, and design sections filled.
+- [ ] `docs/current/summary_v<N>.md` exists with the Stage Progress table filled in.
+- [ ] `docs/current/spec_v<N>.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.
 - [ ] UiState design covers all visual states.
 - [ ] API change is classified.
