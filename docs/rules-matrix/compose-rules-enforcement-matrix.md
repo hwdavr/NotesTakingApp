@@ -23,7 +23,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 | 1.3 | Callbacks called on interaction — Composable never calls ViewModel directly | 🤖 Scripted + 🧠 Evaluator | Check 4: `hiltViewModel()` / `viewModel()` inside `*Content` | Script catches direct hiltViewModel calls; AI catches subtler patterns |
 | 1.4 | No use case or repository calls inside Composable | 🤖 Scripted + 🧠 Evaluator | Check 5: `Repository`/`UseCase`/`DataSource` pattern match | Script is heuristic; AI validates edge cases |
 | 1.5 | No business logic or data transformation inside Composable | 🧠 Evaluator | — | Too semantic for a script; AI checks for sorting, filtering, formatting inside composable bodies |
-| 1.6 | No hardcoded strings — must use `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` Checks 1–3 | Moved to localization script — compose script no longer owns this |
+| 1.6 | No hardcoded strings — must use `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` / `.cmd` Checks 1–3 | Moved to localization script — compose script no longer owns this |
 | 1.7 | No hardcoded colors — must use `LocalAppColors.current.<token>` | 🤖 Scripted | Check 2: `Color(0x...)` and named `Color.*` constants | `AppColors.kt` is excluded from the check |
 
 ---
@@ -52,7 +52,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 | # | Rule | Enforcement | Script Check | Notes |
 |---|------|-------------|-------------|-------|
-| 4.1 | All user-visible text uses `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` Checks 1–3 | Owned by localization script |
+| 4.1 | All user-visible text uses `stringResource()` | 🤖 Scripted | `check-localization-rules.sh` / `.cmd` Checks 1–3 | Owned by localization script |
 | 4.2 | String resource keys follow `<screen>_<element>_<type>` naming convention | 🧠 Evaluator | — | Naming convention; AI verifies format at review time |
 
 ---

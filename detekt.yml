@@ -115,7 +115,7 @@ style:
     active: false
   # ── Layer boundary import enforcement ─────────────────────────────────────
   # Enforces android-architecture.md layer rules via Detekt ForbiddenImport.
-  # Replaces the import-based checks previously in check-architecture-rules.sh.
+  # Replaces the import-based checks previously in check-architecture-rules.sh / .cmd.
   #
   # Scoping notes:
   #   - excludes: test source sets are excluded because repository/data-layer tests
@@ -124,7 +124,7 @@ style:
   #     to domain interfaces — that is their entire purpose.
   #   - Android framework imports (android.content.*, android.app.*) are NOT listed
   #     here because Detekt cannot scope a rule to a subdirectory (e.g. domain/ only).
-  #     Those checks remain in check-architecture-rules.sh Section 3 (domain files only).
+  #     Those checks remain in check-architecture-rules.sh / .cmd Section 3 (domain files only).
   ForbiddenImport:
     active: true
     excludes:

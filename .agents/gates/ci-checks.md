@@ -51,6 +51,10 @@ Defines the minimum set of checks that must pass before a change is considered r
 ```bash
 bash scripts/check-compose-rules.sh
 ```
+Windows:
+```powershell
+scripts\check-compose-rules.cmd
+```
 **Must pass.** Catches Compose-specific violations not covered by Ktlint/Detekt:
 - Hardcoded strings (must use `stringResource()`)
 - Hardcoded colors (must use `LocalAppColors.current.<token>`)

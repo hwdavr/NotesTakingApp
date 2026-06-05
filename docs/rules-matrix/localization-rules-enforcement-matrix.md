@@ -6,7 +6,7 @@ Rules from [`localization-rules.md`](../../.agents/rules/localization-rules.md),
 
 | Badge | Meaning |
 |---|---|
-| 🤖 **Scripted** | [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) detects this automatically on every CI run |
+| 🤖 **Scripted** | [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) or Windows [`check-localization-rules.cmd`](../../scripts/check-localization-rules.cmd) detects this automatically on every CI run |
 | 🧠 **Evaluator** | AI code review can reliably identify this — pattern recognition, semantic understanding |
 | 👁️ **Human** | Requires design judgement, visual inspection, or context that neither script nor AI can fully substitute |
 
@@ -85,7 +85,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 ## Script Coverage Map
 
-The [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) script currently covers:
+The [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) script and Windows [`check-localization-rules.cmd`](../../scripts/check-localization-rules.cmd) launcher currently cover:
 
 | Script Check | Rules Covered |
 |---|---|

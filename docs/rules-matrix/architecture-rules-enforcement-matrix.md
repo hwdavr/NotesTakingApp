@@ -6,7 +6,7 @@ Rules from [`android-architecture.md`](../../.agents/rules/android-architecture.
 
 | Badge | Meaning |
 |---|---|
-| 🤖 **Scripted** | [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) detects this automatically on every CI run |
+| 🤖 **Scripted** | [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) or Windows [`check-architecture-rules.cmd`](../../scripts/check-architecture-rules.cmd) detects this automatically on every CI run |
 | 🧠 **Evaluator** | AI code review can reliably identify this — pattern recognition, semantic understanding |
 | 👁️ **Human** | Requires design judgement, visual inspection, or context that neither script nor AI can fully substitute |
 
@@ -140,7 +140,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 ## Script Coverage Map
 
-The [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) script currently covers:
+The [`check-architecture-rules.sh`](../../scripts/check-architecture-rules.sh) script and Windows [`check-architecture-rules.cmd`](../../scripts/check-architecture-rules.cmd) launcher currently cover:
 
 | Script Section | Rules Covered |
 |---|---|

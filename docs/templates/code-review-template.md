@@ -24,9 +24,9 @@ Use this template when producing the review summary in the relevant stage.
 | `ktlintCheck` | ✅ PASS / ❌ FAIL | |
 | `detekt` | ✅ PASS / ❌ FAIL | |
 | `lintDebug` | ✅ PASS / ❌ FAIL | |
-| `check-compose-rules.sh` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED (no Compose changes) | |
-| `check-localization-rules.sh` | ✅ PASS / ❌ FAIL | |
-| `check-architecture-rules.sh` | ✅ PASS / ❌ FAIL | |
+| `check-compose-rules.sh` or `check-compose-rules.cmd` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED (no Compose changes) | |
+| `check-localization-rules.sh` or `check-localization-rules.cmd` | ✅ PASS / ❌ FAIL | |
+| `check-architecture-rules.sh` or `check-architecture-rules.cmd` | ✅ PASS / ❌ FAIL | |
 | Suppression audit | ✅ PASS / ❌ FAIL | Confirm no new suppressions, ignores, baselines, or rule exclusions were added to make checks pass. |
 
 ---
@@ -55,7 +55,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 | 1.3 Never calls ViewModel directly | 🤖 Check 4 + 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 | 1.4 No use case / repository calls | 🤖 Check 5 + 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 | 1.5 No business logic / data transformation | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
-| 1.6 No hardcoded strings — uses `stringResource()` | 🤖 `check-localization-rules.sh` | ✅ / ❌ | |
+| 1.6 No hardcoded strings — uses `stringResource()` | 🤖 `check-localization-rules.sh` / `.cmd` | ✅ / ❌ | |
 | 1.7 No hardcoded colors — uses `LocalAppColors` | 🤖 Check 2 | ✅ / ❌ | |
 
 ### Section 2 — Stateless / Stateful Pattern
@@ -78,7 +78,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 
 | Rule | How Checked | Status | Violations |
 |------|-------------|--------|------------|
-| 4.1 All user-visible text uses `stringResource()` | 🤖 `check-localization-rules.sh` | ✅ / ❌ | |
+| 4.1 All user-visible text uses `stringResource()` | 🤖 `check-localization-rules.sh` / `.cmd` | ✅ / ❌ | |
 | 4.2 Resource keys follow `<screen>_<element>_<type>` naming | 🧠 Evaluator | ✅ / ❌ / 👁️ Human | |
 
 ### Section 5 — Colors

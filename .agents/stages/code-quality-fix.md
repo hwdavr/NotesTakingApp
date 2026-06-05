@@ -31,6 +31,13 @@ bash scripts/check-localization-rules.sh
 bash scripts/check-architecture-rules.sh
 ```
 
+On Windows (using PowerShell or Command Prompt), run the native script launchers instead:
+```powershell
+scripts\check-compose-rules.cmd
+scripts\check-localization-rules.cmd
+scripts\check-architecture-rules.cmd
+```
+
 ### 2. Auto-Fix Formatting Issues
 To resolve Ktlint style and formatting errors automatically, run:
 ```bash
@@ -61,9 +68,9 @@ Clean git status with all formatting and structural violations fixed.
 - [ ] `./gradlew ktlintCheck` — exit code 0
 - [ ] `./gradlew detekt` — exit code 0
 - [ ] `./gradlew lintDebug` — exit code 0
-- [ ] `bash scripts/check-compose-rules.sh` — exit code 0 (or skipped if no UI changed)
-- [ ] `bash scripts/check-localization-rules.sh` — exit code 0
-- [ ] `bash scripts/check-architecture-rules.sh` — exit code 0
+- [ ] `bash scripts/check-compose-rules.sh` or `scripts\check-compose-rules.cmd` — exit code 0 (or skipped if no UI changed)
+- [ ] `bash scripts/check-localization-rules.sh` or `scripts\check-localization-rules.cmd` — exit code 0
+- [ ] `bash scripts/check-architecture-rules.sh` or `scripts\check-architecture-rules.cmd` — exit code 0
 - [ ] `summary_{feature_id}.md` (or `summary_adhoc.md`) updated and marked complete
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

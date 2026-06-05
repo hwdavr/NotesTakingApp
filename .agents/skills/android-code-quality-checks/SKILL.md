@@ -69,6 +69,13 @@ Android Lint checks for Android-specific problems.
    bash scripts/check-architecture-rules.sh
    ```
 
+   On Windows (using PowerShell or Command Prompt), run the native script launchers instead:
+   ```powershell
+   scripts\check-compose-rules.cmd
+   scripts\check-localization-rules.cmd
+   scripts\check-architecture-rules.cmd
+   ```
+
 2. **Fix Formatting First**: Run `ktlintFormat` to handle low-hanging fruit.
    ```bash
    ./gradlew ktlintFormat
@@ -97,6 +104,6 @@ The task is complete when:
 - [ ] `./gradlew ktlintCheck` passes.
 - [ ] `./gradlew detekt` passes.
 - [ ] `./gradlew lintDebug` passes (0 errors).
-- [ ] `bash scripts/check-compose-rules.sh` passes (0 violations).
-- [ ] `bash scripts/check-localization-rules.sh` passes (0 violations).
-- [ ] `bash scripts/check-architecture-rules.sh` passes (0 violations).
+- [ ] `bash scripts/check-compose-rules.sh` or `scripts\check-compose-rules.cmd` passes (0 violations).
+- [ ] `bash scripts/check-localization-rules.sh` or `scripts\check-localization-rules.cmd` passes (0 violations).
+- [ ] `bash scripts/check-architecture-rules.sh` or `scripts\check-architecture-rules.cmd` passes (0 violations).

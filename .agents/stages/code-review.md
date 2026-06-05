@@ -42,6 +42,13 @@ bash scripts/check-localization-rules.sh
 bash scripts/check-architecture-rules.sh
 ```
 
+On Windows (using PowerShell or Command Prompt), run the native script launchers instead:
+```powershell
+scripts\check-compose-rules.cmd
+scripts\check-localization-rules.cmd
+scripts\check-architecture-rules.cmd
+```
+
 Record the exit code and any flagged violations from all three scripts in the **Build & Test Results** table of the review report.
 
 ### 2. Architecture & Design Validation
@@ -238,9 +245,9 @@ All conditions must pass before proceeding to `stages/test-review.md`:
 - [ ] `assembleDebug` — exit code 0
 - [ ] `ktlintCheck` — exit code 0
 - [ ] `detekt` — exit code 0
-- [ ] `check-compose-rules.sh` — exit code 0 (or skipped with no Compose changes)
-- [ ] `check-localization-rules.sh` — exit code 0
-- [ ] `check-architecture-rules.sh` — exit code 0
+- [ ] `check-compose-rules.sh` or `check-compose-rules.cmd` — exit code 0 (or skipped with no Compose changes)
+- [ ] `check-localization-rules.sh` or `check-localization-rules.cmd` — exit code 0
+- [ ] `check-architecture-rules.sh` or `check-architecture-rules.cmd` — exit code 0
 - [ ] Compose Rules Enforcement table completed — every rule is ✅, ❌ (acknowledged), ⏭, or `👁️ Human` (no blanks)
 - [ ] All `❌` compose rule violations are either fixed or explicitly accepted with justification
 - [ ] All compose `👁️ Human` rows acknowledged by the human reviewer before merge
