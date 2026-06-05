@@ -37,22 +37,67 @@ Use this template when producing the sprint contract in the **Requirement Analys
 
 ---
 
-## 📐 Acceptance Criteria
-> Define numbered, testable, specific, and unambiguous criteria that must be satisfied for this sprint to be complete.
-1. `{Acceptance criterion 1 - e.g., UI component renders a list of exchanges as chat bubbles}`
-2. `{Acceptance criterion 2 - e.g., User messages appear right-aligned and purple}`
-3. `{Acceptance criterion 3 - e.g., Assistant messages appear left-aligned and dark blue}`
-4. `{Acceptance criterion 4 - e.g., Each message shows a compact timestamp (HH:MM)}`
-5. `{Acceptance criterion 5}`
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - [Brief Title] (Priority: P1)
+
+[Describe this user journey in plain language]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+
+**Acceptance Criterion**:
+
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+**Verification Plan**:
+Match each acceptance criterion above with a concrete, testable verification method (visual inspection, unit test, integration test, instrumentation).
+
+1. Visual inspection of chat bubble layout and alignment
+2. Run Unit tests asserting timestamp formats in HH:MM
 
 ---
 
-## 🧪 Verification Plan
-> Match each acceptance criterion above with a concrete, testable verification method (visual inspection, unit test, integration test, instrumentation).
-1. `{Verification method 1 - e.g., Visual inspection of chat bubble layout and alignment}`
-2. `{Verification method 2 - e.g., Run Unit tests asserting timestamp formats in HH:MM}`
-3. `{Verification method 3 - e.g., Test citation expand/collapse behavior in instrumented UI tests}`
-4. `{Verification method 4}`
+### User Story 2 - [Brief Title] (Priority: P2)
+
+[Describe this user journey in plain language]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [Describe how this can be tested independently]
+
+**Acceptance Criterion**:
+
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+**Verification Plan**:
+Match each acceptance criterion above with a concrete, testable verification method (visual inspection, unit test, integration test, instrumentation).
+
+1. Visual inspection of chat bubble layout and alignment
+
+---
+
+### User Story 3 - [Brief Title] (Priority: P3)
+
+[Describe this user journey in plain language]
+
+**Why this priority**: [Explain the value and why it has this priority level]
+
+**Independent Test**: [Describe how this can be tested independently]
+
+**Acceptance Criterion**:
+
+1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+
+**Verification Plan**:
+Match each acceptance criterion above with a concrete, testable verification method (visual inspection, unit test, integration test, instrumentation).
+
+1. Visual inspection of chat bubble layout and alignment
+---
+
+[Add more user stories as needed, each with an assigned priority]
 
 ---
 

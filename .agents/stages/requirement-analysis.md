@@ -94,35 +94,8 @@ The Stage Progress table must list every stage from the **active workflow** in o
 
 Mark the first row as ✅ Complete when this stage's gate passes.
 
-Produce **`spec_adhoc.md`** (inside `docs/current/`):
-```
-## Requirement Summary
-<description>
-
-## Impact Analysis (Affected Files)
-| File | Layer | Change Type | Notes |
-|------|-------|-------------|-------|
-
-## API Impact
-- Classification: <backward compatible / risky / breaking / none>
-- Force update: <yes / no / unknown>
-- **APIs Needed**:
-  - `METHOD /path` : <description>
-
-## UI State Design
-```kotlin
-data class ExampleUiState(...)
-```
-
-## Navigation Design
-- Route: <name>
-- Arguments: <types>
-- Back-stack: <behavior>
-
-## Explicit Assumptions
-1. <assumption>
-```
-
+Produce **`spec_adhoc.md`** (inside `docs/current/`).
+Use the template from `docs/templates/spec-template.md`.
 
 ---
 

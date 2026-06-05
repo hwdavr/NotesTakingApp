@@ -1,23 +1,14 @@
-# Requirement Summary — <Feature Name>
+# Spec Adhoc — <Feature Name>
 
-Use this template when producing the requirement summary in the **Feature Requirement Capture** stage.
+Use this template when producing `spec_adhoc.md` in the **Requirement, Impact & Design Analysis** stage for adhoc workflows.
 
 **Date**: YYYY-MM-DD
 **Status**: Draft / Final
 
 ---
 
-## Design Reference
-
-- Original Mockup: [design_mockup.png](docs/current/design/design_mockup.png) (if design/UI is provided)
-
----
-
-## User Goal
-
-> As a [user type], I want to [action] so that [outcome].
-
----
+## Requirement Summary
+<description>
 
 ## Functional Requirements
 
@@ -50,24 +41,10 @@ Use this template when producing the requirement summary in the **Feature Requir
 
 ---
 
-## Non-Goals
-
-- <What is explicitly out of scope — be specific>
-
----
-
 ## Explicit Assumptions
-
-| # | Assumption | Risk if Wrong |
-|---|------------|---------------|
-| A1 | \<assumption\> | \<impact if assumption is false\> |
+1. <assumption>
 
 ---
 
 ## Open Questions
-
-All questions must be ✅ Answered before this document is approved.
-
-| # | Question | Status | Answer |
-|---|----------|--------|--------|
-| Q1 | \<question\> | ⚠️ Unanswered / ✅ Answered | \<answer\> |
+- <question>
