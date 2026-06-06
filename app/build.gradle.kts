@@ -48,6 +48,15 @@ android {
     namespace = "com.example.notesapp"
     compileSdk = 34
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("${rootDir}/etc/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.notesapp"
         minSdk = 24
