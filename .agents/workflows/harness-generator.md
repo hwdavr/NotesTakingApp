@@ -71,28 +71,24 @@ Update repository history and project task logs to reflect completion.
 >    *   If verification fails (exit code `non-zero`), the status must be marked as `blocked` or returned to `in_progress`.
 
 *   **Action**:
-    1. Once verification passes and evidence is attached, update `docs/current/feature_list.json` and commit the progress:
+    1. Once verification passes and evidence is attached, update `docs/current/feature_list.json`.
+    2. Commit only the **source code and test changes** for the implemented feature:
         ```bash
-        git add docs/current/feature_list.json
         git commit -m "feat(<area>): <short description of implemented feature>"
         ```
-    2. **Update `summary_{feature_id}.md`** to mark the **Update State** stage status to completed (✅), logging the commit hash and verification execution outcome.
-*   **Objective**: Ensure all state updates are backed by mechanical, verifiable evidence.
+    3. **Update `summary_{feature_id}.md`** to mark the **Update State** stage status to completed (✅), logging the commit hash and verification execution outcome.
+*   **Objective**: Ensure all state updates are backed by mechanical, verifiable evidence. Source code is committed; `docs/current/` artifacts remain local working state.
 
 ### Stage 8 — Clean Exit
 Ensure that the final repository state is clean, verified, and fully prepared for the next developer or agent session.
 
 > [!IMPORTANT]
 > **Checklist & Handoff Policy**:
-> 1. **Run Clean State Checklist**: Execute and verify every single item in the **[`clean-state-checklist-template.md`](../../docs/templates/clean-state-checklist-template.md)**. All checklist checks (Build, Architecture, Runtime, Testing, Observability, Cleanliness, Documentation) **MUST** pass before making the final session commits.
+> 1. **Run Clean State Checklist**: Execute and verify every single item in the **[`clean-state-checklist-template.md`](../../docs/templates/clean-state-checklist-template.md)**. All checklist checks (Build, Architecture, Runtime, Testing, Observability, Cleanliness, Documentation) **MUST** pass before closing the session.
 > 2. **Produce Session Handoff**: Create or update the **`docs/current/session-handoff.md`** file by strictly following the format and fields defined in **[`session-handoff-template.md`](../../docs/templates/session-handoff-template.md)**. Detail what is working, what changed, unverified paths, risks, and next steps.
-> 3. **Commit Handoff Artifacts**: Once the checklist passes and the handoff file is written, commit these files to register the successful session exit:
->    ```bash
->    git add docs/current/session-handoff.md
->    git commit -m "docs: finalize session handoff and clean state verification"
->    ```
+> 3. **Do NOT commit `docs/current/` artifacts**. These files (`session-handoff.md`, `summary_*.md`, `feature_list.json`, etc.) are local working state for agent coordination — they are not versioned.
 
 *   **Action**:
-    1. Execute the verification command one last time to ensure no regression was introduced, verify all checklist criteria, write `docs/current/session-handoff.md`, and perform the final commit.
+    1. Execute the verification command one last time to ensure no regression was introduced, verify all checklist criteria, and write `docs/current/session-handoff.md`.
     2. **Update `summary_{feature_id}.md`** to mark the **Clean Exit** stage status to completed (✅), transitions overall status to Complete, and documents key outcomes, open items, and handoff decisions.
 *   **Objective**: Leave the repository in a completely green, stable, and self-documenting state that a fresh session can immediately pick up and resume.
