@@ -27,19 +27,9 @@ Use this template when producing the sprint contract in the **Requirement Analys
 
 ---
 
-## 👥 Roles
-
-| Role | Responsibility | Handover Trigger |
-| :--- | :--- | :--- |
-| **Planner** | Define acceptance criteria, scope boundaries, and the verification plan before implementation begins. | Hands off `sprint-contract.md` to **Generator**. |
-| **Generator** | Implement the component, application layers, and tests based on the planner specification. | Hands off code and passing tests to **Evaluator**. |
-| **Evaluator** | Review implementation against acceptance criteria, run static analysis/tests, and verify coverage. | Hands off final APPROVED audit reports to the User. |
-
----
-
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### US-1: [Brief Title] (Priority: P1)
 
 [Describe this user journey in plain language]
 
@@ -60,7 +50,7 @@ Match each acceptance criterion above with a concrete, testable verification met
 
 ---
 
-### User Story 2 - [Brief Title] (Priority: P2)
+### US-2: [Brief Title] (Priority: P2)
 
 [Describe this user journey in plain language]
 
@@ -79,7 +69,7 @@ Match each acceptance criterion above with a concrete, testable verification met
 
 ---
 
-### User Story 3 - [Brief Title] (Priority: P3)
+### US-3: [Brief Title] (Priority: P3)
 
 [Describe this user journey in plain language]
 
@@ -97,7 +87,7 @@ Match each acceptance criterion above with a concrete, testable verification met
 1. Visual inspection of chat bubble layout and alignment
 ---
 
-[Add more user stories as needed, each with an assigned priority]
+[Add more user stories as needed (US-4, US-5, …), each with an assigned priority]
 
 ---
 

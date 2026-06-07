@@ -35,7 +35,9 @@ Review the requirement input document (path defined by the calling workflow) and
 
 ### 2. Compile Sprint Contract
 
-Decompose the high-level requirement into a detailed scope, acceptance criteria, and verification plan. Strictly follow the structure in `docs/templates/sprint-contract-template.md` to generate `sprint-contract.md`. Fill in the Sprint ID, Feature Name, In Scope, Out of Scope, Roles, Acceptance Criteria, and the Verification Plan mapping to the acceptance criteria.
+Decompose the high-level requirement into a detailed scope, acceptance criteria, and verification plan. Strictly follow the structure in `docs/templates/sprint-contract-template.md` to generate `sprint-contract.md`. Fill in the Sprint Overview (Sprint ID, Feature Name, Duration), Scope (In Scope, Out of Scope), and User Scenarios & Testing (user stories with acceptance criteria and verification plans).
+
+**Each user story MUST have a unique ID** (e.g. `US-1`, `US-2`, `US-3`). This ID is the cross-reference key used in `feature_list.json` to enforce a 1:1 mapping between user stories and feature slices.
 
 ### 3. Choose a Slicing Strategy
 
@@ -50,7 +52,7 @@ Decompose the high-level requirement into a detailed scope, acceptance criteria,
 
 For each slice, you must populate the `features` list in the `feature_list.json` schema. Define each task completely, ensuring that each field is explained and adheres to the following definitions:
 
-- **`id`**: A unique alphanumeric identifier for the feature slice (e.g. `comments-001`).
+- **`id`**: The user story ID from the sprint contract (e.g. `US-1`, `US-2`). This directly links the feature to its sprint contract user story, enforcing a strict 1:1 mapping. **Each feature `id` MUST match exactly one user story heading in `sprint-contract.md`, and every user story MUST have a corresponding feature.**
 - **`priority`**: Integer priority indicating delivery order (lower number = higher priority).
 - **`area`**: The codebase component or feature area (e.g., `comments`, `folders`, `editor`).
 - **`title`**: A short, readable title summarizing the slice.
@@ -64,7 +66,17 @@ For each slice, you must populate the `features` list in the `feature_list.json`
 
 Each task must change **one logical thing** and do it completely, ensuring the codebase is never left in a broken or non-compiling state.
 
-### 5. Order Tasks
+### 5. Validate 1:1 Cross-Reference
+
+Before finalizing, verify the bidirectional mapping is complete:
+
+1. **No orphan user stories**: Every `US-*` heading in `sprint-contract.md` must have a matching feature `id` in `feature_list.json`.
+2. **No orphan features**: Every feature `id` in `feature_list.json` must match a `US-*` heading in `sprint-contract.md`.
+3. **No duplicates**: Feature IDs are unique by definition — no two features may share the same `id`.
+
+If a user story is too large to fit into a single feature slice, **split the user story** in the sprint contract first, then create the corresponding feature. If a feature slice doesn't map to any user story, either the sprint contract is missing a story or the slice should be merged into another feature.
+
+### 6. Order Tasks
 
 Place the riskiest or most foundational slice first.
 Express the dependency order explicitly (linear or branching).
@@ -98,6 +110,7 @@ The user must confirm:
 - [ ] Feature descriptions are clear, instructing exactly what to do
 - [ ] Verification steps are concrete, machine-executable shell commands (returning binary PASS/FAIL)
 - [ ] The sprint-contract is compiled with explicit acceptance criteria and a corresponding verification plan
+- [ ] Every sprint contract user story maps to exactly one feature list item (1:1, no orphans on either side)
 
 **APPROVED by user →** Return to the active workflow file and proceed to the next stage.
 

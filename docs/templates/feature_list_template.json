@@ -14,7 +14,7 @@
   },
   "features": [
     {
-      "id": "chat-001",
+      "id": "US-1",
       "priority": 1,
       "area": "chat",
       "title": "Create a new note",
@@ -32,7 +32,7 @@
       "notes": ""
     },
     {
-      "id": "chat-002",
+      "id": "US-2",
       "priority": 2,
       "area": "chat",
       "title": "Send a message in the current conversation",
@@ -50,7 +50,7 @@
       "notes": ""
     },
     {
-      "id": "chat-003",
+      "id": "US-3",
       "priority": 3,
       "area": "chat",
       "title": "Persist the active conversation list",
