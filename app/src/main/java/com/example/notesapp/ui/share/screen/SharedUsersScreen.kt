@@ -37,7 +37,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,13 +50,8 @@ import com.example.notesapp.R
 import com.example.notesapp.ui.share.model.AccessRole
 import com.example.notesapp.ui.share.model.SharedUserUiModel
 import com.example.notesapp.ui.share.viewmodel.SharedUsersViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
-
-internal val SharedUsersBackground = Color(0xFFF4F7FF)
-internal val SharedUsersCard = Color(0xFFF7FAFF)
-internal val SharedUsersPrimary = Color(0xFF4C6FFF)
-internal val SharedUsersTextPrimary = Color(0xFF1F2A44)
-internal val SharedUsersTextSecondary = Color(0xFF7281A7)
 
 @Composable
 fun SharedUsersScreen(
@@ -95,22 +89,23 @@ fun SharedUsersScreenContent(
     onManageAccess: () -> Unit,
     onShareToNewUser: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     val collaboratorCount = users.count { it.role != AccessRole.OWNER }
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
-        containerColor = SharedUsersBackground,
+        containerColor = colors.sharedUsersBackground,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SharedUsersBackground)
+                .background(colors.sharedUsersBackground)
                 .padding(innerPadding)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SharedUsersBackground)
+                    .background(colors.sharedUsersBackground)
             ) {
                 SharedUsersTopBar(
                     onBack = onBack,
@@ -129,7 +124,7 @@ fun SharedUsersScreenContent(
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             Text(
                                 text = noteTitle,
-                                color = SharedUsersTextSecondary,
+                                color = colors.sharedUsersTextSecondary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.testTag("shared_users_note_title")
@@ -141,13 +136,13 @@ fun SharedUsersScreenContent(
                             ) {
                                 Text(
                                     text = stringResource(R.string.shared_users_section_title),
-                                    color = SharedUsersTextSecondary,
+                                    color = colors.sharedUsersTextSecondary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
                                     text = stringResource(R.string.shared_users_manage_access),
-                                    color = SharedUsersPrimary,
+                                    color = colors.sharedUsersPrimary,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier
@@ -158,7 +153,7 @@ fun SharedUsersScreenContent(
                             if (errorMessageRes != null) {
                                 Text(
                                     text = stringResource(errorMessageRes),
-                                    color = Color(0xFFC44A4A),
+                                    color = colors.error,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -174,7 +169,7 @@ fun SharedUsersScreenContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator(
-                                    color = SharedUsersPrimary,
+                                    color = colors.sharedUsersPrimary,
                                     modifier = Modifier.testTag("shared_users_loading")
                                 )
                             }
@@ -187,7 +182,7 @@ fun SharedUsersScreenContent(
                             item {
                                 Text(
                                     text = stringResource(R.string.shared_users_empty_state),
-                                    color = SharedUsersTextSecondary,
+                                    color = colors.sharedUsersTextSecondary,
                                     fontSize = 13.sp,
                                     modifier = Modifier.testTag("shared_users_empty_state")
                                 )
@@ -208,8 +203,8 @@ fun SharedUsersScreenContent(
                     .testTag("shared_users_cta"),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SharedUsersPrimary,
-                    contentColor = Color.White
+                    containerColor = colors.sharedUsersPrimary,
+                    contentColor = colors.onPrimary
                 )
             ) {
                 Text(
@@ -230,10 +225,11 @@ fun SharedUsersScreenContent(
 
 @Composable
 internal fun SharedUsersTopBar(onBack: () -> Unit, title: String) {
+    val colors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White)
+            .background(colors.surface)
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -242,12 +238,12 @@ internal fun SharedUsersTopBar(onBack: () -> Unit, title: String) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.collection_notes_back),
-                tint = SharedUsersPrimary
+                tint = colors.sharedUsersPrimary
             )
         }
         Text(
             text = title,
-            color = SharedUsersTextPrimary,
+            color = colors.sharedUsersTextPrimary,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.ExtraBold
             )
@@ -257,8 +253,9 @@ internal fun SharedUsersTopBar(onBack: () -> Unit, title: String) {
 
 @Composable
 private fun SharedUserRow(user: SharedUserUiModel) {
+    val colors = LocalAppColors.current
     Surface(
-        color = SharedUsersCard,
+        color = colors.sharedUsersCard,
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -273,12 +270,12 @@ private fun SharedUserRow(user: SharedUserUiModel) {
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape)
-                    .background(user.accentColor),
+                    .background(colors.avatarPreset(user.accentColorIndex)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = user.initials,
-                    color = Color.White,
+                    color = colors.onAccent,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -289,13 +286,13 @@ private fun SharedUserRow(user: SharedUserUiModel) {
             ) {
                 Text(
                     text = user.name,
-                    color = SharedUsersTextPrimary,
+                    color = colors.sharedUsersTextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
                 Text(
                     text = user.email,
-                    color = SharedUsersTextSecondary,
+                    color = colors.sharedUsersTextSecondary,
                     fontSize = 12.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -303,7 +300,7 @@ private fun SharedUserRow(user: SharedUserUiModel) {
                 if (user.isPending) {
                     Text(
                         text = stringResource(R.string.shared_users_status_pending),
-                        color = SharedUsersPrimary,
+                        color = colors.sharedUsersPrimary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -316,15 +313,16 @@ private fun SharedUserRow(user: SharedUserUiModel) {
 
 @Composable
 private fun AccessRolePill(role: AccessRole) {
+    val colors = LocalAppColors.current
     val backgroundColor = when (role) {
-        AccessRole.OWNER -> Color(0xFFEFF3FF)
-        AccessRole.EDITOR -> Color(0xFFF1EEFF)
-        AccessRole.VIEWER -> Color(0xFFFFF7ED)
+        AccessRole.OWNER -> colors.roleOwnerBg
+        AccessRole.EDITOR -> colors.roleEditorBg
+        AccessRole.VIEWER -> colors.roleViewerBg
     }
     val textColor = when (role) {
-        AccessRole.OWNER -> Color(0xFF4C6FFF)
-        AccessRole.EDITOR -> Color(0xFF6E4CFF)
-        AccessRole.VIEWER -> Color(0xFFF59E0B)
+        AccessRole.OWNER -> colors.roleOwnerText
+        AccessRole.EDITOR -> colors.roleEditorText
+        AccessRole.VIEWER -> colors.roleViewerText
     }
     val textRes = when (role) {
         AccessRole.OWNER -> R.string.shared_users_role_owner
@@ -347,6 +345,7 @@ private fun AccessRolePill(role: AccessRole) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun SharedUsersScreenPreview() {
     NotesTakingAppTheme {
         SharedUsersScreenContent(
@@ -358,7 +357,7 @@ private fun SharedUsersScreenPreview() {
                     name = "Owner User",
                     email = "owner@example.com",
                     initials = "OU",
-                    accentColor = Color(0xFF6E7BFF),
+                    accentColorIndex = 0,
                     role = AccessRole.OWNER,
                     isPending = false
                 ),
@@ -367,7 +366,7 @@ private fun SharedUsersScreenPreview() {
                     name = "Hannah Lee",
                     email = "hannah.lee@example.com",
                     initials = "HL",
-                    accentColor = Color(0xFF2DB7A3),
+                    accentColorIndex = 1,
                     role = AccessRole.EDITOR,
                     isPending = false
                 )

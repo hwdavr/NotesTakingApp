@@ -38,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.notesapp.ui.theme.LocalAppColors
@@ -65,7 +65,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsScreenContent(
         parentPadding = parentPadding,
         profileTitle = uiState.profileTitle,
@@ -80,7 +80,11 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "Guest", onLogout: () -> Unit) {
+fun SettingsScreenContent(
+    parentPadding: PaddingValues,
+    profileTitle: String = stringResource(R.string.settings_guest_profile),
+    onLogout: () -> Unit
+) {
     Scaffold(
         modifier = Modifier.padding(parentPadding).testTag("settings_screen"),
         containerColor = LocalAppColors.current.settingsBackground,
@@ -104,7 +108,7 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
             )
             Spacer(modifier = Modifier.height(24.dp))
             // ── Account section ─────────────────────────────────────────────
-            SectionHeader(title = "Account")
+            SectionHeader(title = stringResource(R.string.settings_account_section_title))
             SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,18 +117,18 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
             ) {
                 SettingRowItem(
                     icon = Icons.Outlined.SmartToy,
-                    iconBackground = Color(0xFFF3F4F6),
-                    iconTint = Color(0xFF6B7280),
+                    iconBackground = LocalAppColors.current.settingsNeutralIconBackground,
+                    iconTint = LocalAppColors.current.settingsNeutralIconTint,
                     title = profileTitle,
-                    subtitle = "Unlimited Smart notes, no limits!",
+                    subtitle = stringResource(R.string.settings_pro_desc),
                     showArrow = false
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.AutoMirrored.Outlined.Logout,
-                    iconBackground = Color(0xFFFFEBEE),
-                    iconTint = Color(0xFFD32F2F),
-                    title = "Logout",
+                    iconBackground = LocalAppColors.current.settingsDestructiveIconBackground,
+                    iconTint = LocalAppColors.current.settingsDestructiveIconTint,
+                    title = stringResource(R.string.settings_logout_action),
                     subtitle = null,
                     showArrow = true,
                     modifier = Modifier.clickable {
@@ -134,7 +138,7 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
             }
             Spacer(modifier = Modifier.height(18.dp))
             // ── General section ─────────────────────────────────────────────
-            SectionHeader(title = "General")
+            SectionHeader(title = stringResource(R.string.settings_general_section_title))
             SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,25 +147,25 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
             ) {
                 SettingRowItem(
                     icon = Icons.Outlined.Language,
-                    iconBackground = Color(0xFFEFF6FF),
-                    iconTint = Color(0xFF2563EB),
-                    title = "App Languages",
+                    iconBackground = LocalAppColors.current.settingsLanguageIconBackground,
+                    iconTint = LocalAppColors.current.settingsLanguageIconTint,
+                    title = stringResource(R.string.settings_app_languages_action),
                     subtitle = null,
                     showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.Outlined.ShoppingCart,
-                    iconBackground = Color(0xFFDCFCE7),
-                    iconTint = Color(0xFF16A34A),
-                    title = "Restore Purchase",
+                    iconBackground = LocalAppColors.current.settingsPurchaseIconBackground,
+                    iconTint = LocalAppColors.current.settingsPurchaseIconTint,
+                    title = stringResource(R.string.settings_restore_purchase_action),
                     subtitle = null,
                     showArrow = true
                 )
             }
             Spacer(modifier = Modifier.height(18.dp))
             // ── Other section ───────────────────────────────────────────────
-            SectionHeader(title = "Other")
+            SectionHeader(title = stringResource(R.string.settings_other_section_title))
             SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,45 +174,45 @@ fun SettingsScreenContent(parentPadding: PaddingValues, profileTitle: String = "
             ) {
                 SettingRowItem(
                     icon = Icons.Outlined.ThumbUp,
-                    iconBackground = Color(0xFFFEF9C3),
-                    iconTint = Color(0xFFEAB308),
-                    title = "Rate Us",
+                    iconBackground = LocalAppColors.current.settingsRatingIconBackground,
+                    iconTint = LocalAppColors.current.settingsRatingIconTint,
+                    title = stringResource(R.string.settings_rate_us_action),
                     subtitle = null,
                     showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.Outlined.Feedback,
-                    iconBackground = Color(0xFFF3F4F6),
-                    iconTint = Color(0xFF6B7280),
-                    title = "Feedback",
+                    iconBackground = LocalAppColors.current.settingsNeutralIconBackground,
+                    iconTint = LocalAppColors.current.settingsNeutralIconTint,
+                    title = stringResource(R.string.settings_feedback_action),
                     subtitle = null,
                     showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.Outlined.IosShare,
-                    iconBackground = Color(0xFFE0E7FF),
-                    iconTint = Color(0xFF4A68E0),
-                    title = "Share",
+                    iconBackground = LocalAppColors.current.settingsShareIconBackground,
+                    iconTint = LocalAppColors.current.settingsShareIconTint,
+                    title = stringResource(R.string.settings_share_action),
                     subtitle = null,
                     showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.Outlined.PrivacyTip,
-                    iconBackground = Color(0xFFFCE7F3),
-                    iconTint = Color(0xFFDB2777),
-                    title = "Privacy Policy",
+                    iconBackground = LocalAppColors.current.settingsPrivacyIconBackground,
+                    iconTint = LocalAppColors.current.settingsPrivacyIconTint,
+                    title = stringResource(R.string.settings_privacy_policy_action),
                     subtitle = null,
                     showArrow = true
                 )
                 SettingsDivider()
                 SettingRowItem(
                     icon = Icons.Outlined.Description,
-                    iconBackground = Color(0xFFF5F3FF),
+                    iconBackground = LocalAppColors.current.settingsTermsIconBackground,
                     iconTint = LocalAppColors.current.primary,
-                    title = "Terms of Use",
+                    title = stringResource(R.string.settings_terms_of_use_action),
                     subtitle = null,
                     showArrow = true
                 )
@@ -255,10 +259,15 @@ private fun SettingsTopBar() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(text = "♛", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "♛",
+                    color = LocalAppColors.current.onAccent,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Text(
                     text = stringResource(R.string.settings_pro),
-                    color = Color.White,
+                    color = LocalAppColors.current.onAccent,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -293,14 +302,14 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = stringResource(R.string.settings_ai_notes_desc),
-                    color = Color.White,
+                    color = LocalAppColors.current.onAccent,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     lineHeight = 24.sp
                 )
                 Text(
                     text = stringResource(R.string.settings_pro_desc),
-                    color = Color.White.copy(alpha = 0.85f),
+                    color = LocalAppColors.current.onAccent.copy(alpha = 0.85f),
                     fontSize = 12.sp,
                     lineHeight = 18.sp
                 )
@@ -309,19 +318,19 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .background(
-                            color = Color.White.copy(alpha = 0.22f),
+                            color = LocalAppColors.current.onAccent.copy(alpha = 0.22f),
                             shape = RoundedCornerShape(20.dp)
                         )
                         .border(
                             width = 1.dp,
-                            color = Color.White.copy(alpha = 0.40f),
+                            color = LocalAppColors.current.onAccent.copy(alpha = 0.40f),
                             shape = RoundedCornerShape(20.dp)
                         )
                         .padding(horizontal = 16.dp, vertical = 7.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.settings_upgrade_pro),
-                        color = Color.White,
+                        color = LocalAppColors.current.onAccent,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp
                     )
@@ -346,7 +355,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
         // Sparkle decoration
         Text(
             text = "✦",
-            color = Color.White.copy(alpha = 0.30f),
+            color = LocalAppColors.current.onAccent.copy(alpha = 0.30f),
             fontSize = 20.sp,
             modifier = Modifier.align(Alignment.TopEnd).padding(top = 0.dp, end = 96.dp)
         )
@@ -437,7 +446,7 @@ private fun SettingRowItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = null,
-                tint = Color(0xFFB5B5B5),
+                tint = LocalAppColors.current.textTertiary,
                 modifier = Modifier.size(20.dp)
             )
         }

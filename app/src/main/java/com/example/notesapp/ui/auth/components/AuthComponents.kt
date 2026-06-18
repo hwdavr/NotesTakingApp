@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.ui.auth.PasswordValidationState
+import com.example.notesapp.ui.theme.LocalAppColors
 
 fun validatePassword(password: String): PasswordValidationState {
     return PasswordValidationState(
@@ -49,26 +50,30 @@ fun validatePassword(password: String): PasswordValidationState {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthHeader(title: String, onBack: () -> Unit) {
+    val colors = LocalAppColors.current
     CenterAlignedTopAppBar(
         title = {
             Text(
                 text = title,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF3D355C)
+                color = colors.textPrimary
             )
         },
         navigationIcon = {
-            IconButton(onClick = onBack) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.testTag("auth_back_button")
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFF535370)
+                    tint = colors.textSecondary
                 )
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFFECECF2)
+            containerColor = colors.border
         )
     )
 }
@@ -83,36 +88,38 @@ fun AuthTextField(
     isError: Boolean = false,
     cornerRadius: Int = 10
 ) {
+    val colors = LocalAppColors.current
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = label,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            color = Color(0xFF4A4B69),
+            color = colors.textSecondary,
             modifier = Modifier.padding(start = 4.dp)
         )
         TextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(placeholder, color = Color.LightGray) },
+            placeholder = { Text(placeholder, color = colors.textTertiary) },
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             isError = isError,
             modifier = Modifier
                 .fillMaxWidth()
+                .testTag("auth_text_field")
                 .then(
                     if (isError) {
-                        Modifier.border(1.dp, Color.Red, RoundedCornerShape(cornerRadius.dp))
+                        Modifier.border(1.dp, colors.error, RoundedCornerShape(cornerRadius.dp))
                     } else {
                         Modifier
                     }
                 ),
             shape = RoundedCornerShape(cornerRadius.dp),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                focusedContainerColor = colors.surface,
+                unfocusedContainerColor = colors.surface,
+                disabledContainerColor = colors.surface,
+                focusedIndicatorColor = colors.transparent,
+                unfocusedIndicatorColor = colors.transparent
             )
         )
     }
@@ -120,6 +127,7 @@ fun AuthTextField(
 
 @Composable
 fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: String) {
+    val colors = LocalAppColors.current
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -127,7 +135,7 @@ fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: 
     ) {
         Text(
             text = termsText,
-            color = Color(0xFF4A4B69),
+            color = colors.textSecondary,
             fontSize = 12.sp,
             textAlign = TextAlign.Center,
             lineHeight = 18.sp
@@ -136,9 +144,10 @@ fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: 
             onClick = onButtonClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(46.dp),
+                .height(46.dp)
+                .testTag("auth_submit_button"),
             shape = RoundedCornerShape(999.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            colors = ButtonDefaults.buttonColors(containerColor = colors.transparent),
             contentPadding = PaddingValues(0.dp)
         ) {
             Box(
@@ -146,7 +155,7 @@ fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: 
                     .fillMaxSize()
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(Color(0xFF715FFF), Color(0xFF5B49F4))
+                            colors = listOf(colors.primary, colors.secondary)
                         ),
                         shape = RoundedCornerShape(999.dp)
                     ),
@@ -154,7 +163,7 @@ fun AuthBottomSection(buttonText: String, onButtonClick: () -> Unit, termsText: 
             ) {
                 Text(
                     text = buttonText,
-                    color = Color.White,
+                    color = colors.onPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold
                 )

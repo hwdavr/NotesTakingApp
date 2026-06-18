@@ -35,8 +35,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,7 @@ import com.example.notesapp.ui.notes.model.NoteUiModel
 import com.example.notesapp.ui.notes.viewmodel.CollectionItemUiModel
 import com.example.notesapp.ui.notes.viewmodel.CollectionNotesUiState
 import com.example.notesapp.ui.notes.viewmodel.CollectionNotesViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
 fun CollectionNotesScreen(
@@ -78,9 +79,10 @@ fun CollectionNotesScreenContent(
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
     onOpenNote: (String) -> Unit
 ) {
+    val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        containerColor = Color.Transparent,
+        containerColor = colors.transparent,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
@@ -88,7 +90,7 @@ fun CollectionNotesScreenContent(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFF3F7FF), Color(0xFFEDF3FF))
+                        colors = listOf(colors.accentGradientStart, colors.accentGradientEnd)
                     )
                 )
                 .padding(innerPadding)
@@ -114,7 +116,7 @@ fun CollectionNotesScreenContent(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = Color(0xFF5F6EFA))
+                            CircularProgressIndicator(color = colors.primary)
                         }
                     }
                     state.items.isEmpty() -> {
@@ -125,7 +127,7 @@ fun CollectionNotesScreenContent(
                             Text(
                                 text = stringResource(R.string.collection_notes_empty_state),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF7D848B)
+                                color = colors.textSecondary
                             )
                         }
                     }
@@ -165,13 +167,17 @@ fun CollectionNotesScreenContent(
 
 @Composable
 private fun CollectionTopBar(title: String, onBack: () -> Unit) {
+    val colors = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBack) {
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier.testTag("collection_back_button")
+        ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = stringResource(R.string.collection_notes_back)
@@ -181,7 +187,7 @@ private fun CollectionTopBar(title: String, onBack: () -> Unit) {
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2A2A30)
+                color = colors.textPrimary
             )
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -190,6 +196,7 @@ private fun CollectionTopBar(title: String, onBack: () -> Unit) {
 
 @Composable
 private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
+    val colors = LocalAppColors.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -202,13 +209,13 @@ private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFFDCE1E2), RoundedCornerShape(6.dp)),
+                    .background(colors.border, RoundedCornerShape(6.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -217,7 +224,7 @@ private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
-                    color = Color(0xFF3E444A)
+                    color = colors.textPrimary
                 )
             )
         }
@@ -226,7 +233,7 @@ private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
-                color = Color(0xFF7D848B)
+                color = colors.textSecondary
             )
         )
     }
@@ -234,12 +241,14 @@ private fun CollectionHeaderRow(label: String, count: Int, icon: ImageVector) {
 
 @Composable
 private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onClick: () -> Unit) {
+    val colors = LocalAppColors.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .testTag("collection_folder_card"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         border = CardDefaults.outlinedCardBorder(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -253,13 +262,13 @@ private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onCli
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFFDCE1E2), RoundedCornerShape(6.dp)),
+                    .background(colors.border, RoundedCornerShape(6.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Folder,
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -269,7 +278,7 @@ private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onCli
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = Color(0xFF2A2A30)
+                        color = colors.textPrimary
                     )
                 )
                 Text(
@@ -277,7 +286,7 @@ private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onCli
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
-                        color = Color(0xFF8A8A90)
+                        color = colors.textSecondary
                     )
                 )
             }
@@ -287,12 +296,14 @@ private fun CollectionFolderCard(folder: CollectionItemUiModel.FolderItem, onCli
 
 @Composable
 private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
+    val colors = LocalAppColors.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .testTag("collection_note_card"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         border = CardDefaults.outlinedCardBorder(),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -305,7 +316,7 @@ private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
-                    color = Color(0xFF2A2A30)
+                    color = colors.textPrimary
                 )
             )
             Text(
@@ -313,7 +324,7 @@ private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
-                    color = Color(0xFF8A8A90),
+                    color = colors.textSecondary,
                     lineHeight = 20.sp
                 )
             )
@@ -323,11 +334,12 @@ private fun CollectionNoteCard(note: NoteUiModel, onClick: () -> Unit) {
 
 @Composable
 private fun CollectionAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalAppColors.current
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.testTag("collection_add_button"),
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFF6E6E73),
+        color = colors.textSecondary,
         shadowElevation = 0.dp
     ) {
         Box(
@@ -336,7 +348,7 @@ private fun CollectionAddButton(onClick: () -> Unit, modifier: Modifier = Modifi
         ) {
             Text(
                 text = "+",
-                color = Color.White,
+                color = colors.onPrimary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium
             )

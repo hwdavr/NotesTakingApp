@@ -1,8 +1,15 @@
 package com.example.notesapp.ui.home.screen
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.*
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.FakeFolderRepository
@@ -11,6 +18,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.home.viewmodel.HomeViewModel
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -112,7 +120,7 @@ class HomeScreenIntegrationTest {
         }
         composeRule.waitForIdle()
         screen.waitForNote("Project Plan")
-        composeRule.onNodeWithTag("home_note_favorite_badge_note_001").assertDoesNotExist()
+        assertEquals(0, composeRule.onAllNodesWithTag("home_note_favorite_badge").fetchSemanticsNodes().size)
         screen.openNoteActions("note_001")
         // Wait for bottom sheet to be visible using tag
         composeRule.waitUntil(10000) {
@@ -125,11 +133,11 @@ class HomeScreenIntegrationTest {
         composeRule.waitForIdle()
         composeRule.waitUntil(20000) {
             composeRule.onAllNodesWithTag(
-                "home_note_favorite_badge_note_001",
+                "home_note_favorite_badge",
                 useUnmergedTree = true
             ).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag("home_note_favorite_badge_note_001", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("home_note_favorite_badge", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -181,7 +189,7 @@ private class HomeScreenRobot(
         composeRule.onNodeWithText(name).performClick()
     }
     fun openNoteActions(noteId: String) {
-        composeRule.onNodeWithTag("home_note_more_actions_$noteId").performClick()
+        composeRule.onNodeWithTag("home_note_more_actions").performClick()
     }
 }
 private fun folder(id: String, name: String, parentFolderId: String? = null): Folder = Folder(

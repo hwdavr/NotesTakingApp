@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,13 +43,8 @@ import com.example.notesapp.R
 import com.example.notesapp.domain.share.NoteShareAccessRole
 import com.example.notesapp.ui.share.viewmodel.ShareInviteEvent
 import com.example.notesapp.ui.share.viewmodel.ShareInviteViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
-
-data class InvitePermissionUiModel(
-    val id: String,
-    val title: String,
-    val subtitle: String
-)
 
 @Composable
 fun ShareInviteScreen(
@@ -106,21 +100,22 @@ fun ShareInviteScreenContent(
     onBack: () -> Unit,
     onInvite: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
-        containerColor = SharedUsersBackground,
+        containerColor = colors.background,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SharedUsersBackground)
+                .background(colors.background)
                 .padding(innerPadding)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SharedUsersBackground)
+                    .background(colors.background)
             ) {
                 SharedUsersTopBar(
                     onBack = onBack,
@@ -135,7 +130,7 @@ fun ShareInviteScreenContent(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             text = stringResource(R.string.share_invite_email_label),
-                            color = SharedUsersTextSecondary,
+                            color = colors.textSecondary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -148,23 +143,23 @@ fun ShareInviteScreenContent(
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
-                                color = SharedUsersTextPrimary,
+                                color = colors.textPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold
                             ),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = SharedUsersCard,
-                                unfocusedContainerColor = SharedUsersCard,
-                                disabledContainerColor = SharedUsersCard,
-                                focusedBorderColor = Color(0xFFD9E2FF),
-                                unfocusedBorderColor = Color(0xFFD9E2FF),
-                                cursorColor = SharedUsersPrimary
+                                focusedContainerColor = colors.surface,
+                                unfocusedContainerColor = colors.surface,
+                                disabledContainerColor = colors.surface,
+                                focusedBorderColor = colors.border,
+                                unfocusedBorderColor = colors.border,
+                                cursorColor = colors.primary
                             )
                         )
                         if (errorMessageRes != null) {
                             Text(
                                 text = stringResource(errorMessageRes),
-                                color = Color(0xFFC44A4A),
+                                color = colors.error,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.testTag("share_invite_error")
@@ -174,7 +169,7 @@ fun ShareInviteScreenContent(
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
                             text = stringResource(R.string.share_invite_permissions_label),
-                            color = SharedUsersTextSecondary,
+                            color = colors.textSecondary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -201,10 +196,10 @@ fun ShareInviteScreenContent(
                     .testTag("share_invite_cta"),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SharedUsersPrimary,
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFAAB8C2),
-                    disabledContentColor = Color.White
+                    containerColor = colors.primary,
+                    contentColor = colors.onPrimary,
+                    disabledContainerColor = colors.textTertiary,
+                    disabledContentColor = colors.onPrimary
                 )
             ) {
                 Text(
@@ -219,16 +214,17 @@ fun ShareInviteScreenContent(
 
 @Composable
 private fun PermissionOptionRow(permission: InvitePermissionUiModel, selected: Boolean, onClick: () -> Unit) {
+    val colors = LocalAppColors.current
     Surface(
-        color = if (selected) Color(0xFFEEF3FF) else SharedUsersCard,
+        color = if (selected) colors.highlight else colors.surface,
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .testTag("share_invite_permission_${permission.id}"),
+            .testTag("share_invite_permission"),
         border = androidx.compose.foundation.BorderStroke(
             width = 1.dp,
-            color = if (selected) SharedUsersPrimary else Color(0xFFD9E2FF)
+            color = if (selected) colors.primary else colors.border
         )
     ) {
         Row(
@@ -241,19 +237,19 @@ private fun PermissionOptionRow(permission: InvitePermissionUiModel, selected: B
             Icon(
                 imageVector = if (selected) Icons.Outlined.Check else Icons.Outlined.Circle,
                 contentDescription = null,
-                tint = if (selected) SharedUsersPrimary else SharedUsersTextSecondary,
+                tint = if (selected) colors.primary else colors.textSecondary,
                 modifier = Modifier.size(18.dp)
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = permission.title,
-                    color = SharedUsersTextPrimary,
+                    color = colors.textPrimary,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = permission.subtitle,
-                    color = SharedUsersTextSecondary,
+                    color = colors.textSecondary,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -286,6 +282,7 @@ private fun NoteShareAccessRole.toPermissionId(): String = when (this) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun ShareInviteScreenPreview() {
     NotesTakingAppTheme {
         ShareInviteScreenContent(
@@ -305,3 +302,9 @@ private fun ShareInviteScreenPreview() {
         )
     }
 }
+
+data class InvitePermissionUiModel(
+    val id: String,
+    val title: String,
+    val subtitle: String
+)

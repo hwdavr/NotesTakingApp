@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -133,7 +132,7 @@ fun HomeNotesScreenContent(
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        containerColor = Color.Transparent,
+        containerColor = colors.transparent,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
@@ -213,9 +212,9 @@ fun HomeNotesScreenContent(
                                         onMoreClick = {
                                             selectedNoteForQuickActions = state.noteActions[note.id]
                                         },
-                                        moreActionsTestTag = "home_note_more_actions_${note.id}",
+                                        moreActionsTestTag = "home_note_more_actions",
                                         badgeTestTag = if (state.noteActions[note.id]?.isFavorite == true) {
-                                            "home_note_favorite_badge_${note.id}"
+                                            "home_note_favorite_badge"
                                         } else {
                                             null
                                         }

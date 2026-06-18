@@ -58,7 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
@@ -114,6 +113,7 @@ fun FoldersScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun FoldersScreenContent(
     parentPadding: PaddingValues,
@@ -159,7 +159,7 @@ fun FoldersScreenContent(
 
     Scaffold(
         modifier = Modifier.padding(parentPadding),
-        containerColor = Color.Transparent,
+        containerColor = LocalAppColors.current.transparent,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
@@ -596,7 +596,7 @@ private fun NotesTreeHeader(onAddClick: () -> Unit) {
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = Color(0xFF2F343A)
+                color = LocalAppColors.current.textPrimary
             )
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -604,7 +604,7 @@ private fun NotesTreeHeader(onAddClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Outlined.Add,
                 contentDescription = stringResource(R.string.folders_add_folder_action),
-                tint = Color(0xFF8B9199)
+                tint = LocalAppColors.current.textSecondary
             )
         }
     }
@@ -622,7 +622,7 @@ private fun FolderTreeRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(if (highlighted) Color(0xFFF0F4FF) else Color.Transparent)
+            .background(if (highlighted) LocalAppColors.current.highlight else LocalAppColors.current.transparent)
             .clickable(onClick = onOpenCollection)
             .padding(
                 start = if (highlighted) 8.dp else (item.depth * 22).dp,
@@ -671,7 +671,7 @@ private fun FolderTreeRow(
             onClick = onQuickActions,
             modifier = Modifier
                 .size(28.dp)
-                .testTag("folder_more_actions_${item.folder.id}")
+                .testTag("folder_more_actions")
         ) {
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
@@ -683,7 +683,7 @@ private fun FolderTreeRow(
             Icon(
                 imageVector = Icons.Outlined.Add,
                 contentDescription = stringResource(R.string.folders_add_folder_action),
-                tint = Color(0xFF8B9199)
+                tint = LocalAppColors.current.textSecondary
             )
         }
     }
@@ -720,7 +720,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
             onClick = onQuickActions,
             modifier = Modifier
                 .size(28.dp)
-                .testTag("note_more_actions_${note.id}")
+                .testTag("note_more_actions")
         ) {
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
@@ -740,9 +740,10 @@ private fun FolderAddActionsSheet(
     onAddFolder: () -> Unit,
     onAddNote: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = colors.surface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Column(
@@ -761,7 +762,7 @@ private fun FolderAddActionsSheet(
                 Icon(
                     imageVector = folderIconForName(folder.name),
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
@@ -769,11 +770,11 @@ private fun FolderAddActionsSheet(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFF2F343A)
+                        color = colors.textPrimary
                     )
                 )
             }
-            HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
+            HorizontalDivider(color = colors.divider, thickness = 1.dp)
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
                 label = stringResource(R.string.folders_add_subfolder_action),
@@ -798,9 +799,10 @@ private fun FolderItemActionsSheet(
     onRename: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = colors.surface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Column(
@@ -819,7 +821,7 @@ private fun FolderItemActionsSheet(
                 Icon(
                     imageVector = folderIconForName(folder.name),
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
@@ -827,11 +829,11 @@ private fun FolderItemActionsSheet(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFF2F343A)
+                        color = colors.textPrimary
                     )
                 )
             }
-            HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
+            HorizontalDivider(color = colors.divider, thickness = 1.dp)
             SheetActionRow(
                 icon = if (folder.isFavorite) Icons.Filled.Star else Icons.Outlined.Star,
                 label = stringResource(

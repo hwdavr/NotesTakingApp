@@ -4,6 +4,9 @@
 These rules define the mandatory layer boundaries and patterns for this project.
 All contributors (human and AI) must follow these rules. Any change that violates these rules must be rejected unless this file is updated with explicit justification in the same change.
 
+> **Enforcement Matrix** — each rule below is tagged as Scripted 🤖 / Evaluator 🧠 / Human 👁️  
+> in [`architecture-rules-enforcement-matrix.md`](../../docs/rules-matrix/architecture-rules-enforcement-matrix.md).
+
 ---
 
 ## Layer Model

@@ -101,7 +101,7 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 
 ## Output
 
-Produce `coding/ui_verification_v<N>.md`:
+Produce `coding/ui_verification.md`:
 ```
 ## UI Verification — v<N>
 
@@ -142,7 +142,7 @@ Update `summary_t<taskId>.md`: mark UI Verification stage complete.
 - [ ] All text strings verified against design — no unresolved mismatches
 - [ ] Actual screenshot compared against original design screenshot — no unresolved visual deviations (or SKIPPED with reason)
 - [ ] All UiState variants (loading, success, empty, error) confirmed rendering correctly
-- [ ] `coding/ui_verification_v<N>.md` exists with verdict filled in
+- [ ] `coding/ui_verification.md` exists with verdict filled in
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

@@ -5,6 +5,7 @@ description: You are a senior Android developer delivering a new feature end-to-
 # Workflow: Feature Delivery
 
 ## When to use
+- Use this workflow when you are acting as the **Generator** (Implementer) agent.
 - Implementing a new feature
 - Enhancing an existing feature
 - Integrating a backend or API change
@@ -18,11 +19,7 @@ This workflow is for production-grade delivery — not quick prototyping.
 Do not jump directly into coding.
 **The Implementation Plan must be approved before any code is written.**
 
-**Sliced Plan Pickup & Routing**:
-- **If the user prompt outlines a specific, clear requirement**: Execute and perform analysis based directly on the user's explicit requirement.
-- **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check the task progress in `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details. Fulfill this pipeline specifically for that task.
-
-Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Testing → Review → Knowledge
+Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implementation → Testing → Code Quality Fix → Knowledge
 
 ---
 
@@ -30,33 +27,32 @@ Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implemen
 
 ### Stage 1 — Requirement, Impact & Design Analysis
 Load: `stages/requirement-analysis.md`
-Output: `docs/changes/<name>/request_analysis/spec_t<taskId>.md`, `summary_t<taskId>.md`
+Output: `docs/current/spec_v<N>.md`, `docs/current/summary_v<N>.md`
 Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
 
 ### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/changes/<name>/coding/implementation_plan_t<taskId>.md`, `coding/test_plan_t<taskId>.md`
+Output: `docs/current/implementation_plan_v<N>.md`, `docs/current/test_plan_v<N>.md`
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
 ### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
-Output: All source files across Data, Domain, and UI layers. `coding/coding_report_t<taskId>_v<N>.md`
+Output: All source files across Data, Domain, and UI layers.
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
 ### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios. `unit_test/test_report_t<taskId>_v<N>.md`
+Output: Unit tests, integration tests, shared JSON scenarios.
 Gate: tests pass, coverage targets met
 
-### Stage 5 — Code + Test Review ⛔ STOP
-Load: `stages/review.md`
-Output: `docs/changes/<name>/coding/review/review_t<taskId>_v<N>.md`
-Gate: build/lint/detekt pass, architecture and design compliance verified, test quality confirmed
-**STOP — present `review_t<taskId>_v<N>.md` to user. Do not proceed to Knowledge Capture until user explicitly approves.**
+### Stage 5 — Code Quality Fix
+Load: `stages/code-quality-fix.md`
+Output: All violations resolved, `summary_v<N>.md` updated.
+Gate: `ktlintCheck`, `detekt`, `lintDebug`, and all custom check scripts exit with code 0
 
 ### Stage 6 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
-Output: ADRs, past-bugs, pitfalls, finalized `summary_t<taskId>.md`, updated `docs/current/progress.md` (marking the task as Complete)
+Output: ADRs, past-bugs, pitfalls, finalized `summary_v<N>.md`, updated `docs/current/progress.md` (marking the task as Complete)
 Gate: all knowledge artifacts produced, task marked Complete in progress file (if active)
 
 ---
@@ -65,11 +61,10 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 | Failure | Return to |
 |---------|-----------|
+| Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
 | Compilation error | Implementation (Data + Domain + UI) |
 | Test failure or Coverage gap | Testing (fix implementation if needed, then re-test) |
-| Architecture/rule violation found in Review | Implementation (Data + Domain + UI) |
-| Test quality issue found in Review | Testing |
-| Requirement ambiguity or Plan rejection | Requirement, Impact & Design Analysis |
+| Quality check violation | Code Quality Fix (fix root cause, re-run checks) |
 
 ---
 
@@ -77,4 +72,3 @@ Gate: all knowledge artifacts produced, task marked Complete in progress file (i
 
 1. **After Requirement, Impact & Design Analysis** — user confirms assumptions and designs
 2. **After Implementation Plan** — user approves implementation plan *(mandatory always)*
-3. **After Code + Test Review** — user reviews verified, working code and tests before merge *(mandatory always)*

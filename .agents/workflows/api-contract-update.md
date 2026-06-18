@@ -51,11 +51,14 @@ Load: `stages/testing.md`
 
 Mandatory: at least one integration test per changed API endpoint using shared JSON scenarios. See `testing-strategy.md`.
 
-### Stage 7 — Code + Test Review ⚠️ Lightweight if Data & Domain only
-Load: `stages/review.md`
+### Stage 7 — Code Quality Fix ⚠️ Lightweight if Data & Domain only
+Load: `stages/code-quality-fix.md`
 
-- Part A (Code Review): run `android-code-quality-checks` (Ktlint, Detekt, Lint) — always required. Reasoning review focuses on DTO mapping, null safety, and error handling. Skip UI axes if Stage 5 was skipped.
-- Part B (Test Review): verify tests assert the correct layer (`expected.domain` for repo/use case tests). Skip UI test review if Stage 5 was skipped.
+Run the code-quality-fix stage to verify complete baseline correctness.
+
+Scope guidance:
+- Code Quality: run static analysis checks (Ktlint, Detekt, Lint).
+- Skip UI-related scripts or rules if Stage 5 was skipped.
 
 ### Stage 8 — Knowledge Capture ⏭️ Skip unless change is non-obvious
 Load: `stages/knowledge-capture.md`

@@ -92,8 +92,20 @@ open class HomeViewModel @Inject constructor(
             },
             noteActions = (notes + shared).associateBy { it.id },
             recentFolders = listOf(
-                FolderUiModel(id = "all_notes", name = "All Notes", noteCount = notes.size, isPrimary = false, isShared = false),
-                FolderUiModel(id = "shared", name = "Shared", noteCount = shared.size, isPrimary = false, isShared = true)
+                FolderUiModel(
+                    id = "all_notes",
+                    name = "All Notes",
+                    noteCount = notes.size,
+                    isPrimary = false,
+                    isShared = false
+                ),
+                FolderUiModel(
+                    id = "shared",
+                    name = "Shared",
+                    noteCount = shared.size,
+                    isPrimary = false,
+                    isShared = true
+                )
             ) + folders.map { folder ->
                 FolderUiModel(
                     id = folder.id,

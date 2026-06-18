@@ -66,7 +66,11 @@ The diagram below shows the standard pipeline for delivering a new feature. The 
 .agents/
 ├── AGENTS.md              ← Start here every session. Root map of the harness.
 ├── workflows/             ← Pick one per task. Entry point for all coding work.
+│   ├── harness-planning.md
+│   ├── harness-generator.md
+│   ├── harness-evaluation.md
 │   ├── feature-delivery.md
+│   ├── feature-review.md
 │   ├── bug-fixing.md
 │   ├── create-ui-and-verify.md
 │   └── api-contract-update.md
@@ -121,7 +125,11 @@ Pick the workflow that matches your task:
 
 | Workflow | When to use |
 |---|---|
+| `harness-planning.md` | Complex feature that needs slicing into tasks before implementation |
+| `harness-generator.md` | Implement features step-by-step using the harness-generator pipeline |
+| `harness-evaluation.md` | Code review + test review of an existing change |
 | `feature-delivery.md` | New feature, enhancement, or API integration |
+| `feature-review.md` | Independent review of an existing change and fixing all findings before merge |
 | `bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
 | `create-ui-and-verify.md` | UI implementation or update from a design |
 | `api-contract-update.md` | Backend API contract change |

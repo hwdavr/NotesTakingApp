@@ -73,6 +73,7 @@ naming:
     # Allow @Composable functions to use PascalCase
     ignoreAnnotated:
       - "Composable"
+      - "androidx.compose.runtime.Composable"
   TopLevelPropertyNaming:
     active: true
     constantPattern: "[A-Z][_A-Z0-9]*"
@@ -112,3 +113,41 @@ style:
     allowedNames: "(_|ignored|expected|serialVersionUID)"
   WildcardImport:
     active: false
+  # ── Layer boundary import enforcement ─────────────────────────────────────
+  # Enforces android-architecture.md layer rules via Detekt ForbiddenImport.
+  # Replaces the import-based checks previously in check-architecture-rules.sh / .cmd.
+  #
+  # Scoping notes:
+  #   - excludes: test source sets are excluded because repository/data-layer tests
+  #     legitimately import the classes they are testing.
+  #   - di/ files are excluded because Hilt modules wire data-layer implementations
+  #     to domain interfaces — that is their entire purpose.
+  #   - Android framework imports (android.content.*, android.app.*) are NOT listed
+  #     here because Detekt cannot scope a rule to a subdirectory (e.g. domain/ only).
+  #     Those checks remain in check-architecture-rules.sh / .cmd Section 3 (domain files only).
+  ForbiddenImport:
+    active: true
+    excludes:
+      # Test sources legitimately import data-layer classes under test
+      - '**/src/test/**'
+      - '**/src/androidTest/**'
+      # Hilt DI modules wire data-layer implementations to domain interfaces
+      - '**/di/**'
+      # The data layer itself is where Room, Retrofit, DTOs, and DAOs live
+      - '**/data/**'
+    imports:
+      # ── Production UI / Presentation / Domain must not import data-layer impl packages ──
+      - value: 'com.example.notesapp.data.remote.*'
+        reason: 'Data-layer remote classes (DTOs, ApiService) must not be imported outside the data layer. Use domain interfaces instead.'
+      - value: 'com.example.notesapp.data.local.*'
+        reason: 'Data-layer local/Room classes (DAOs, Entities) must not be imported outside the data layer.'
+      - value: 'com.example.notesapp.data.repository.*'
+        reason: 'Repository implementations must not be imported outside the data layer. Depend on domain interfaces.'
+      # ── Retrofit must never appear in production code outside the data layer ──
+      # (test sources excluded above, so integration test base class is not flagged)
+      - value: 'retrofit2.*'
+        reason: 'Retrofit must not be imported in ViewModels, domain, or UI. All network access goes through repositories.'
+      # ── Room must not appear outside the data layer ───────────────────────────
+      - value: 'androidx.room.*'
+        reason: 'Room must not be imported outside the data layer. Use repository interfaces defined in the domain layer.'
+

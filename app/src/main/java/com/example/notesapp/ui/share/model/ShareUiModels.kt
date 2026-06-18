@@ -1,6 +1,5 @@
 package com.example.notesapp.ui.share.model
 
-import androidx.compose.ui.graphics.Color
 import com.example.notesapp.domain.share.NoteShare
 import com.example.notesapp.domain.share.NoteShareAccessRole
 import com.example.notesapp.domain.share.NoteShareStatus
@@ -23,7 +22,7 @@ data class SharedUserUiModel(
     val name: String,
     val email: String,
     val initials: String,
-    val accentColor: Color,
+    val accentColorIndex: Int,
     val role: AccessRole,
     val isPending: Boolean
 )
@@ -33,7 +32,7 @@ data class ManageAccessUserUiModel(
     val name: String,
     val email: String,
     val initials: String,
-    val accentColor: Color,
+    val accentColorIndex: Int,
     val currentPermission: ManageAccessPermission,
     val selectedPermission: ManageAccessPermission,
     val isPending: Boolean
@@ -46,7 +45,7 @@ internal fun buildSharedUserUiModels(ownerEmail: String?, shares: List<NoteShare
             name = deriveDisplayName(it, null),
             email = it,
             initials = deriveInitials(it, null),
-            accentColor = accentColorFor(it),
+            accentColorIndex = accentColorIndexFor(it),
             role = AccessRole.OWNER,
             isPending = false
         )
@@ -59,7 +58,7 @@ internal fun buildSharedUserUiModels(ownerEmail: String?, shares: List<NoteShare
                 name = deriveDisplayName(share.email, share.displayName),
                 email = share.email,
                 initials = deriveInitials(share.email, share.displayName),
-                accentColor = accentColorFor(share.email),
+                accentColorIndex = accentColorIndexFor(share.email),
                 role = when (share.accessRole) {
                     NoteShareAccessRole.EDITOR -> AccessRole.EDITOR
                     NoteShareAccessRole.VIEWER -> AccessRole.VIEWER
@@ -80,7 +79,7 @@ internal fun buildManageAccessUserUiModels(
         name = deriveDisplayName(share.email, share.displayName),
         email = share.email,
         initials = deriveInitials(share.email, share.displayName),
-        accentColor = accentColorFor(share.email),
+        accentColorIndex = accentColorIndexFor(share.email),
         currentPermission = currentPermission,
         selectedPermission = selectedPermissions[share.id] ?: currentPermission,
         isPending = share.status == NoteShareStatus.PENDING
@@ -121,13 +120,6 @@ private fun deriveInitials(email: String, displayName: String?): String {
     val pieces = source.split(' ', '.', '_', '-').filter { it.isNotBlank() }
     return pieces.take(2).joinToString("") { it.first().uppercase() }.ifBlank { "?" }
 }
-private fun accentColorFor(seed: String): Color {
-    val palette = listOf(
-        Color(0xFF6E7BFF),
-        Color(0xFF2DB7A3),
-        Color(0xFFF59E0B),
-        Color(0xFFF97373),
-        Color(0xFF7C3AED)
-    )
-    return palette[kotlin.math.abs(seed.hashCode()) % palette.size]
+private fun accentColorIndexFor(seed: String): Int {
+    return kotlin.math.abs(seed.hashCode())
 }

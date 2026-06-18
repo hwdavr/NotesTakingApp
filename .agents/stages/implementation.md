@@ -7,11 +7,13 @@ Implement the full change across all three layers — Data, Domain, and UI — i
 Work in small, vertically-sliced increments: implement one layer, verify the build, then proceed to the next.
 
 > This is the **compact implementation stage** used by `feature-delivery` and `bug-fixing` workflows.
-> For granular layer-by-layer control, use the individual stages `03-data-layer.md`, `04-domain-layer.md`, and `05-ui-layer.md`.
+> For granular layer-by-layer control, use the individual stages `data-layer.md`, `domain-layer.md`, and `ui-layer.md`.
 
 ---
 
 ## Load
+
+**Always load:**
 - `skills/android-ui-verification/SKILL.md`
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
@@ -19,8 +21,15 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
-- `coding/implementation_plan_t<taskId>.md` (Implementation Plan stage output)
-- `request_analysis/spec_t<taskId>.md` — UiState and API design from the Requirement, Impact & Design Analysis stage
+- `rules/observability.md`
+
+**Adhoc workflows** (`feature-delivery`, `bug-fixing`):
+- `docs/current/implementation_plan_v<N>.md` — implementation plan approved by user
+- `docs/current/spec_v<N>.md` — requirement summary, impact analysis, UiState & navigation design
+
+**Harness workflow** (`harness-generator`):
+- `docs/current/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan
+- `docs/current/summary_{feature_id}.md` — single source of truth for the active feature (key decisions, files changed, stage progress)
 
 ---
 
@@ -100,6 +109,7 @@ Implement in this order.
 3. Emit one-off events (navigation, toast, dialog) via a separate `Channel<Event>`
 4. Call use cases only — **never call repositories or data sources directly**
 5. Do not import `retrofit2.*`, `androidx.room.*`, or any data-layer class
+6. Add structured logs at state transitions and error boundaries — follow `rules/observability.md` for tag format and level selection (DEBUG for state snapshots, WARN for recoverable errors, ERROR for failures)
 
 #### 3.2 UI model and mapper
 1. Create or update UI model data classes if the domain model needs formatting for display
@@ -121,28 +131,7 @@ Implement in this order.
 
 ## Output
 
-Produce `coding/coding_report_t<taskId>_v<N>.md` (e.g. `coding_report_t1_v1.md` for Task 1):
-```
-## Coding Report — v<N>
-
-### Files Changed
-| File | Layer | Action | Notes |
-|------|-------|--------|-------|
-
-### Key Decisions
-<any non-obvious implementation choices>
-
-### UiState Implemented
-<confirm loading / success / empty / error coverage>
-
-### testTags Added
-<list key testTag values>
-
-### Known Gaps
-<anything intentionally deferred>
-```
-
-Update `summary_t<taskId>.md`: mark the Implementation (Data + Domain + UI) stage complete.
+Update `summary_{feature_id}.md`: mark the Implementation (Data + Domain + UI) stage complete.
 
 ---
 
@@ -161,6 +150,7 @@ Update `summary_t<taskId>.md`: mark the Implementation (Data + Domain + UI) stag
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings
 - [ ] All interactive elements have `Modifier.testTag(...)` with a stable name
 - [ ] UiState covers loading, success, empty, and error states
+- [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `stages/testing.md` and write all required tests.

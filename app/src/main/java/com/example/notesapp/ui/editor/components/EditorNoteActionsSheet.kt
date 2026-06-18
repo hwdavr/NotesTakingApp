@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +33,7 @@ import com.example.notesapp.R
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.common.components.SheetActionRow
+import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +46,10 @@ fun EditorNoteActionsSheet(
     onDelete: () -> Unit,
     onExport: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White,
+        containerColor = colors.surface,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Column(
@@ -67,7 +68,7 @@ fun EditorNoteActionsSheet(
                 Icon(
                     imageVector = Icons.Outlined.Description,
                     contentDescription = null,
-                    tint = Color(0xFF5F6770),
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
@@ -75,11 +76,11 @@ fun EditorNoteActionsSheet(
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = Color(0xFF2F343A)
+                        color = colors.textPrimary
                     )
                 )
             }
-            HorizontalDivider(color = Color(0xFFE7EBF0), thickness = 1.dp)
+            HorizontalDivider(color = colors.divider, thickness = 1.dp)
             SheetActionRow(
                 icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.editor_export_action),
@@ -115,8 +116,8 @@ fun EditorNoteActionsSheet(
                     icon = Icons.Outlined.Archive,
                     label = stringResource(R.string.folders_delete_action),
                     onClick = onDelete,
-                    iconTint = Color(0xFFC44A4A),
-                    textColor = Color(0xFFC44A4A),
+                    iconTint = colors.error,
+                    textColor = colors.error,
                     modifier = Modifier.testTag("delete_item_action")
                 )
             }

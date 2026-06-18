@@ -20,3 +20,8 @@ data class NoteShare(
     val createdAt: Long,
     val updatedAt: Long
 )
+
+sealed class NoteShareException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    class DuplicateShareException(message: String, cause: Throwable? = null) : NoteShareException(message, cause)
+    class GenericShareException(message: String, cause: Throwable? = null) : NoteShareException(message, cause)
+}

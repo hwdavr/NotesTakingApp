@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.R
 import com.example.notesapp.domain.share.NoteShareAccessRole
+import com.example.notesapp.domain.share.NoteShareException
 import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.ui.share.model.isValidInviteEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 data class ShareInviteUiState(
     val noteId: String = "",
@@ -66,15 +66,22 @@ class ShareInviteViewModel @Inject constructor(
                 )
                 _uiState.update { it.copy(isSubmitting = false) }
                 _events.emit(ShareInviteEvent.InviteSucceeded)
-            } catch (exception: Exception) {
-                val errorRes = when ((exception as? HttpException)?.code()) {
-                    409 -> R.string.share_invite_duplicate_error
+            } catch (exception: NoteShareException) {
+                val errorRes = when (exception) {
+                    is NoteShareException.DuplicateShareException -> R.string.share_invite_duplicate_error
                     else -> R.string.share_invite_generic_error
                 }
                 _uiState.update {
                     it.copy(
                         isSubmitting = false,
                         errorMessageRes = errorRes
+                    )
+                }
+            } catch (ignoredException: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isSubmitting = false,
+                        errorMessageRes = R.string.share_invite_generic_error
                     )
                 }
             }

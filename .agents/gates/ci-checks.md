@@ -47,6 +47,23 @@ Defines the minimum set of checks that must pass before a change is considered r
 ```
 **Must pass** for errors. Review warnings in changed files.
 
+### 7. Compose Rules
+```bash
+bash scripts/check-compose-rules.sh
+```
+Windows:
+```powershell
+scripts\check-compose-rules.cmd
+```
+**Must pass.** Catches Compose-specific violations not covered by Ktlint/Detekt:
+- Hardcoded strings (must use `stringResource()`)
+- Hardcoded colors (must use `LocalAppColors.current.<token>`)
+- Interactive elements without `Modifier.testTag(...)`
+- `hiltViewModel()` / `viewModel()` used inside `*Content` composables
+- Repository / UseCase calls inside Composables
+- Unstable `testTag` values (string interpolation)
+- `Column` + `forEach` instead of `LazyColumn`
+
 ---
 
 ## Conditional Checks
@@ -57,8 +74,3 @@ Defines the minimum set of checks that must pass before a change is considered r
 ```
 Run when the change modifies Composable screens or navigation.
 
----
-
-## Environment Note
-
-This project runs in WSL. Ensure the WSL terminal has the correct environment set before running Gradle commands.

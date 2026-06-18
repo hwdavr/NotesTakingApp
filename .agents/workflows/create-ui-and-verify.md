@@ -31,8 +31,14 @@ Compare the implemented UI against the original design screenshot in `request_an
 
 **PASS →** proceed to Stage 3 — Code + Test Review.
 
-### Stage 3 — Code + Test Review
-Load: `stages/review.md`
+### Stage 3 — Code Quality Fix ⛔ STOP
+Load: `stages/code-quality-fix.md`
+
+Run the code-quality-fix stage to verify complete baseline correctness.
+
+Gate:
+- All conditions in `stages/code-quality-fix.md` pass
+- **⛔ STOP — present results to user. Do not proceed until user explicitly approves.**
 
 ## Best Practices
 - **Handling Long Content**: For scrollable screens or bottom sheets, ensure the UI handles scrolling properly. In tests, use `performScrollToNode()` to find off-screen elements.

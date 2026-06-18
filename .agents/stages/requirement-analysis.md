@@ -20,11 +20,8 @@ Do not write any code in this stage.
 ## Execute
 
 ### 1. Requirement & Impact Analysis
-0. **Task Pickup Check & Routing**:
-   - **If the user prompt outlines a specific, clear requirement**: Perform the analysis and execute based directly on the user's explicit requirement.
-   - **If the user prompt asks to "execute the next task" (or if no explicit requirement is specified but an active sliced plan exists in `docs/current/progress.md`)**: Check `docs/current/progress.md`, identify the next uncompleted task in `docs/current/task-list.md`, pick it up (set its progress status to `⏳ In Progress` in `docs/current/progress.md`), and read its objective, behavior, and scope details.
-   - The `spec_t<taskId>.md` you create/update in this stage will be dedicated specifically to the resolved target task or requirement (e.g. `spec_t1.md` for Task 1).
-1. Read the resolved requirement or picked-up task details in full (resolved in Step 0).
+1. Read the user's feature request in full. Do not assume anything that is not explicitly stated.
+2. **Read `evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
 2. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 3. Classify changes (`modify`, `extend`, `new`, `delete`).
 4. **API & Contract Check**:
@@ -41,63 +38,73 @@ Do not write any code in this stage.
 
 ## Output
 
-Create `docs/changes/<type>-<name>-<YYYYMMDD>/` directory.
+Create `docs/current/` directory.
 
-If the user provides a design screenshot or mockup, save it to **`request_analysis/design/`** so it can be referenced during UI Verification.
+If the user provides a design screenshot or mockup, save it to **`docs/current/design/`** so it can be referenced during UI Verification.
 
-Produce **`docs/changes/<name>/summary_t<taskId>.md`** — create this file **first**, before `spec_t<taskId>.md` (e.g. `summary_t1.md` for Task 1).
-Use the template from `docs/changes/README.md`.
-The Stage Progress table must list every stage from the active workflow in order:
+Produce **`docs/current/summary_v<N>.md`** — create this file **first**, before `spec_v<N>.md`.
+Use the template from `docs/templates/` (e.g. `docs/templates/progress-template.md`).
+The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
+
+**`feature-delivery` workflow:**
 
 | Stage | Status | Timestamp | Notes |
 |-------|--------|-----------|-------|
-| Requirement Analysis | ⏳ In Progress | | |
+| Requirement Analysis | ⏳ In Progress | YYYY-MM-DD HH:MM | |
 | Implementation Plan | | | Approved by user: — |
 | Implementation | | | |
-| Code Review | | | APPROVED / REVISION REQUIRED |
 | Testing | | | |
+| Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | |
+
+**`bug-fixing` workflow:**
+
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| Bug Context & Root Cause | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| Bug Reproduction | | | Reproduction test: RED |
+| Fix Plan | | | Approved by user: — |
+| Implementation | | | |
+| Testing | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
 | Test Review | | | APPROVED / REVISION REQUIRED |
 | Knowledge Capture | | | |
 
-Mark the Requirement Analysis row as ✅ Complete when this stage's gate passes.
+**`api-contract-update` workflow:**
 
-Produce **`request_analysis/spec_t<taskId>.md`** (e.g. `spec_t1.md` for Task 1):
-```
-## Requirement Summary
-<description>
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| Requirement Analysis | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| Implementation Plan | | | Approved by user: — |
+| Data Layer | | | |
+| Domain Layer | | | |
+| UI Layer | | | Skipped if no UI changes |
+| Testing | | | |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Test Review | | | APPROVED / REVISION REQUIRED |
+| Knowledge Capture | | | Skipped if straightforward |
 
-## Impact Analysis (Affected Files)
-| File | Layer | Change Type | Notes |
-|------|-------|-------------|-------|
+**`create-ui-and-verify` workflow:**
 
-## API Impact
-- Classification: <backward compatible / risky / breaking / none>
-- Force update: <yes / no / unknown>
-- **APIs Needed**:
-  - `METHOD /path` : <description>
+| Stage | Status | Timestamp | Notes |
+|-------|--------|-----------|-------|
+| UI Implementation | ⏳ In Progress | YYYY-MM-DD HH:MM | |
+| UI Verification | | | Loop count: — |
+| Code Review | | | APPROVED / REVISION REQUIRED |
+| Test Review | | | APPROVED / REVISION REQUIRED |
 
-## UI State Design
-```kotlin
-data class ExampleUiState(...)
-```
+Mark the first row as ✅ Complete when this stage's gate passes.
 
-## Navigation Design
-- Route: <name>
-- Arguments: <types>
-- Back-stack: <behavior>
-
-## Explicit Assumptions
-1. <assumption>
-```
-
+Produce **`spec_v<N>.md`** (inside `docs/current/`).
+Use the template from `docs/templates/spec-template.md`.
 
 ---
 
 ## Gate
 
 **Conditions to pass:**
-- [ ] `docs/changes/<name>/summary_t<taskId>.md` exists with the Stage Progress table filled in.
-- [ ] `request_analysis/spec_t<taskId>.md` exists with requirement, impact, and design sections filled.
+- [ ] `docs/current/summary_v<N>.md` exists with the Stage Progress table filled in.
+- [ ] `docs/current/spec_v<N>.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.
 - [ ] UiState design covers all visual states.
 - [ ] API change is classified.

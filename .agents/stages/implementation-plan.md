@@ -13,7 +13,7 @@ This is the final gate before implementation begins.
 - `rules/testing-strategy.md`
 - `docs/templates/implementation-plan-template.md`
 - `docs/templates/test-plan-template.md`
-- `request_analysis/spec_t<taskId>.md` (Requirement, Impact & Design Analysis stage output)
+- `docs/current/spec_v<N>.md` (Requirement, Impact & Design Analysis stage output)
 
 ---
 
@@ -23,7 +23,7 @@ This is the final gate before implementation begins.
 Using all outputs from the **Requirement, Impact & Design Analysis** stage, compile a complete implementation plan. 
 
 > [!IMPORTANT]
-> You **MUST** follow the structure and sections in [implementation-plan-template.md](./docs/templates/implementation-plan-template.md) exactly.
+> You **MUST** follow the structure and sections in [implementation-plan-template.md](docs/templates/implementation-plan-template.md) exactly.
 
 The implementation plan must include:
 - **File Breakdown**: List all files to create, modify, or delete.
@@ -37,7 +37,7 @@ The implementation plan must include:
 - **Risks & Mitigations**: Identify technical risks (such as payload changes, synchronization issues, database migration) and document their mitigation strategies.
 
 ### Step 2: Generate Test Plan
-Create a separate, comprehensive test plan document following [test-plan-template.md](./docs/templates/test-plan-template.md).
+Create a separate, comprehensive test plan document following [test-plan-template.md](docs/templates/test-plan-template.md).
 
 The test plan must include:
 - **Test Layer Selection**: Read `rules/testing-strategy.md` to decide the minimum test layers needed (start at the lowest layer that provides enough confidence).
@@ -49,9 +49,9 @@ The test plan must include:
 
 ## Output
 
-Write `coding/implementation_plan_t<taskId>.md` (follow `docs/templates/implementation-plan-template.md`) (e.g. `implementation_plan_t1.md` for Task 1).
-Write `coding/test_plan_t<taskId>.md` (follow `docs/templates/test-plan-template.md`) (e.g. `test_plan_t1.md` for Task 1).
-Update `summary_t<taskId>.md`: mark the Implementation Plan stage complete.
+Write `docs/current/implementation_plan_v<N>.md` (follow `docs/templates/implementation-plan-template.md`).
+Write `docs/current/test_plan_v<N>.md` (follow `docs/templates/test-plan-template.md`).
+Update `summary_v<N>.md`: mark the Implementation Plan stage complete.
 
 ---
 
@@ -61,7 +61,7 @@ Update `summary_t<taskId>.md`: mark the Implementation Plan stage complete.
 
 ### Feedback Loop
 1. **Feedback**: The user provides feedback via chat, file comments, or direct edits to the plan.
-2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_t<taskId>.md` and request approval again.
+2. **Iteration**: If feedback requires changes to requirements or design, the agent **MUST return to the Requirement, Impact & Design Analysis stage** to update the analysis/spec first. Then, update `implementation_plan_v<N>.md` and request approval again.
 3. **Approval**: The agent returns to the active workflow file and proceeds to the next stage defined there.
 
 Do not write any code, create any source files, or call any file-editing tools until the user explicitly approves.

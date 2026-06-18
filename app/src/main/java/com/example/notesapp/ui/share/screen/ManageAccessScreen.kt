@@ -35,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +49,7 @@ import com.example.notesapp.ui.share.model.ManageAccessPermission
 import com.example.notesapp.ui.share.model.ManageAccessUserUiModel
 import com.example.notesapp.ui.share.viewmodel.ManageAccessEvent
 import com.example.notesapp.ui.share.viewmodel.ManageAccessViewModel
+import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 
 @Composable
@@ -78,7 +78,6 @@ fun ManageAccessScreen(
         noteTitle = state.noteTitle.ifBlank { stringResource(R.string.editor_untitled_note) },
         users = state.users,
         isLoading = state.isLoading,
-        isSubmitting = state.isSubmitting,
         errorMessageRes = state.errorMessageRes,
         isConfirmEnabled = state.isConfirmEnabled,
         onBack = onBack,
@@ -93,28 +92,28 @@ fun ManageAccessScreenContent(
     noteTitle: String,
     users: List<ManageAccessUserUiModel>,
     isLoading: Boolean,
-    isSubmitting: Boolean,
     errorMessageRes: Int?,
     isConfirmEnabled: Boolean,
     onBack: () -> Unit,
     onPermissionSelected: (String, ManageAccessPermission) -> Unit,
     onConfirm: () -> Unit
 ) {
+    val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
-        containerColor = SharedUsersBackground,
+        containerColor = colors.background,
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(SharedUsersBackground)
+                .background(colors.background)
                 .padding(innerPadding)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SharedUsersBackground)
+                    .background(colors.background)
             ) {
                 SharedUsersTopBar(
                     onBack = onBack,
@@ -133,21 +132,21 @@ fun ManageAccessScreenContent(
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(
                                 text = noteTitle,
-                                color = SharedUsersTextSecondary,
+                                color = colors.textSecondary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.testTag("manage_access_note_title")
                             )
                             Text(
                                 text = stringResource(R.string.shared_users_section_title),
-                                color = SharedUsersTextSecondary,
+                                color = colors.textSecondary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             if (errorMessageRes != null) {
                                 Text(
                                     text = stringResource(errorMessageRes),
-                                    color = Color(0xFFC44A4A),
+                                    color = colors.error,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.testTag("manage_access_error")
@@ -164,7 +163,7 @@ fun ManageAccessScreenContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator(
-                                    color = SharedUsersPrimary,
+                                    color = colors.primary,
                                     modifier = Modifier.testTag("manage_access_loading")
                                 )
                             }
@@ -173,7 +172,7 @@ fun ManageAccessScreenContent(
                         item {
                             Text(
                                 text = stringResource(R.string.shared_users_empty_state),
-                                color = SharedUsersTextSecondary,
+                                color = colors.textSecondary,
                                 fontSize = 13.sp,
                                 modifier = Modifier.testTag("manage_access_empty_state")
                             )
@@ -203,10 +202,10 @@ fun ManageAccessScreenContent(
                     .testTag("manage_access_confirm"),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SharedUsersPrimary,
-                    contentColor = Color.White,
-                    disabledContainerColor = Color(0xFFAAB8C2),
-                    disabledContentColor = Color.White
+                    containerColor = colors.primary,
+                    contentColor = colors.onPrimary,
+                    disabledContainerColor = colors.textTertiary,
+                    disabledContentColor = colors.onPrimary
                 )
             ) {
                 Text(
@@ -224,8 +223,9 @@ private fun ManageAccessUserCard(
     user: ManageAccessUserUiModel,
     onPermissionSelected: (ManageAccessPermission) -> Unit
 ) {
+    val colors = LocalAppColors.current
     Surface(
-        color = SharedUsersCard,
+        color = colors.surface,
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -242,12 +242,12 @@ private fun ManageAccessUserCard(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(user.accentColor),
+                        .background(colors.avatarPreset(user.accentColorIndex)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = user.initials,
-                        color = Color.White,
+                        color = colors.onAccent,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )
@@ -258,13 +258,13 @@ private fun ManageAccessUserCard(
                 ) {
                     Text(
                         text = user.name,
-                        color = SharedUsersTextPrimary,
+                        color = colors.textPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
                     Text(
                         text = user.email,
-                        color = SharedUsersTextSecondary,
+                        color = colors.textSecondary,
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -272,7 +272,7 @@ private fun ManageAccessUserCard(
                     if (user.isPending) {
                         Text(
                             text = stringResource(R.string.shared_users_status_pending),
-                            color = SharedUsersPrimary,
+                            color = colors.primary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -311,28 +311,28 @@ private fun ManageAccessPermissionOption(
     selected: Boolean,
     onClick: (ManageAccessPermission) -> Unit
 ) {
+    val colors = LocalAppColors.current
     val isDelete = permission == ManageAccessPermission.DELETE
     val backgroundColor = when {
-        !selected && !isDelete -> Color.White
-        !selected && isDelete -> Color.White
-        isDelete -> Color(0xFFFFF4F1)
-        else -> Color(0xFFEEF3FF)
+        !selected && !isDelete -> colors.surface
+        !selected && isDelete -> colors.surface
+        isDelete -> colors.error.copy(alpha = 0.12f)
+        else -> colors.highlight
     }
     val borderColor = when {
-        selected && isDelete -> Color(0xFFD93C15)
-        selected -> SharedUsersPrimary
-        else -> Color(0xFFD9E2FF)
+        selected && isDelete -> colors.error
+        selected -> colors.primary
+        else -> colors.border
     }
     val contentColor = when {
-        isDelete -> Color(0xFFD93C15)
-        permission == ManageAccessPermission.EDITOR -> SharedUsersTextPrimary
-        else -> SharedUsersTextPrimary
+        isDelete -> colors.error
+        else -> colors.textPrimary
     }
     val iconTint = when {
-        selected && isDelete -> Color(0xFFD93C15)
-        selected -> SharedUsersPrimary
-        isDelete -> Color(0xFFD93C15)
-        else -> SharedUsersTextSecondary
+        selected && isDelete -> colors.error
+        selected -> colors.primary
+        isDelete -> colors.error
+        else -> colors.textSecondary
     }
 
     Surface(
@@ -342,7 +342,7 @@ private fun ManageAccessPermissionOption(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick(permission) }
-            .testTag("manage_access_option_${permission.name.lowercase()}")
+            .testTag("manage_access_option")
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -367,6 +367,7 @@ private fun ManageAccessPermissionOption(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
+@Suppress("UnusedPrivateMember")
 private fun ManageAccessScreenPreview() {
     NotesTakingAppTheme {
         ManageAccessScreenContent(
@@ -378,7 +379,7 @@ private fun ManageAccessScreenPreview() {
                     name = "Ben Lee",
                     email = "ben@notesapp.com",
                     initials = "BL",
-                    accentColor = Color(0xFF6E56CF),
+                    accentColorIndex = 0,
                     currentPermission = ManageAccessPermission.EDITOR,
                     selectedPermission = ManageAccessPermission.EDITOR,
                     isPending = false
@@ -388,14 +389,13 @@ private fun ManageAccessScreenPreview() {
                     name = "Clara Wong",
                     email = "clara@notesapp.com",
                     initials = "CW",
-                    accentColor = Color(0xFFF59E0B),
+                    accentColorIndex = 1,
                     currentPermission = ManageAccessPermission.VIEWER,
                     selectedPermission = ManageAccessPermission.VIEWER,
                     isPending = false
                 )
             ),
             isLoading = false,
-            isSubmitting = false,
             errorMessageRes = null,
             isConfirmEnabled = true,
             onBack = {},
