@@ -21,8 +21,8 @@ Gather complete session, requirement, and git context, establishing a single sou
 
 Before making any changes or planning code, gather complete session and git context:
 
-1. **Read `sprint-contract.md`** for scope and acceptance criteria.
-2. **Read `evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
+1. **Read `docs/current/sprint-contract.md`** for scope and acceptance criteria.
+2. **Read `docs/current/evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
 3. **Read active logs** in `docs/current/progress.md` (or the session logs).
 4. **Run recent git history analysis** (`git log -n 5 --oneline`).
 5. **Review prior knowledge** in `docs/knowledge/`:

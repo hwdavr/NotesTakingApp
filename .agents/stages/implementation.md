@@ -36,13 +36,12 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 ## Execute
 
 ### Layer 1 — Data Layer
-Implement in this order. Run `./gradlew assembleDebug` after this layer before continuing.
 
 #### 1.1 API / DTO changes
 If the API contract changed:
 1. Update `sharedContracts/openapi.yaml` to reflect the new contract — **do this first**
 2. Create or modify DTO data classes in `data/remote/dto/`
-3. Use correct nullability: `String?` for optional fields, `String` for required
+3. Use correct nullability: `String?` for optional fields, `String` for required fields
 4. Handle unknown enum values with a fallback variant:
    ```kotlin
    enum class NoteStatus {
@@ -67,12 +66,9 @@ If local storage is affected:
 4. Map every field explicitly — no reflection, no structural mapping
 5. Handle null defensively: `dto.field ?: defaultValue`
 
-✅ **Build check**: `./gradlew assembleDebug` must pass before proceeding to Domain Layer.
-
 ---
 
 ### Layer 2 — Domain Layer
-Implement in this order. Run `./gradlew assembleDebug` after this layer before continuing.
 
 #### 2.1 Domain model changes
 1. Add or remove fields in domain model data classes
@@ -96,12 +92,9 @@ Implement in this order. Run `./gradlew assembleDebug` after this layer before c
 - Validation before mutations
 - Data combination from multiple repositories
 
-✅ **Build check**: `./gradlew assembleDebug` must pass before proceeding to UI Layer.
-
 ---
 
 ### Layer 3 — UI Layer
-Implement in this order.
 
 #### 3.1 ViewModel
 1. Expose screen state as `StateFlow<UiState>` — one state object per screen
