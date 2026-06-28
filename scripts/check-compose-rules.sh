@@ -19,7 +19,7 @@
 #   1 — one or more violations found
 # =============================================================================
 
-set -uo pipefail
+set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -35,12 +35,17 @@ SOURCE_ROOT="${1:-$PROJECT_ROOT/app/src/main/java}"
 
 # Determine which files to scan
 kt_files=()
+collect_kt_files() {
+    while IFS= read -r file; do
+        kt_files+=("$file")
+    done
+}
 if [[ "$SCAN_ALL" == "true" ]]; then
-    mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+    collect_kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
 else
     # Find all Kotlin files that are modified, staged, or untracked in Git
     if git rev-parse --is-inside-work-tree &>/dev/null; then
-        mapfile -t kt_files < <(
+        collect_kt_files < <(
             {
                 git diff --name-only --diff-filter=d HEAD 2>/dev/null
                 git diff --name-only --cached --diff-filter=d 2>/dev/null
@@ -50,7 +55,7 @@ else
     fi
     # If no changed files or not in git, fallback to all files
     if [[ ${#kt_files[@]} -eq 0 ]]; then
-        mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+        collect_kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
     fi
 fi
 

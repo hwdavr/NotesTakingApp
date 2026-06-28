@@ -29,7 +29,7 @@
 #   1 — one or more violations found
 # =============================================================================
 
-set -uo pipefail
+set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -51,11 +51,16 @@ DATA_ROOT="$BASE_PKG/data"
 
 # ---------- file collection ---------------------------------------------------
 kt_files=()
+collect_kt_files() {
+    while IFS= read -r file; do
+        kt_files+=("$file")
+    done
+}
 if [[ "$SCAN_ALL" == "true" ]]; then
-    mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+    collect_kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
 else
     if git rev-parse --is-inside-work-tree &>/dev/null; then
-        mapfile -t kt_files < <(
+        collect_kt_files < <(
             {
                 git diff --name-only --diff-filter=d HEAD 2>/dev/null
                 git diff --name-only --cached --diff-filter=d 2>/dev/null
@@ -63,8 +68,8 @@ else
             } | grep '\.kt$' | sort -u | sed "s|^|$PROJECT_ROOT/|" | grep "^$SOURCE_ROOT/"
         )
     fi
-    if [[ ${#kt_files[@]} -eq 0 ]]; then
-        mapfile -t kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
+    if [[ ${#kt_files[*]} -eq 0 ]]; then
+        collect_kt_files < <(find "$SOURCE_ROOT" -name "*.kt" -type f)
     fi
 fi
 
@@ -92,7 +97,7 @@ if command -v rg &>/dev/null; then
                 *)         rg_args+=("$1");          shift   ;;
             esac
         done
-        if [[ ${#excludes[@]} -gt 0 && ${#files[@]} -gt 0 ]]; then
+        if [[ ${#excludes[*]} -gt 0 && ${#files[*]} -gt 0 ]]; then
             local filtered_files=()
             local file exclude skip
             for file in "${files[@]}"; do
@@ -106,7 +111,7 @@ if command -v rg &>/dev/null; then
             done
             files=("${filtered_files[@]}")
         fi
-        [[ ${#files[@]} -eq 0 ]] && return 0
+        [[ ${#files[*]} -eq 0 ]] && return 0
         rg --color never -n "${rg_args[@]}" "$pattern" "${files[@]}" || true
     }
 else
@@ -166,7 +171,7 @@ _run_check() {
     _rule_header "$rule_name"
 
     local results=""
-    if [[ ${#scoped_files[@]} -gt 0 ]]; then
+    if [[ ${#scoped_files[*]} -gt 0 ]]; then
         results=$(_search "$pattern" "${extra_args[@]}" -- "${scoped_files[@]}" 2>/dev/null || true)
     fi
 
@@ -202,7 +207,7 @@ _run_check_files() {
     _rule_header "$rule_name"
 
     local results=""
-    if [[ ${#files[@]} -gt 0 ]]; then
+    if [[ ${#files[*]} -gt 0 ]]; then
         results=$(_search "$pattern" "${grep_flags[@]}" -- "${files[@]}" 2>/dev/null || true)
     fi
 
@@ -240,10 +245,10 @@ echo -e "\n${BOLD}======================================================${RESET}
 echo -e "${BOLD}  Architecture Rules Checker — $(date '+%Y-%m-%d %H:%M:%S')${RESET}"
 echo -e "${BOLD}======================================================${RESET}"
 echo -e "  Source root : ${SOURCE_ROOT}"
-echo -e "  Files scanned: ${#kt_files[@]}"
-echo -e "    UI files    : ${#ui_files[@]}"
-echo -e "    Domain files: ${#domain_files[@]}"
-echo -e "    Data files  : ${#data_files[@]}"
+echo -e "  Files scanned: ${#kt_files[*]}"
+echo -e "    UI files    : ${#ui_files[*]}"
+echo -e "    Domain files: ${#domain_files[*]}"
+echo -e "    Data files  : ${#data_files[*]}"
 echo -e ""
 echo -e "  ${YELLOW}NOTE: Import-based layer boundary checks run via Detekt (detekt.yml).${RESET}"
 echo -e "  ${YELLOW}      Run './gradlew detekt' to verify import rules.${RESET}\n"
@@ -256,7 +261,7 @@ _header "1 · UI Layer — Direct Data Access Inside Composable Bodies"
 echo -e "  ${YELLOW}UI must not call DAOs, API services, repositories, or use cases directly.${RESET}"
 
 # 1a. UI calling Room DAO methods directly in Composable bodies
-if [[ ${#ui_files[@]} -gt 0 ]]; then
+if [[ ${#ui_files[*]} -gt 0 ]]; then
     _run_check_files \
         'UI Composable calling Room DAO directly (body-level call)' \
         '\bDao\b.*\.(get|insert|update|delete|query)\b' \
@@ -265,7 +270,7 @@ if [[ ${#ui_files[@]} -gt 0 ]]; then
 fi
 
 # 1b. Repository or UseCase called directly inside @Composable function bodies
-if [[ ${#ui_files[@]} -gt 0 ]]; then
+if [[ ${#ui_files[*]} -gt 0 ]]; then
     _run_check_files \
         'Composable calling repository or use case directly (not via ViewModel)' \
         '(?s)@Composable\b[^{]*fun\s+\w+[^{]*\{[^}]*(Repository|UseCase|DataSource)\s*\.' \
@@ -281,7 +286,7 @@ _header "2 · Presentation Layer — Direct Retrofit Calls in ViewModel Bodies"
 echo -e "  ${YELLOW}ViewModels must not call Retrofit API services directly — only through use cases / repositories.${RESET}"
 
 # 2a. ViewModel calling Retrofit API service directly in function bodies
-if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
+if [[ ${#viewmodel_files[*]} -gt 0 ]]; then
     _run_check_files \
         'ViewModel calling Retrofit API service directly' \
         '\bApiService\s*\.\s*(get|post|put|patch|delete|create|fetch|update)\b' \
@@ -304,7 +309,7 @@ for f in "${viewmodel_files[@]}"; do
         bool_flow_violations+=("${f#$PROJECT_ROOT/} (${count} StateFlow<Boolean>)")
     fi
 done
-if [[ ${#bool_flow_violations[@]} -eq 0 ]]; then
+if [[ ${#bool_flow_violations[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${bool_flow_violations[@]}"; do
@@ -314,7 +319,7 @@ else
 fi
 
 # 5b. One-off events stored as permanent state fields
-if [[ ${#viewmodel_files[@]} -gt 0 ]]; then
+if [[ ${#viewmodel_files[*]} -gt 0 ]]; then
     _run_check_files \
         'One-off event stored as a permanent UiState field (use Channel/SharedFlow instead)' \
         'val\s+(showDialog|showToast|showSnackbar|navigateTo|isNavigating|navigationEvent)\s*[=:]' \
@@ -329,7 +334,7 @@ _header "7 · Dependency Injection — Hilt Scoping"
 echo -e "  ${YELLOW}Singletons must be @Singleton, ViewModel deps @ViewModelScoped. Context must not leak into domain.${RESET}"
 
 # 7a. Context injected into domain layer classes
-if [[ ${#domain_files[@]} -gt 0 ]]; then
+if [[ ${#domain_files[*]} -gt 0 ]]; then
     _run_check_files \
         'Domain class receiving Context as constructor / inject parameter' \
         '(fun\s+\w+|constructor)\s*\([^)]*\bContext\b' \
@@ -349,7 +354,7 @@ for f in "${repo_impl_files[@]}"; do
         missing_singleton+=("${f#$PROJECT_ROOT/}")
     fi
 done
-if [[ ${#missing_singleton[@]} -eq 0 ]]; then
+if [[ ${#missing_singleton[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${missing_singleton[@]}"; do
@@ -393,7 +398,7 @@ for f in "${viewmodel_files[@]}"; do
         missing_tests+=("${f#$PROJECT_ROOT/}")
     fi
 done
-if [[ ${#missing_tests[@]} -eq 0 ]]; then
+if [[ ${#missing_tests[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${missing_tests[@]}"; do
@@ -418,7 +423,7 @@ for f in "${kt_files[@]}"; do
         fi
     fi
 done
-if [[ ${#vm_misplaced[@]} -eq 0 ]]; then
+if [[ ${#vm_misplaced[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${vm_misplaced[@]}"; do
@@ -437,7 +442,7 @@ for f in "${kt_files[@]}"; do
         fi
     fi
 done
-if [[ ${#uc_misplaced[@]} -eq 0 ]]; then
+if [[ ${#uc_misplaced[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${uc_misplaced[@]}"; do
@@ -456,7 +461,7 @@ for f in "${kt_files[@]}"; do
         fi
     fi
 done
-if [[ ${#repo_misplaced[@]} -eq 0 ]]; then
+if [[ ${#repo_misplaced[*]} -eq 0 ]]; then
     echo -e "    ${GREEN}✓ No violations${RESET}"
 else
     for v in "${repo_misplaced[@]}"; do
