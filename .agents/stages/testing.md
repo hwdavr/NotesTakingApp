@@ -100,7 +100,7 @@ Record every result number in the output report below. Do not summarize — copy
 New or updated test files.
 New or updated shared JSON scenarios in `sharedContracts/test-scenarios/`.
 
-Update `summary_t<taskId>.md`: mark the Testing stage complete with test count and coverage.
+Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active workflow): mark the Testing stage complete with test count and coverage.
 
 ---
 

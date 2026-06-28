@@ -124,7 +124,7 @@ If local storage is affected:
 
 ## Output
 
-Update `summary_{feature_id}.md`: mark the Implementation (Data + Domain + UI) stage complete.
+Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active workflow): mark the Implementation (Data + Domain + UI) stage complete.
 
 ---
 

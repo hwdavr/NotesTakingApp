@@ -54,7 +54,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 | Implementation Plan | | | Approved by user: — |
 | Implementation | | | |
 | Testing | | | |
-| Review | | | APPROVED / REVISION REQUIRED |
+| Code Quality Fix | | | |
 | Knowledge Capture | | | |
 
 **`bug-fixing` workflow:**
@@ -66,8 +66,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 | Fix Plan | | | Approved by user: — |
 | Implementation | | | |
 | Testing | | | |
-| Code Review | | | APPROVED / REVISION REQUIRED |
-| Test Review | | | APPROVED / REVISION REQUIRED |
+| Code Quality Fix | | | APPROVED / REVISION REQUIRED |
 | Knowledge Capture | | | |
 
 **`api-contract-update` workflow:**
@@ -80,8 +79,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 | Domain Layer | | | |
 | UI Layer | | | Skipped if no UI changes |
 | Testing | | | |
-| Code Review | | | APPROVED / REVISION REQUIRED |
-| Test Review | | | APPROVED / REVISION REQUIRED |
+| Code Quality Fix | | | APPROVED / REVISION REQUIRED |
 | Knowledge Capture | | | Skipped if straightforward |
 
 **`create-ui-and-verify` workflow:**
@@ -90,8 +88,7 @@ The Stage Progress table must list every stage from the **active workflow** in o
 |-------|--------|-----------|-------|
 | UI Implementation | ⏳ In Progress | YYYY-MM-DD HH:MM | |
 | UI Verification | | | Loop count: — |
-| Code Review | | | APPROVED / REVISION REQUIRED |
-| Test Review | | | APPROVED / REVISION REQUIRED |
+| Code Quality Fix| | | APPROVED / REVISION REQUIRED |
 
 Mark the first row as ✅ Complete when this stage's gate passes.
 

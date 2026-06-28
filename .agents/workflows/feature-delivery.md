@@ -32,17 +32,17 @@ Gate: requirements clear, impacted files identified, API classified, UiState/Nav
 
 ### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/current/implementation_plan_v<N>.md`, `docs/current/test_plan_v<N>.md`
+Output: `docs/current/implementation_plan_v<N>.md`, `docs/current/test_plan_v<N>.md`, `summary_v<N>.md` updated.
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
 
 ### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
-Output: All source files across Data, Domain, and UI layers.
+Output: All source files across Data, Domain, and UI layers. `summary_v<N>.md` updated.
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
 
 ### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios.
+Output: Unit tests, integration tests, shared JSON scenarios. `summary_v<N>.md` updated.
 Gate: tests pass, coverage targets met
 
 ### Stage 5 — Code Quality Fix
