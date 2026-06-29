@@ -9,7 +9,7 @@ description: You are a senior Android developer diagnosing and fixing a bug.
 - A regression or test failure
 - Unexpected app behavior
 
-This workflow prioritizes root-cause analysis over quick patching.
+This workflow prioritises root-cause analysis over quick patching.
 
 ---
 
@@ -31,11 +31,11 @@ Load: `stages/requirement-analysis.md`
 Adapt for bugs:
 - Bug description, expected vs. actual behavior
 - Fault localization (UI → VM → UC → Repo → API)
-- Root cause statement (triggered when <cond>, causing <behavior>)
+- Root cause statement (triggered when \<cond\>, causing \<behavior\>)
 - Design the fix (UiState changes if needed)
 
-Output: `docs/current/spec_v<N>.md`, `docs/current/summary_v<N>.md` (with bug context, fault area, and root cause)
-Gate: root cause is specific enough that a reproduction test can be written
+Output: `docs/current/spec_v<N>.md` created; `docs/current/summary_v<N>.md` updated with bug context, fault area, and root cause.
+Gate: root cause is specific enough that a reproduction test can be written.
 
 ---
 
@@ -44,8 +44,8 @@ Load: `stages/bug-reproduction.md`
 
 Write a failing test that mechanically proves the root cause before any fix is written.
 
-Output: Failing reproduction test file + `spec_v<N>.md` updated with Reproduction Test section
-Gate: test exits RED (non-zero), failure message matches root cause, no application code modified
+Output: Failing reproduction test file created; `docs/current/spec_v<N>.md` updated with a Reproduction Test section; `docs/current/summary_v<N>.md` updated.
+Gate: test exits RED (non-zero), failure message matches root cause, no application code modified.
 **STOP — if root cause cannot be reproduced by a test, surface to user before continuing.**
 
 ---
@@ -58,7 +58,7 @@ Adapt — the plan must include:
 - Proposed fix (minimal)
 - Which `@Ignore` annotation to remove once the fix is applied
 
-Output: `docs/current/implementation_plan_v<N>.md`
+Output: `docs/current/implementation_plan_v<N>.md` created; `docs/current/summary_v<N>.md` updated.
 Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---
@@ -67,15 +67,17 @@ Gate: **STOP — present fix plan to user. Do not proceed until user explicitly 
 Load: `stages/implementation.md`
 
 Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
-Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied
+
+Output: `docs/current/summary_v<N>.md` updated with Implementation stage marked complete.
+Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied.
 
 ---
 
 ### Stage 5 — Testing
 Load: `stages/testing.md`
 
-Output: Unit tests, integration tests, shared JSON scenarios.
-Gate: tests pass, coverage targets met
+Output: Unit tests, integration tests, and shared JSON scenarios created or updated; `docs/current/summary_v<N>.md` updated with test count and coverage.
+Gate: tests pass, coverage targets met.
 
 ---
 
@@ -90,6 +92,7 @@ For bug fixes, additionally verify:
 - No regressions in the full suite
 - The minimal-fix constraint: no unrelated changes slipped in
 
+Output: `docs/current/summary_v<N>.md` updated with code quality results.
 Gate:
 - All conditions in `stages/code-quality-fix.md` pass
 - The reproduction test is GREEN after the fix
@@ -100,7 +103,7 @@ Gate:
 ### Stage 7 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
 
-**Always** record the bug in `docs/knowledge/past-bugs/`.
+Output: `docs/current/summary_v<N>.md` updated with Knowledge Capture stage marked complete.
 
 ---
 

@@ -27,33 +27,49 @@ Pipeline: Requirement, Impact & Design → Plan → [User Approval] → Implemen
 
 ### Stage 1 — Requirement, Impact & Design Analysis
 Load: `stages/requirement-analysis.md`
-Output: `docs/current/spec_v<N>.md`, `docs/current/summary_v<N>.md`
-Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed
+
+Output: `docs/current/spec_v<N>.md` created; `docs/current/summary_v<N>.md` updated with requirements, impacted files, API classification, and UiState/Navigation design.
+Gate: requirements clear, impacted files identified, API classified, UiState/Navigation designed.
+
+---
 
 ### Stage 2 — Implementation Plan ⛔ STOP
 Load: `stages/implementation-plan.md`
-Output: `docs/current/implementation_plan_v<N>.md`, `docs/current/test_plan_v<N>.md`, `summary_v<N>.md` updated.
+
+Output: `docs/current/implementation_plan_v<N>.md` created; `docs/current/test_plan_v<N>.md` created; `docs/current/summary_v<N>.md` updated.
 Gate: **STOP — present plan to user. Do not proceed until user explicitly approves.**
+
+---
 
 ### Stage 3 — Implementation (Data + Domain + UI)
 Load: `stages/implementation.md`
-Output: All source files across Data, Domain, and UI layers. `summary_v<N>.md` updated.
-Gate: `./gradlew assembleDebug` passes, all layer rules satisfied
+
+Output: All source files across Data, Domain, and UI layers created or modified; `docs/current/summary_v<N>.md` updated with Implementation stage marked complete.
+Gate: `./gradlew assembleDebug` passes, all layer rules satisfied.
+
+---
 
 ### Stage 4 — Testing
 Load: `stages/testing.md`
-Output: Unit tests, integration tests, shared JSON scenarios. `summary_v<N>.md` updated.
-Gate: tests pass, coverage targets met
+
+Output: Unit tests, integration tests, and shared JSON scenarios created or updated; `docs/current/summary_v<N>.md` updated with test count and coverage.
+Gate: tests pass, coverage targets met.
+
+---
 
 ### Stage 5 — Code Quality Fix
 Load: `stages/code-quality-fix.md`
-Output: All violations resolved, `summary_v<N>.md` updated.
-Gate: `ktlintCheck`, `detekt`, `lintDebug`, and all custom check scripts exit with code 0
+
+Output: All violations resolved; `docs/current/summary_v<N>.md` updated with code quality results.
+Gate: `ktlintCheck`, `detekt`, `lintDebug`, and all custom check scripts exit with code 0.
+
+---
 
 ### Stage 6 — Knowledge Capture
 Load: `stages/knowledge-capture.md`
-Output: ADRs, past-bugs, pitfalls, finalized `summary_v<N>.md`, updated `docs/current/progress.md` (marking the task as Complete)
-Gate: all knowledge artifacts produced, task marked Complete in progress file (if active)
+
+Output: ADRs, past-bugs, and pitfalls recorded; `docs/current/summary_v<N>.md` finalised; `docs/current/progress.md` updated marking the task as Complete.
+Gate: all knowledge artefacts produced, task marked Complete in progress file.
 
 ---
 
