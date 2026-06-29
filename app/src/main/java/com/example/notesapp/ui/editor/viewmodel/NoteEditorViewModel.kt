@@ -10,8 +10,10 @@ import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.mergeAdjacentWithSameMarks
 import com.example.notesapp.ui.editor.mapper.newBlockId
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
+import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
@@ -171,25 +173,35 @@ open class NoteEditorViewModel @Inject constructor(
                     }
                 )
             }
-            // If there's a selection, insert markdown markers
-            val marker = when (mark) {
-                "bold" -> "**"
-                "italic" -> "*"
-                "code" -> "`"
-                else -> ""
+            // If there's a selection, modify children directly instead of using raw markers in text
+            val splitChildren = block.children.splitAtOffsets(listOf(start, end))
+
+            var currentOffset = 0
+            val childrenWithOffsets = splitChildren.map { child ->
+                val childStart = currentOffset
+                val childEnd = currentOffset + child.text.length
+                currentOffset = childEnd
+                Triple(child, childStart, childEnd)
             }
-            if (marker.isEmpty()) return@updateBlock block
-            val selectedText = text.substring(start, end)
-            val newText = if (selectedText.startsWith(marker) && selectedText.endsWith(marker)) {
-                // Remove markers if already present
-                text.substring(0, start) +
-                    selectedText.substring(marker.length, selectedText.length - marker.length) +
-                    text.substring(end)
-            } else {
-                // Add markers
-                text.substring(0, start) + marker + selectedText + marker + text.substring(end)
+
+            val selectionChildren = childrenWithOffsets.filter { (_, childStart, childEnd) ->
+                childStart >= start && childEnd <= end
             }
-            parseMarkdownTextBlock(id = block.id, text = newText)
+
+            val hasMark = selectionChildren.any { (child, _, _) -> mark in child.marks }
+
+            val updatedChildren = childrenWithOffsets.map { (child, childStart, childEnd) ->
+                if (childStart >= start && childEnd <= end) {
+                    val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
+                    child.copy(marks = marks)
+                } else {
+                    child
+                }
+            }
+
+            block.copy(
+                children = updatedChildren.mergeAdjacentWithSameMarks()
+            )
         }
     }
     fun addParagraphBlock() {

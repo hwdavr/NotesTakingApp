@@ -376,4 +376,34 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         assertEquals("Bold Text", updatedBlock.text())
     }
+
+    @Test
+    fun `reproduce bug bold button cannot unbold`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("**Bold** Text")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+
+        // "Bold" is at index 0 to 4 in the plain text "Bold Text"
+        viewModel.updateSelection(0, 4)
+        viewModel.toggleBlockMark(block.id, "bold")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        val firstChild = updatedBlock.children.first()
+        assertTrue("bold" !in firstChild.marks)
+    }
+
+    @Test
+    fun `reproduce bug italic button not working`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("*Italic* Text")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+
+        // "Italic" is at index 0 to 6 in the plain text "Italic Text"
+        viewModel.updateSelection(0, 6)
+        viewModel.toggleBlockMark(block.id, "italic")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        val firstChild = updatedBlock.children.first()
+        assertTrue("italic" !in firstChild.marks)
+    }
 }

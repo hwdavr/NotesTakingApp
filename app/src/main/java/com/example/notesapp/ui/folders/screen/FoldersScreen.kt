@@ -665,10 +665,10 @@ private fun FolderTreeRow(
                 .testTag("folder_more_actions")
         ) {
             Icon(
-                    imageVector = Icons.Outlined.MoreHoriz,
-                    contentDescription = stringResource(R.string.folders_more_actions),
-                    tint = LocalAppColors.current.textTertiary
-                )
+                imageVector = Icons.Outlined.MoreHoriz,
+                contentDescription = stringResource(R.string.folders_more_actions),
+                tint = LocalAppColors.current.textTertiary
+            )
         }
         IconButton(onClick = onQuickAdd, modifier = Modifier.size(28.dp)) {
             Icon(

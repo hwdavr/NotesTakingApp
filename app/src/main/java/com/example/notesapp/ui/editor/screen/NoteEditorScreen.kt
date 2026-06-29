@@ -106,6 +106,8 @@ import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.splitAtOffsets
+import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.theme.LocalAppColors
@@ -338,9 +340,8 @@ fun NoteEditorScreenContent(
             }
             HorizontalDivider(color = colors.border, thickness = 1.dp)
             EditorBottomBar(
+                state = state,
                 activeTextBlockId = activeTextBlockId,
-                isEditable = state.isEditable,
-                isFormattingToolbarVisible = state.isFormattingToolbarVisible,
                 onToggleMark = onToggleMark,
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
@@ -854,18 +855,18 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
 
 @Composable
 private fun EditorBottomBar(
+    state: NoteEditorUiState,
     activeTextBlockId: String?,
-    isEditable: Boolean,
-    isFormattingToolbarVisible: Boolean,
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
     onToggleFormattingToolbar: () -> Unit
 ) {
-    if (!isEditable) return
-    if (isFormattingToolbarVisible) {
+    if (!state.isEditable) return
+    if (state.isFormattingToolbarVisible) {
         FormattingBottomBar(
+            state = state,
             activeTextBlockId = activeTextBlockId,
             onToggleMark = onToggleMark,
             onHideToolbar = onToggleFormattingToolbar
@@ -1005,11 +1006,14 @@ private fun DefaultBottomBar(
 
 @Composable
 private fun FormattingBottomBar(
+    state: NoteEditorUiState,
     activeTextBlockId: String?,
     onToggleMark: (String, String) -> Unit,
     onHideToolbar: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val isBoldActive = isMarkActive(state, "bold")
+    val isItalicActive = isMarkActive(state, "italic")
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
@@ -1040,7 +1044,7 @@ private fun FormattingBottomBar(
             ) {
                 Text(
                     stringResource(R.string.editor_bold_action),
-                    color = colors.primary,
+                    color = if (isBoldActive) colors.primary else colors.textPrimary,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -1053,7 +1057,7 @@ private fun FormattingBottomBar(
             ) {
                 Text(
                     stringResource(R.string.editor_italic_action),
-                    color = colors.primary,
+                    color = if (isItalicActive) colors.primary else colors.textPrimary,
                     fontSize = 18.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold
@@ -1119,6 +1123,28 @@ private fun FormattingBottomBar(
                 )
             }
         }
+    }
+}
+
+private fun isMarkActive(state: NoteEditorUiState, mark: String): Boolean {
+    val blockId = state.focusedBlockId ?: return false
+    val block = state.document.blocks.firstOrNull { it.id == blockId } as? EditorBlock.TextBlock ?: return false
+    val text = block.text()
+    val start = state.selectionStart
+    val end = state.selectionEnd
+
+    if (start == end || start < 0 || end > text.length) {
+        return block.children.any { mark in it.marks }
+    }
+
+    val splitChildren = block.children.splitAtOffsets(listOf(start, end))
+    var currentOffset = 0
+    return splitChildren.any { child ->
+        val childStart = currentOffset
+        val childEnd = currentOffset + child.text.length
+        currentOffset = childEnd
+
+        childStart >= start && childEnd <= end && mark in child.marks
     }
 }
 

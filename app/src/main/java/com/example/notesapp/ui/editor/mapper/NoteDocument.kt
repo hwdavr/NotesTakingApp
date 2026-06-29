@@ -250,3 +250,48 @@ private fun defaultTableRows(): List<List<List<RichText>>> = listOf(
     listOf(listOf(RichText("Name")), listOf(RichText("Age"))),
     listOf(listOf(RichText("")), listOf(RichText("")))
 )
+
+fun List<RichText>.splitAtOffsets(offsets: List<Int>): List<RichText> {
+    val result = mutableListOf<RichText>()
+    var currentOffset = 0
+    val sortedOffsets = offsets.filter { it > 0 }.distinct().sorted()
+    var offsetIndex = 0
+
+    for (child in this) {
+        val childLength = child.text.length
+        var childStart = 0
+
+        while (offsetIndex < sortedOffsets.size && sortedOffsets[offsetIndex] < currentOffset + childLength) {
+            val splitOffset = sortedOffsets[offsetIndex]
+            val relativeSplit = splitOffset - currentOffset
+            if (relativeSplit > childStart) {
+                result.add(RichText(child.text.substring(childStart, relativeSplit), child.marks))
+                childStart = relativeSplit
+            }
+            offsetIndex++
+        }
+
+        if (childStart < childLength) {
+            result.add(RichText(child.text.substring(childStart), child.marks))
+        }
+        currentOffset += childLength
+    }
+    return result
+}
+
+fun List<RichText>.mergeAdjacentWithSameMarks(): List<RichText> {
+    if (isEmpty()) return this
+    val result = mutableListOf<RichText>()
+    var current = first()
+    for (i in 1 until size) {
+        val next = get(i)
+        if (current.marks.sorted() == next.marks.sorted()) {
+            current = RichText(current.text + next.text, current.marks)
+        } else {
+            result.add(current)
+            current = next
+        }
+    }
+    result.add(current)
+    return result.filterNot { it.text.isEmpty() }.ifEmpty { listOf(RichText("")) }
+}
