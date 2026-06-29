@@ -235,7 +235,6 @@ fun FoldersScreenContent(
                             when (item) {
                                 is FolderTreeItem.FolderItem -> FolderTreeRow(
                                     item = item,
-                                    highlighted = !state.isSearchActive && item.depth == 0 && index == 0,
                                     onOpenCollection = {
                                         onOpenCollection("folder", item.folder.name, item.folder.id)
                                     },
@@ -613,7 +612,6 @@ private fun NotesTreeHeader(onAddClick: () -> Unit) {
 @Composable
 private fun FolderTreeRow(
     item: FolderTreeItem.FolderItem,
-    highlighted: Boolean,
     onOpenCollection: () -> Unit,
     onQuickActions: () -> Unit,
     onQuickAdd: () -> Unit
@@ -621,15 +619,8 @@ private fun FolderTreeRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (highlighted) LocalAppColors.current.highlight else LocalAppColors.current.transparent)
             .clickable(onClick = onOpenCollection)
-            .padding(
-                start = if (highlighted) 8.dp else (item.depth * 22).dp,
-                top = if (highlighted) 6.dp else 0.dp,
-                end = if (highlighted) 8.dp else 0.dp,
-                bottom = if (highlighted) 6.dp else 0.dp
-            ),
+            .padding(start = (item.depth * 22).dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -674,10 +665,10 @@ private fun FolderTreeRow(
                 .testTag("folder_more_actions")
         ) {
             Icon(
-                imageVector = Icons.Outlined.MoreHoriz,
-                contentDescription = stringResource(R.string.folders_more_actions),
-                tint = if (highlighted) LocalAppColors.current.primary else LocalAppColors.current.textTertiary
-            )
+                    imageVector = Icons.Outlined.MoreHoriz,
+                    contentDescription = stringResource(R.string.folders_more_actions),
+                    tint = LocalAppColors.current.textTertiary
+                )
         }
         IconButton(onClick = onQuickAdd, modifier = Modifier.size(28.dp)) {
             Icon(
