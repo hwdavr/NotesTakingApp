@@ -1109,7 +1109,7 @@ private fun isMarkActive(state: NoteEditorUiState, mark: String): Boolean {
     val end = state.selectionEnd
 
     if (start == end || start < 0 || end > text.length) {
-        return block.children.any { mark in it.marks }
+        return false
     }
 
     val splitChildren = block.children.splitAtOffsets(listOf(start, end))

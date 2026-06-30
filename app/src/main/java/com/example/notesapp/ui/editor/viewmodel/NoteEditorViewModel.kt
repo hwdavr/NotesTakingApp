@@ -164,14 +164,8 @@ open class NoteEditorViewModel @Inject constructor(
             if (block !is EditorBlock.TextBlock) return@updateBlock block
             val text = block.text()
             if (start == end || start < 0 || end > text.length) {
-                // If no selection, toggle for the whole block as before
-                val hasMark = block.children.any { mark in it.marks }
-                return@updateBlock block.copy(
-                    children = block.children.map { child ->
-                        val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
-                        child.copy(marks = marks)
-                    }
-                )
+                // No selection: only selected text should be edited, so this is a no-op.
+                return@updateBlock block
             }
             // If there's a selection, modify children directly instead of using raw markers in text
             val splitChildren = block.children.splitAtOffsets(listOf(start, end))

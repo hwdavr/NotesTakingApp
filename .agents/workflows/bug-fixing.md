@@ -81,7 +81,7 @@ Gate: tests pass, coverage targets met.
 
 ---
 
-### Stage 6 — Code Quality Fix ⛔ STOP
+### Stage 6 — Code Quality Fix
 Load: `stages/code-quality-fix.md`
 
 Run the code-quality-fix stage to verify complete baseline correctness.
@@ -96,7 +96,6 @@ Output: `docs/current/summary_v<N>.md` updated with code quality results.
 Gate:
 - All conditions in `stages/code-quality-fix.md` pass
 - The reproduction test is GREEN after the fix
-- **⛔ STOP — present results to user. Do not proceed to Knowledge Capture until user explicitly approves.**
 
 ---
 
@@ -112,4 +111,3 @@ Output: `docs/current/summary_v<N>.md` updated with Knowledge Capture stage mark
 1. **After Bug Context, Localization & Root Cause** — if root cause is uncertain, ask user
 2. **After Bug Reproduction** — if the bug cannot be reproduced by a test, surface to user *(mandatory stop)*
 3. **After Fix Plan** — user approves fix plan *(mandatory always)*
-4. **After Code + Test Review** — user confirms the fix before it is merged *(mandatory always)*

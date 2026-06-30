@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -433,5 +434,40 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         val firstChild = updatedBlock.children.first()
         assertTrue("strikethrough" in firstChild.marks)
+    }
+
+    @Test
+    fun `toggleBlockMark with selection bolds ONLY selected portion and leaves rest unbold`() = runTest {
+        viewModel.load("n1") // testNote.content = "Content" (length 7)
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        viewModel.setFocusedBlock(block.id)
+        viewModel.updateSelection(0, 5) // "Conte"
+
+        viewModel.toggleBlockMark(block.id, "bold")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        val selectedChild = updatedBlock.children.firstOrNull { it.text == "Conte" }
+        val unselectedChild = updatedBlock.children.firstOrNull { it.text == "nt" }
+        assertNotNull("Selected portion 'Conte' should exist as a child", selectedChild)
+        assertNotNull("Unselected portion 'nt' should exist as a child", unselectedChild)
+        assertTrue("Selected 'Conte' should be bold", selectedChild!!.marks.contains("bold"))
+        assertTrue("Unselected 'nt' should NOT be bold", !unselectedChild!!.marks.contains("bold"))
+    }
+
+    @Test
+    fun `toggleBlockMark with collapsed cursor (no selection) does NOT bold whole block`() = runTest {
+        viewModel.load("n1") // testNote.content = "Content"
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        viewModel.setFocusedBlock(block.id)
+        viewModel.updateSelection(3, 3) // cursor at position 3, no selection
+
+        viewModel.toggleBlockMark(block.id, "bold")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertTrue(
+            "With no selection, bold should NOT be applied to the whole block. " +
+                "Actual children: ${updatedBlock.children.map { it.text to it.marks }}",
+            updatedBlock.children.none { "bold" in it.marks }
+        )
     }
 }
