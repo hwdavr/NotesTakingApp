@@ -47,7 +47,7 @@ Load: `skills/ui-layer/SKILL.md`
 Only run this stage if the contract change surfaces in the UI (new fields displayed, new screens, changed error states).
 
 ### Stage 6 — Testing ✅ Always
-Load: `skills/testing/SKILL.md`
+Load: `skills/android-testing/SKILL.md`
 
 Mandatory: at least one integration test per changed API endpoint using shared JSON scenarios. See `testing-strategy.md`.
 

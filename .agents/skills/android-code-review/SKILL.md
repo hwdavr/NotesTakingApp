@@ -1,18 +1,18 @@
 ---
-name: code-review
+name: Android code review
 description: Performs a structured code review across correctness, security, performance, and architecture.
 ---
 
-# Skill — Code Review
+# Skill — Android Code Review
 
 ## Purpose
-An evaluator pass covering the implementation — build quality, static analysis, architecture compliance, and rule adherence — before the user is asked to approve.
+An evaluator pass covering the implementation — build quality, static analysis, architecture compliance, and rule adherence — always run as the second half of a review cycle, immediately after Test Review.
 
 ---
 
 ## Load
 
-Load **all** of the following before starting. Do not skip any rule file.
+Load before starting (android-test-review SKILL.md context should already be loaded — do not re-load what is already in context):
 
 - `skills/code-review-and-quality/SKILL.md`
 - `skills/android-code-quality-checks/SKILL.md`
@@ -241,7 +241,7 @@ Produce:
 
 ## Gate
 
-All conditions must pass before proceeding to `skills/test-review/SKILL.md`:
+All conditions must pass before returning to the workflow:
 
 - [ ] `assembleDebug` — exit code 0
 - [ ] `ktlintCheck` — exit code 0

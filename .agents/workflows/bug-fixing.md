@@ -74,7 +74,7 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied.
 ---
 
 ### Stage 5 — Testing
-Load: `skills/testing/SKILL.md`
+Load: `skills/android-testing/SKILL.md`
 
 Output: Unit tests, integration tests, and shared JSON scenarios created or updated; `docs/current/summary_v<N>.md` updated with test count and coverage.
 Gate: tests pass, coverage targets met.

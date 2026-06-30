@@ -149,4 +149,4 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 - [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `skills/testing/SKILL.md` and write all required tests.
+**APPROVED →** Return to the active workflow file. 

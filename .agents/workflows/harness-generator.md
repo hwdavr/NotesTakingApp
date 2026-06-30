@@ -45,7 +45,7 @@ Load and execute **`skills/implementation/SKILL.md`** to build out the selected 
 *   **Objective**: All layers successfully implemented, `./gradlew assembleDebug` compiles cleanly, and progress is logged in the summary.
 
 ### Stage 5 — Test
-Load and execute **`skills/testing/SKILL.md`** to verify the correctness of the implemented behavior visually and logically.
+Load and execute **`skills/android-testing/SKILL.md`** to verify the correctness of the implemented behavior visually and logically.
 *   **Action**:
     1. Load the testing stage and implement matching unit, integration, and UI test suites. Verify through the actual UI/API and meet code coverage targets (overall project **≥ 80%**, ViewModel & Use Case **≥ 90%**).
     2. **Update `summary_{feature_id}.md`** to mark the **Test** stage status to completed (✅) detailing coverage percentages and passed test counts.

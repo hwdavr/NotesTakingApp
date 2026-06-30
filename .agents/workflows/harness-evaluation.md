@@ -28,21 +28,21 @@ When a feature is submitted for review, execute these steps in order:
 
 ---
 
-### Stage 2: Code Review
-Load and execute `skills/code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
-
-**Output**:
-- Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
-- If no change directory exists: `code_review_v<N>.md` in the project root
-
----
-
-### Stage 3: Test Review
-Load and execute `skills/test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
+### Stage 2: Test Review
+Load and execute `skills/android-test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness. Do not stop after this stage — proceed immediately to Stage 3.
 
 **Output**:
 - Test review report: `docs/current/coding/review/test_review_t<taskId>_v<N>.md`
 - If no change directory exists: `test_review_v<N>.md` in the project root
+
+---
+
+### Stage 3: Code Review
+Load and execute `skills/android-code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
+
+**Output**:
+- Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
+- If no change directory exists: `code_review_v<N>.md` in the project root
 
 ---
 

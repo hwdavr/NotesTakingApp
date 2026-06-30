@@ -1,5 +1,5 @@
 ---
-name: bug reproduction
+name: Bug reproduction
 description: Reproduces a bug with a failing test before fixing it.
 ---
 
@@ -17,7 +17,6 @@ Do not implement any fix in this stage.
 
 ## Load
 
-- `skills/test-driven-development/SKILL.md`
 - `skills/android-unit-test/SKILL.md`
 - `skills/android-instrumented-ui-test/SKILL.md`
 - `skills/shared-json-scenarios/SKILL.md`
@@ -41,15 +40,66 @@ Read `rules/testing-strategy.md` and pick the **lowest** layer that is sufficien
 
 ### 2. Write the reproduction test — RED phase
 
-Follow the **Prove-It Pattern** from `skills/test-driven-development/SKILL.md`:
+Follow the **Prove-It Pattern** to write a failing test that reproduces the defect before attempting a fix:
 
-1. Name the test so it reads as a specification of the failure:
+#### The Prove-It Pattern Flow
+```
+Bug report arrives
+       │
+       ▼
+  Write a test that demonstrates the bug
+       │
+       ▼
+  Test FAILS (confirming the bug exists)
+       │
+       ▼
+  Implement the fix
+       │
+       ▼
+  Test PASSES (proving the fix works)
+       │
+       ▼
+  Run full test suite (no regressions)
+```
+
+#### Example (Kotlin/Android)
+```kotlin
+// Bug: "ViewModel doesn't emit error state when saving a note with empty title"
+
+// Step 1: Write the reproduction test (it should FAIL)
+@Test
+fun givenNoteWithEmptyTitle_whenSaving_thenEmitsError() {
+    val note = Note(id = "1", title = "")
+    coEvery { repository.saveNote(note) } throws IllegalArgumentException("Empty title")
+
+    viewModel.saveNote(note)
+
+    // This assertion fails because the ViewModel currently ignores the error and stays in Success
+    assertEquals(EditorUiState.Error("Empty title"), viewModel.uiState.value)
+}
+
+// Step 2: Implement the fix in the ViewModel
+fun saveNote(note: Note) {
+    viewModelScope.launch {
+        try {
+            repository.saveNote(note)
+        } catch (e: IllegalArgumentException) {
+            _uiState.value = EditorUiState.Error(e.message ?: "Invalid title")
+        }
+    }
+}
+
+// Step 3: Test passes -> bug fixed, regression guarded
+```
+
+1. **Write the test first**: Do not write the fix first. Do not touch application code.
+2. **Name the test descriptively**: The test name should read as a specification of the failure.
    - Pattern: `"given <precondition>, when <action>, then <expected outcome>"`
    - Example: `"given a note with empty title, when saving, then an error state is emitted"`
-2. Write the minimal test that targets the root cause statement in `spec_v<N>.md`.
-3. Do **not** write the fix. Do **not** adjust application code to make the test pass.
-4. Use shared JSON scenarios if an API response is involved — do not inline mock data.
-5. Add `@Ignore("BUG: <short description> — remove when fixed")` if the test would block CI before the fix lands; remove the annotation in the Implementation stage.
+3. **Write the minimal test** that targets the root cause statement in `spec_v<N>.md`.
+4. **Do not write the fix**. Do not adjust application code to make the test pass.
+5. **Use shared JSON scenarios** if an API response is involved — do not inline mock data.
+6. **Add `@Ignore("BUG: <short description> — remove when fixed")`** if the test would block CI before the fix lands; remove the annotation in the Implementation stage.
 
 ### 3. Run the test — confirm RED
 

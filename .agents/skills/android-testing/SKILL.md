@@ -1,9 +1,9 @@
 ---
-name: testing
+name: Android testing
 description: Implements unit, integration, and instrumented UI tests according to the test plan.
 ---
 
-# Skill — Testing
+# Skill — Android Testing
 
 ## Purpose
 Write all tests for the change and mechanically verify they pass.
@@ -33,7 +33,7 @@ The article principle: write the failing test *before* touching the application 
 ## Execute
 
 ### 1. Execute Planned Tests
-Read the approved test plan in `coding/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
+Read the approved test plan in `docs/current/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
 
 ### 2. Unit tests (`app/src/test/`)
 Write unit tests for all new or modified:

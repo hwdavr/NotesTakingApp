@@ -40,18 +40,17 @@ After reading, summarise the key constraints and open decisions you will verify 
 
 ---
 
-### Stage 2: Code Review
-Load and execute `skills/code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
+### Stage 2: Test Review
+Load and execute `skills/android-test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness. Do not stop after this stage — proceed immediately to Stage 3.
 
-- Code review report: `docs/current/code_review_v<N>.md`
+- Test review report: `docs/current/test_review_v<N>.md`
 
 ---
 
-### Stage 3: Test Review
-Load and execute `skills/test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
+### Stage 3: Code Review
+Load and execute `skills/android-code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
-**Output**:
-- Test review report: `docs/current/test_review_v<N>.md`
+- Code review report: `docs/current/code_review_v<N>.md`
 
 ---
 
