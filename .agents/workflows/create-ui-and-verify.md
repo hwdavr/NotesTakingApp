@@ -14,12 +14,12 @@ Use this workflow when:
 ## Stages
 
 ### Stage 1 — UI Implementation
-Load: `stages/ui-layer.md`
+Load: `skills/ui-layer/SKILL.md`
 
 Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
 
 ### Stage 2 — UI Verification ↩️ Loop
-Load: `stages/ui-verification.md`
+Load: `skills/ui-verification/SKILL.md`
 
 Compare the implemented UI against the original design screenshot in `request_analysis/design/`.
 
@@ -32,12 +32,12 @@ Compare the implemented UI against the original design screenshot in `request_an
 **PASS →** proceed to Stage 3 — Code + Test Review.
 
 ### Stage 3 — Code Quality Fix ⛔ STOP
-Load: `stages/code-quality-fix.md`
+Load: `skills/code-quality-fix/SKILL.md`
 
 Run the code-quality-fix stage to verify complete baseline correctness.
 
 Gate:
-- All conditions in `stages/code-quality-fix.md` pass
+- All conditions in `skills/code-quality-fix/SKILL.md` pass
 - **⛔ STOP — present results to user. Do not proceed until user explicitly approves.**
 
 ## Best Practices

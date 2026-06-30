@@ -1,6 +1,9 @@
-# Stage — Implementation (Data + Domain + UI)
+---
+name: implementation
+description: Implements a user story or feature across data, domain, and UI layers sequentially.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Implementation (Data + Domain + UI)
 
 ## Purpose
 Implement the full change across all three layers — Data, Domain, and UI — in a single pass.
@@ -146,7 +149,4 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 - [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `stages/testing.md` and write all required tests.
-
-**REVISION REQUIRED →** fix the issue at its layer (Data / Domain / UI), re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** Never proceed to the next stage with a failing build.
+**APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `skills/testing/SKILL.md` and write all required tests.

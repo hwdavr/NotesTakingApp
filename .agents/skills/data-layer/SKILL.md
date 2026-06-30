@@ -1,6 +1,9 @@
-# Stage — Data Layer
+---
+name: data-layer
+description: Implements Room DAOs, databases, network APIs, and data mappers.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Data Layer
 
 ## Purpose
 Implement data layer changes: DTOs, Room entities, DAOs, repository implementations, and API mappers.
@@ -91,6 +94,3 @@ Update `summary_v<N>.md`: mark the Data Layer stage complete.
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
-
-**REVISION REQUIRED →** fix the data layer issue identified, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a missing mapper field or DTO mismatch, fix in this stage — do not proceed with a broken build.

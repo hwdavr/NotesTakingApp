@@ -1,6 +1,9 @@
-# Stage — Slice Planning
+---
+name: slice-planning
+description: Decomposes requirements into vertical slices and schedules a Sprint Contract.
+---
 
-> **Routing**: When this stage is complete and approved, return to the active **workflow** file to determine the next stage.
+# Skill — Slice Planning
 
 ## Purpose
 
@@ -81,7 +84,6 @@ If a user story is too large to fit into a single feature slice, **split the use
 Place the riskiest or most foundational slice first.
 Express the dependency order explicitly (linear or branching).
 
-
 ---
 
 ## Output
@@ -113,4 +115,3 @@ The user must confirm:
 - [ ] Every sprint contract user story maps to exactly one feature list item (1:1, no orphans on either side)
 
 **APPROVED by user →** Return to the active workflow file and proceed to the next stage.
-

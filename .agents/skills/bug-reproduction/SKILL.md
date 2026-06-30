@@ -1,6 +1,9 @@
-# Stage — Bug Reproduction (TDD)
+---
+name: bug reproduction
+description: Reproduces a bug with a failing test before fixing it.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Bug Reproduction (TDD)
 
 ## Purpose
 

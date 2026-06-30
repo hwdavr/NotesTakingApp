@@ -1,6 +1,9 @@
-# Stage — Implementation Plan
+---
+name: implementation-plan
+description: Generates a detailed implementation and test plan before coding.
+---
 
-> **Routing**: When this stage is approved, return to the active **workflow** file to determine the next stage.
+# Skill — Implementation Plan
 
 ## Purpose
 Produce a concrete, reviewable plan before any code is written.

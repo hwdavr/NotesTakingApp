@@ -1,6 +1,9 @@
-# Stage — Test Review
+---
+name: test-review
+description: Verifies test suite completion, boundary testing, and coverage targets.
+---
 
-> **Routing**: Run this stage immediately after `stages/code-review.md`. When both are complete, return to the active **workflow** file to determine the next step (typically a ⛔ STOP to present findings to the user).
+# Skill — Test Review
 
 ## Purpose
 An evaluator pass covering test coverage, test quality, shared scenario usage, and regression verification — always run as the second half of a review cycle, immediately after Code Review.

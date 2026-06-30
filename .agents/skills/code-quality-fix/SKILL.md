@@ -1,6 +1,9 @@
-# Stage — Code Quality Fix
+---
+name: code-quality-fix
+description: Runs static analysis, linting, formatting checks and resolves all violations.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Code Quality Fix
 
 ## Purpose
 

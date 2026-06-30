@@ -1,6 +1,9 @@
-# Stage — UI Verification
+---
+name: ui-verification
+description: Verifies Android UI screens visually and interactively using screenshots and mockups.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — UI Verification
 
 ## Purpose
 Verify that the implemented UI renders correctly and matches the design specified in `spec_t<taskId>.md`.

@@ -31,9 +31,8 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | Folder | Purpose |
 |--------|---------|
 | `.agents/workflows/` | **Start here.** Pick the workflow that matches the task. |
-| `.agents/stages/` | Step-by-step processes invoked by workflows. |
 | `.agents/rules/` | Mandatory constraints (L1 core + L3 on-demand). |
-| `.agents/skills/` | How-to guides — loaded per stage (L2). |
+| `.agents/skills/` | How-to guides and modular workflow steps (L2). |
 | `.agents/gates/` | CI checks and review/release checklists. |
 | `docs/templates/` | Standard output formats for plans, reviews, tests. |
 | `docs/knowledge/` | Past bugs, pitfalls, architecture decisions (L3). |
@@ -78,22 +77,14 @@ Do not write a single line of code until you have read the workflow file.
 
 ---
 ## Skills Index
-Existing skills — load the SKILL.md from the relevant folder:
+All execution steps and capabilities are implemented as standard skills under `.agents/skills/`.
 
-| Skill folder | Used in stage |
-|---|---|
-| `.agents/skills/context-management/` | Session start · context drift recovery · switching feature areas |
-| `.agents/skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
-| `.agents/skills/android-ui-verification/` | Stage — UI Layer |
-| `.agents/skills/android-unit-test/` | Stage — Testing |
-| `.agents/skills/android-instrumented-ui-test/` | Stage — Testing |
-| `.agents/skills/shared-json-scenarios/` | Stage — Testing |
-| `.agents/skills/android-code-quality-checks/` | Stage — Code + Test Review · **step 1**: run Ktlint, Detekt, Lint and fix all violations first |
-| `.agents/skills/code-review-and-quality/` | Stage — Code + Test Review · **step 2**: multi-axis reasoning review (correctness, arch, security, performance) |
-| `.agents/skills/incremental-implementation/` | Stage — Slice Planning · Stage — Implementation Plan |
-| `.agents/skills/documentation-and-adrs/` | Stage — Knowledge Capture |
-| `.agents/skills/karpathy-guidelines/` | Any stage — coding discipline |
-| `.agents/skills/security-and-hardening/` | Stage — Code + Test Review (security-sensitive changes) |
+Key Skills:
+- **Planning & Requirements**: `spec-driven-development`, `requirement-capture`, `slice-planning`, `implementation-plan`
+- **Implementation**: `implementation`, `data-layer`, `domain-layer`, `ui-layer`
+- **Testing & Verification**: `testing`, `ui-verification`, `android-unit-test`, `android-instrumented-ui-test`, `shared-json-scenarios`
+- **Review & Quality**: `code-quality-fix`, `code-review`, `code-review-and-quality`, `test-review`, `android-code-quality-checks`
+- **Session & Knowledge**: `context-management`, `knowledge-capture`, `documentation-and-adrs`, `karpathy-guidelines`
 
 ---
 ## Non-negotiable Rules

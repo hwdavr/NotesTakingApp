@@ -1,6 +1,9 @@
-# Stage — Domain Layer
+---
+name: domain-layer
+description: Implements domain mappers, models, and domain use cases.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Domain Layer
 
 ## Purpose
 Implement domain layer changes: use cases, domain models, and repository interfaces.
@@ -72,6 +75,3 @@ Update `summary_v<N>.md`: mark the Domain Layer stage complete.
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
-
-**REVISION REQUIRED →** fix the domain layer issue, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a repository interface mismatch, fix the interface contract before proceeding.

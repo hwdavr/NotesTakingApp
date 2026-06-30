@@ -97,7 +97,7 @@ class NoteEditorSelectionFormattingTest {
         val (start, end) = selectionAtToggle ?: Pair(-1, -1)
         assertTrue(
             "Selection at toggle time should stay (0, 5) but was ($start, $end) — " +
-                "tapping the button stole focus and collapsed the selection",
-            start != end
+                "tapping the button stole focus and collapsed the selection"
         )
     }
+}

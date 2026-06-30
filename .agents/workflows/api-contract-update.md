@@ -24,35 +24,35 @@ Before starting, identify your scope:
 ## Stages
 
 ### Stage 1 — Requirement, Impact & Design Analysis ✅ Always
-Load: `stages/requirement-analysis.md`
+Load: `skills/requirement-analysis/SKILL.md`
 
 Adapt:
 - API impact classification
 - Design DTO and Domain model changes
 
 ### Stage 2 — Implementation Plan ⛔ STOP ✅ Always
-Load: `stages/implementation-plan.md`
+Load: `skills/implementation-plan/SKILL.md`
 
 **Stop and present the plan. Do not proceed until approved.**
 
 ### Stage 3 — Data Layer ✅ Always
-Load: `stages/data-layer.md`
+Load: `skills/data-layer/SKILL.md`
 
 ### Stage 4 — Domain Layer ✅ Always
-Load: `stages/domain-layer.md`
+Load: `skills/domain-layer/SKILL.md`
 
 ### Stage 5 — UI Layer ⏭️ Skip if no UI changes
-Load: `stages/ui-layer.md`
+Load: `skills/ui-layer/SKILL.md`
 
 Only run this stage if the contract change surfaces in the UI (new fields displayed, new screens, changed error states).
 
 ### Stage 6 — Testing ✅ Always
-Load: `stages/testing.md`
+Load: `skills/testing/SKILL.md`
 
 Mandatory: at least one integration test per changed API endpoint using shared JSON scenarios. See `testing-strategy.md`.
 
 ### Stage 7 — Code Quality Fix ⚠️ Lightweight if Data & Domain only
-Load: `stages/code-quality-fix.md`
+Load: `skills/code-quality-fix/SKILL.md`
 
 Run the code-quality-fix stage to verify complete baseline correctness.
 
@@ -61,6 +61,6 @@ Scope guidance:
 - Skip UI-related scripts or rules if Stage 5 was skipped.
 
 ### Stage 8 — Knowledge Capture ⏭️ Skip unless change is non-obvious
-Load: `stages/knowledge-capture.md`
+Load: `skills/knowledge-capture/SKILL.md`
 
 Only run if the contract change involves a tricky mapping, a breaking change, a non-standard pattern, or a decision future agents need to understand.

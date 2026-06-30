@@ -41,14 +41,14 @@ After reading, summarise the key constraints and open decisions you will verify 
 ---
 
 ### Stage 2: Code Review
-Load and execute `stages/code-review.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
+Load and execute `skills/code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
 - Code review report: `docs/current/code_review_v<N>.md`
 
 ---
 
 ### Stage 3: Test Review
-Load and execute `stages/test-review.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
+Load and execute `skills/test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
 
 **Output**:
 - Test review report: `docs/current/test_review_v<N>.md`

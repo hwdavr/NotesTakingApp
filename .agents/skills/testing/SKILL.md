@@ -1,6 +1,9 @@
-# Stage — Testing
+---
+name: testing
+description: Implements unit, integration, and instrumented UI tests according to the test plan.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Testing
 
 ## Purpose
 Write all tests for the change and mechanically verify they pass.

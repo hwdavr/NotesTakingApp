@@ -1,11 +1,12 @@
-# Stage — Code Review
+---
+name: code-review
+description: Performs a structured code review across correctness, security, performance, and architecture.
+---
 
-> **Routing**: When this stage is complete, proceed to `stages/test-review.md`.
+# Skill — Code Review
 
 ## Purpose
 An evaluator pass covering the implementation — build quality, static analysis, architecture compliance, and rule adherence — before the user is asked to approve.
-
-The article principle: *"Separating generation from evaluation creates an honest feedback loop. Agents can't objectively judge their own work."*
 
 ---
 
@@ -201,7 +202,7 @@ For each changed source file, read the code and evaluate the following rules tha
 
 **Step 3 — Mark unchecked rules**
 
-For any rule in the Architecture Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human`. Rule **8.5** (AI-generated code reviewed before merge) is always `👁️ Human`.
+For any rule in the Architecture Rules Enforcement table that was neither run by the script nor evaluated in Step 2, set the Status to `👁️ Human` in the review report. Rule **8.5** (AI-generated code reviewed before merge) is always `👁️ Human`.
 
 #### 3d. `rules/navigation-rules.md` *(if navigation changed)*
 - [ ] Check against navigation rules — record any violations or mark N/A.
@@ -240,7 +241,7 @@ Produce:
 
 ## Gate
 
-All conditions must pass before proceeding to `stages/test-review.md`:
+All conditions must pass before proceeding to `skills/test-review/SKILL.md`:
 
 - [ ] `assembleDebug` — exit code 0
 - [ ] `ktlintCheck` — exit code 0
@@ -263,5 +264,3 @@ All conditions must pass before proceeding to `stages/test-review.md`:
 - [ ] `gates/review-checklist.md` — every item marked PASS or N/A
 - [ ] UI matches the designed states in `spec_t<taskId>.md`
 - [ ] `coding/review/code_review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
-
-**Gate passed →** Continue immediately to `stages/test-review.md`. Do not stop.

@@ -1,6 +1,9 @@
-# Stage — Feature Requirement Capture
+---
+name: requirement-capture
+description: Captures unambiguous product requirements and user goals from the user's prompt.
+---
 
-> **Routing**: When this stage is complete and all open questions are resolved, return to the active **workflow** file to determine the next stage.
+# Skill — Feature Requirement Capture
 
 ## Purpose
 
@@ -11,7 +14,6 @@ This stage ends only when every open question has been answered by the user.
 ---
 
 ## Load
-
 - `skills/spec-driven-development/SKILL.md`
 - `docs/templates/requirement-summary-template.md`
 

@@ -13,7 +13,7 @@ Use this workflow when you are acting as the **Generator** (Implementer) agent. 
 
 ### Stage 1 — Orient
 Before making any changes or planning code, gather complete session and git context. Select the next task to implement.
-*   **Action**: Load and execute **`stages/feature-orient.md`**.
+*   **Action**: Load and execute **`skills/feature-orient/SKILL.md`**.
 *   **Objective**: Reconstruct exactly what was done in the previous session, establish the single source of truth (`summary_{feature_id}.md`), identify the current active feature context, and select the next task from `docs/current/feature_list.json`.
 
 ### Stage 2 — Setup
@@ -38,22 +38,22 @@ Ensure that the existing codebase compiles and all tests pass before making any 
 *   **Objective**: Confirm the repository is in a perfectly stable, compilable, and green state. If the baseline is broken, stop and fix existing regressions first! Register status in `summary_{feature_id}.md`.
 
 ### Stage 4 — Implement
-Load and execute **`stages/implementation.md`** to build out the selected feature across the necessary layers.
+Load and execute **`skills/implementation/SKILL.md`** to build out the selected feature across the necessary layers.
 *   **Action**:
     1. Load the implementation stage and perform surgical coding using your *Generator* standards (Data, Domain, and UI layers).
     2. **Update `summary_{feature_id}.md`** to mark the **Implement** stage status to completed (✅) with list of created/modified files.
 *   **Objective**: All layers successfully implemented, `./gradlew assembleDebug` compiles cleanly, and progress is logged in the summary.
 
 ### Stage 5 — Test
-Load and execute **`stages/testing.md`** to verify the correctness of the implemented behavior visually and logically.
+Load and execute **`skills/testing/SKILL.md`** to verify the correctness of the implemented behavior visually and logically.
 *   **Action**:
     1. Load the testing stage and implement matching unit, integration, and UI test suites. Verify through the actual UI/API and meet code coverage targets (overall project **≥ 80%**, ViewModel & Use Case **≥ 90%**).
     2. **Update `summary_{feature_id}.md`** to mark the **Test** stage status to completed (✅) detailing coverage percentages and passed test counts.
 *   **Objective**: All local tests pass cleanly, coverage targets are fully met, and verification evidence is documented in the summary.
 
 ### Stage 6 — Code Quality Fix
-Load and execute **`stages/code-quality-fix.md`** to run all static check suites, lint rules, and custom compliance rules, and resolve all violations.
-*   **Action**: Load and execute **`stages/code-quality-fix.md`**.
+Load and execute **`skills/code-quality-fix/SKILL.md`** to run all static check suites, lint rules, and custom compliance rules, and resolve all violations.
+*   **Action**: Load and execute **`skills/code-quality-fix/SKILL.md`**.
 *   **Objective**: Diagnose and resolve all formatting, quality, localization, and architectural style guidelines issues, logging check success in `summary_{feature_id}.md`.
 
 ### Stage 7 — Update State

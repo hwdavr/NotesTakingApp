@@ -29,7 +29,7 @@ When a feature is submitted for review, execute these steps in order:
 ---
 
 ### Stage 2: Code Review
-Load and execute `stages/code-review.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
+Load and execute `skills/code-review/SKILL.md` in full to perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
 **Output**:
 - Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
@@ -38,7 +38,7 @@ Load and execute `stages/code-review.md` in full to perform static analysis and 
 ---
 
 ### Stage 3: Test Review
-Load and execute `stages/test-review.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
+Load and execute `skills/test-review/SKILL.md` in full to evaluate test coverage, assertions, and shared JSON scenario completeness.
 
 **Output**:
 - Test review report: `docs/current/coding/review/test_review_t<taskId>_v<N>.md`

@@ -26,7 +26,7 @@ Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [
 ## Stage Execution
 
 ### Stage 1 — Bug Context, Localization & Root Cause
-Load: `stages/requirement-analysis.md`
+Load: `skills/requirement-analysis/SKILL.md`
 
 Adapt for bugs:
 - Bug description, expected vs. actual behavior
@@ -40,7 +40,7 @@ Gate: root cause is specific enough that a reproduction test can be written.
 ---
 
 ### Stage 2 — Bug Reproduction (TDD) ⛔ STOP
-Load: `stages/bug-reproduction.md`
+Load: `skills/bug-reproduction/SKILL.md`
 
 Write a failing test that mechanically proves the root cause before any fix is written.
 
@@ -51,7 +51,7 @@ Gate: test exits RED (non-zero), failure message matches root cause, no applicat
 ---
 
 ### Stage 3 — Fix Plan ⛔ STOP
-Load: `stages/implementation-plan.md`
+Load: `skills/implementation-plan/SKILL.md`
 
 Adapt — the plan must include:
 - Root cause (reference the reproduction test as evidence)
@@ -64,7 +64,7 @@ Gate: **STOP — present fix plan to user. Do not proceed until user explicitly 
 ---
 
 ### Stage 4 — Implementation (Data + Domain + UI as needed)
-Load: `stages/implementation.md`
+Load: `skills/implementation/SKILL.md`
 
 Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
 
@@ -74,7 +74,7 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied.
 ---
 
 ### Stage 5 — Testing
-Load: `stages/testing.md`
+Load: `skills/testing/SKILL.md`
 
 Output: Unit tests, integration tests, and shared JSON scenarios created or updated; `docs/current/summary_v<N>.md` updated with test count and coverage.
 Gate: tests pass, coverage targets met.
@@ -82,7 +82,7 @@ Gate: tests pass, coverage targets met.
 ---
 
 ### Stage 6 — Code Quality Fix
-Load: `stages/code-quality-fix.md`
+Load: `skills/code-quality-fix/SKILL.md`
 
 Run the code-quality-fix stage to verify complete baseline correctness.
 
@@ -94,13 +94,13 @@ For bug fixes, additionally verify:
 
 Output: `docs/current/summary_v<N>.md` updated with code quality results.
 Gate:
-- All conditions in `stages/code-quality-fix.md` pass
+- All conditions in `skills/code-quality-fix/SKILL.md` pass
 - The reproduction test is GREEN after the fix
 
 ---
 
 ### Stage 7 — Knowledge Capture
-Load: `stages/knowledge-capture.md`
+Load: `skills/knowledge-capture/SKILL.md`
 
 Output: `docs/current/summary_v<N>.md` updated with Knowledge Capture stage marked complete.
 
