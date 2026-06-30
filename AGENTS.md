@@ -48,29 +48,32 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | **Evaluator** | Performs automated & manual quality gates | Runs code quality checks, static analysis, & test coverage reviews |
 
 ---
-## Workflows
+## Workflow Routing — Mandatory Step Before Any Task
 
-Workflows are divided into two categories based on task scope and complexity:
+**Before starting ANY task, you MUST:**
+1. Identify the task type from the table below
+2. Read the matching workflow file **in full** using your file-reading tool
+3. Follow the pipeline defined in that workflow — do not skip stages or stops
 
-### Project-Based Development (Complex Features)
-Used for structured engineering of complex features that require vertical slicing, step-by-step execution pipelines, and evaluation metrics.
-
-| Workflow | When to use |
-|----------|-------------|
-| `.agents/workflows/harness-planning.md` | Plan a complex feature by breaking it into deliverable vertical slices |
-| `.agents/workflows/harness-generator.md` | Implement features step-by-step using the harness-generator pipeline |
-| `.agents/workflows/harness-evaluation.md` | Run code/test review of an implemented change and produce evaluation rubrics |
+Do not write a single line of code until you have read the workflow file.
 
 ### Ad-hoc Development (Simple Features & Bug Fixing)
-Used for direct delivery of simple features, standalone UI/API updates, or bug resolution.
 
-| Workflow | When to use |
-|----------|-------------|
-| `.agents/workflows/feature-delivery.md` | Implement a single task or simple feature end-to-end |
-| `.agents/workflows/feature-review.md` | Independent review of an existing change and fixing all findings before merge |
-| `.agents/workflows/bug-fixing.md` | Bug, crash, regression, or unexpected behavior |
-| `.agents/workflows/create-ui-and-verify.md` | UI implementation or update from a design mockup |
-| `.agents/workflows/api-contract-update.md` | Backend API contract change |
+| Task type | Read this file first |
+|-----------|----------------------|
+| Bug, crash, regression, or unexpected behavior | `.agents/workflows/bug-fixing.md` |
+| New feature or simple enhancement | `.agents/workflows/feature-delivery.md` |
+| UI implementation or update from a mockup | `.agents/workflows/create-ui-and-verify.md` |
+| Independent code review before merge | `.agents/workflows/feature-review.md` |
+| Backend API contract change | `.agents/workflows/api-contract-update.md` |
+
+### Project-Based Development (Complex Features)
+
+| Task type | Read this file first |
+|-----------|----------------------|
+| Planning a complex feature into vertical slices | `.agents/workflows/harness-planning.md` |
+| Implementing features step-by-step | `.agents/workflows/harness-generator.md` |
+| Code and test review of an implemented change | `.agents/workflows/harness-evaluation.md` |
 
 
 ---
