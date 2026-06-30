@@ -406,4 +406,32 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val firstChild = updatedBlock.children.first()
         assertTrue("italic" !in firstChild.marks)
     }
+
+    @Test
+    fun `toggleBlockMark applies underline mark to selection`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("Underline Text")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+
+        viewModel.updateSelection(0, 9)
+        viewModel.toggleBlockMark(block.id, "underline")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        val firstChild = updatedBlock.children.first()
+        assertTrue("underline" in firstChild.marks)
+    }
+
+    @Test
+    fun `toggleBlockMark applies strikethrough mark to selection`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("Strikethrough Text")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+
+        viewModel.updateSelection(0, 13)
+        viewModel.toggleBlockMark(block.id, "strikethrough")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        val firstChild = updatedBlock.children.first()
+        assertTrue("strikethrough" in firstChild.marks)
+    }
 }

@@ -75,7 +75,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -85,15 +84,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -108,6 +104,7 @@ import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.mapper.toAnnotatedString
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.theme.LocalAppColors
@@ -586,38 +583,6 @@ private fun TextDocumentBlock(
     )
 }
 
-private fun EditorBlock.TextBlock.toAnnotatedString(
-    codeBackground: Color,
-    transparentBackground: Color
-): AnnotatedString {
-    return buildAnnotatedString {
-        children.forEach { child ->
-            withStyle(
-                SpanStyle(
-                    fontWeight =
-                    if ("bold" in child.marks) {
-                        FontWeight.Bold
-                    } else {
-                        FontWeight.Normal
-                    },
-                    fontStyle =
-                    if ("italic" in child.marks) {
-                        FontStyle.Italic
-                    } else {
-                        FontStyle.Normal
-                    },
-                    background =
-                    if ("code" in child.marks) {
-                        codeBackground
-                    } else {
-                        transparentBackground
-                    }
-                )
-            ) { append(child.text) }
-        }
-    }
-}
-
 @Composable
 private fun ImageDocumentBlock(
     block: EditorBlock.ImageBlock,
@@ -1014,6 +979,8 @@ private fun FormattingBottomBar(
     val colors = LocalAppColors.current
     val isBoldActive = isMarkActive(state, "bold")
     val isItalicActive = isMarkActive(state, "italic")
+    val isUnderlineActive = isMarkActive(state, "underline")
+    val isStrikethroughActive = isMarkActive(state, "strikethrough")
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
@@ -1065,22 +1032,30 @@ private fun FormattingBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { /* underline logic */ }) {
+            EditorBarButton(
+                onClick = { activeTextBlockId?.let { onToggleMark(it, "underline") } },
+                modifier = Modifier.testTag("editor_underline_action")
+            ) {
                 Text(
                     stringResource(R.string.editor_underline_action),
-                    color = colors.textPrimary,
+                    color = if (isUnderlineActive) colors.primary else colors.textPrimary,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline
                 )
             }
         }
         item {
-            EditorBarButton(onClick = { /* strikethrough logic */ }) {
+            EditorBarButton(
+                onClick = { activeTextBlockId?.let { onToggleMark(it, "strikethrough") } },
+                modifier = Modifier.testTag("editor_strikethrough_action")
+            ) {
                 Text(
                     stringResource(R.string.editor_strikethrough_action),
-                    color = colors.textSecondary,
+                    color = if (isStrikethroughActive) colors.primary else colors.textPrimary,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.LineThrough
                 )
             }
         }

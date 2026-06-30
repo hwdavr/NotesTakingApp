@@ -65,9 +65,9 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         currentRoute?.startsWith("shareInvite") != true &&
         currentRoute !in authRoutes
     var authError by remember { mutableStateOf<String?>(null) }
-    if (authError != null) {
+    authError?.let { error ->
         ErrorDialog(
-            message = authError!!,
+            message = error,
             onDismiss = { authError = null }
         )
     }

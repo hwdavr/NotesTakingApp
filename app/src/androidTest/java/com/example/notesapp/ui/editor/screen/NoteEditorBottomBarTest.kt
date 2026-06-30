@@ -9,7 +9,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -69,6 +73,100 @@ class NoteEditorBottomBarTest {
         // Back to default bottom bar
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertIsDisplayed()
         assertTrue(composeRule.onAllNodesWithTag("editor_formatting_bottom_bar").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
+    fun formattingBottomBar_underlineButton_togglesUnderlineMark() {
+        val toggledMarks = mutableListOf<Pair<String, String>>()
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state =
+                NoteEditorUiState(
+                    noteId = "note_1",
+                    isFormattingToolbarVisible = true,
+                    isLoaded = true,
+                    document = NoteDocument(
+                        blocks = listOf(
+                            EditorBlock.TextBlock(
+                                id = "block_1",
+                                children = listOf(RichText("Hello"))
+                            )
+                        )
+                    )
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleMark = { blockId, mark -> toggledMarks += blockId to mark },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+        composeRule.onNodeWithTag("editor_underline_action").assertIsDisplayed().performClick()
+        assertEquals(listOf("block_1" to "underline"), toggledMarks)
+    }
+
+    @Test
+    fun formattingBottomBar_strikethroughButton_togglesStrikethroughMark() {
+        val toggledMarks = mutableListOf<Pair<String, String>>()
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state =
+                NoteEditorUiState(
+                    noteId = "note_1",
+                    isFormattingToolbarVisible = true,
+                    isLoaded = true,
+                    document = NoteDocument(
+                        blocks = listOf(
+                            EditorBlock.TextBlock(
+                                id = "block_1",
+                                children = listOf(RichText("Hello"))
+                            )
+                        )
+                    )
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleMark = { blockId, mark -> toggledMarks += blockId to mark },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+        composeRule.onNodeWithTag("editor_strikethrough_action").assertIsDisplayed().performClick()
+        assertEquals(listOf("block_1" to "strikethrough"), toggledMarks)
     }
 
     @Test

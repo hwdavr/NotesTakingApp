@@ -10,7 +10,7 @@ sealed class Destinations(val route: String) {
     data object CollectionNotes : Destinations("collectionNotes?type={type}&folderId={folderId}&label={label}") {
         fun createRoute(type: String, label: String, folderId: String? = null): String {
             val encodedLabel = Uri.encode(label)
-            return "collectionNotes?type=$type&folderId=${folderId ?: ""}&label=$encodedLabel"
+            return "collectionNotes?type=$type&folderId=${folderId.orEmpty()}&label=$encodedLabel"
         }
     }
     data object MoveTo : Destinations("moveTo?itemType={itemType}&itemId={itemId}") {

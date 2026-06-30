@@ -1,5 +1,13 @@
 package com.example.notesapp.ui.editor.mapper
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
@@ -52,8 +60,8 @@ data class NoteDocument(
             is EditorBlock.TableBlock -> {
                 val header = block.rows.firstOrNull()?.joinToString(" | ") { cell ->
                     cell.joinToString("") { it.text }
-                } ?: ""
-                val divider = block.rows.firstOrNull()?.joinToString(" | ") { "---" } ?: ""
+                }.orEmpty()
+                val divider = block.rows.firstOrNull()?.joinToString(" | ") { "---" }.orEmpty()
                 val body = block.rows.drop(1).joinToString("\n") { row ->
                     "| " + row.joinToString(" | ") { cell -> cell.joinToString("") { it.text } } + " |"
                 }
@@ -169,6 +177,44 @@ fun parseInlineMarkdown(text: String): List<RichText> {
     return result.filterNot { it.text.isEmpty() }.ifEmpty { listOf(RichText("")) }
 }
 fun EditorBlock.TextBlock.text(): String = children.joinToString("") { it.text }
+
+internal fun EditorBlock.TextBlock.toAnnotatedString(
+    codeBackground: Color,
+    transparentBackground: Color
+): AnnotatedString {
+    return buildAnnotatedString {
+        children.forEach { child ->
+            withStyle(
+                SpanStyle(
+                    fontWeight =
+                    if ("bold" in child.marks) {
+                        FontWeight.Bold
+                    } else {
+                        FontWeight.Normal
+                    },
+                    fontStyle =
+                    if ("italic" in child.marks) {
+                        FontStyle.Italic
+                    } else {
+                        FontStyle.Normal
+                    },
+                    textDecoration = when {
+                        "underline" in child.marks -> TextDecoration.Underline
+                        "strikethrough" in child.marks -> TextDecoration.LineThrough
+                        else -> null
+                    },
+                    background =
+                    if ("code" in child.marks) {
+                        codeBackground
+                    } else {
+                        transparentBackground
+                    }
+                )
+            ) { append(child.text) }
+        }
+    }
+}
+
 private fun EditorBlock.toJson(): JSONObject = when (this) {
     is EditorBlock.TextBlock -> JSONObject()
         .put("id", id)

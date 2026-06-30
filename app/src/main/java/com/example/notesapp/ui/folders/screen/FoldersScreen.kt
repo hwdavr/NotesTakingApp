@@ -290,21 +290,18 @@ fun FoldersScreenContent(
             )
         }
     }
-    if (selectedFolderForQuickAdd != null) {
+    selectedFolderForQuickAdd?.let { folder ->
         FolderAddActionsSheet(
-            folder = selectedFolderForQuickAdd!!,
+            folder = folder,
             onDismiss = { selectedFolderForQuickAdd = null },
             onAddFolder = {
-                selectedFolderForAdd = selectedFolderForQuickAdd
+                selectedFolderForAdd = folder
                 selectedFolderForQuickAdd = null
                 showAddFolderDialog = true
             },
             onAddNote = {
-                val folderId = selectedFolderForQuickAdd?.id
                 selectedFolderForQuickAdd = null
-                if (folderId != null) {
-                    onAddNote(folderId)
-                }
+                onAddNote(folder.id)
             }
         )
     }

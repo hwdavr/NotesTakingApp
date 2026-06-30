@@ -1,5 +1,7 @@
 package com.example.notesapp.ui.editor.mapper
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextDecoration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -106,6 +108,44 @@ class NoteDocumentTest {
         assertEquals("Code", result[5].text)
         assertTrue("code" in result[5].marks)
         assertEquals(" Mix", result[6].text)
+    }
+
+    @Test
+    fun `toAnnotatedString applies underline and strikethrough decorations`() {
+        val block = EditorBlock.TextBlock(
+            children = listOf(
+                RichText("Underline", listOf("underline")),
+                RichText(" and "),
+                RichText("Strike", listOf("strikethrough"))
+            )
+        )
+
+        val annotated = block.toAnnotatedString(
+            codeBackground = Color.Transparent,
+            transparentBackground = Color.Transparent
+        )
+
+        val decorations = annotated.spanStyles.map { it.item.textDecoration }
+        assertTrue(TextDecoration.Underline in decorations)
+        assertTrue(TextDecoration.LineThrough in decorations)
+    }
+
+    @Test
+    fun `toAnnotatedString keeps bold italic and code styles`() {
+        val block = EditorBlock.TextBlock(
+            children = listOf(
+                RichText("Bold", listOf("bold")),
+                RichText("Italic", listOf("italic")),
+                RichText("Code", listOf("code"))
+            )
+        )
+
+        val annotated = block.toAnnotatedString(
+            codeBackground = Color.Blue,
+            transparentBackground = Color.Transparent
+        )
+
+        assertEquals(3, annotated.spanStyles.size)
     }
 
     @Test
