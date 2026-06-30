@@ -101,4 +101,3 @@ class NoteEditorSelectionFormattingTest {
             start != end
         )
     }
-}

@@ -38,7 +38,7 @@ Do not write any code in this stage.
 
 ## Output
 
-Create `docs/current/` directory.
+Create `docs/current/` directory, if there are existing files, remove them inside the folder.
 
 If the user provides a design screenshot or mockup, save it to **`docs/current/design/`** so it can be referenced during UI Verification.
 
