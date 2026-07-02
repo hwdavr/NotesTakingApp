@@ -64,7 +64,7 @@ Gate: **STOP — present fix plan to user. Do not proceed until user explicitly 
 ---
 
 ### Stage 4 — Implementation (Data + Domain + UI as needed)
-Load: `skills/implementation/SKILL.md`
+Load: `skills/android-implementation/SKILL.md`
 
 Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
 

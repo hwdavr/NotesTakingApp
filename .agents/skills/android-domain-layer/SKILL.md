@@ -1,9 +1,9 @@
 ---
-name: domain-layer
+name: android-domain-layer
 description: Implements domain mappers, models, and domain use cases.
 ---
 
-# Skill — Domain Layer
+# Skill — Android Domain Layer
 
 ## Purpose
 Implement domain layer changes: use cases, domain models, and repository interfaces.

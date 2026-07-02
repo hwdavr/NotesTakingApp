@@ -1,5 +1,5 @@
 ---
-name: Android test review
+name: android-test-review
 description: Verifies test suite completion, boundary testing, and coverage targets.
 ---
 

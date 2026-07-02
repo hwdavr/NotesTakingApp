@@ -1,16 +1,16 @@
 ---
-name: implementation
+name: android-implementation
 description: Implements a user story or feature across data, domain, and UI layers sequentially.
 ---
 
-# Skill — Implementation (Data + Domain + UI)
+# Skill — Android Implementation (Data + Domain + UI)
 
 ## Purpose
 Implement the full change across all three layers — Data, Domain, and UI — in a single pass.
 Work in small, vertically-sliced increments: implement one layer, verify the build, then proceed to the next.
 
 > This is the **compact implementation stage** used by `feature-delivery` and `bug-fixing` workflows.
-> For granular layer-by-layer control, use the individual stages `data-layer.md`, `domain-layer.md`, and `ui-layer.md`.
+> For granular layer-by-layer control, use the individual stages `android-data-layer/SKILL.md`, `android-domain-layer/SKILL.md`, and `android-ui-layer/SKILL.md`.
 
 ---
 

@@ -36,13 +36,13 @@ Load: `skills/implementation-plan/SKILL.md`
 **Stop and present the plan. Do not proceed until approved.**
 
 ### Stage 3 — Data Layer ✅ Always
-Load: `skills/data-layer/SKILL.md`
+Load: `skills/android-data-layer/SKILL.md`
 
 ### Stage 4 — Domain Layer ✅ Always
-Load: `skills/domain-layer/SKILL.md`
+Load: `skills/android-domain-layer/SKILL.md`
 
 ### Stage 5 — UI Layer ⏭️ Skip if no UI changes
-Load: `skills/ui-layer/SKILL.md`
+Load: `skills/android-ui-layer/SKILL.md`
 
 Only run this stage if the contract change surfaces in the UI (new fields displayed, new screens, changed error states).
 

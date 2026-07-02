@@ -1,5 +1,5 @@
 ---
-name: Android code review
+name: android-code-review
 description: Performs a structured code review across correctness, security, performance, and architecture.
 ---
 

@@ -14,7 +14,7 @@ Use this workflow when:
 ## Stages
 
 ### Stage 1 — UI Implementation
-Load: `skills/ui-layer/SKILL.md`
+Load: `skills/android-ui-layer/SKILL.md`
 
 Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
 

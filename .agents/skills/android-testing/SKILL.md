@@ -1,5 +1,5 @@
 ---
-name: Android testing
+name: android-testing
 description: Implements unit, integration, and instrumented UI tests according to the test plan.
 ---
 

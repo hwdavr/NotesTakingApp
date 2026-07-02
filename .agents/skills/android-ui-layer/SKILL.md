@@ -1,9 +1,9 @@
 ---
-name: ui-layer
+name: android-ui-layer
 description: Implements UI screens and components in Compose with unidirectional state flow.
 ---
 
-# Skill — UI Layer
+# Skill — Android UI Layer
 
 ## Purpose
 Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composable screens, and navigation wiring.

@@ -38,7 +38,7 @@ Ensure that the existing codebase compiles and all tests pass before making any 
 *   **Objective**: Confirm the repository is in a perfectly stable, compilable, and green state. If the baseline is broken, stop and fix existing regressions first! Register status in `summary_{feature_id}.md`.
 
 ### Stage 4 — Implement
-Load and execute **`skills/implementation/SKILL.md`** to build out the selected feature across the necessary layers.
+Load and execute **`skills/android-implementation/SKILL.md`** to build out the selected feature across the necessary layers.
 *   **Action**:
     1. Load the implementation stage and perform surgical coding using your *Generator* standards (Data, Domain, and UI layers).
     2. **Update `summary_{feature_id}.md`** to mark the **Implement** stage status to completed (✅) with list of created/modified files.

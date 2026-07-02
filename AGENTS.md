@@ -81,7 +81,7 @@ All execution steps and capabilities are implemented as standard skills under `.
 
 Key Skills:
 - **Planning & Requirements**: `spec-driven-development`, `requirement-capture`, `slice-planning`, `implementation-plan`
-- **Implementation**: `implementation`, `data-layer`, `domain-layer`, `ui-layer`
+- **Implementation**: `android-implementation`, `android-data-layer`, `android-domain-layer`, `android-ui-layer`
 - **Testing & Verification**: `android-testing`, `ui-verification`, `android-unit-test`, `android-instrumented-ui-test`, `shared-json-scenarios`
 - **Review & Quality**: `code-quality-fix`, `android-code-review`, `code-review-and-quality`, `android-test-review`, `android-code-quality-checks`
 - **Session & Knowledge**: `context-management`, `knowledge-capture`, `documentation-and-adrs`, `karpathy-guidelines`

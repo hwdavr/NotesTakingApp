@@ -42,7 +42,7 @@ Gate: **STOP — present plan to user. Do not proceed until user explicitly appr
 ---
 
 ### Stage 3 — Implementation (Data + Domain + UI)
-Load: `skills/implementation/SKILL.md`
+Load: `skills/android-implementation/SKILL.md`
 
 Output: All source files across Data, Domain, and UI layers created or modified; `docs/current/summary_v<N>.md` updated with Implementation stage marked complete.
 Gate: `./gradlew assembleDebug` passes, all layer rules satisfied.

@@ -1,9 +1,9 @@
 ---
-name: data-layer
+name: android-data-layer
 description: Implements Room DAOs, databases, network APIs, and data mappers.
 ---
 
-# Skill — Data Layer
+# Skill — Android Data Layer
 
 ## Purpose
 Implement data layer changes: DTOs, Room entities, DAOs, repository implementations, and API mappers.

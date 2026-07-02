@@ -1,5 +1,5 @@
 ---
-name: Android instrumented UI test skill
+name: android-instrumented-ui-test
 description: Use this skill for Android UI tests on real runtime.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: Bug reproduction
+name: bug-reproduction
 description: Reproduces a bug with a failing test before fixing it.
 ---
 
