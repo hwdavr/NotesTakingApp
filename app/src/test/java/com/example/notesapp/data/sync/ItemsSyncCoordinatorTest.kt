@@ -10,10 +10,16 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ItemsSyncCoordinatorTest {
     private val api: NotesApiService = mockk()
     private val folderDao: FolderDao = mockk(relaxed = true)
@@ -111,5 +117,68 @@ class ItemsSyncCoordinatorTest {
         coordinator.syncAll()
 
         coVerify { api.updateNoteContent("n1", match { it.content == "New" && it.lastSyncedVersion == 1L }) }
+    }
+
+    @Test
+    fun `syncAll serializes concurrent calls`() = runTest {
+        val apiItems = listOf(
+            ApiItem(
+                id = "n1",
+                userId = "u1",
+                type = "note",
+                parentId = "f1",
+                name = "Title",
+                content = "Content",
+                sortKey = "s1",
+                version = 1L,
+                deviceId = "d1",
+                lastSyncedVersion = 0L,
+                deletedAt = null,
+                createdAt = "2024-01-01T00:00:00Z",
+                updatedAt = "2024-01-01T00:00:00Z"
+            ),
+            ApiItem(
+                id = "f1",
+                userId = "u1",
+                type = "folder",
+                parentId = null,
+                name = "Work",
+                content = "",
+                sortKey = "s2",
+                version = 1L,
+                deviceId = "d1",
+                lastSyncedVersion = 0L,
+                deletedAt = null,
+                createdAt = "2024-01-01T00:00:00Z",
+                updatedAt = "2024-01-01T00:00:00Z"
+            )
+        )
+        val gate = CompletableDeferred<Unit>()
+        var activeCalls = 0
+        var maxActiveCalls = 0
+        coEvery { api.listItems(any()) } coAnswers {
+            activeCalls++
+            maxActiveCalls = maxOf(maxActiveCalls, activeCalls)
+            gate.await()
+            activeCalls--
+            apiItems
+        }
+        coEvery { noteDao.getNoteById(any()) } returns null
+
+        val job1 = launch { coordinator.syncAll() }
+        val job2 = launch { coordinator.syncAll() }
+
+        advanceUntilIdle()
+        assertEquals(1, maxActiveCalls)
+
+        gate.complete(Unit)
+        job1.join()
+        job2.join()
+
+        coVerify(exactly = 2) { api.listItems(any()) }
+        coVerify(exactly = 2) { folderDao.clearAll() }
+        coVerify(exactly = 2) { noteDao.clearAll() }
+        coVerify(exactly = 2) { folderDao.insertAll(any()) }
+        coVerify(exactly = 2) { noteDao.insertAll(any()) }
     }
 }

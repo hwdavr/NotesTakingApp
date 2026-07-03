@@ -47,7 +47,12 @@ If the user provides a design screenshot or mockup, save it to **`docs/current/d
 
 Produce **`docs/current/summary_v<N>.md`** — create this file **first**, before `spec_v<N>.md`.
 Use the template from `docs/templates/progress-template.md`.
-The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
+The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below.
+All **Timestamp** values must be in `YYYY-MM-DD HH:MM` format:
+
+**Type**: feature / bugfix / api / refactor
+**Started**: YYYY-MM-DD HH:MM
+**Status**: In Progress / Complete
 
 **`feature-delivery` workflow:**
 
