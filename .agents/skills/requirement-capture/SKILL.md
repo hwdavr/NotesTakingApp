@@ -81,7 +81,7 @@ Write **`docs/current/requirement-summary.md`** following **`docs/templates/requ
 
 ---
 
-## Gate — ⛔ MANDATORY STOP
+## Done When — ⛔ MANDATORY STOP
 
 **Present `requirement-summary.md` to the user and confirm:**
 

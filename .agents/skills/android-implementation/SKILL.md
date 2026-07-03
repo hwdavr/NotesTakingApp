@@ -131,9 +131,9 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `sharedContracts/openapi.yaml` updated (if API changed)
 - [ ] No DTOs referenced outside the data layer
 - [ ] All new enum fields have an `UNKNOWN` / fallback variant

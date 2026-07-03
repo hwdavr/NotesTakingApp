@@ -107,9 +107,9 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `./gradlew testDebugUnitTest` — exit code 0
 - [ ] `./gradlew koverLog` — overall ≥ 80%, new classes ≥ 90%
 - [ ] Total test count `> 0` (not `0/0` — this is a gate failure)

@@ -136,9 +136,9 @@ Update `summary_t<taskId>.md`: mark UI Verification stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `assembleDebug` — exit code 0
 - [ ] `lintDebug` and `ktlintCheck` — exit code 0
 - [ ] Instrumented UI tests pass (if present): `./gradlew connectedDebugAndroidTest`

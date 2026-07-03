@@ -142,9 +142,9 @@ Update `summary_v<N>.md`: mark this stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 
 - [ ] A reproduction test exists that targets the root cause statement in `spec_v<N>.md`
 - [ ] `./gradlew testDebugUnitTest` (or `connectedDebugAndroidTest`) exits **non-zero** for the new test, confirming RED

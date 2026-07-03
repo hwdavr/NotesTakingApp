@@ -65,9 +65,9 @@ Clean git status with all formatting and structural violations fixed.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `./gradlew ktlintCheck` — exit code 0
 - [ ] `./gradlew detekt` — exit code 0
 - [ ] `./gradlew lintDebug` — exit code 0

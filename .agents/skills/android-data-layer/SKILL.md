@@ -83,9 +83,9 @@ Update `summary_v<N>.md`: mark the Data Layer stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `sharedContracts/openapi.yaml` matches the new contract (if API changed)
 - [ ] No DTOs referenced outside the data layer
 - [ ] All new enum fields have an `UNKNOWN` / fallback variant

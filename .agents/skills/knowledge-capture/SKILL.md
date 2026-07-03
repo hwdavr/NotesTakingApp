@@ -75,9 +75,9 @@ Zero or more of:
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass:**
+**This stage is complete when all of the following are true:**
 - [ ] Every question in Execute steps was answered (even if the answer is "not applicable")
 - [ ] Any architectural decision is recorded as an ADR (or explicitly marked N/A)
 - [ ] Any bug that could recur is recorded in `docs/knowledge/past-bugs/`

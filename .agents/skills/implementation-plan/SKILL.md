@@ -58,7 +58,7 @@ Update `summary_v<N>.md`: mark the Implementation Plan stage complete.
 
 ---
 
-## Gate — ⛔ MANDATORY STOP
+## Done When — ⛔ MANDATORY STOP
 
 **You MUST stop here and present the implementation plan to the user.**
 

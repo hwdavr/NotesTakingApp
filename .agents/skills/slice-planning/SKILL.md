@@ -101,7 +101,7 @@ Set Feature 1 to `in_progress`, all others to `not_started`.
 
 ---
 
-## Gate — ⛔ MANDATORY STOP
+## Done When — ⛔ MANDATORY STOP
 
 **Present the feature list to the user.**
 

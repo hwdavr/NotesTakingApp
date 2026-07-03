@@ -86,9 +86,9 @@ Update `summary_v<N>.md`: mark the UI Layer stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] ViewModel does not import `retrofit2.*`, `androidx.room.*`, or any data-layer class
 - [ ] Composable screens do not contain business logic
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings (`grep -r '"[A-Z]' ui/`)

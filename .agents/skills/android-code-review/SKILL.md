@@ -239,7 +239,7 @@ Produce:
 
 ---
 
-## Gate
+## Done When
 
 All conditions must pass before returning to the workflow:
 

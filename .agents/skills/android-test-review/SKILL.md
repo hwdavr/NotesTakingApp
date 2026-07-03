@@ -55,9 +55,9 @@ Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdi
 
 ---
 
-## Gate
+## Done When
 
-All conditions must pass before proceeding to `skills/android-code-review/SKILL.md`:
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 
 - [ ] Test report confirms: `testDebugUnitTest` exit code 0
 - [ ] Test report confirms: overall ≥ 80%, new classes ≥ 90%

@@ -65,9 +65,9 @@ Update `summary_v<N>.md`: mark the Domain Layer stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] No Android framework classes imported in domain layer files (`grep -r "import android\." domain/`)
 - [ ] Repository interfaces updated and match the Data Layer stage implementation
 - [ ] Use cases are single-responsibility (one observable outcome per use case)

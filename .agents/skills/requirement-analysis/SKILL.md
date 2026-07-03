@@ -100,9 +100,9 @@ Use the template from `docs/templates/spec-template.md`.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass:**
+**This stage is complete when all of the following are true:**
 - [ ] `docs/current/summary_v<N>.md` exists with the Stage Progress table filled in.
 - [ ] `docs/current/spec_v<N>.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.
