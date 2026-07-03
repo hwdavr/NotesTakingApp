@@ -77,9 +77,7 @@ Do not write a single line of code until you have read the workflow file.
 
 ---
 ## Skills Index
-All execution steps and capabilities are implemented as standard skills under `.agents/skills/`.
-
-Key Skills:
+Key skills under `.agents/skills/`:
 - **Planning & Requirements**: `spec-driven-development`, `requirement-capture`, `slice-planning`, `implementation-plan`
 - **Implementation**: `android-implementation`, `android-data-layer`, `android-domain-layer`, `android-ui-layer`
 - **Testing & Verification**: `android-testing`, `ui-verification`, `android-unit-test`, `android-instrumented-ui-test`, `shared-json-scenarios`
@@ -96,12 +94,13 @@ Key Skills:
 - **Every new feature must have tests**
 - **Implementation plan must be approved by user before any code is written**
 - **Every stage gate must pass before advancing** — do not skip gates
+- **Every stage skill must be invoked via the Skill tool** — reading the SKILL.md manually is not a substitute. The workflow's "INVOKE" instruction is a command, not a suggestion
+- **Memory of prior approval does not bypass workflow stages** — source of truth is the on-disk artifacts in `docs/current/`. If a required artifact (`spec_v<N>.md`, `implementation_plan_v<N>.md`, `test_plan_v<N>.md`) is missing, re-run the stage via its skill — even if memory says it was approved
+- **Stage completion requires evidence** — when marking a stage complete in `summary_v<N>.md`, cite the artifact path and paste a one-line excerpt. A stage is not complete until the artifact exists on disk and is referenced from the summary
 - **Do not suppress rule violations** — agents must fix root causes, not add `@Suppress`, `@SuppressLint`, `tools:ignore`, ktlint/detekt disable comments, baselines, or broader excludes unless the user explicitly approves a documented false positive
 
 ---
-## Build Commands
-Run Gradle commands from the project root.
-
+## Build Commands — run from project root
 ```bash
 ./gradlew assembleDebug              # build check
 ./gradlew testDebugUnitTest          # unit + integration tests
@@ -113,14 +112,8 @@ Run Gradle commands from the project root.
 
 ---
 ## Distribution Commands
-Use the following Gradle tasks to package and distribute the application to Firebase App Distribution:
-
-```bash
-./gradlew appDistributionUploadDebug     # Package and distribute the Debug build (version: 1.0-Debug) to MyAccounts
-./gradlew appDistributionUploadRelease   # Package and distribute the Release build (version: 1.0-Release) to MyAccounts
-```
+Package and distribute to Firebase App Distribution: `./gradlew appDistributionUploadDebug` (Debug, v1.0-Debug) or `./gradlew appDistributionUploadRelease` (Release, v1.0-Release), both to MyAccounts.
 
 ---
 ## When you find a bug in the harness itself
-Fix it immediately. Update the relevant stage, rule, or gate to prevent recurrence.
-Document the fix in `docs/knowledge/pitfalls/` if it could affect future changes.
+Fix it immediately — update the relevant stage/rule/gate to prevent recurrence, and document in `docs/knowledge/pitfalls/` if it could affect future changes.

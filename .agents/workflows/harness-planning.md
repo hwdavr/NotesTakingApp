@@ -22,12 +22,12 @@ Each planned feature in the list must represent a clean, end-to-end user-visible
 ## Stage Execution
 
 ### Stage 1 — Feature Requirement Capture ⛔ STOP
-Load: `skills/requirement-capture/SKILL.md`
+**INVOKE** the `requirement-capture` skill via the Skill tool (name: `requirement-capture`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 Output: `docs/current/requirement-summary.md`
 Gate: **STOP — present `requirement-summary.md` to user. Every open question must be ✅ Answered before proceeding.**
 
 ### Stage 2 — Slice Planning
-Load: `skills/slice-planning/SKILL.md`
+**INVOKE** the `slice-planning` skill via the Skill tool (name: `slice-planning`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 Input: `docs/current/requirement-summary.md`
 Output: `docs/current/feature_list.json`, `docs/current/progress.md`, `docs/current/sprint-contract.md`
 Gate: **STOP — present `feature_list.json` and `sprint-contract.md` to user. Do not proceed until user explicitly approves the task breakdown and sprint contract.**

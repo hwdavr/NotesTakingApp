@@ -14,12 +14,12 @@ Use this workflow when:
 ## Stages
 
 ### Stage 1 — UI Implementation
-Load: `skills/android-ui-layer/SKILL.md`
+**INVOKE** the `android-ui-layer` skill via the Skill tool (name: `android-ui-layer`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
 
 ### Stage 2 — UI Verification ↩️ Loop
-Load: `skills/ui-verification/SKILL.md`
+**INVOKE** the `ui-verification` skill via the Skill tool (name: `ui-verification`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Compare the implemented UI against the original design screenshot in `request_analysis/design/`.
 
@@ -32,7 +32,7 @@ Compare the implemented UI against the original design screenshot in `request_an
 **PASS →** proceed to Stage 3 — Code + Test Review.
 
 ### Stage 3 — Code Quality Fix ⛔ STOP
-Load: `skills/code-quality-fix/SKILL.md`
+**INVOKE** the `code-quality-fix` skill via the Skill tool (name: `code-quality-fix`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Run the code-quality-fix stage to verify complete baseline correctness.
 
