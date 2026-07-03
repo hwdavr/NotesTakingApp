@@ -1,6 +1,9 @@
-# Stage — Requirement, Impact & Design Analysis
+---
+name: requirement-analysis
+description: Analyzes requirements, classifies APIs, and designs UI states and navigation flow.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Requirement, Impact & Design Analysis
 
 ## Purpose
 Understand what is being built, identify affected files, and design the core UI state and navigation before implementation.
@@ -22,9 +25,9 @@ Do not write any code in this stage.
 ### 1. Requirement & Impact Analysis
 1. Read the user's feature request in full. Do not assume anything that is not explicitly stated.
 2. **Read `evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
-2. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
-3. Classify changes (`modify`, `extend`, `new`, `delete`).
-4. **API & Contract Check**:
+3. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
+4. Classify changes (`modify`, `extend`, `new`, `delete`).
+5. **API & Contract Check**:
    - Classify API changes and state force update requirement.
    - **Identify needed APIs**: List all existing or new endpoints that must be called to fulfill the requirement.
 
@@ -43,8 +46,13 @@ Create `docs/current/` directory, if there are existing files, remove them insid
 If the user provides a design screenshot or mockup, save it to **`docs/current/design/`** so it can be referenced during UI Verification.
 
 Produce **`docs/current/summary_v<N>.md`** — create this file **first**, before `spec_v<N>.md`.
-Use the template from `docs/templates/` (e.g. `docs/templates/progress-template.md`).
-The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below:
+Use the template from `docs/templates/progress-template.md`.
+The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below.
+All **Timestamp** values must be in `YYYY-MM-DD HH:MM` format:
+
+**Type**: feature / bugfix / api / refactor
+**Started**: YYYY-MM-DD HH:MM
+**Status**: In Progress / Complete
 
 **`feature-delivery` workflow:**
 
@@ -97,9 +105,9 @@ Use the template from `docs/templates/spec-template.md`.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass:**
+**This stage is complete when all of the following are true:**
 - [ ] `docs/current/summary_v<N>.md` exists with the Stage Progress table filled in.
 - [ ] `docs/current/spec_v<N>.md` exists with requirement, impact, and design sections filled.
 - [ ] Every affected file is listed with a change type.

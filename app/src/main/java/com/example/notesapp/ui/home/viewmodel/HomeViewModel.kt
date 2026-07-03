@@ -2,6 +2,7 @@ package com.example.notesapp.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
@@ -25,9 +26,18 @@ open class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedFolderId = MutableStateFlow("all_notes")
     private val isRefreshing = MutableStateFlow(false)
+    private val initialLoadComplete = MutableStateFlow(false)
+
     init {
         viewModelScope.launch {
-            folderRepository.sync()
+            try {
+                folderRepository.sync()
+                noteRepository.sync()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                initialLoadComplete.value = true
+            }
         }
     }
     fun selectFolder(id: String) {
@@ -38,6 +48,7 @@ open class HomeViewModel @Inject constructor(
             isRefreshing.value = true
             try {
                 folderRepository.sync()
+                noteRepository.sync()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -60,6 +71,14 @@ open class HomeViewModel @Inject constructor(
             noteRepository.toggleFavorite(note)
         }
     }
+    private data class HomeInputs(
+        val notes: List<Note>,
+        val shared: List<Note>,
+        val folders: List<Folder>,
+        val selectedId: String,
+        val refreshing: Boolean
+    )
+
     open val uiState: StateFlow<HomeUiState> = combine(
         noteRepository.getActiveNotes(),
         noteRepository.getSharedNotes(),
@@ -67,15 +86,17 @@ open class HomeViewModel @Inject constructor(
         selectedFolderId,
         isRefreshing
     ) { notes, shared, folders, selectedId, refreshing ->
-        val filteredNotes = when (selectedId) {
-            "all_notes" -> notes + shared
-            "shared" -> shared
+        HomeInputs(notes, shared, folders, selectedId, refreshing)
+    }.combine(initialLoadComplete) { inputs, loadComplete ->
+        val filteredNotes = when (inputs.selectedId) {
+            "all_notes" -> inputs.notes + inputs.shared
+            "shared" -> inputs.shared
             "favorites" -> {
-                notes.filter { it.isFavorite }
+                inputs.notes.filter { it.isFavorite }
             }
-            else -> notes.filter { it.folderId == selectedId }
+            else -> inputs.notes.filter { it.folderId == inputs.selectedId }
         }
-        val noteCountsByFolder = (notes + shared)
+        val noteCountsByFolder = (inputs.notes + inputs.shared)
             .mapNotNull { note -> note.folderId }
             .groupingBy { it }
             .eachCount()
@@ -90,23 +111,23 @@ open class HomeViewModel @Inject constructor(
                     isShared = note.isShared
                 )
             },
-            noteActions = (notes + shared).associateBy { it.id },
+            noteActions = (inputs.notes + inputs.shared).associateBy { it.id },
             recentFolders = listOf(
                 FolderUiModel(
                     id = "all_notes",
                     name = "All Notes",
-                    noteCount = notes.size,
+                    noteCount = inputs.notes.size,
                     isPrimary = false,
                     isShared = false
                 ),
                 FolderUiModel(
                     id = "shared",
                     name = "Shared",
-                    noteCount = shared.size,
+                    noteCount = inputs.shared.size,
                     isPrimary = false,
                     isShared = true
                 )
-            ) + folders.map { folder ->
+            ) + inputs.folders.map { folder ->
                 FolderUiModel(
                     id = folder.id,
                     name = folder.name,
@@ -115,9 +136,9 @@ open class HomeViewModel @Inject constructor(
                     isShared = folder.isShared
                 )
             },
-            selectedFolderId = selectedId,
-            isLoading = false,
-            isRefreshing = refreshing
+            selectedFolderId = inputs.selectedId,
+            isLoading = !loadComplete,
+            isRefreshing = inputs.refreshing
         )
     }
         .stateIn(

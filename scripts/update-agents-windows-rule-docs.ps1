@@ -48,7 +48,7 @@ Update-TextFile ".agents/stages/code-quality-fix.md" {
     return $content
 }
 
-Update-TextFile ".agents/stages/code-review.md" {
+Update-TextFile ".agents/skills/android-code-review/SKILL.md" {
     param($content)
 
     if (-not $content.Contains("scripts\check-architecture-rules.cmd")) {

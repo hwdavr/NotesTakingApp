@@ -45,6 +45,8 @@ class NoteEditorBottomBarTest {
                 onMoveNote = {},
                 onExportNote = {},
                 onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
                 onToggleMark = { _, _ -> },
                 onAddParagraph = {},
                 onAddImage = {},
@@ -105,6 +107,8 @@ class NoteEditorBottomBarTest {
                 onMoveNote = {},
                 onExportNote = {},
                 onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
                 onToggleMark = { blockId, mark -> toggledMarks += blockId to mark },
                 onAddParagraph = {},
                 onAddImage = {},
@@ -152,6 +156,8 @@ class NoteEditorBottomBarTest {
                 onMoveNote = {},
                 onExportNote = {},
                 onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
                 onToggleMark = { blockId, mark -> toggledMarks += blockId to mark },
                 onAddParagraph = {},
                 onAddImage = {},
@@ -190,6 +196,8 @@ class NoteEditorBottomBarTest {
                 onMoveNote = {},
                 onExportNote = {},
                 onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
                 onToggleMark = { _, _ -> },
                 onAddParagraph = {},
                 onAddImage = {},
@@ -205,5 +213,98 @@ class NoteEditorBottomBarTest {
         }
         assertTrue(composeRule.onAllNodesWithTag("editor_default_bottom_bar").fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag("editor_formatting_bottom_bar").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
+    fun defaultBottomBar_checkboxButton_triggersToggleCheckbox() {
+        val toggledCheckboxBlocks = mutableListOf<String>()
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = NoteEditorUiState(
+                    noteId = "note_1",
+                    isLoaded = true,
+                    document = NoteDocument(
+                        blocks = listOf(
+                            EditorBlock.TextBlock(id = "block_1", children = listOf(RichText("Hello")))
+                        )
+                    )
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = { toggledCheckboxBlocks += it },
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+        composeRule.onNodeWithTag("editor_checkbox_action").assertIsDisplayed().performClick()
+        assertEquals(listOf("block_1"), toggledCheckboxBlocks)
+    }
+
+    @Test
+    fun checkboxIcon_taps_triggerToggleCheckboxChecked() {
+        val toggledCheckedBlocks = mutableListOf<String>()
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = NoteEditorUiState(
+                    noteId = "note_1",
+                    isLoaded = true,
+                    document = NoteDocument(
+                        blocks = listOf(
+                            EditorBlock.TextBlock(
+                                id = "block_1",
+                                type = "checkbox",
+                                checked = false,
+                                children = listOf(RichText("Hello"))
+                            )
+                        )
+                    )
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = { toggledCheckedBlocks += it },
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+        composeRule.onNodeWithTag("editor_checkbox_icon").assertIsDisplayed().performClick()
+        assertEquals(listOf("block_1"), toggledCheckedBlocks)
     }
 }

@@ -1,6 +1,9 @@
-# Stage — Domain Layer
+---
+name: android-domain-layer
+description: Implements domain mappers, models, and domain use cases.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Android Domain Layer
 
 ## Purpose
 Implement domain layer changes: use cases, domain models, and repository interfaces.
@@ -62,9 +65,9 @@ Update `summary_v<N>.md`: mark the Domain Layer stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] No Android framework classes imported in domain layer files (`grep -r "import android\." domain/`)
 - [ ] Repository interfaces updated and match the Data Layer stage implementation
 - [ ] Use cases are single-responsibility (one observable outcome per use case)
@@ -72,6 +75,3 @@ Update `summary_v<N>.md`: mark the Domain Layer stage complete.
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
-
-**REVISION REQUIRED →** fix the domain layer issue, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a repository interface mismatch, fix the interface contract before proceeding.

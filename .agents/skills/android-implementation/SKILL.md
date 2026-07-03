@@ -1,13 +1,16 @@
-# Stage — Implementation (Data + Domain + UI)
+---
+name: android-implementation
+description: Implements a user story or feature across data, domain, and UI layers sequentially.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Android Implementation (Data + Domain + UI)
 
 ## Purpose
 Implement the full change across all three layers — Data, Domain, and UI — in a single pass.
 Work in small, vertically-sliced increments: implement one layer, verify the build, then proceed to the next.
 
 > This is the **compact implementation stage** used by `feature-delivery` and `bug-fixing` workflows.
-> For granular layer-by-layer control, use the individual stages `data-layer.md`, `domain-layer.md`, and `ui-layer.md`.
+> For granular layer-by-layer control, use the individual stages `android-data-layer/SKILL.md`, `android-domain-layer/SKILL.md`, and `android-ui-layer/SKILL.md`.
 
 ---
 
@@ -128,9 +131,9 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `sharedContracts/openapi.yaml` updated (if API changed)
 - [ ] No DTOs referenced outside the data layer
 - [ ] All new enum fields have an `UNKNOWN` / fallback variant
@@ -146,7 +149,4 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 - [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
-**APPROVED →** Return to the active workflow file. The next stage is **Testing** — load `stages/testing.md` and write all required tests.
-
-**REVISION REQUIRED →** fix the issue at its layer (Data / Domain / UI), re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** Never proceed to the next stage with a failing build.
+**APPROVED →** Return to the active workflow file. 

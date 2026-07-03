@@ -25,11 +25,13 @@ class HomeViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         val apiMocks = jsonObject.getJSONArray("apiMocks")
         val firstMock = apiMocks.getJSONObject(0)
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(firstMock.getInt("status"))
-                .setBody(firstMock.getJSONArray("response").toString())
-        )
+        repeat(2) {
+            mockWebServer.enqueue(
+                MockResponse()
+                    .setResponseCode(firstMock.getInt("status"))
+                    .setBody(firstMock.getJSONArray("response").toString())
+            )
+        }
 
         viewModel = HomeViewModel(noteRepository, folderRepository)
         val collectJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {

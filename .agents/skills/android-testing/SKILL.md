@@ -1,6 +1,9 @@
-# Stage — Testing
+---
+name: android-testing
+description: Implements unit, integration, and instrumented UI tests according to the test plan.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Android Testing
 
 ## Purpose
 Write all tests for the change and mechanically verify they pass.
@@ -30,7 +33,7 @@ The article principle: write the failing test *before* touching the application 
 ## Execute
 
 ### 1. Execute Planned Tests
-Read the approved test plan in `coding/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
+Read the approved test plan in `docs/current/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
 
 ### 2. Unit tests (`app/src/test/`)
 Write unit tests for all new or modified:
@@ -104,9 +107,9 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `./gradlew testDebugUnitTest` — exit code 0
 - [ ] `./gradlew koverLog` — overall ≥ 80%, new classes ≥ 90%
 - [ ] Total test count `> 0` (not `0/0` — this is a gate failure)

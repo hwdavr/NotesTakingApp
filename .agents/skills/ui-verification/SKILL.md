@@ -1,6 +1,9 @@
-# Stage — UI Verification
+---
+name: ui-verification
+description: Verifies Android UI screens visually and interactively using screenshots and mockups.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — UI Verification
 
 ## Purpose
 Verify that the implemented UI renders correctly and matches the design specified in `spec_t<taskId>.md`.
@@ -133,9 +136,9 @@ Update `summary_t<taskId>.md`: mark UI Verification stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `assembleDebug` — exit code 0
 - [ ] `lintDebug` and `ktlintCheck` — exit code 0
 - [ ] Instrumented UI tests pass (if present): `./gradlew connectedDebugAndroidTest`

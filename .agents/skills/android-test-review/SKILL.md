@@ -1,15 +1,18 @@
-# Stage — Test Review
+---
+name: android-test-review
+description: Verifies test suite completion, boundary testing, and coverage targets.
+---
 
-> **Routing**: Run this stage immediately after `stages/code-review.md`. When both are complete, return to the active **workflow** file to determine the next step (typically a ⛔ STOP to present findings to the user).
+# Skill — Android Test Review
 
 ## Purpose
-An evaluator pass covering test coverage, test quality, shared scenario usage, and regression verification — always run as the second half of a review cycle, immediately after Code Review.
+An evaluator pass covering test coverage, test quality, shared scenario usage, and regression verification — always run as the first half of a review cycle, immediately before Code Review.
 
 ---
 
 ## Load
 
-Load before starting (code-review.md context should already be loaded — do not re-load what is already in context):
+Load before starting (do not load what is already in context):
 
 - `unit_test/test_report_t<taskId>_v<N>.md` (Testing stage output — source of truth for test results)
 
@@ -52,9 +55,9 @@ Update `summary_t<taskId>.md`: mark the Review stage complete with overall verdi
 
 ---
 
-## Gate
+## Done When
 
-All conditions must pass before returning to the workflow:
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 
 - [ ] Test report confirms: `testDebugUnitTest` exit code 0
 - [ ] Test report confirms: overall ≥ 80%, new classes ≥ 90%

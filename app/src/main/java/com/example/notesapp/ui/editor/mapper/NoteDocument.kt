@@ -43,6 +43,7 @@ data class NoteDocument(
                 val prefix = when (block.type) {
                     "heading" -> "# "
                     "bulleted" -> "- "
+                    "checkbox" -> if (block.checked) "- [x] " else "- [ ] "
                     else -> ""
                 }
                 val content = block.children.joinToString("") { richText ->
@@ -105,7 +106,8 @@ sealed class EditorBlock {
     data class TextBlock(
         override val id: String = newBlockId(),
         val type: String = "paragraph",
-        val children: List<RichText> = listOf(RichText(""))
+        val children: List<RichText> = listOf(RichText("")),
+        val checked: Boolean = false
     ) : EditorBlock()
     data class ImageBlock(
         override val id: String = newBlockId(),
@@ -125,20 +127,18 @@ fun noteContentPreview(content: String): String = NoteDocument.fromContent(conte
 fun newBlockId(): String = "b_${UUID.randomUUID()}"
 fun parseMarkdownTextBlock(id: String = newBlockId(), text: String): EditorBlock.TextBlock {
     val trimmed = text.trimStart()
-    val type = when {
-        trimmed.startsWith("# ") -> "heading"
-        trimmed.startsWith("- ") -> "bulleted"
-        else -> "paragraph"
-    }
-    val body = when (type) {
-        "heading" -> trimmed.removePrefix("# ")
-        "bulleted" -> trimmed.removePrefix("- ")
-        else -> text
+    val (type, checked, body) = when {
+        trimmed.startsWith("- [ ] ") -> Triple("checkbox", false, trimmed.removePrefix("- [ ] "))
+        trimmed.startsWith("- [x] ") -> Triple("checkbox", true, trimmed.removePrefix("- [x] "))
+        trimmed.startsWith("# ") -> Triple("heading", false, trimmed.removePrefix("# "))
+        trimmed.startsWith("- ") -> Triple("bulleted", false, trimmed.removePrefix("- "))
+        else -> Triple("paragraph", false, text)
     }
     return EditorBlock.TextBlock(
         id = id,
         type = type,
-        children = parseInlineMarkdown(body)
+        children = parseInlineMarkdown(body),
+        checked = checked
     )
 }
 fun parseInlineMarkdown(text: String): List<RichText> {
@@ -220,6 +220,7 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("id", id)
         .put("type", type)
         .put("children", children.toRichTextJson())
+        .put("checked", checked)
     is EditorBlock.ImageBlock -> JSONObject()
         .put("id", id)
         .put("type", "image")
@@ -233,10 +234,11 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
 private fun JSONObject.toEditorBlock(): EditorBlock? {
     val id = optString("id").ifBlank { newBlockId() }
     return when (val type = optString("type", "paragraph")) {
-        "paragraph", "heading", "bulleted" -> EditorBlock.TextBlock(
+        "paragraph", "heading", "bulleted", "checkbox" -> EditorBlock.TextBlock(
             id = id,
             type = type,
-            children = optJSONArray("children").toRichTextList()
+            children = optJSONArray("children").toRichTextList(),
+            checked = optBoolean("checked", false)
         )
         "image" -> EditorBlock.ImageBlock(
             id = id,

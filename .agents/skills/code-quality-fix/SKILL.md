@@ -1,6 +1,9 @@
-# Stage — Code Quality Fix
+---
+name: code-quality-fix
+description: Runs static analysis, linting, formatting checks and resolves all violations.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Code Quality Fix
 
 ## Purpose
 
@@ -62,9 +65,9 @@ Clean git status with all formatting and structural violations fixed.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] `./gradlew ktlintCheck` — exit code 0
 - [ ] `./gradlew detekt` — exit code 0
 - [ ] `./gradlew lintDebug` — exit code 0

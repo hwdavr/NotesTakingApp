@@ -189,4 +189,49 @@ class NoteDocumentTest {
             (restored.blocks[2] as EditorBlock.TableBlock).rows.size
         )
     }
+
+    @Test
+    fun `toJsonString preserves checkbox checked state`() {
+        val original = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(type = "checkbox", children = listOf(RichText("Task")), checked = true),
+                EditorBlock.TextBlock(type = "checkbox", children = listOf(RichText("Task2")), checked = false)
+            )
+        )
+        val json = original.toJsonString()
+        val restored = NoteDocument.fromContent(json)
+
+        assertEquals(2, restored.blocks.size)
+        val b1 = restored.blocks[0] as EditorBlock.TextBlock
+        val b2 = restored.blocks[1] as EditorBlock.TextBlock
+        assertEquals("checkbox", b1.type)
+        assertTrue(b1.checked)
+        assertEquals("checkbox", b2.type)
+        assertTrue(!b2.checked)
+    }
+
+    @Test
+    fun `toMarkdown handles checkbox states`() {
+        val doc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(type = "checkbox", children = listOf(RichText("Todo 1")), checked = false),
+                EditorBlock.TextBlock(type = "checkbox", children = listOf(RichText("Todo 2")), checked = true)
+            )
+        )
+        val expected = "- [ ] Todo 1\n\n- [x] Todo 2"
+        assertEquals(expected, doc.toMarkdown())
+    }
+
+    @Test
+    fun `parseMarkdownTextBlock identifies checkboxes correctly`() {
+        val uncheckedBlock = parseMarkdownTextBlock(text = "- [ ] Buy groceries")
+        assertEquals("checkbox", uncheckedBlock.type)
+        assertTrue(!uncheckedBlock.checked)
+        assertEquals("Buy groceries", uncheckedBlock.children[0].text)
+
+        val checkedBlock = parseMarkdownTextBlock(text = "- [x] Done shopping")
+        assertEquals("checkbox", checkedBlock.type)
+        assertTrue(checkedBlock.checked)
+        assertEquals("Done shopping", checkedBlock.children[0].text)
+    }
 }

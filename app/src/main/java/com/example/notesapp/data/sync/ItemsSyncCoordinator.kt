@@ -9,6 +9,8 @@ import com.example.notesapp.data.remote.toNoteEntity
 import com.example.notesapp.util.DeviceIdProvider
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 @Singleton
 class ItemsSyncCoordinator @Inject constructor(
@@ -17,7 +19,9 @@ class ItemsSyncCoordinator @Inject constructor(
     private val noteDao: NoteDao,
     private val deviceIdProvider: DeviceIdProvider
 ) {
-    suspend fun syncAll() {
+    private val syncMutex = Mutex()
+
+    suspend fun syncAll() = syncMutex.withLock {
         val initialItems = api.listItems(includeDeleted = true)
         var hasUpdates = false
         for (apiItem in initialItems) {

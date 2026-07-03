@@ -5,8 +5,10 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
@@ -86,10 +88,28 @@ class HomeViewModelTest : BaseViewModelTest() {
     }
 
     @Test
+    fun `uiState initially shows loading until first sync completes`() = runTest {
+        val syncGate = CompletableDeferred<Unit>()
+        coEvery { folderRepository.sync() } coAnswers { syncGate.await() }
+        coEvery { noteRepository.sync() } coAnswers { }
+        val loadingViewModel = HomeViewModel(noteRepository, folderRepository)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            loadingViewModel.uiState.collect()
+        }
+        val loadingState = loadingViewModel.uiState.value
+        assertTrue(loadingState.isLoading)
+        syncGate.complete(Unit)
+        advanceUntilIdle()
+        val loadedState = loadingViewModel.uiState.value
+        assertFalse(loadedState.isLoading)
+    }
+
+    @Test
     fun `uiState initially shows all notes`() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect()
         }
+        advanceUntilIdle()
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         // All notes should include both active and shared notes
@@ -178,6 +198,26 @@ class HomeViewModelTest : BaseViewModelTest() {
         viewModel.refresh()
         advanceUntilIdle()
         io.mockk.coVerify { folderRepository.sync() }
+        io.mockk.coVerify { noteRepository.sync() }
         assertFalse(viewModel.uiState.value.isRefreshing)
+    }
+
+    @Test
+    fun `init syncs note repository`() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        advanceUntilIdle()
+        io.mockk.coVerify { noteRepository.sync() }
+    }
+
+    @Test
+    fun `refresh syncs note repository`() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect()
+        }
+        viewModel.refresh()
+        advanceUntilIdle()
+        io.mockk.coVerify { noteRepository.sync() }
     }
 }

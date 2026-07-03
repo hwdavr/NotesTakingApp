@@ -31,9 +31,8 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | Folder | Purpose |
 |--------|---------|
 | `.agents/workflows/` | **Start here.** Pick the workflow that matches the task. |
-| `.agents/stages/` | Step-by-step processes invoked by workflows. |
 | `.agents/rules/` | Mandatory constraints (L1 core + L3 on-demand). |
-| `.agents/skills/` | How-to guides — loaded per stage (L2). |
+| `.agents/skills/` | How-to guides and modular workflow steps (L2). |
 | `.agents/gates/` | CI checks and review/release checklists. |
 | `docs/templates/` | Standard output formats for plans, reviews, tests. |
 | `docs/knowledge/` | Past bugs, pitfalls, architecture decisions (L3). |
@@ -78,22 +77,12 @@ Do not write a single line of code until you have read the workflow file.
 
 ---
 ## Skills Index
-Existing skills — load the SKILL.md from the relevant folder:
-
-| Skill folder | Used in stage |
-|---|---|
-| `.agents/skills/context-management/` | Session start · context drift recovery · switching feature areas |
-| `.agents/skills/spec-driven-development/` | Stage — Requirement, Impact & Design |
-| `.agents/skills/android-ui-verification/` | Stage — UI Layer |
-| `.agents/skills/android-unit-test/` | Stage — Testing |
-| `.agents/skills/android-instrumented-ui-test/` | Stage — Testing |
-| `.agents/skills/shared-json-scenarios/` | Stage — Testing |
-| `.agents/skills/android-code-quality-checks/` | Stage — Code + Test Review · **step 1**: run Ktlint, Detekt, Lint and fix all violations first |
-| `.agents/skills/code-review-and-quality/` | Stage — Code + Test Review · **step 2**: multi-axis reasoning review (correctness, arch, security, performance) |
-| `.agents/skills/incremental-implementation/` | Stage — Slice Planning · Stage — Implementation Plan |
-| `.agents/skills/documentation-and-adrs/` | Stage — Knowledge Capture |
-| `.agents/skills/karpathy-guidelines/` | Any stage — coding discipline |
-| `.agents/skills/security-and-hardening/` | Stage — Code + Test Review (security-sensitive changes) |
+Key skills under `.agents/skills/`:
+- **Planning & Requirements**: `spec-driven-development`, `requirement-capture`, `slice-planning`, `implementation-plan`
+- **Implementation**: `android-implementation`, `android-data-layer`, `android-domain-layer`, `android-ui-layer`
+- **Testing & Verification**: `android-testing`, `ui-verification`, `android-unit-test`, `android-instrumented-ui-test`, `shared-json-scenarios`
+- **Review & Quality**: `code-quality-fix`, `android-code-review`, `code-review-and-quality`, `android-test-review`, `android-code-quality-checks`
+- **Session & Knowledge**: `context-management`, `knowledge-capture`, `documentation-and-adrs`, `karpathy-guidelines`
 
 ---
 ## Non-negotiable Rules
@@ -105,12 +94,13 @@ Existing skills — load the SKILL.md from the relevant folder:
 - **Every new feature must have tests**
 - **Implementation plan must be approved by user before any code is written**
 - **Every stage gate must pass before advancing** — do not skip gates
+- **Every stage skill must be invoked via the Skill tool** — reading the SKILL.md manually is not a substitute. The workflow's "INVOKE" instruction is a command, not a suggestion
+- **Memory of prior approval does not bypass workflow stages** — source of truth is the on-disk artifacts in `docs/current/`. If a required artifact (`spec_v<N>.md`, `implementation_plan_v<N>.md`, `test_plan_v<N>.md`) is missing, re-run the stage via its skill — even if memory says it was approved
+- **Stage completion requires evidence** — when marking a stage complete in `summary_v<N>.md`, cite the artifact path and paste a one-line excerpt. A stage is not complete until the artifact exists on disk and is referenced from the summary
 - **Do not suppress rule violations** — agents must fix root causes, not add `@Suppress`, `@SuppressLint`, `tools:ignore`, ktlint/detekt disable comments, baselines, or broader excludes unless the user explicitly approves a documented false positive
 
 ---
-## Build Commands
-Run Gradle commands from the project root.
-
+## Build Commands — run from project root
 ```bash
 ./gradlew assembleDebug              # build check
 ./gradlew testDebugUnitTest          # unit + integration tests
@@ -122,14 +112,8 @@ Run Gradle commands from the project root.
 
 ---
 ## Distribution Commands
-Use the following Gradle tasks to package and distribute the application to Firebase App Distribution:
-
-```bash
-./gradlew appDistributionUploadDebug     # Package and distribute the Debug build (version: 1.0-Debug) to MyAccounts
-./gradlew appDistributionUploadRelease   # Package and distribute the Release build (version: 1.0-Release) to MyAccounts
-```
+Package and distribute to Firebase App Distribution: `./gradlew appDistributionUploadDebug` (Debug, v1.0-Debug) or `./gradlew appDistributionUploadRelease` (Release, v1.0-Release), both to MyAccounts.
 
 ---
 ## When you find a bug in the harness itself
-Fix it immediately. Update the relevant stage, rule, or gate to prevent recurrence.
-Document the fix in `docs/knowledge/pitfalls/` if it could affect future changes.
+Fix it immediately — update the relevant stage/rule/gate to prevent recurrence, and document in `docs/knowledge/pitfalls/` if it could affect future changes.

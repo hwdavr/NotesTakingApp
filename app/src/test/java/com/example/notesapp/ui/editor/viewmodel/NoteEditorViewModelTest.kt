@@ -470,4 +470,96 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
             updatedBlock.children.none { "bold" in it.marks }
         )
     }
+
+    @Test
+    fun `toggleCheckbox converts paragraph to checkbox block`() = runTest {
+        viewModel.load("n1")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("paragraph", block.type)
+
+        viewModel.toggleCheckbox(block.id)
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertEquals("checkbox", updatedBlock.type)
+        assertTrue(!updatedBlock.checked)
+    }
+
+    @Test
+    fun `toggleCheckbox converts checkbox block back to paragraph`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("- [ ] Task")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("checkbox", block.type)
+
+        viewModel.toggleCheckbox(block.id)
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertEquals("paragraph", updatedBlock.type)
+    }
+
+    @Test
+    fun `toggleCheckboxChecked flips checked state`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("- [ ] Task")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("checkbox", block.type)
+        assertTrue(!block.checked)
+
+        viewModel.toggleCheckboxChecked(block.id)
+
+        val updatedBlock1 = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertTrue(updatedBlock1.checked)
+
+        viewModel.toggleCheckboxChecked(block.id)
+
+        val updatedBlock2 = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertTrue(!updatedBlock2.checked)
+    }
+
+    @Test
+    fun `splitTextBlock on non-empty checkbox propagates unchecked checkbox`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("- [x] Task Text")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("checkbox", block.type)
+        assertTrue(block.checked)
+
+        viewModel.onTextBlockChange(block.id, "Task Text\nNew Task")
+
+        val blocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, blocks.size)
+        assertEquals("checkbox", blocks[0].type)
+        assertTrue(blocks[0].checked) // remains checked
+        assertEquals("checkbox", blocks[1].type)
+        assertTrue(!blocks[1].checked) // propagated is unchecked
+    }
+
+    @Test
+    fun `splitTextBlock on empty checkbox converts both to paragraph`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("- [ ] ")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("checkbox", block.type)
+
+        viewModel.onTextBlockChange(block.id, "\n")
+
+        val blocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, blocks.size)
+        assertEquals("paragraph", blocks[0].type)
+        assertEquals("paragraph", blocks[1].type)
+    }
+
+    @Test
+    fun `onTextBlockChange on existing checkbox preserves checkbox type`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("- [ ] ")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals("checkbox", block.type)
+
+        viewModel.onTextBlockChange(block.id, "Buy milk")
+
+        val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
+        assertEquals("checkbox", updatedBlock.type)
+        assertEquals("Buy milk", updatedBlock.text())
+    }
 }

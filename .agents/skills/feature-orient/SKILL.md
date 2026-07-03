@@ -1,6 +1,9 @@
-# Stage — Feature Orient
+---
+name: feature-orient
+description: Orients the agent with the current sprint contract and active task state.
+---
 
-> **Routing**: When this stage is complete, proceed to the next stage defined in the calling workflow.
+# Skill — Feature Orient
 
 ## Purpose
 
@@ -65,5 +68,3 @@ Before making any changes or planning code, gather complete session and git cont
 ## Open Items
 <anything deferred or unresolved>
 ```
-
----

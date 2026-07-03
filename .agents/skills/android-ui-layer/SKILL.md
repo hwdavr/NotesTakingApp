@@ -1,6 +1,9 @@
-# Stage — UI Layer
+---
+name: android-ui-layer
+description: Implements UI screens and components in Compose with unidirectional state flow.
+---
 
-> **Routing**: When this stage is complete, return to the active **workflow** file to determine the next stage.
+# Skill — Android UI Layer
 
 ## Purpose
 Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composable screens, and navigation wiring.
@@ -47,7 +50,7 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 
 ### 5. Analytics
 Fire analytics events from the ViewModel — not from Composables.
-Follow `rules/analytics-rules.md` for naming and payload rules.
+Follow `rules/analytics-rules.md` for daily log and payload rules.
 
 ### 6. String resources
 Add all new user-visible text to `res/values/strings.xml` with descriptive keys following `rules/localization-rules.xml`.
@@ -83,9 +86,9 @@ Update `summary_v<N>.md`: mark the UI Layer stage complete.
 
 ---
 
-## Gate
+## Done When
 
-**Conditions to pass — all must be mechanically verifiable:**
+**This stage is complete when all of the following are true — all must be mechanically verifiable:**
 - [ ] ViewModel does not import `retrofit2.*`, `androidx.room.*`, or any data-layer class
 - [ ] Composable screens do not contain business logic
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings (`grep -r '"[A-Z]' ui/`)
@@ -95,6 +98,3 @@ Update `summary_v<N>.md`: mark the UI Layer stage complete.
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
-
-**REVISION REQUIRED →** fix the UI layer issue, re-run `assembleDebug`, re-evaluate gate.
-**Rollback trigger:** If build fails due to a domain model mismatch in the UI mapper, fix the mapper before proceeding.

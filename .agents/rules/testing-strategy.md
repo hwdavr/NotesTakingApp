@@ -124,3 +124,49 @@ Every bug fix must include at least one test that fails before the fix and passe
 - **Data flow/API mapping/Error state bugs**: Integration test
 - **Visual glitches/Unresponsive elements**: Instrumented UI test
 - **Navigation crashes/Deep-link issues**: Instrumented UI test
+
+---
+
+## Testing Best Practices
+
+### 1. Arrange-Act-Assert (AAA) Pattern
+Structure each test cleanly into three visual blocks separated by empty lines:
+```kotlin
+@Test
+fun givenNoteWithEmptyTitle_whenSaving_thenEmitsError() {
+    // Arrange: Set up mock responses, parameters, and view models
+    val note = Note(id = "1", title = "")
+    coEvery { repository.saveNote(note) } throws IllegalArgumentException("Empty title")
+
+    // Act: Invoke the action being tested
+    viewModel.saveNote(note)
+
+    // Assert: Verify the expected outcome
+    assertEquals(EditorUiState.Error("Empty title"), viewModel.uiState.value)
+}
+```
+
+### 2. DAMP Over DRY in Tests
+In production code, DRY (Don't Repeat Yourself) is preferred. In tests, prefer **DAMP (Descriptive And Meaningful Phrases)**. Each test should tell a self-contained story without requiring the reader to jump to shared setup helpers to understand the test input configuration.
+
+### 3. Test State, Not Interactions
+Verify the *outcome* of an operation (state changes) rather than the internal implementation details (which methods were called in which order). Testing interaction sequences (`verify { repo.save(...) }`) makes tests fragile and prone to breaking during refactoring, even if behavior remains correct.
+
+### 4. One Assertion Per Concept
+Each test should verify exactly one logical behavior. Do not bundle multiple unrelated assertions into a single test case.
+
+### 5. Prefer Real Implementations Over Mocks
+Catches integration bugs earlier. Use real database, domain mappers, or in-memory fakes. Mock only at external network boundaries or non-deterministic APIs.
+
+---
+
+## Test Anti-Patterns to Avoid
+
+| Anti-Pattern | Description | Remediation |
+|---|---|---|
+| Testing implementation details | Verifying internal helper functions or private fields | Test public inputs, state transitions, and outputs only |
+| Flaky tests | Tests that fail intermittently due to delays or threads | Avoid `Thread.sleep` or timing assumptions. Use Compose `waitUntil` or coroutine test dispatchers |
+| Testing framework code | Verifying Room or Retrofit libraries actually save/fetch | Rely on libraries being tested by their authors. Only test your custom business code and mappings |
+| Lack of test isolation | Test class state carrying over between runs | Recreate mock objects and databases in `@Before` setup blocks |
+| Mocking everything | Mocking domain models or standard library lists | Use real objects for simple models. Mock only boundaries |
+

@@ -26,7 +26,7 @@ Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [
 ## Stage Execution
 
 ### Stage 1 — Bug Context, Localization & Root Cause
-Load: `stages/requirement-analysis.md`
+**INVOKE** the `requirement-analysis` skill via the Skill tool (name: `requirement-analysis`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Adapt for bugs:
 - Bug description, expected vs. actual behavior
@@ -35,12 +35,12 @@ Adapt for bugs:
 - Design the fix (UiState changes if needed)
 
 Output: `docs/current/spec_v<N>.md` created; `docs/current/summary_v<N>.md` updated with bug context, fault area, and root cause.
-Gate: root cause is specific enough that a reproduction test can be written.
+Gate: root cause is specific enough that a reproduction test can be written. Run `bash scripts/check-stage-artifacts.sh bug-fixing requirement-analysis` — must exit 0.
 
 ---
 
 ### Stage 2 — Bug Reproduction (TDD) ⛔ STOP
-Load: `stages/bug-reproduction.md`
+**INVOKE** the `bug-reproduction` skill via the Skill tool (name: `bug-reproduction`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Write a failing test that mechanically proves the root cause before any fix is written.
 
@@ -51,7 +51,7 @@ Gate: test exits RED (non-zero), failure message matches root cause, no applicat
 ---
 
 ### Stage 3 — Fix Plan ⛔ STOP
-Load: `stages/implementation-plan.md`
+**INVOKE** the `implementation-plan` skill via the Skill tool (name: `implementation-plan`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Adapt — the plan must include:
 - Root cause (reference the reproduction test as evidence)
@@ -59,12 +59,12 @@ Adapt — the plan must include:
 - Which `@Ignore` annotation to remove once the fix is applied
 
 Output: `docs/current/implementation_plan_v<N>.md` created; `docs/current/summary_v<N>.md` updated.
-Gate: **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
+Gate: Run `bash scripts/check-stage-artifacts.sh bug-fixing implementation-plan` — must exit 0. **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---
 
 ### Stage 4 — Implementation (Data + Domain + UI as needed)
-Load: `stages/implementation.md`
+**INVOKE** the `android-implementation` skill via the Skill tool (name: `android-implementation`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Adapt — only implement the layers the bug fix touches. Skip layers that are unaffected.
 
@@ -74,7 +74,7 @@ Gate: `./gradlew assembleDebug` passes, all affected layer rules satisfied.
 ---
 
 ### Stage 5 — Testing
-Load: `stages/testing.md`
+**INVOKE** the `android-testing` skill via the Skill tool (name: `android-testing`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Output: Unit tests, integration tests, and shared JSON scenarios created or updated; `docs/current/summary_v<N>.md` updated with test count and coverage.
 Gate: tests pass, coverage targets met.
@@ -82,7 +82,7 @@ Gate: tests pass, coverage targets met.
 ---
 
 ### Stage 6 — Code Quality Fix
-Load: `stages/code-quality-fix.md`
+**INVOKE** the `code-quality-fix` skill via the Skill tool (name: `code-quality-fix`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Run the code-quality-fix stage to verify complete baseline correctness.
 
@@ -94,13 +94,13 @@ For bug fixes, additionally verify:
 
 Output: `docs/current/summary_v<N>.md` updated with code quality results.
 Gate:
-- All conditions in `stages/code-quality-fix.md` pass
+- All conditions in `skills/code-quality-fix/SKILL.md` pass
 - The reproduction test is GREEN after the fix
 
 ---
 
 ### Stage 7 — Knowledge Capture
-Load: `stages/knowledge-capture.md`
+**INVOKE** the `knowledge-capture` skill via the Skill tool (name: `knowledge-capture`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
 Output: `docs/current/summary_v<N>.md` updated with Knowledge Capture stage marked complete.
 
