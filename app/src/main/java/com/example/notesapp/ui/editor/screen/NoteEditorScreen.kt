@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,11 +37,13 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CheckBox
+import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material.icons.outlined.KeyboardHide
@@ -136,6 +140,8 @@ fun NoteEditorScreen(
         onMoveNote = { state.noteId?.let { onMoveNote(it) } },
         onExportNote = { state.noteId?.let { onExportNote(it) } },
         onTextBlockChange = viewModel::onTextBlockChange,
+        onToggleCheckbox = viewModel::toggleCheckbox,
+        onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
         onToggleMark = viewModel::toggleBlockMark,
         onAddParagraph = viewModel::addParagraphBlock,
         onAddImage = viewModel::addImageBlock,
@@ -166,6 +172,8 @@ fun NoteEditorScreenContent(
     onMoveNote: () -> Unit,
     onExportNote: () -> Unit,
     onTextBlockChange: (String, String) -> Unit,
+    onToggleCheckbox: (String) -> Unit,
+    onToggleCheckboxChecked: (String) -> Unit,
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
@@ -196,6 +204,8 @@ fun NoteEditorScreenContent(
                 .filterIsInstance<EditorBlock.TextBlock>()
                 .firstOrNull()
                 ?.id
+    val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
+    val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
     val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
@@ -325,6 +335,7 @@ fun NoteEditorScreenContent(
                             blocks = state.document.blocks,
                             isEditable = state.isEditable,
                             onTextBlockChange = onTextBlockChange,
+                            onToggleCheckboxChecked = onToggleCheckboxChecked,
                             onImageChange = onImageChange,
                             onTableCellChange = onTableCellChange,
                             onBlockFocused = onBlockFocused,
@@ -339,6 +350,8 @@ fun NoteEditorScreenContent(
             EditorBottomBar(
                 state = state,
                 activeTextBlockId = activeTextBlockId,
+                isCheckboxActive = isCheckboxActive,
+                onToggleCheckbox = onToggleCheckbox,
                 onToggleMark = onToggleMark,
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
@@ -423,6 +436,7 @@ private fun DocumentBlockList(
     blocks: List<EditorBlock>,
     isEditable: Boolean,
     onTextBlockChange: (String, String) -> Unit,
+    onToggleCheckboxChecked: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -451,6 +465,7 @@ private fun DocumentBlockList(
                         block = block,
                         isEditable = isEditable,
                         onChange = { onTextBlockChange(block.id, it) },
+                        onToggleCheckboxChecked = { onToggleCheckboxChecked(block.id) },
                         onFocus = { onBlockFocused(block.id) },
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
@@ -482,6 +497,7 @@ private fun TextDocumentBlock(
     block: EditorBlock.TextBlock,
     isEditable: Boolean,
     onChange: (String) -> Unit,
+    onToggleCheckboxChecked: () -> Unit,
     onFocus: () -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
@@ -499,88 +515,131 @@ private fun TextDocumentBlock(
                 )
             )
         }
-    val currentAnnotatedText = block.toAnnotatedString(
-        codeBackground = colors.background,
-        transparentBackground = colors.transparent
-    )
-    if (textFieldValue.annotatedString != currentAnnotatedText) {
-        textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
+    val currentAnnotatedText = remember(block.children, block.type, block.checked) {
+        block.toAnnotatedString(
+            codeBackground = colors.background,
+            transparentBackground = colors.transparent
+        )
     }
-    BasicTextField(
-        value = textFieldValue,
-        readOnly = !isEditable,
-        onValueChange = {
-            val selectionChanged = textFieldValue.selection != it.selection
-            val textChanged = textFieldValue.text != it.text
-            textFieldValue = it
-            if (textChanged) {
-                onChange(it.text)
-            }
-            if (selectionChanged) {
-                onSelectionChange(it.selection.start, it.selection.end)
-            }
-        },
-        modifier =
-        Modifier.fillMaxWidth()
-            .focusRequester(focusRequester)
-            .onFocusChanged { if (it.isFocused) onFocus() }
-            .onPreviewKeyEvent { event ->
-                if (event.key == Key.Backspace && textFieldValue.text.isEmpty()) {
-                    onDelete()
-                    true
-                } else {
-                    false
-                }
-            }
-            .testTag("editor_text_block"),
-        textStyle =
-        MaterialTheme.typography.bodyLarge.copy(
-            fontSize = if (block.type == "heading") 22.sp else 14.sp,
-            color = colors.textPrimary,
-            lineHeight = if (block.type == "heading") 28.sp else 20.sp,
-            fontWeight =
-            if (block.type == "heading") {
-                FontWeight.Bold
-            } else {
-                FontWeight.Normal
-            }
-        ),
-        cursorBrush = SolidColor(colors.primary),
-        decorationBox = { innerTextField ->
-            OutlinedTextFieldDefaults.DecorationBox(
-                value = textFieldValue.text,
-                innerTextField = innerTextField,
-                enabled = isEditable,
-                singleLine = false,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = remember { MutableInteractionSource() },
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.editor_content_placeholder),
-                        color = colors.textTertiary
-                    )
-                },
-                leadingIcon =
-                if (block.type == "bulleted") {
-                    val bulletChar = "•"
-                    { Text(bulletChar, color = colors.textSecondary, fontSize = 20.sp) }
-                } else {
-                    null
-                },
-                colors = editorFieldColors(),
-                container = {
-                    OutlinedTextFieldDefaults.ContainerBox(
-                        enabled = isEditable,
-                        isError = false,
-                        interactionSource = remember { MutableInteractionSource() },
-                        colors = editorFieldColors(),
-                        shape = OutlinedTextFieldDefaults.shape
-                    )
-                },
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
-            )
+    LaunchedEffect(currentAnnotatedText) {
+        if (textFieldValue.annotatedString != currentAnnotatedText) {
+            textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
         }
-    )
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        if (block.type == "checkbox") {
+            Icon(
+                imageVector = if (block.checked) {
+                    Icons.Filled.CheckBox
+                } else {
+                    Icons.Outlined.CheckBoxOutlineBlank
+                },
+                contentDescription = stringResource(
+                    if (block.checked) {
+                        R.string.editor_checkbox_checked_description
+                    } else {
+                        R.string.editor_checkbox_unchecked_description
+                    }
+                ),
+                tint = if (block.checked) colors.primary else colors.textSecondary,
+                modifier = Modifier
+                    .clickable(enabled = isEditable) {
+                        onToggleCheckboxChecked()
+                    }
+                    .testTag("editor_checkbox_icon")
+                    .size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        } else if (block.type == "bulleted") {
+            Box(
+                modifier = Modifier.size(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "•",
+                    color = colors.textSecondary,
+                    fontSize = 20.sp
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
+        BasicTextField(
+            value = textFieldValue,
+            readOnly = !isEditable,
+            onValueChange = {
+                val selectionChanged = textFieldValue.selection != it.selection
+                val textChanged = textFieldValue.text != it.text
+                val newValue = if (!textChanged) {
+                    it.copy(annotatedString = currentAnnotatedText)
+                } else {
+                    it
+                }
+                textFieldValue = newValue
+                if (textChanged) {
+                    onChange(newValue.text)
+                }
+                if (selectionChanged) {
+                    onSelectionChange(newValue.selection.start, newValue.selection.end)
+                }
+            },
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .onFocusChanged { if (it.isFocused) onFocus() }
+                .onPreviewKeyEvent { event ->
+                    if (event.key == Key.Backspace && textFieldValue.text.isEmpty()) {
+                        onDelete()
+                        true
+                    } else {
+                        false
+                    }
+                }
+                .testTag("editor_text_block"),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = if (block.type == "heading") 22.sp else 14.sp,
+                color = colors.textPrimary,
+                lineHeight = if (block.type == "heading") 28.sp else 20.sp,
+                fontWeight = if (block.type == "heading") {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                }
+            ),
+            cursorBrush = SolidColor(colors.primary),
+            decorationBox = { innerTextField ->
+                OutlinedTextFieldDefaults.DecorationBox(
+                    value = textFieldValue.text,
+                    innerTextField = innerTextField,
+                    enabled = isEditable,
+                    singleLine = false,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = remember { MutableInteractionSource() },
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.editor_content_placeholder),
+                            color = colors.textTertiary
+                        )
+                    },
+                    leadingIcon = null,
+                    colors = editorFieldColors(),
+                    container = {
+                        OutlinedTextFieldDefaults.ContainerBox(
+                            enabled = isEditable,
+                            isError = false,
+                            interactionSource = remember { MutableInteractionSource() },
+                            colors = editorFieldColors(),
+                            shape = OutlinedTextFieldDefaults.shape
+                        )
+                    },
+                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+                )
+            }
+        )
+    }
 }
 
 @Composable
@@ -809,10 +868,18 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             IconButton(onClick = onShare) {
-                Icon(Icons.Outlined.Share, contentDescription = null, tint = LocalAppColors.current.textPrimary)
+                Icon(
+                    Icons.Outlined.Share,
+                    contentDescription = stringResource(R.string.editor_share_description),
+                    tint = LocalAppColors.current.textPrimary
+                )
             }
             IconButton(onClick = onMore) {
-                Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = LocalAppColors.current.textPrimary)
+                Icon(
+                    Icons.Outlined.MoreHoriz,
+                    contentDescription = stringResource(R.string.editor_more_description),
+                    tint = LocalAppColors.current.textPrimary
+                )
             }
         }
     }
@@ -822,6 +889,8 @@ private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> 
 private fun EditorBottomBar(
     state: NoteEditorUiState,
     activeTextBlockId: String?,
+    isCheckboxActive: Boolean,
+    onToggleCheckbox: (String) -> Unit,
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
@@ -838,6 +907,9 @@ private fun EditorBottomBar(
         )
     } else {
         DefaultBottomBar(
+            activeTextBlockId = activeTextBlockId,
+            isCheckboxActive = isCheckboxActive,
+            onToggleCheckbox = onToggleCheckbox,
             onToggleFormattingToolbar = onToggleFormattingToolbar,
             onAddParagraph = onAddParagraph,
             onAddImage = onAddImage,
@@ -848,6 +920,9 @@ private fun EditorBottomBar(
 
 @Composable
 private fun DefaultBottomBar(
+    activeTextBlockId: String?,
+    isCheckboxActive: Boolean,
+    onToggleCheckbox: (String) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
@@ -868,7 +943,13 @@ private fun DefaultBottomBar(
             EditorBarButton(
                 onClick = onAddParagraph,
                 modifier = Modifier.testTag("editor_add_paragraph")
-            ) { Icon(Icons.Outlined.AddCircle, contentDescription = null, tint = colors.primary) }
+            ) {
+                Icon(
+                    Icons.Outlined.AddCircle,
+                    contentDescription = stringResource(R.string.editor_add_paragraph_description),
+                    tint = colors.primary
+                )
+            }
         }
         item {
             Box(
@@ -888,11 +969,14 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(
+                onClick = { activeTextBlockId?.let { onToggleCheckbox(it) } },
+                modifier = Modifier.testTag("editor_checkbox_action")
+            ) {
                 Icon(
                     Icons.Outlined.CheckBox,
-                    contentDescription = null,
-                    tint = colors.textPrimary
+                    contentDescription = stringResource(R.string.editor_checkbox_action_description),
+                    tint = if (isCheckboxActive) colors.primary else colors.textPrimary
                 )
             }
         }
@@ -900,7 +984,7 @@ private fun DefaultBottomBar(
             EditorBarButton(onClick = {}) {
                 Icon(
                     Icons.Outlined.Link,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_link_description),
                     tint = colors.textPrimary
                 )
             }
@@ -916,14 +1000,18 @@ private fun DefaultBottomBar(
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.InsertEmoticon, contentDescription = null, tint = colors.textSecondary)
+                Icon(
+                    Icons.Outlined.InsertEmoticon,
+                    contentDescription = stringResource(R.string.editor_emoticon_description),
+                    tint = colors.textSecondary
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Undo,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_undo_description),
                     tint = colors.textSecondary
                 )
             }
@@ -932,36 +1020,52 @@ private fun DefaultBottomBar(
             EditorBarButton(onClick = {}) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Redo,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_redo_description),
                     tint = colors.textSecondary
                 )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.CameraAlt, contentDescription = null, tint = colors.textSecondary)
+                Icon(
+                    Icons.Outlined.CameraAlt,
+                    contentDescription = stringResource(R.string.editor_camera_description),
+                    tint = colors.textSecondary
+                )
             }
         }
         item {
             EditorBarButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
-                Icon(Icons.Outlined.Image, contentDescription = null, tint = colors.textSecondary)
+                Icon(
+                    Icons.Outlined.Image,
+                    contentDescription = stringResource(R.string.editor_image_description),
+                    tint = colors.textSecondary
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
-                Icon(Icons.Outlined.Mic, contentDescription = null, tint = colors.textSecondary)
+                Icon(
+                    Icons.Outlined.Mic,
+                    contentDescription = stringResource(R.string.editor_mic_description),
+                    tint = colors.textSecondary
+                )
             }
         }
         item {
             EditorBarButton(onClick = onAddTable, modifier = Modifier.testTag("editor_add_table")) {
-                Icon(Icons.Outlined.TableChart, contentDescription = null, tint = colors.textSecondary)
+                Icon(
+                    Icons.Outlined.TableChart,
+                    contentDescription = stringResource(R.string.editor_table_description),
+                    tint = colors.textSecondary
+                )
             }
         }
         item {
             EditorBarButton(onClick = {}) {
                 Icon(
                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_close_description),
                     tint = colors.textSecondary
                 )
             }
@@ -1063,7 +1167,7 @@ private fun FormattingBottomBar(
             EditorBarButton(onClick = { /* link logic */ }) {
                 Icon(
                     Icons.Outlined.Link,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_link_description),
                     tint = colors.textPrimary
                 )
             }
@@ -1093,7 +1197,7 @@ private fun FormattingBottomBar(
             ) {
                 Icon(
                     Icons.Outlined.KeyboardHide,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_keyboard_hide_description),
                     tint = colors.textSecondary
                 )
             }

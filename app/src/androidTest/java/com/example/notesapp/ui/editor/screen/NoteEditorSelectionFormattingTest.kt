@@ -61,6 +61,8 @@ class NoteEditorSelectionFormattingTest {
                 onMoveNote = {},
                 onExportNote = {},
                 onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
                 onToggleMark = { blockId, mark ->
                     toggledBlock = blockId
                     toggledMark = mark
@@ -97,7 +99,8 @@ class NoteEditorSelectionFormattingTest {
         val (start, end) = selectionAtToggle ?: Pair(-1, -1)
         assertTrue(
             "Selection at toggle time should stay (0, 5) but was ($start, $end) — " +
-                "tapping the button stole focus and collapsed the selection"
+                "tapping the button stole focus and collapsed the selection",
+            start == 0 && end == 5
         )
     }
 }

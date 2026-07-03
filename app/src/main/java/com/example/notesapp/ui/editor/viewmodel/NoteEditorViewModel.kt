@@ -12,6 +12,7 @@ import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.mergeAdjacentWithSameMarks
 import com.example.notesapp.ui.editor.mapper.newBlockId
+import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
@@ -152,7 +153,46 @@ open class NoteEditorViewModel @Inject constructor(
             return
         }
         updateBlock(blockId) { block ->
-            if (block is EditorBlock.TextBlock) parseMarkdownTextBlock(id = block.id, text = value) else block
+            if (block is EditorBlock.TextBlock) {
+                val trimmed = value.trimStart()
+                val hasPrefix = trimmed.startsWith("- [ ] ") ||
+                    trimmed.startsWith("- [x] ") ||
+                    trimmed.startsWith("# ") ||
+                    trimmed.startsWith("- ")
+                if (hasPrefix) {
+                    parseMarkdownTextBlock(id = block.id, text = value)
+                } else if (block.type != "paragraph") {
+                    block.copy(children = parseInlineMarkdown(value))
+                } else {
+                    parseMarkdownTextBlock(id = block.id, text = value)
+                }
+            } else {
+                block
+            }
+        }
+    }
+    fun toggleCheckbox(blockId: String) {
+        if (!canEdit()) return
+        updateBlock(blockId) { block ->
+            if (block is EditorBlock.TextBlock) {
+                if (block.type == "checkbox") {
+                    block.copy(type = "paragraph", checked = false)
+                } else {
+                    block.copy(type = "checkbox", checked = false)
+                }
+            } else {
+                block
+            }
+        }
+    }
+    fun toggleCheckboxChecked(blockId: String) {
+        if (!canEdit()) return
+        updateBlock(blockId) { block ->
+            if (block is EditorBlock.TextBlock && block.type == "checkbox") {
+                block.copy(checked = !block.checked)
+            } else {
+                block
+            }
         }
     }
     fun toggleBlockMark(blockId: String, mark: String) {
@@ -345,10 +385,25 @@ open class NoteEditorViewModel @Inject constructor(
         var nextFocusId: String? = null
         val updatedBlocks = current.document.blocks.flatMap { block ->
             if (block.id == blockId && block is EditorBlock.TextBlock) {
+                val isCheckbox = block.type == "checkbox"
+                val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
                 val newBlocks = lines.mapIndexed { index, line ->
-                    parseMarkdownTextBlock(
-                        id = if (index == 0) block.id else newBlockId(),
-                        text = line
+                    val id = if (index == 0) block.id else newBlockId()
+                    val type = if (isCheckbox) {
+                        if (isEmptyCheckbox) "paragraph" else "checkbox"
+                    } else {
+                        "paragraph"
+                    }
+                    val checked = if (isCheckbox && !isEmptyCheckbox) {
+                        if (index == 0) block.checked else false
+                    } else {
+                        false
+                    }
+                    EditorBlock.TextBlock(
+                        id = id,
+                        type = type,
+                        children = parseInlineMarkdown(line),
+                        checked = checked
                     )
                 }
                 nextFocusId = newBlocks.lastOrNull()?.id
