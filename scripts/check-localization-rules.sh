@@ -194,10 +194,40 @@ _run_check \
 _header "4 · Null contentDescription on Interactive Icons"
 echo -e "  ${YELLOW}Non-text interactive elements must have contentDescription = stringResource(...), not null.${RESET}"
 
-_run_check \
-    'contentDescription set to null (should use stringResource for accessibility)' \
-    'contentDescription\s*=\s*null' \
-    --type kotlin
+INTERACTIVE_MARKERS='(IconButton\(|EditorBarButton\(|\.clickable\()'
+_check_null_content_description() {
+    local matches=""
+    if [[ ${#kt_files[@]} -gt 0 ]]; then
+        matches=$(_search 'contentDescription\s*=\s*null' --type kotlin -- "${kt_files[@]}" 2>/dev/null || true)
+    fi
+    if [[ -z "$matches" ]]; then
+        echo -e "    ${GREEN}✓ No violations${RESET}"
+        return
+    fi
+    local found=false
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        local file="${line%%:*}"
+        local lineno="${line#*:}"
+        lineno="${lineno%%:*}"
+        if [[ -z "$file" || -z "$lineno" ]]; then
+            continue
+        fi
+        local context_start=$((lineno > 10 ? lineno - 10 : 1))
+        local context
+        context=$(sed -n "${context_start},${lineno}p" "$file" 2>/dev/null || true)
+        if echo "$context" | grep -qE "$INTERACTIVE_MARKERS"; then
+            _print_match "$line"
+            found=true
+            (( TOTAL_VIOLATIONS++ ))
+        fi
+    done <<< "$matches"
+    if [[ "$found" == "false" ]]; then
+        echo -e "    ${GREEN}✓ No violations${RESET}"
+    fi
+}
+_rule_header 'contentDescription set to null on an interactive icon (should use stringResource for accessibility)'
+_check_null_content_description
 
 # =============================================================================
 # SUMMARY
