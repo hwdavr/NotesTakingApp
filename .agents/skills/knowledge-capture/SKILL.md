@@ -28,9 +28,11 @@ If this change made a significant architectural decision (new pattern, new abstr
 Ask: "Did anything in this change require a deliberate architectural trade-off?" If yes, write the ADR.
 
 ### 2. Past bugs
-If this change fixed a bug, record it in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `docs/templates/regression-template.md`.
+Only record a bug if it was **non-obvious, hard to diagnose, or systemic** (e.g., subtle race condition, misleading error message, framework gotcha, broad architectural misunderstanding). Routine bugs — typos, simple null-pointer fixes, missing null-checks — do **not** qualify.
 
-Ask: "Could the same bug happen again in a different part of the codebase?" If yes, record it.
+If it qualifies, record it in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `docs/templates/regression-template.md`.
+
+Ask: "Would a skilled developer waste significant time diagnosing this same bug in the future without this record?" Only if yes, record it.
 
 ### 3. Pitfalls
 If this change revealed a non-obvious footgun or anti-pattern that is easy to stumble into again, record it in `docs/knowledge/pitfalls/<slug>.md`.
@@ -80,7 +82,7 @@ Zero or more of:
 **This stage is complete when all of the following are true:**
 - [ ] Every question in Execute steps was answered (even if the answer is "not applicable")
 - [ ] Any architectural decision is recorded as an ADR (or explicitly marked N/A)
-- [ ] Any bug that could recur is recorded in `docs/knowledge/past-bugs/`
+- [ ] Any **non-obvious, hard-to-diagnose, or systemic** bug is recorded in `docs/knowledge/past-bugs/` (routine/simple bugs are explicitly excluded)
 - [ ] Any non-obvious pitfall is recorded in `docs/knowledge/pitfalls/`
 - [ ] `rules/` files updated if a coding convention changed
 - [ ] `summary_t<taskId>.md` is finalized with all stages marked ✅ Complete
