@@ -60,6 +60,48 @@ class SharedUsersViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         assertEquals("owner@example.com", state.users.first().email)
         assertNull(state.errorMessageRes)
     }
+
+    @Test
+    fun `load handles 404 error gracefully when note not on server`() = runTest {
+        // Arrange: Note exists locally but API returns 404 (note not synced to server yet)
+        fakeNoteDao.insert(
+            NoteEntity(
+                id = "note_001",
+                title = "New Note",
+                content = "[]",
+                folderId = null,
+                sortKey = "1",
+                version = 1,
+                deviceId = "test_device",
+                lastSyncedVersion = 1,
+                createdAt = 1L,
+                updatedAt = 1L
+            )
+        )
+        // API returns 404 because note is not on server yet
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(404)
+                .setBody("\"note not found\"")
+        )
+        val authManager = mockk<AuthManager>()
+        every { authManager.profileEmail } returns MutableStateFlow("owner@example.com")
+        val viewModel = SharedUsersViewModel(noteRepository, noteShareRepository, authManager)
+
+        // Act
+        viewModel.load("note_001")
+        waitUntil {
+            !viewModel.uiState.value.isLoading
+        }
+
+        // Assert: Should not show error, should show empty list (graceful handling)
+        // Currently: Shows error message because refresh() throws exception
+        val state = viewModel.uiState.value
+        assertEquals("New Note", state.noteTitle)
+        assertEquals(1, state.users.size) // Only owner, no collaborators
+        assertEquals(AccessRole.OWNER, state.users.first().role)
+        assertNull(state.errorMessageRes) // Should be null, not R.string.shared_users_error
+    }
     data class NoteShareScenario(
         val apiMocks: List<ApiMock>
     )
