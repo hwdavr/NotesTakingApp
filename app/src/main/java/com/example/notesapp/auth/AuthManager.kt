@@ -13,8 +13,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 
@@ -34,6 +37,8 @@ open class AuthManager @Inject constructor(
     open val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
     private val _profileEmail = MutableStateFlow<String?>(null)
     open val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
+    private val _logoutMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    open val logoutMessage: SharedFlow<String> = _logoutMessage.asSharedFlow()
 
     init {
         checkSession()
@@ -109,6 +114,7 @@ open class AuthManager @Inject constructor(
                 tokenStorage.clearTokens()
                 _profileEmail.value = null
                 _isLoggedIn.value = false
+                _logoutMessage.tryEmit(context.getString(R.string.auth_session_expired))
             } catch (e: Exception) {
                 Log.e(TAG, "Error during force logout", e)
             }

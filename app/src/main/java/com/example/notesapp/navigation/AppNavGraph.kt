@@ -6,6 +6,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,12 +59,18 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
     val authRoutes = listOf(Destinations.Onboarding.route)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn && currentRoute != Destinations.Onboarding.route) {
             navController.navigate(Destinations.Onboarding.route) {
                 popUpTo(0) { inclusive = true }
             }
+        }
+    }
+    LaunchedEffect(Unit) {
+        authManager.logoutMessage.collect { message ->
+            snackbarHostState.showSnackbar(message)
         }
     }
     val showBottomBar = isLoggedIn &&
@@ -81,6 +89,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         )
     }
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {

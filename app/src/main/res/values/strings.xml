@@ -147,6 +147,7 @@
     <string name="share_invite_read_only_subtitle">Can view but not edit</string>
     <string name="share_invite_full_access_title">Editor</string>
     <string name="share_invite_full_access_subtitle">Can view and edit</string>
+    <string name="auth_session_expired">Your session has expired. Please log in again.</string>
     <string name="share_invite_invalid_email_error">Enter a valid email address.</string>
     <string name="share_invite_duplicate_error">User already has access to this note.</string>
     <string name="share_invite_generic_error">Unable to send invite right now.</string>

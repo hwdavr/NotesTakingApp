@@ -9,6 +9,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -72,4 +78,30 @@ class AuthManagerLogoutTest {
         assertFalse(authManager.isLoggedIn.value)
         verify(exactly = 0) { tokenStorage.clearTokens() }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `given user is logged in, when forceLogout is called, then logout message is emitted`() =
+        runTest(UnconfinedTestDispatcher()) {
+            // Arrange
+            val expectedMessage = "Your session has expired. Please log in again."
+            every { tokenStorage.getAccessToken() } returns "valid_token"
+            every { tokenStorage.getIdToken() } returns null
+            every { context.getString(R.string.auth_session_expired) } returns expectedMessage
+            authManager = AuthManager(context, tokenStorage)
+            assertTrue(authManager.isLoggedIn.value)
+
+            val messages = mutableListOf<String>()
+            val collectJob = launch {
+                authManager.logoutMessage.toList(messages)
+            }
+
+            // Act
+            authManager.forceLogout()
+
+            // Assert
+            assertEquals(1, messages.size)
+            assertEquals(expectedMessage, messages.first())
+            collectJob.cancel()
+        }
 }
