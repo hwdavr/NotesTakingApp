@@ -463,7 +463,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
         val noteText = state.content
         summaryJob = viewModelScope.launch {
-            val summaryState = when (val result = summarizeNoteUseCase(noteText)) {
+            val summaryState = when (val result = summarizeNoteUseCase(state.title, noteText)) {
                 is NoteSummaryResult.Success -> NoteSummaryUiState.Content(result.summary.text)
                 NoteSummaryResult.Empty -> NoteSummaryUiState.Empty
                 NoteSummaryResult.Unavailable -> NoteSummaryUiState.Error

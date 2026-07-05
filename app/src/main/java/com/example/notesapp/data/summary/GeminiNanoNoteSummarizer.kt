@@ -27,7 +27,7 @@ class GeminiNanoNoteSummarizer @Inject constructor(
     private val config: GeminiNanoSummaryConfig,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : NoteSummarizer {
-    override suspend fun summarize(noteText: String): NoteSummary {
+    override suspend fun summarize(title: String, noteText: String): NoteSummary {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             throw NoteSummaryUnavailableException("Gemini Nano summarization requires API 26 or higher.")
         }
@@ -45,7 +45,12 @@ class GeminiNanoNoteSummarizer @Inject constructor(
                 throw NoteSummaryUnavailableException("Gemini Nano summarization is unavailable on this device.")
             }
 
-            val request = SummarizationRequest.builder(noteText.take(config.inputCharacterLimit)).build()
+            val inputText = if (title.isNotBlank()) {
+                "$title\n\n$noteText"
+            } else {
+                noteText
+            }
+            val request = SummarizationRequest.builder(inputText.take(config.inputCharacterLimit)).build()
             val result = withContext(ioDispatcher) {
                 summarizer.runInference(request).get()
             }

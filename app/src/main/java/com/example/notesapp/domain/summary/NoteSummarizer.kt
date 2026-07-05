@@ -1,5 +1,5 @@
 package com.example.notesapp.domain.summary
 
 interface NoteSummarizer {
-    suspend fun summarize(noteText: String): NoteSummary
+    suspend fun summarize(title: String, noteText: String): NoteSummary
 }

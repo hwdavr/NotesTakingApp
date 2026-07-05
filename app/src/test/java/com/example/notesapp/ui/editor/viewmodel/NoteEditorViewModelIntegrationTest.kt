@@ -135,7 +135,8 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
 
     private fun testSummaryUseCase(): SummarizeNoteUseCase = SummarizeNoteUseCase(
         object : NoteSummarizer {
-            override suspend fun summarize(noteText: String): NoteSummary = NoteSummary("Integration summary")
+            override suspend fun summarize(title: String, noteText: String): NoteSummary =
+                NoteSummary("Integration summary")
         }
     )
 }

@@ -616,11 +616,11 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     }
 
     private class FakeNoteSummarizer : NoteSummarizer {
-        val inputs = mutableListOf<String>()
+        val inputs = mutableListOf<Pair<String, String>>()
         var failure: Throwable? = null
 
-        override suspend fun summarize(noteText: String): NoteSummary {
-            inputs += noteText
+        override suspend fun summarize(title: String, noteText: String): NoteSummary {
+            inputs += title to noteText
             failure?.let { throw it }
             return NoteSummary("Generated local summary.")
         }

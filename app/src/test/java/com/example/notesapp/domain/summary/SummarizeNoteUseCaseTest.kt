@@ -11,7 +11,7 @@ class SummarizeNoteUseCaseTest {
         val summarizer = RecordingNoteSummarizer()
         val useCase = SummarizeNoteUseCase(summarizer)
 
-        val result = useCase("")
+        val result = useCase("", "")
 
         assertEquals(NoteSummaryResult.Empty, result)
         assertTrue(summarizer.inputs.isEmpty())
@@ -22,7 +22,7 @@ class SummarizeNoteUseCaseTest {
         val summarizer = RecordingNoteSummarizer(summaryText = "A concise note summary.")
         val useCase = SummarizeNoteUseCase(summarizer)
 
-        val result = useCase(longNoteText())
+        val result = useCase("Test Note Title", longNoteText())
 
         assertEquals(
             NoteSummaryResult.Success(NoteSummary("A concise note summary.")),
@@ -35,9 +35,9 @@ class SummarizeNoteUseCaseTest {
         val summarizer = RecordingNoteSummarizer()
         val useCase = SummarizeNoteUseCase(summarizer)
 
-        useCase("A".repeat(13_000))
+        useCase("Test Title", "A".repeat(13_000))
 
-        assertEquals(12_000, summarizer.inputs.single().length)
+        assertEquals(12_000, summarizer.inputs.single().second.length)
     }
 
     @Test
@@ -45,7 +45,7 @@ class SummarizeNoteUseCaseTest {
         val summarizer = RecordingNoteSummarizer(failure = NoteSummaryUnavailableException())
         val useCase = SummarizeNoteUseCase(summarizer)
 
-        val result = useCase(longNoteText())
+        val result = useCase("Test Note Title", longNoteText())
 
         assertEquals(NoteSummaryResult.Unavailable, result)
     }
@@ -54,10 +54,10 @@ class SummarizeNoteUseCaseTest {
         private val summaryText: String = "Summary",
         private val failure: Throwable? = null
     ) : NoteSummarizer {
-        val inputs = mutableListOf<String>()
+        val inputs = mutableListOf<Pair<String, String>>()
 
-        override suspend fun summarize(noteText: String): NoteSummary {
-            inputs += noteText
+        override suspend fun summarize(title: String, noteText: String): NoteSummary {
+            inputs += title to noteText
             failure?.let { throw it }
             return NoteSummary(summaryText)
         }
