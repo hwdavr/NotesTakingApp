@@ -67,6 +67,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -189,6 +190,22 @@ fun NoteEditorScreenContent(
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit
 ) {
+    val colors = LocalAppColors.current
+    if (!state.isLoaded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.surface)
+                .padding(top = parentPadding.calculateTopPadding()),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = colors.primary,
+                modifier = Modifier.testTag("editor_loading_indicator")
+            )
+        }
+        return
+    }
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -209,7 +226,6 @@ fun NoteEditorScreenContent(
                 ?.id
     val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
     val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
-    val colors = LocalAppColors.current
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
         containerColor = colors.surface,
