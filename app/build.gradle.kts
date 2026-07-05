@@ -160,6 +160,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.1")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
     implementation("com.google.mlkit:genai-summarization:1.0.0-beta1")
+    implementation("com.google.ai.edge.aicore:aicore:0.0.1-exp01")
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Hilt
@@ -228,4 +229,10 @@ kover {
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(files("$rootDir/detekt.yml"))
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0")
+    }
 }

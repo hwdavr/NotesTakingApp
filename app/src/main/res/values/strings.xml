@@ -158,4 +158,9 @@
     <string name="export_button">Export</string>
     <string name="export_success">Note exported successfully!</string>
     <string name="export_error">Failed to export note.</string>
+    <string name="smart_categorization_dialog_title">Smart Categorization</string>
+    <string name="smart_categorization_dialog_text">This is the suggested folder to put the new note. Are you OK to move it there, or keep it at root folder?</string>
+    <string name="smart_categorization_ok_button">OK</string>
+    <string name="smart_categorization_cancel_button">Cancel</string>
+    <string name="smart_categorization_analyzing">Analyzing note content...</string>
 </resources>

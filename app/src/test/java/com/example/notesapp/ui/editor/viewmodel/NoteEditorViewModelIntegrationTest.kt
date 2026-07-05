@@ -2,6 +2,9 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.data.local.NoteEntity
+import com.example.notesapp.domain.folder.CategorizeNoteUseCase
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.SummarizeNoteUseCase
@@ -33,7 +36,7 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(apiMock.getJSONArray("response").toString())
         )
 
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase())
+        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase(), testCategorizeUseCase())
         viewModel.load("note_001")
         advanceUntilIdle()
 
@@ -103,7 +106,7 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(syncMock.getJSONArray("response").toString())
         )
         // 4. Load the note into the editor
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase())
+        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase(), testCategorizeUseCase())
         viewModel.load("note_001")
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)
@@ -137,6 +140,12 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         object : NoteSummarizer {
             override suspend fun summarize(title: String, noteText: String): NoteSummary =
                 NoteSummary("Integration summary")
+        }
+    )
+
+    private fun testCategorizeUseCase(): CategorizeNoteUseCase = CategorizeNoteUseCase(
+        object : FolderCategorizer {
+            override suspend fun categorize(title: String, content: String, folders: List<Folder>): Folder? = null
         }
     )
 }

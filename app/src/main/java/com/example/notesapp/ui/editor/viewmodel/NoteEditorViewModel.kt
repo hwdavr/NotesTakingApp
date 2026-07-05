@@ -1,7 +1,9 @@
 package com.example.notesapp.ui.editor.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.notesapp.domain.folder.CategorizeNoteUseCase
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
@@ -43,7 +45,10 @@ data class NoteEditorUiState(
     val selectionEnd: Int = 0,
     val isFavorite: Boolean = false,
     val isEditable: Boolean = true,
-    val summaryState: NoteSummaryUiState = NoteSummaryUiState.Idle
+    val summaryState: NoteSummaryUiState = NoteSummaryUiState.Idle,
+    val isCategorizing: Boolean = false,
+    val recommendedFolder: Folder? = null,
+    val showCategorizationDialog: Boolean = false
 ) {
     val content: String
         get() = document.toPlainText()
@@ -61,21 +66,22 @@ sealed interface NoteSummaryUiState {
 open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository,
-    private val summarizeNoteUseCase: SummarizeNoteUseCase
+    private val summarizeNoteUseCase: SummarizeNoteUseCase,
+    private val categorizeNoteUseCase: CategorizeNoteUseCase
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(NoteEditorUiState())
-    open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
-    private fun canEdit(): Boolean = _uiState.value.isEditable
+    internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
+    open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
+    private fun canEdit(): Boolean = uiStateInternal.value.isEditable
     fun toggleFormattingToolbar() {
-        _uiState.value = _uiState.value.copy(
-            isFormattingToolbarVisible = !_uiState.value.isFormattingToolbarVisible
+        uiStateInternal.value = uiStateInternal.value.copy(
+            isFormattingToolbarVisible = !uiStateInternal.value.isFormattingToolbarVisible
         )
     }
     fun setFocusedBlock(blockId: String?) {
-        _uiState.value = _uiState.value.copy(focusedBlockId = blockId)
+        uiStateInternal.value = uiStateInternal.value.copy(focusedBlockId = blockId)
     }
     fun updateSelection(start: Int, end: Int) {
-        _uiState.value = _uiState.value.copy(
+        uiStateInternal.value = uiStateInternal.value.copy(
             selectionStart = start,
             selectionEnd = end
         )
@@ -88,7 +94,7 @@ open class NoteEditorViewModel @Inject constructor(
             folderRepository.sync()
             val folders = folderRepository.getFolders().first()
             if (noteId.isNullOrBlank()) {
-                _uiState.value = NoteEditorUiState(
+                uiStateInternal.value = NoteEditorUiState(
                     noteId = "note_${UUID.randomUUID()}",
                     availableFolders = folders,
                     folderId = folderId,
@@ -120,27 +126,27 @@ open class NoteEditorViewModel @Inject constructor(
                     summaryState = NoteSummaryUiState.Empty
                 )
             }
-            _uiState.value = loadedState
+            uiStateInternal.value = loadedState
             generateSummaryForLoadedNote(loadedState)
         }
     }
     fun onTitleChange(value: String) {
         if (!canEdit()) return
-        _uiState.value = _uiState.value.copy(title = value)
+        uiStateInternal.value = uiStateInternal.value.copy(title = value)
         scheduleAutoSave()
     }
     fun rename(newName: String) {
         if (!canEdit()) return
-        _uiState.value = _uiState.value.copy(title = newName)
+        uiStateInternal.value = uiStateInternal.value.copy(title = newName)
         viewModelScope.launch {
             saveInternally()
         }
     }
     fun toggleFavorite() {
         if (!canEdit()) return
-        val current = _uiState.value
+        val current = uiStateInternal.value
         val newFavorite = !current.isFavorite
-        _uiState.value = current.copy(isFavorite = newFavorite)
+        uiStateInternal.value = current.copy(isFavorite = newFavorite)
         viewModelScope.launch {
             val note = noteRepository.getNoteById(current.noteId ?: return@launch) ?: return@launch
             noteRepository.save(note.copy(isFavorite = newFavorite, updatedAt = System.currentTimeMillis()))
@@ -148,7 +154,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
     fun onContentChange(value: String) {
         if (!canEdit()) return
-        val current = _uiState.value
+        val current = uiStateInternal.value
         val blocks = current.document.blocks
         val firstTextIndex = blocks.indexOfFirst { it is EditorBlock.TextBlock }
         val updatedBlocks = if (firstTextIndex >= 0) {
@@ -162,7 +168,7 @@ open class NoteEditorViewModel @Inject constructor(
         } else {
             listOf(parseMarkdownTextBlock(text = value)) + blocks
         }
-        _uiState.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
+        uiStateInternal.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
         scheduleAutoSave()
     }
     fun onTextBlockChange(blockId: String, value: String) {
@@ -216,7 +222,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
     fun toggleBlockMark(blockId: String, mark: String) {
         if (!canEdit()) return
-        val state = _uiState.value
+        val state = uiStateInternal.value
         val start = state.selectionStart
         val end = state.selectionEnd
         updateBlock(blockId) { block ->
@@ -301,10 +307,10 @@ open class NoteEditorViewModel @Inject constructor(
     }
     fun onFolderSelected(folderId: String?) {
         if (!canEdit()) return
-        _uiState.value = _uiState.value.copy(folderId = folderId)
+        uiStateInternal.value = uiStateInternal.value.copy(folderId = folderId)
         scheduleAutoSave()
     }
-    private fun scheduleAutoSave() {
+    internal fun scheduleAutoSave() {
         autoSaveJob?.cancel()
         autoSaveJob = viewModelScope.launch {
             delay(2000)
@@ -312,7 +318,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     private suspend fun saveInternally() {
-        val current = _uiState.value
+        val current = uiStateInternal.value
         if (!current.isEditable && current.createdAt != 0L) return
         // Don't auto-save if both title and content are empty
         if (current.title.isBlank() && current.content.isBlank()) return
@@ -332,7 +338,7 @@ open class NoteEditorViewModel @Inject constructor(
         )
         noteRepository.save(note)
         // Update state with generated ID and createdAt to avoid duplicate creations
-        _uiState.value = _uiState.value.copy(
+        uiStateInternal.value = uiStateInternal.value.copy(
             noteId = noteId,
             createdAt = note.createdAt
         )
@@ -344,15 +350,86 @@ open class NoteEditorViewModel @Inject constructor(
             onDone()
         }
     }
+    fun handleBackPress(onNavigateBack: () -> Unit) {
+        autoSaveJob?.cancel()
+        val current = uiStateInternal.value
+        val isEligible = current.folderId == null &&
+            (current.title.isNotBlank() || current.content.isNotBlank()) &&
+            current.availableFolders.isNotEmpty() &&
+            current.isEditable
+
+        if (!isEligible) {
+            viewModelScope.launch {
+                saveInternally()
+                onNavigateBack()
+            }
+            return
+        }
+
+        uiStateInternal.value = current.copy(isCategorizing = true)
+        viewModelScope.launch {
+            try {
+                val recommendation = categorizeNoteUseCase(
+                    title = current.title,
+                    content = current.content,
+                    folders = current.availableFolders
+                )
+                if (recommendation != null) {
+                    uiStateInternal.value = uiStateInternal.value.copy(
+                        isCategorizing = false,
+                        recommendedFolder = recommendation,
+                        showCategorizationDialog = true
+                    )
+                } else {
+                    uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
+                    saveInternally()
+                    onNavigateBack()
+                }
+            } catch (e: Exception) {
+                Log.e("NoteEditorViewModel", "Smart categorization failed", e)
+                uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
+                saveInternally()
+                onNavigateBack()
+            }
+        }
+    }
+    fun confirmCategorization(onNavigateBack: () -> Unit) {
+        val current = uiStateInternal.value
+        val recommendedFolderId = current.recommendedFolder?.id
+        uiStateInternal.value = current.copy(
+            isCategorizing = true,
+            showCategorizationDialog = false,
+            folderId = recommendedFolderId
+        )
+        viewModelScope.launch {
+            try {
+                saveInternally()
+            } catch (e: Exception) {
+                Log.e("NoteEditorViewModel", "Failed to save note during categorization", e)
+            } finally {
+                uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
+                onNavigateBack()
+            }
+        }
+    }
+    fun cancelCategorization(onNavigateBack: () -> Unit) {
+        uiStateInternal.value = uiStateInternal.value.copy(
+            showCategorizationDialog = false
+        )
+        viewModelScope.launch {
+            saveInternally()
+            onNavigateBack()
+        }
+    }
     fun shareCurrentNote(onReady: (String) -> Unit) {
         autoSaveJob?.cancel()
         viewModelScope.launch {
             saveInternally()
-            _uiState.value.noteId?.let(onReady)
+            uiStateInternal.value.noteId?.let(onReady)
         }
     }
     fun delete(onDone: () -> Unit) {
-        val current = _uiState.value
+        val current = uiStateInternal.value
         if (!current.isEditable) {
             onDone()
             return
@@ -380,65 +457,9 @@ open class NoteEditorViewModel @Inject constructor(
             onDone()
         }
     }
-    private fun appendBlock(block: EditorBlock) {
-        val current = _uiState.value
-        _uiState.value = current.copy(
-            document = current.document.copy(blocks = current.document.blocks + block)
-        )
-        scheduleAutoSave()
-    }
-    private fun updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
-        val current = _uiState.value
-        _uiState.value = current.copy(
-            document = current.document.copy(
-                blocks = current.document.blocks.map { block ->
-                    if (block.id == blockId) transform(block) else block
-                }
-            )
-        )
-        scheduleAutoSave()
-    }
-    private fun splitTextBlock(blockId: String, value: String) {
-        val current = _uiState.value
-        val lines = value.split('\n')
-        var nextFocusId: String? = null
-        val updatedBlocks = current.document.blocks.flatMap { block ->
-            if (block.id == blockId && block is EditorBlock.TextBlock) {
-                val isCheckbox = block.type == "checkbox"
-                val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
-                val newBlocks = lines.mapIndexed { index, line ->
-                    val id = if (index == 0) block.id else newBlockId()
-                    val type = if (isCheckbox) {
-                        if (isEmptyCheckbox) "paragraph" else "checkbox"
-                    } else {
-                        "paragraph"
-                    }
-                    val checked = if (isCheckbox && !isEmptyCheckbox) {
-                        if (index == 0) block.checked else false
-                    } else {
-                        false
-                    }
-                    EditorBlock.TextBlock(
-                        id = id,
-                        type = type,
-                        children = parseInlineMarkdown(line),
-                        checked = checked
-                    )
-                }
-                nextFocusId = newBlocks.lastOrNull()?.id
-                newBlocks
-            } else {
-                listOf(block)
-            }
-        }
-        _uiState.value = current.copy(
-            document = current.document.copy(blocks = updatedBlocks),
-            focusedBlockId = nextFocusId ?: current.focusedBlockId
-        )
-        scheduleAutoSave()
-    }
+
     fun deleteBlock(blockId: String) {
-        val current = _uiState.value
+        val current = uiStateInternal.value
         val blocks = current.document.blocks
         if (blocks.size <= 1) return
         val index = blocks.indexOfFirst { it.id == blockId }
@@ -449,7 +470,7 @@ open class NoteEditorViewModel @Inject constructor(
             blocks[index + 1].id
         }
         val updatedBlocks = blocks.filter { it.id != blockId }
-        _uiState.value = current.copy(
+        uiStateInternal.value = current.copy(
             document = current.document.copy(blocks = updatedBlocks),
             focusedBlockId = nextFocusId
         )
@@ -458,7 +479,7 @@ open class NoteEditorViewModel @Inject constructor(
     private fun generateSummaryForLoadedNote(state: NoteEditorUiState) {
         summaryJob?.cancel()
         if (state.noteId.isNullOrBlank()) {
-            _uiState.value = state.copy(summaryState = NoteSummaryUiState.Empty)
+            uiStateInternal.value = state.copy(summaryState = NoteSummaryUiState.Empty)
             return
         }
         val noteText = state.content
@@ -468,7 +489,67 @@ open class NoteEditorViewModel @Inject constructor(
                 NoteSummaryResult.Empty -> NoteSummaryUiState.Empty
                 NoteSummaryResult.Unavailable -> NoteSummaryUiState.Error
             }
-            _uiState.value = _uiState.value.copy(summaryState = summaryState)
+            uiStateInternal.value = uiStateInternal.value.copy(summaryState = summaryState)
         }
     }
+}
+
+private fun NoteEditorViewModel.appendBlock(block: EditorBlock) {
+    val current = uiStateInternal.value
+    uiStateInternal.value = current.copy(
+        document = current.document.copy(blocks = current.document.blocks + block)
+    )
+    scheduleAutoSave()
+}
+
+private fun NoteEditorViewModel.updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
+    val current = uiStateInternal.value
+    uiStateInternal.value = current.copy(
+        document = current.document.copy(
+            blocks = current.document.blocks.map { block ->
+                if (block.id == blockId) transform(block) else block
+            }
+        )
+    )
+    scheduleAutoSave()
+}
+
+private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
+    val current = uiStateInternal.value
+    val lines = value.split('\n')
+    var nextFocusId: String? = null
+    val updatedBlocks = current.document.blocks.flatMap { block ->
+        if (block.id == blockId && block is EditorBlock.TextBlock) {
+            val isCheckbox = block.type == "checkbox"
+            val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
+            val newBlocks = lines.mapIndexed { index, line ->
+                val id = if (index == 0) block.id else newBlockId()
+                val type = if (isCheckbox) {
+                    if (isEmptyCheckbox) "paragraph" else "checkbox"
+                } else {
+                    "paragraph"
+                }
+                val checked = if (isCheckbox && !isEmptyCheckbox) {
+                    if (index == 0) block.checked else false
+                } else {
+                    false
+                }
+                EditorBlock.TextBlock(
+                    id = id,
+                    type = type,
+                    children = parseInlineMarkdown(line),
+                    checked = checked
+                )
+            }
+            nextFocusId = newBlocks.lastOrNull()?.id
+            newBlocks
+        } else {
+            listOf(block)
+        }
+    }
+    uiStateInternal.value = current.copy(
+        document = current.document.copy(blocks = updatedBlocks),
+        focusedBlockId = nextFocusId ?: current.focusedBlockId
+    )
+    scheduleAutoSave()
 }

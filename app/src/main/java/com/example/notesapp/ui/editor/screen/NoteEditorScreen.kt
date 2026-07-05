@@ -2,6 +2,7 @@
 
 package com.example.notesapp.ui.editor.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -56,6 +57,7 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -67,7 +69,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -131,11 +132,17 @@ fun NoteEditorScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(noteId, folderId) { viewModel.load(noteId, folderId) }
+
+    // Intercept physical system back gesture/button
+    BackHandler(enabled = state.isEditable) {
+        viewModel.handleBackPress(onBack)
+    }
+
     NoteEditorScreenContent(
         parentPadding = parentPadding,
         noteId = noteId,
         state = state,
-        onBack = onBack,
+        onBack = { viewModel.handleBackPress(onBack) },
         onShareRequested = { viewModel.shareCurrentNote(onShareNote) },
         onDelete = { viewModel.delete(onDone = onBack) },
         onTitleChange = viewModel::onTitleChange,
@@ -156,7 +163,9 @@ fun NoteEditorScreen(
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
         onSelectionChange = viewModel::updateSelection,
-        onDeleteBlock = viewModel::deleteBlock
+        onDeleteBlock = viewModel::deleteBlock,
+        onConfirmCategorization = { viewModel.confirmCategorization(onBack) },
+        onCancelCategorization = { viewModel.cancelCategorization(onBack) }
     )
 }
 
@@ -188,7 +197,9 @@ fun NoteEditorScreenContent(
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
-    onDeleteBlock: (String) -> Unit
+    onDeleteBlock: (String) -> Unit,
+    onConfirmCategorization: () -> Unit = {},
+    onCancelCategorization: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -447,6 +458,58 @@ fun NoteEditorScreenContent(
                     }
                 }
             )
+        }
+        if (state.showCategorizationDialog) {
+            AlertDialog(
+                onDismissRequest = onCancelCategorization,
+                modifier = Modifier.testTag("smart_categorization_dialog"),
+                title = { Text(stringResource(R.string.smart_categorization_dialog_title)) },
+                text = {
+                    Text(
+                        text = stringResource(R.string.smart_categorization_dialog_text) + "\n\n" +
+                            (state.recommendedFolder?.name ?: "")
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = onConfirmCategorization,
+                        modifier = Modifier.testTag("smart_categorization_ok")
+                    ) {
+                        Text(stringResource(R.string.smart_categorization_ok_button))
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = onCancelCategorization,
+                        modifier = Modifier.testTag("smart_categorization_cancel")
+                    ) {
+                        Text(stringResource(R.string.smart_categorization_cancel_button))
+                    }
+                }
+            )
+        }
+        if (state.isCategorizing) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colors.surface.copy(alpha = 0.7f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = colors.primary,
+                        modifier = Modifier.testTag("smart_categorization_progress")
+                    )
+                    Text(
+                        text = stringResource(R.string.smart_categorization_analyzing),
+                        color = colors.textPrimary
+                    )
+                }
+            }
         }
     }
 }

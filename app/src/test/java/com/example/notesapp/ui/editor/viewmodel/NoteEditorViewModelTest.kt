@@ -1,6 +1,7 @@
 package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelTest
+import com.example.notesapp.domain.folder.CategorizeNoteUseCase
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
@@ -61,10 +62,12 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         coEvery { noteRepository.getNoteById("n1") } returns testNote
         coEvery { noteRepository.getNoteById("readonly") } returns readOnlyNote
         noteSummarizer = FakeNoteSummarizer()
+        val categorizeNoteUseCase = mockk<CategorizeNoteUseCase>(relaxed = true)
         viewModel = NoteEditorViewModel(
             noteRepository,
             folderRepository,
-            SummarizeNoteUseCase(noteSummarizer)
+            SummarizeNoteUseCase(noteSummarizer),
+            categorizeNoteUseCase
         )
     }
 

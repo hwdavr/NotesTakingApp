@@ -14,8 +14,10 @@ import com.example.notesapp.data.remote.TokenAuthenticator
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
+import com.example.notesapp.data.summary.GeminiNanoFolderCategorizer
 import com.example.notesapp.data.summary.GeminiNanoNoteSummarizer
 import com.example.notesapp.data.summary.GeminiNanoSummaryConfig
+import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.share.NoteShareRepository
@@ -53,6 +55,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteSummarizer(impl: GeminiNanoNoteSummarizer): NoteSummarizer
+
+    @Binds
+    @Singleton
+    abstract fun bindFolderCategorizer(impl: GeminiNanoFolderCategorizer): FolderCategorizer
 
     @Binds
     @Singleton
