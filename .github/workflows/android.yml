@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     steps:
       # Step 1: Checkout the code
@@ -44,10 +47,6 @@ jobs:
 
       # Step 7: Build Debug APK
       - name: Build Debug APK
-        env:
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: ./gradlew assembleDebug
 
       # Step 8: Distribute Debug build to Firebase App Distribution (Master branch only)
@@ -62,7 +61,4 @@ jobs:
           FIREBASE_GROUPS: ${{ secrets.FIREBASE_GROUPS || 'MyAccounts' }}
           FIREBASE_RELEASE_NOTES: ${{ secrets.FIREBASE_RELEASE_NOTES || 'CI/CD Automated Build on push to master' }}
           FIREBASE_SERVICE_CREDENTIALS_FILE: firebase-credentials.json
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: ./gradlew appDistributionUploadDebug
