@@ -11,9 +11,12 @@ import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
+import com.example.notesapp.data.summary.GeminiNanoNoteSummarizer
+import com.example.notesapp.data.summary.GeminiNanoSummaryConfig
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.share.NoteShareRepository
+import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.util.NoteExporter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -43,6 +46,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNoteSummarizer(impl: GeminiNanoNoteSummarizer): NoteSummarizer
     companion object {
         @Provides
         @Singleton
@@ -93,5 +100,9 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideNoteExporter(@ApplicationContext context: Context): NoteExporter = NoteExporter(context)
+
+        @Provides
+        @Singleton
+        fun provideGeminiNanoSummaryConfig(): GeminiNanoSummaryConfig = GeminiNanoSummaryConfig()
     }
 }

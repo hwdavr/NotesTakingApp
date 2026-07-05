@@ -7,6 +7,8 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.summary.NoteSummaryResult
+import com.example.notesapp.domain.summary.SummarizeNoteUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
@@ -40,16 +42,26 @@ data class NoteEditorUiState(
     val selectionStart: Int = 0,
     val selectionEnd: Int = 0,
     val isFavorite: Boolean = false,
-    val isEditable: Boolean = true
+    val isEditable: Boolean = true,
+    val summaryState: NoteSummaryUiState = NoteSummaryUiState.Idle
 ) {
     val content: String
         get() = document.toPlainText()
 }
 
+sealed interface NoteSummaryUiState {
+    data object Idle : NoteSummaryUiState
+    data object Loading : NoteSummaryUiState
+    data object Empty : NoteSummaryUiState
+    data class Content(val text: String) : NoteSummaryUiState
+    data object Error : NoteSummaryUiState
+}
+
 @HiltViewModel
 open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
-    private val folderRepository: FolderRepository
+    private val folderRepository: FolderRepository,
+    private val summarizeNoteUseCase: SummarizeNoteUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = _uiState.asStateFlow()
@@ -69,8 +81,10 @@ open class NoteEditorViewModel @Inject constructor(
         )
     }
     private var autoSaveJob: Job? = null
+    private var summaryJob: Job? = null
     fun load(noteId: String?, folderId: String? = null) {
         viewModelScope.launch {
+            summaryJob?.cancel()
             folderRepository.sync()
             val folders = folderRepository.getFolders().first()
             if (noteId.isNullOrBlank()) {
@@ -79,12 +93,13 @@ open class NoteEditorViewModel @Inject constructor(
                     availableFolders = folders,
                     folderId = folderId,
                     isEditable = true,
-                    isLoaded = true
+                    isLoaded = true,
+                    summaryState = NoteSummaryUiState.Empty
                 )
                 return@launch
             }
             val note = noteRepository.getNoteById(noteId)
-            _uiState.value = if (note != null) {
+            val loadedState = if (note != null) {
                 NoteEditorUiState(
                     noteId = note.id,
                     title = note.title,
@@ -94,15 +109,19 @@ open class NoteEditorViewModel @Inject constructor(
                     createdAt = note.createdAt,
                     isFavorite = note.isFavorite,
                     isEditable = note.accessRole != NoteAccessRole.READ_ONLY,
-                    isLoaded = true
+                    isLoaded = true,
+                    summaryState = NoteSummaryUiState.Loading
                 )
             } else {
                 NoteEditorUiState(
                     noteId = "note_${UUID.randomUUID()}",
                     availableFolders = folders,
-                    isLoaded = true
+                    isLoaded = true,
+                    summaryState = NoteSummaryUiState.Empty
                 )
             }
+            _uiState.value = loadedState
+            generateSummaryForLoadedNote(loadedState)
         }
     }
     fun onTitleChange(value: String) {
@@ -435,5 +454,21 @@ open class NoteEditorViewModel @Inject constructor(
             focusedBlockId = nextFocusId
         )
         scheduleAutoSave()
+    }
+    private fun generateSummaryForLoadedNote(state: NoteEditorUiState) {
+        summaryJob?.cancel()
+        if (state.noteId.isNullOrBlank()) {
+            _uiState.value = state.copy(summaryState = NoteSummaryUiState.Empty)
+            return
+        }
+        val noteText = state.content
+        summaryJob = viewModelScope.launch {
+            val summaryState = when (val result = summarizeNoteUseCase(noteText)) {
+                is NoteSummaryResult.Success -> NoteSummaryUiState.Content(result.summary.text)
+                NoteSummaryResult.Empty -> NoteSummaryUiState.Empty
+                NoteSummaryResult.Unavailable -> NoteSummaryUiState.Error
+            }
+            _uiState.value = _uiState.value.copy(summaryState = summaryState)
+        }
     }
 }

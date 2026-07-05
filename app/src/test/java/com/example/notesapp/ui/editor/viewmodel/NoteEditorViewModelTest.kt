@@ -5,6 +5,10 @@ import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.summary.NoteSummarizer
+import com.example.notesapp.domain.summary.NoteSummary
+import com.example.notesapp.domain.summary.NoteSummaryUnavailableException
+import com.example.notesapp.domain.summary.SummarizeNoteUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.text
 import io.mockk.coEvery
@@ -27,6 +31,7 @@ import org.junit.Test
 class NoteEditorViewModelTest : BaseViewModelTest() {
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private val folderRepository: FolderRepository = mockk(relaxed = true)
+    private lateinit var noteSummarizer: FakeNoteSummarizer
     private lateinit var viewModel: NoteEditorViewModel
     private val testNote = Note(
         id = "n1",
@@ -55,7 +60,12 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         every { folderRepository.getFolders() } returns flowOf(emptyList())
         coEvery { noteRepository.getNoteById("n1") } returns testNote
         coEvery { noteRepository.getNoteById("readonly") } returns readOnlyNote
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository)
+        noteSummarizer = FakeNoteSummarizer()
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            SummarizeNoteUseCase(noteSummarizer)
+        )
     }
 
     @Test
@@ -87,6 +97,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertTrue(state.isLoaded)
         assertTrue(state.noteId?.startsWith("note_") == true)
         assertEquals("", state.title)
+        assertEquals(NoteSummaryUiState.Empty, state.summaryState)
     }
 
     @Test
@@ -97,6 +108,47 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val state = viewModel.uiState.value
         assertEquals("", state.title)
         assertEquals("", state.content)
+    }
+
+    @Test
+    fun `load non empty note exposes generated summary`() = runTest {
+        coEvery { noteRepository.getNoteById("summary") } returns testNote.copy(
+            id = "summary",
+            content = longNoteText()
+        )
+
+        viewModel.load("summary")
+
+        assertEquals(NoteSummaryUiState.Content("Generated local summary."), viewModel.uiState.value.summaryState)
+    }
+
+    @Test
+    fun `load blank note exposes empty summary state`() = runTest {
+        coEvery { noteRepository.getNoteById("blank") } returns testNote.copy(
+            id = "blank",
+            content = ""
+        )
+
+        viewModel.load("blank")
+
+        assertEquals(NoteSummaryUiState.Empty, viewModel.uiState.value.summaryState)
+        assertTrue(noteSummarizer.inputs.isEmpty())
+    }
+
+    @Test
+    fun `load note keeps editor usable when summary fails`() = runTest {
+        coEvery { noteRepository.getNoteById("summary_error") } returns testNote.copy(
+            id = "summary_error",
+            content = longNoteText()
+        )
+        noteSummarizer.failure = NoteSummaryUnavailableException()
+
+        viewModel.load("summary_error")
+
+        val state = viewModel.uiState.value
+        assertEquals(NoteSummaryUiState.Error, state.summaryState)
+        assertTrue(state.isEditable)
+        assertEquals("summary_error", state.noteId)
     }
 
     @Test
@@ -562,4 +614,19 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("checkbox", updatedBlock.type)
         assertEquals("Buy milk", updatedBlock.text())
     }
+
+    private class FakeNoteSummarizer : NoteSummarizer {
+        val inputs = mutableListOf<String>()
+        var failure: Throwable? = null
+
+        override suspend fun summarize(noteText: String): NoteSummary {
+            inputs += noteText
+            failure?.let { throw it }
+            return NoteSummary("Generated local summary.")
+        }
+    }
+
+    private fun longNoteText(): String = List(70) { index ->
+        "Editor paragraph $index contains enough detail for Gemini Nano summarization and local AI testing."
+    }.joinToString(separator = " ")
 }

@@ -59,7 +59,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.notesapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -159,6 +159,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.moshi:moshi:1.15.1")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+    implementation("com.google.mlkit:genai-summarization:1.0.0-beta1")
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Hilt

@@ -2,11 +2,13 @@
 
 package com.example.notesapp.ui.editor.screen
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -111,6 +113,7 @@ import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -308,6 +311,7 @@ fun NoteEditorScreenContent(
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
+                        NoteSummaryPanel(summaryState = state.summaryState)
                         OutlinedTextField(
                             value = state.title,
                             onValueChange = onTitleChange,
@@ -429,6 +433,54 @@ fun NoteEditorScreenContent(
             )
         }
     }
+}
+
+@Composable
+private fun NoteSummaryPanel(summaryState: NoteSummaryUiState) {
+    val panelModel = summaryState.toSummaryPanelModel() ?: return
+
+    val colors = LocalAppColors.current
+    val bodyText = panelModel.text ?: stringResource(panelModel.textResId)
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("editor_summary_panel"),
+        color = colors.highlight,
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, colors.border)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.editor_summary_title),
+                color = colors.textSecondary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = bodyText,
+                color = colors.textPrimary,
+                fontSize = 14.sp,
+                lineHeight = 20.sp
+            )
+        }
+    }
+}
+
+private data class NoteSummaryPanelModel(
+    val text: String?,
+    @StringRes val textResId: Int
+)
+
+private fun NoteSummaryUiState.toSummaryPanelModel(): NoteSummaryPanelModel? = when (this) {
+    is NoteSummaryUiState.Content -> NoteSummaryPanelModel(text = text, textResId = R.string.editor_summary_title)
+    NoteSummaryUiState.Empty -> NoteSummaryPanelModel(text = null, textResId = R.string.editor_summary_empty)
+    NoteSummaryUiState.Error -> NoteSummaryPanelModel(text = null, textResId = R.string.editor_summary_unavailable)
+    NoteSummaryUiState.Loading -> NoteSummaryPanelModel(text = null, textResId = R.string.editor_summary_loading)
+    NoteSummaryUiState.Idle -> null
 }
 
 @Composable

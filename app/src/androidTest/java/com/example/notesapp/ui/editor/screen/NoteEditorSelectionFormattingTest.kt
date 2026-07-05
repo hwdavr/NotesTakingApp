@@ -31,6 +31,7 @@ class NoteEditorSelectionFormattingTest {
         var toggledBlock: String? = null
         var toggledMark: String? = null
 
+        composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
             NoteEditorScreenContent(
                 parentPadding = PaddingValues(0.dp),
@@ -84,7 +85,9 @@ class NoteEditorSelectionFormattingTest {
         composeRule.onNodeWithTag("editor_text_block").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("editor_text_block").performTextInputSelection(TextRange(0, 5))
-        composeRule.waitForIdle()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            lastSelection == Pair(0, 5)
+        }
         assertEquals(
             "Precondition: selecting 'Hello' should report selection (0, 5)",
             Pair(0, 5),
@@ -92,7 +95,9 @@ class NoteEditorSelectionFormattingTest {
         )
 
         composeRule.onNodeWithTag("editor_bold_action").performClick()
-        composeRule.waitForIdle()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            selectionAtToggle != null
+        }
 
         assertEquals("block_1", toggledBlock)
         assertEquals("bold", toggledMark)

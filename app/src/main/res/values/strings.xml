@@ -120,6 +120,10 @@
     <string name="editor_table_description">Insert table</string>
     <string name="editor_keyboard_hide_description">Hide keyboard</string>
     <string name="editor_close_description">Close</string>
+    <string name="editor_summary_title">AI summary</string>
+    <string name="editor_summary_loading">Generating summary...</string>
+    <string name="editor_summary_empty">Add more note content to generate a summary.</string>
+    <string name="editor_summary_unavailable">Summary is unavailable on this device.</string>
     <string name="shared_users_title">Shared users</string>
     <string name="shared_users_section_title">People with access</string>
     <string name="shared_users_manage_access">Manage access</string>
