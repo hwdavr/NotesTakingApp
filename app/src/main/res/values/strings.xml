@@ -83,7 +83,6 @@
     <string name="move_to_empty_folders">No folders found.</string>
     <string name="editor_no_folder">No folder</string>
     <string name="editor_title_placeholder">Untitled note</string>
-    <string name="editor_content_placeholder">Start writing&#8230;</string>
     <string name="editor_done">Done</string>
     <string name="editor_delete_action">Archive</string>
     <string name="editor_untitled_note">Untitled note</string>

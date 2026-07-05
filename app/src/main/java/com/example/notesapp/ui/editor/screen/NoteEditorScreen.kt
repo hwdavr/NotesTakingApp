@@ -670,12 +670,7 @@ private fun TextDocumentBlock(
                     singleLine = false,
                     visualTransformation = VisualTransformation.None,
                     interactionSource = remember { MutableInteractionSource() },
-                    placeholder = {
-                        Text(
-                            text = stringResource(R.string.editor_content_placeholder),
-                            color = colors.textTertiary
-                        )
-                    },
+                    placeholder = null,
                     leadingIcon = null,
                     colors = editorFieldColors(),
                     container = {

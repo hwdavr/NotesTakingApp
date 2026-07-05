@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
@@ -172,5 +173,45 @@ class NoteEditorRichDocumentScreenTest {
         assertTrue("addedImage failed", addedImage)
         assertTrue("addedTable failed", addedTable)
         assertTrue("toggledBold failed", toggledBold)
+    }
+
+    @Test
+    fun emptyTextBlock_doesNotShowPlaceholder() {
+        val document = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "text_1", children = emptyList())
+            )
+        )
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = NoteEditorUiState(noteId = "note_1", title = "Title", document = document, isLoaded = true),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+        composeRule.onNodeWithTag("editor_text_block").assertIsDisplayed()
+        composeRule.onNodeWithText("Start writing…").assertDoesNotExist()
     }
 }
