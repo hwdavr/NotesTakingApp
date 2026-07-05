@@ -22,7 +22,7 @@ import org.json.JSONObject
 open class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenStorage: TokenStorage
-) {
+) : SessionInvalidator {
     private val account = Auth0(
         context.getString(R.string.auth0_client_id),
         context.getString(R.string.auth0_domain)
@@ -34,8 +34,13 @@ open class AuthManager @Inject constructor(
     open val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
     private val _profileEmail = MutableStateFlow<String?>(null)
     open val profileEmail: StateFlow<String?> = _profileEmail.asStateFlow()
+
     init {
         checkSession()
+    }
+
+    override fun invalidateSession() {
+        forceLogout()
     }
 
     /**
@@ -87,6 +92,27 @@ open class AuthManager @Inject constructor(
                     }
                 }
             )
+    }
+
+    /**
+     * Force logout without web flow - clears tokens and updates state.
+     * Used when API returns 401 Unauthorized.
+     */
+    open fun forceLogout() {
+        synchronized(this) {
+            if (!_isLoggedIn.value) {
+                Log.d(TAG, "Force logout skipped: User already logged out")
+                return
+            }
+            Log.d(TAG, "Force logout triggered")
+            try {
+                tokenStorage.clearTokens()
+                _profileEmail.value = null
+                _isLoggedIn.value = false
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during force logout", e)
+            }
+        }
     }
 
     /**

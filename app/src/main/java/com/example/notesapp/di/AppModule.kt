@@ -2,12 +2,15 @@ package com.example.notesapp.di
 
 import android.content.Context
 import com.example.notesapp.BuildConfig
+import com.example.notesapp.auth.AuthManager
+import com.example.notesapp.auth.SessionInvalidator
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.local.NoteShareDao
 import com.example.notesapp.data.remote.AuthInterceptor
 import com.example.notesapp.data.remote.NotesApiService
+import com.example.notesapp.data.remote.TokenAuthenticator
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
@@ -50,6 +53,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteSummarizer(impl: GeminiNanoNoteSummarizer): NoteSummarizer
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionInvalidator(impl: AuthManager): SessionInvalidator
     companion object {
         @Provides
         @Singleton
@@ -66,8 +73,12 @@ abstract class AppModule {
 
         @Provides
         @Singleton
-        fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient = OkHttpClient.Builder()
+        fun provideOkHttpClient(
+            authInterceptor: AuthInterceptor,
+            tokenAuthenticator: TokenAuthenticator
+        ): OkHttpClient = OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .authenticator(tokenAuthenticator)
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = if (BuildConfig.DEBUG) {

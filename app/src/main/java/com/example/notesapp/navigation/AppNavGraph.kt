@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,14 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
     val authRoutes = listOf(Destinations.Onboarding.route)
+
+    LaunchedEffect(isLoggedIn) {
+        if (!isLoggedIn && currentRoute != Destinations.Onboarding.route) {
+            navController.navigate(Destinations.Onboarding.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
     val showBottomBar = isLoggedIn &&
         currentRoute?.startsWith("editor") != true &&
         currentRoute?.startsWith("collectionNotes") != true &&
