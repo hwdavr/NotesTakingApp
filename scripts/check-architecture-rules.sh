@@ -304,7 +304,7 @@ echo -e "  ${YELLOW}Each screen must render from a single UiState. No scattered 
 _rule_header 'ViewModel with multiple StateFlow<Boolean> properties (scattered boolean flag smell)'
 bool_flow_violations=()
 for f in "${viewmodel_files[@]}"; do
-    count=$(grep -cP 'StateFlow\s*<\s*Boolean\s*>' "$f" 2>/dev/null || true)
+    count=$(grep -cE 'StateFlow[[:space:]]*<[[:space:]]*Boolean[[:space:]]*>' "$f" 2>/dev/null || true)
     if [[ "$count" =~ ^[0-9]+$ ]] && [[ "$count" -ge 3 ]]; then
         bool_flow_violations+=("${f#$PROJECT_ROOT/} (${count} StateFlow<Boolean>)")
     fi
@@ -350,7 +350,7 @@ for f in "${data_files[@]}"; do
 done
 missing_singleton=()
 for f in "${repo_impl_files[@]}"; do
-    if ! grep -qP '@Singleton' "$f" 2>/dev/null; then
+    if ! grep -qE '@Singleton' "$f" 2>/dev/null; then
         missing_singleton+=("${f#$PROJECT_ROOT/}")
     fi
 done
@@ -417,7 +417,7 @@ echo -e "  ${YELLOW}Files must reside in their canonical layer folder.${RESET}"
 _rule_header 'ViewModel class files placed outside a viewmodel/ folder'
 vm_misplaced=()
 for f in "${kt_files[@]}"; do
-    if grep -qP '^\s*class\s+\w+ViewModel\b' "$f" 2>/dev/null; then
+    if grep -qE '^[[:space:]]*class[[:space:]]+[[:alnum:]_]+ViewModel\b' "$f" 2>/dev/null; then
         if [[ "$f" != *"/viewmodel/"* ]]; then
             vm_misplaced+=("${f#$PROJECT_ROOT/}")
         fi
@@ -436,7 +436,7 @@ fi
 _rule_header 'UseCase class files placed outside a usecase/ folder'
 uc_misplaced=()
 for f in "${kt_files[@]}"; do
-    if grep -qP '^\s*class\s+\w+UseCase\b' "$f" 2>/dev/null; then
+    if grep -qE '^[[:space:]]*class[[:space:]]+[[:alnum:]_]+UseCase\b' "$f" 2>/dev/null; then
         if [[ "$f" != *"/usecase/"* ]]; then
             uc_misplaced+=("${f#$PROJECT_ROOT/}")
         fi
@@ -455,7 +455,7 @@ fi
 _rule_header 'RepositoryImpl class files placed outside data/repository/ folder'
 repo_misplaced=()
 for f in "${kt_files[@]}"; do
-    if grep -qP '^\s*class\s+\w+RepositoryImpl\b' "$f" 2>/dev/null; then
+    if grep -qE '^[[:space:]]*class[[:space:]]+[[:alnum:]_]+RepositoryImpl\b' "$f" 2>/dev/null; then
         if [[ "$f" != "$DATA_ROOT/repository/"* ]]; then
             repo_misplaced+=("${f#$PROJECT_ROOT/}")
         fi

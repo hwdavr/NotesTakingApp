@@ -15,6 +15,7 @@ import com.example.notesapp.util.DeviceIdProvider
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -86,6 +87,8 @@ class NoteRepositoryImpl @Inject constructor(
                 }
             }
             syncCoordinator.syncAll()
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             val fallback = note.copy(
                 id = noteId,
@@ -110,6 +113,8 @@ class NoteRepositoryImpl @Inject constructor(
                 )
             )
             syncCoordinator.syncAll()
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             noteDao.insert(
                 note.copy(
@@ -133,6 +138,8 @@ class NoteRepositoryImpl @Inject constructor(
                 )
             )
             syncCoordinator.syncAll()
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
             noteDao.insert(
                 note.copy(
@@ -148,6 +155,8 @@ class NoteRepositoryImpl @Inject constructor(
     override suspend fun sync() {
         try {
             syncCoordinator.syncAll()
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
         }
     }

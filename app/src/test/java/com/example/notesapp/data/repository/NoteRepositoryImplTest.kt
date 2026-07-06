@@ -13,10 +13,12 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import java.io.IOException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 
@@ -154,6 +156,100 @@ class NoteRepositoryImplTest {
 
         coVerify { api.createNote(any()) }
         coVerify { dao.insert(match { it.id == "n1" && it.version == 1L }) }
+    }
+
+    @Test
+    fun `canceled save propagates without fallback write`() = runTest {
+        val note =
+            Note(
+                id = "n1",
+                title = "Stale Title",
+                content = "Stale Content",
+                folderId = "f1",
+                sortKey = "100",
+                version = 1,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
+
+        coEvery { dao.getNoteById("n1") } returns null
+        coEvery { api.createNote(any()) } throws CancellationException("Canceled stale autosave")
+        coEvery { dao.insert(any()) } returns Unit
+
+        try {
+            repository.save(note)
+            fail("Expected CancellationException to propagate for canceled autosave")
+        } catch (_: CancellationException) {
+            // Expected: cancellation must stop stale autosave persistence.
+        }
+
+        coVerify(exactly = 0) { dao.insert(any()) }
+    }
+
+    @Test
+    fun `canceled delete propagates without fallback tombstone`() = runTest {
+        val note =
+            Note(
+                id = "n1",
+                title = "Title",
+                content = "Content",
+                folderId = "f1",
+                sortKey = "100",
+                version = 1,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
+
+        coEvery { api.deleteItem("n1", any()) } throws CancellationException("Canceled delete")
+        coEvery { dao.insert(any()) } returns Unit
+
+        try {
+            repository.delete(note)
+            fail("Expected CancellationException to propagate for canceled delete")
+        } catch (_: CancellationException) {
+            // Expected: cancellation must stop fallback tombstone persistence.
+        }
+
+        coVerify(exactly = 0) { dao.insert(any()) }
+    }
+
+    @Test
+    fun `canceled favorite update propagates without fallback write`() = runTest {
+        val note =
+            Note(
+                id = "n1",
+                title = "Title",
+                content = "Content",
+                folderId = "f1",
+                sortKey = "100",
+                version = 1,
+                createdAt = 1000L,
+                updatedAt = 1000L
+            )
+
+        coEvery { api.favoriteItem("n1", any()) } throws CancellationException("Canceled favorite")
+        coEvery { dao.insert(any()) } returns Unit
+
+        try {
+            repository.toggleFavorite(note)
+            fail("Expected CancellationException to propagate for canceled favorite update")
+        } catch (_: CancellationException) {
+            // Expected: cancellation must stop stale favorite fallback persistence.
+        }
+
+        coVerify(exactly = 0) { dao.insert(any()) }
+    }
+
+    @Test
+    fun `canceled sync propagates`() = runTest {
+        coEvery { syncCoordinator.syncAll() } throws CancellationException("Canceled sync")
+
+        try {
+            repository.sync()
+            fail("Expected CancellationException to propagate for canceled sync")
+        } catch (_: CancellationException) {
+            // Expected: cancellation must not be swallowed.
+        }
     }
 
     @Test

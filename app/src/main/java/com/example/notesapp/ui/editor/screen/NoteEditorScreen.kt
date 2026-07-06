@@ -94,7 +94,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -639,24 +642,42 @@ private fun TextDocumentBlock(
         remember(block.id) {
             mutableStateOf(
                 TextFieldValue(
-                    block.toAnnotatedString(
-                        codeBackground = colors.background,
-                        transparentBackground = colors.transparent
-                    )
+                    text = block.text()
                 )
             )
         }
-    val currentAnnotatedText = remember(block.children, block.type, block.checked) {
-        block.toAnnotatedString(
-            codeBackground = colors.background,
-            transparentBackground = colors.transparent
-        )
-    }
-    LaunchedEffect(currentAnnotatedText) {
-        if (textFieldValue.annotatedString != currentAnnotatedText) {
-            textFieldValue = textFieldValue.copy(annotatedString = currentAnnotatedText)
+
+    // Keep textFieldValue in sync with external changes (e.g. note load, folder sync, markdown stripping)
+    LaunchedEffect(block.id, block.children, block.type, block.checked) {
+        val vmText = block.text()
+        if (vmText != textFieldValue.text) {
+            val currentSelection = textFieldValue.selection
+            val newSelection = if (currentSelection.start <= vmText.length && currentSelection.end <= vmText.length) {
+                currentSelection
+            } else {
+                TextRange(vmText.length)
+            }
+            textFieldValue = TextFieldValue(
+                text = vmText,
+                selection = newSelection
+            )
         }
     }
+
+    val visualTransformation = remember(block.children, colors.background, colors.transparent) {
+        VisualTransformation { text ->
+            val annotated = block.toAnnotatedString(
+                codeBackground = colors.background,
+                transparentBackground = colors.transparent
+            )
+            if (annotated.text == text.text) {
+                TransformedText(annotated, OffsetMapping.Identity)
+            } else {
+                TransformedText(text, OffsetMapping.Identity)
+            }
+        }
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top
@@ -704,17 +725,14 @@ private fun TextDocumentBlock(
             onValueChange = {
                 val selectionChanged = textFieldValue.selection != it.selection
                 val textChanged = textFieldValue.text != it.text
-                val newValue = if (!textChanged) {
-                    it.copy(annotatedString = currentAnnotatedText)
-                } else {
-                    it
-                }
-                textFieldValue = newValue
+                
+                textFieldValue = it
+                
                 if (textChanged) {
-                    onChange(newValue.text)
+                    onChange(it.text)
                 }
                 if (selectionChanged) {
-                    onSelectionChange(newValue.selection.start, newValue.selection.end)
+                    onSelectionChange(it.selection.start, it.selection.end)
                 }
             },
             modifier = Modifier
@@ -747,7 +765,7 @@ private fun TextDocumentBlock(
                     innerTextField = innerTextField,
                     enabled = isEditable,
                     singleLine = false,
-                    visualTransformation = VisualTransformation.None,
+                    visualTransformation = visualTransformation,
                     interactionSource = remember { MutableInteractionSource() },
                     placeholder = null,
                     leadingIcon = null,

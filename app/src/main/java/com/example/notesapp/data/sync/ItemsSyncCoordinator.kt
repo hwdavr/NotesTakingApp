@@ -9,6 +9,7 @@ import com.example.notesapp.data.remote.toNoteEntity
 import com.example.notesapp.util.DeviceIdProvider
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -38,6 +39,8 @@ class ItemsSyncCoordinator @Inject constructor(
                             )
                         )
                         hasUpdates = true
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (ignored: Exception) {
                         // Keep local version for next sync if API call fails
                     }
