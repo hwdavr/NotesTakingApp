@@ -92,9 +92,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
@@ -240,6 +240,7 @@ fun NoteEditorScreenContent(
                 ?.id
     val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
     val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
+    var focusLastBlockTrigger by remember { mutableStateOf(0) }
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
         containerColor = colors.surface,
@@ -337,7 +338,15 @@ fun NoteEditorScreenContent(
                     Column(
                         modifier =
                         Modifier.fillMaxSize()
+                            .testTag("editor_content_scrollable")
                             .verticalScroll(rememberScrollState())
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                enabled = state.isEditable
+                            ) {
+                                focusLastBlockTrigger++
+                            }
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
@@ -375,7 +384,8 @@ fun NoteEditorScreenContent(
                             onBlockFocused = onBlockFocused,
                             onSelectionChange = onSelectionChange,
                             onDeleteBlock = onDeleteBlock,
-                            focusedBlockId = state.focusedBlockId
+                            focusedBlockId = state.focusedBlockId,
+                            focusLastBlockTrigger = focusLastBlockTrigger
                         )
                     }
                 }
@@ -576,9 +586,13 @@ private fun DocumentBlockList(
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
-    focusedBlockId: String?
+    focusedBlockId: String?,
+    focusLastBlockTrigger: Int = 0
 ) {
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
+    val lastTextBlockId = remember(blocks) {
+        blocks.filterIsInstance<EditorBlock.TextBlock>().lastOrNull()?.id
+    }
     LaunchedEffect(focusedBlockId) {
         focusedBlockId?.let { id ->
             val block = blocks.find { it.id == id }
@@ -603,7 +617,8 @@ private fun DocumentBlockList(
                         onFocus = { onBlockFocused(block.id) },
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
-                        focusRequester = focusRequester
+                        focusRequester = focusRequester,
+                        focusTrigger = if (block.id == lastTextBlockId) focusLastBlockTrigger else 0
                     )
                 is EditorBlock.ImageBlock ->
                     ImageDocumentBlock(
@@ -635,7 +650,8 @@ private fun TextDocumentBlock(
     onFocus: () -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    focusTrigger: Int = 0
 ) {
     val colors = LocalAppColors.current
     var textFieldValue by
@@ -646,6 +662,16 @@ private fun TextDocumentBlock(
                 )
             )
         }
+
+    LaunchedEffect(focusTrigger) {
+        if (focusTrigger > 0) {
+            val textLength = textFieldValue.text.length
+            textFieldValue = textFieldValue.copy(
+                selection = TextRange(textLength)
+            )
+            focusRequester.requestFocus()
+        }
+    }
 
     // Keep textFieldValue in sync with external changes (e.g. note load, folder sync, markdown stripping)
     LaunchedEffect(block.id, block.children, block.type, block.checked) {
@@ -725,9 +751,9 @@ private fun TextDocumentBlock(
             onValueChange = {
                 val selectionChanged = textFieldValue.selection != it.selection
                 val textChanged = textFieldValue.text != it.text
-                
+
                 textFieldValue = it
-                
+
                 if (textChanged) {
                     onChange(it.text)
                 }

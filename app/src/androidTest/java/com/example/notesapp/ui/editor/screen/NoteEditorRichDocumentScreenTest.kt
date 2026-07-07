@@ -214,4 +214,112 @@ class NoteEditorRichDocumentScreenTest {
         composeRule.onNodeWithTag("editor_text_block").assertIsDisplayed()
         composeRule.onNodeWithText("Start writing…").assertDoesNotExist()
     }
+
+    @Test
+    fun emptySpaceClick_focusesLastTextBlock() {
+        val document = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "text_1", children = listOf(RichText("Hello"))),
+                EditorBlock.TextBlock(id = "text_2", children = listOf(RichText("World")))
+            )
+        )
+        var focusedBlockId: String? = null
+        val state = NoteEditorUiState(
+            noteId = "note_1",
+            title = "Title",
+            document = document,
+            isLoaded = true,
+            isEditable = true
+        )
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = state,
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = { focusedBlockId = it },
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+
+        // Tapping the empty space (editor_content_scrollable) should trigger focus request on text_2
+        composeRule.onNodeWithTag("editor_content_scrollable").performClick()
+        composeRule.waitForIdle()
+
+        // Verify that the callback was triggered with the last block's ID
+        assertTrue(focusedBlockId == "text_2")
+    }
+
+    @Test
+    fun emptySpaceClick_withImageAtEnd_focusesLastTextBlock() {
+        val document = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "text_1", children = listOf(RichText("Hello"))),
+                EditorBlock.TextBlock(id = "text_2", children = listOf(RichText("World"))),
+                EditorBlock.ImageBlock(id = "image_1", url = "https://example.com/image.png")
+            )
+        )
+        var focusedBlockId: String? = null
+        val state = NoteEditorUiState(
+            noteId = "note_1",
+            title = "Title",
+            document = document,
+            isLoaded = true,
+            isEditable = true
+        )
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = state,
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = { focusedBlockId = it },
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+
+        // Tapping the empty space (editor_content_scrollable) should focus text_2, which is the last TextBlock
+        composeRule.onNodeWithTag("editor_content_scrollable").performClick()
+        composeRule.waitForIdle()
+
+        assertTrue(focusedBlockId == "text_2")
+    }
 }
