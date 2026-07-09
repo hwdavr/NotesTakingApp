@@ -120,4 +120,47 @@ class NoteEditorCategorizationUiTest {
         // Verify progress indicator is displayed
         composeRule.onNodeWithTag("smart_categorization_progress").assertIsDisplayed()
     }
+
+    @Test
+    fun backSyncProgress_displaysWhenBackSyncing() {
+        val state = NoteEditorUiState(
+            noteId = "note_1",
+            isLoaded = true,
+            isBackSyncing = true
+        )
+
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = state,
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {},
+                onConfirmCategorization = {},
+                onCancelCategorization = {}
+            )
+        }
+
+        composeRule.onNodeWithTag("editor_back_sync_progress").assertIsDisplayed()
+    }
 }

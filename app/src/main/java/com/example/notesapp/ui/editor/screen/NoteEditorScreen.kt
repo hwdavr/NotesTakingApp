@@ -501,12 +501,23 @@ fun NoteEditorScreenContent(
                 }
             )
         }
-        if (state.isCategorizing) {
+        if (state.isCategorizing || state.isBackSyncing) {
+            val progressTag =
+                if (state.isBackSyncing) "editor_back_sync_progress" else "smart_categorization_progress"
+            val progressText =
+                if (state.isBackSyncing) {
+                    stringResource(R.string.editor_syncing_before_back)
+                } else {
+                    stringResource(R.string.smart_categorization_analyzing)
+                }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(colors.surface.copy(alpha = 0.7f))
-                    .clickable(enabled = false) {},
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {},
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -515,10 +526,10 @@ fun NoteEditorScreenContent(
                 ) {
                     CircularProgressIndicator(
                         color = colors.primary,
-                        modifier = Modifier.testTag("smart_categorization_progress")
+                        modifier = Modifier.testTag(progressTag)
                     )
                     Text(
-                        text = stringResource(R.string.smart_categorization_analyzing),
+                        text = progressText,
                         color = colors.textPrimary
                     )
                 }

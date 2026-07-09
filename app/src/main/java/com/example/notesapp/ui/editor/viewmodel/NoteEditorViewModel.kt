@@ -24,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +48,7 @@ data class NoteEditorUiState(
     val isEditable: Boolean = true,
     val summaryState: NoteSummaryUiState = NoteSummaryUiState.Idle,
     val isCategorizing: Boolean = false,
+    val isBackSyncing: Boolean = false,
     val recommendedFolder: Folder? = null,
     val showCategorizationDialog: Boolean = false
 ) {
@@ -87,6 +89,7 @@ open class NoteEditorViewModel @Inject constructor(
         )
     }
     private var autoSaveJob: Job? = null
+    private val autoSaveJobs = mutableSetOf<Job>()
     private var summaryJob: Job? = null
     fun load(noteId: String?, folderId: String? = null) {
         viewModelScope.launch {
@@ -312,9 +315,17 @@ open class NoteEditorViewModel @Inject constructor(
     }
     internal fun scheduleAutoSave() {
         autoSaveJob?.cancel()
-        autoSaveJob = viewModelScope.launch {
+        val job = viewModelScope.launch {
             delay(2000)
             saveInternally()
+        }
+        autoSaveJob = job
+        autoSaveJobs += job
+        job.invokeOnCompletion {
+            autoSaveJobs -= job
+            if (autoSaveJob == job) {
+                autoSaveJob = null
+            }
         }
     }
     private suspend fun saveInternally() {
@@ -344,30 +355,52 @@ open class NoteEditorViewModel @Inject constructor(
         )
     }
     fun save(onDone: () -> Unit) {
-        autoSaveJob?.cancel()
         viewModelScope.launch {
+            autoSaveJobs.cancelAndJoinAll()
+            autoSaveJob = null
             saveInternally()
             onDone()
         }
     }
     fun handleBackPress(onNavigateBack: () -> Unit) {
-        autoSaveJob?.cancel()
-        val current = uiStateInternal.value
-        val isEligible = current.folderId == null &&
-            (current.title.isNotBlank() || current.content.isNotBlank()) &&
-            current.availableFolders.isNotEmpty() &&
-            current.isEditable
-
-        if (!isEligible) {
-            viewModelScope.launch {
-                saveInternally()
-                onNavigateBack()
-            }
-            return
-        }
-
-        uiStateInternal.value = current.copy(isCategorizing = true)
+        if (uiStateInternal.value.isBackSyncing || uiStateInternal.value.isCategorizing) return
         viewModelScope.launch {
+            val initial = uiStateInternal.value
+            if (initial.title.isNotBlank() || initial.content.isNotBlank()) {
+                uiStateInternal.value = initial.copy(isBackSyncing = true)
+            }
+            autoSaveJobs.cancelAndJoinAll()
+            autoSaveJob = null
+            val current = uiStateInternal.value
+            suspend fun saveBeforeNavigatingBack() {
+                val latest = uiStateInternal.value
+                if (latest.title.isBlank() && latest.content.isBlank()) {
+                    onNavigateBack()
+                    return
+                }
+                uiStateInternal.value = latest.copy(isBackSyncing = true)
+                try {
+                    saveInternally()
+                    uiStateInternal.value = uiStateInternal.value.copy(isBackSyncing = false)
+                    onNavigateBack()
+                } finally {
+                    if (uiStateInternal.value.isBackSyncing) {
+                        uiStateInternal.value = uiStateInternal.value.copy(isBackSyncing = false)
+                    }
+                }
+            }
+
+            val isEligible = current.folderId == null &&
+                (current.title.isNotBlank() || current.content.isNotBlank()) &&
+                current.availableFolders.isNotEmpty() &&
+                current.isEditable
+
+            if (!isEligible) {
+                saveBeforeNavigatingBack()
+                return@launch
+            }
+
+            uiStateInternal.value = current.copy(isCategorizing = true, isBackSyncing = false)
             try {
                 val recommendation = categorizeNoteUseCase(
                     title = current.title,
@@ -382,14 +415,12 @@ open class NoteEditorViewModel @Inject constructor(
                     )
                 } else {
                     uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
-                    saveInternally()
-                    onNavigateBack()
+                    saveBeforeNavigatingBack()
                 }
             } catch (e: Exception) {
                 Log.e("NoteEditorViewModel", "Smart categorization failed", e)
                 uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
-                saveInternally()
-                onNavigateBack()
+                saveBeforeNavigatingBack()
             }
         }
     }
@@ -422,8 +453,9 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun shareCurrentNote(onReady: (String) -> Unit) {
-        autoSaveJob?.cancel()
         viewModelScope.launch {
+            autoSaveJobs.cancelAndJoinAll()
+            autoSaveJob = null
             saveInternally()
             uiStateInternal.value.noteId?.let(onReady)
         }
@@ -552,4 +584,10 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
         focusedBlockId = nextFocusId ?: current.focusedBlockId
     )
     scheduleAutoSave()
+}
+
+private suspend fun MutableSet<Job>.cancelAndJoinAll() {
+    toList().forEach { job ->
+        job.cancelAndJoin()
+    }
 }
