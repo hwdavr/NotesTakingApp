@@ -1,12 +1,9 @@
 package com.example.notesapp.data.summary
 
-import android.content.Context
-import android.os.Build
 import android.util.Log
 import com.example.notesapp.di.IoDispatcher
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderCategorizer
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,31 +11,23 @@ import kotlinx.coroutines.withContext
 
 @Singleton
 class GeminiNanoFolderCategorizer @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val promptClient: GeminiNanoFolderCategoryPromptClient,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : FolderCategorizer {
-
-    init {
-        Log.d("GeminiNanoFolderCategorizer", "Initialized with context: ${context.packageName}")
-    }
 
     override suspend fun categorize(title: String, content: String, folders: List<Folder>): Folder? =
         withContext(ioDispatcher) {
             if (folders.isEmpty()) return@withContext null
 
-            // AICore is only supported on API 31+ (Android 12+) and compatible hardware.
-            // We wrap in try-catch to fallback to keyword matching if service is missing or fails.
-            if (Build.VERSION.SDK_INT >= 31) {
-                try {
-                    // In a production environment with proper on-device AICore service:
-                    // val options = LlmInferenceOptions.builder().setModelPath(...).build()
-                    // val llmInference = LlmInference.createFromOptions(context, options)
-                    // val prompt = "Categorize this note title: '$title', content: '$content' into one of: ${folders.map { it.name }}"
-                    // val result = llmInference.generateResponse(prompt)
-                    // Map result to folders...
-                } catch (e: Exception) {
-                    Log.w("GeminiNanoFolderCategorizer", "AICore service unavailable, using keyword fallback", e)
+            try {
+                val modelResult = promptClient.generateFolderCategory(
+                    buildCategoryPrompt(title = title, content = content, folders = folders)
+                )
+                parseModelFolder(modelResult, folders)?.let { folder ->
+                    return@withContext folder
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "AICore categorization unavailable, using keyword fallback", e)
             }
 
             // Fallback robust keyword-matching heuristic
@@ -88,4 +77,50 @@ class GeminiNanoFolderCategorizer @Inject constructor(
 
         return if (highestScore > 0) bestMatch else null
     }
+
+    private fun buildCategoryPrompt(title: String, content: String, folders: List<Folder>): String {
+        val folderOptions = folders.joinToString(separator = "\n") { folder ->
+            "- ${folder.id}: ${folder.name}"
+        }
+        return """
+            Choose the best folder for this note.
+            Reply with exactly one folder id from the list, or NONE if no folder fits.
+
+            Folders:
+            $folderOptions
+
+            Note title:
+            $title
+
+            Note content:
+            ${content.take(MAX_PROMPT_CONTENT_LENGTH)}
+        """.trimIndent()
+    }
+
+    private fun parseModelFolder(modelResult: String?, folders: List<Folder>): Folder? {
+        val normalizedResult = modelResult?.trim().orEmpty()
+        if (normalizedResult.isBlank() || normalizedResult.equals(NO_MATCH_RESPONSE, ignoreCase = true)) {
+            return null
+        }
+
+        folders.firstOrNull { folder ->
+            normalizedResult.containsExactToken(folder.id)
+        }?.let { return it }
+
+        return folders.firstOrNull { folder ->
+            normalizedResult.equals(folder.name, ignoreCase = true)
+        }
+    }
+
+    private companion object {
+        const val TAG = "NotesApp/GeminiNanoFolderCategorizer"
+        const val MAX_PROMPT_CONTENT_LENGTH = 2_000
+        const val NO_MATCH_RESPONSE = "NONE"
+    }
+}
+
+private fun String.containsExactToken(token: String): Boolean {
+    val escapedToken = Regex.escape(token)
+    return Regex("(^|[^A-Za-z0-9_-])$escapedToken($|[^A-Za-z0-9_-])", RegexOption.IGNORE_CASE)
+        .containsMatchIn(this)
 }
