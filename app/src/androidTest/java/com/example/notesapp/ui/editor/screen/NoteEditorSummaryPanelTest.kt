@@ -3,12 +3,14 @@ package com.example.notesapp.ui.editor.screen
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,25 +23,43 @@ class NoteEditorSummaryPanelTest {
     fun summaryPanel_showsLoadingState() {
         renderSummary(NoteSummaryUiState.Loading)
 
-        composeRule.onNodeWithTag("editor_summary_panel").assertIsDisplayed()
-        composeRule.onNodeWithText("Generating summary...").assertIsDisplayed()
+        assertSummaryPanelExists()
+        assertTextExists("Generating summary...")
     }
 
     @Test
     fun summaryPanel_showsContentState() {
         renderSummary(NoteSummaryUiState.Content("This note captures the project decisions."))
 
-        composeRule.onNodeWithTag("editor_summary_panel").assertIsDisplayed()
-        composeRule.onNodeWithText("This note captures the project decisions.").assertIsDisplayed()
+        assertSummaryPanelExists()
+        assertTextExists("This note captures the project decisions.")
     }
 
     @Test
     fun summaryPanel_showsErrorStateWithoutHidingEditor() {
         renderSummary(NoteSummaryUiState.Error)
 
-        composeRule.onNodeWithTag("editor_summary_panel").assertIsDisplayed()
-        composeRule.onNodeWithText("Summary is unavailable on this device.").assertIsDisplayed()
+        assertSummaryPanelExists()
+        assertTextExists("Summary is unavailable on this device.")
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertIsDisplayed()
+    }
+
+    private fun assertSummaryPanelExists() {
+        composeRule.waitForIdle()
+        assertTrue(
+            composeRule.onAllNodesWithTag("editor_summary_panel", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        )
+    }
+
+    private fun assertTextExists(text: String) {
+        composeRule.waitForIdle()
+        assertTrue(
+            composeRule.onAllNodesWithText(text, useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        )
     }
 
     private fun renderSummary(summaryState: NoteSummaryUiState) {

@@ -78,10 +78,97 @@ class NoteEditorViewModelCategorizeTest : BaseViewModelTest() {
             val state = viewModel.uiState.value
             assertFalse(state.isCategorizing)
             assertTrue(state.showCategorizationDialog)
+            assertFalse(state.showCategorizationNoMatchDialog)
             assertNotNull(state.recommendedFolder)
             assertEquals("f1", state.recommendedFolder?.id)
             assertFalse(navigated) // Navigation is deferred
         }
+
+    @Test
+    fun `given note has no folder and AI finds no match when handleBackPress then shows manual move dialog`() =
+        runTest {
+            // Arrange
+            viewModel.load(noteId = null)
+            advanceUntilIdle()
+
+            viewModel.onTitleChange("Unsorted note")
+            coEvery {
+                categorizeNoteUseCase("Unsorted note", any(), testFolders)
+            } returns null
+
+            var navigated = false
+            val onNavigateBack = { navigated = true }
+
+            // Act
+            viewModel.handleBackPress(onNavigateBack)
+            advanceUntilIdle()
+
+            // Assert
+            val state = viewModel.uiState.value
+            assertFalse(state.isCategorizing)
+            assertFalse(state.showCategorizationDialog)
+            assertTrue(state.showCategorizationNoMatchDialog)
+            assertNull(state.recommendedFolder)
+            assertFalse(navigated)
+        }
+
+    @Test
+    fun `given manual move dialog shown when manual move confirmed then saves and emits note id`() = runTest {
+        // Arrange
+        viewModel.load(noteId = null)
+        advanceUntilIdle()
+
+        viewModel.onTitleChange("Unsorted note")
+        coEvery { categorizeNoteUseCase(any(), any(), any()) } returns null
+
+        viewModel.handleBackPress {}
+        advanceUntilIdle()
+
+        var movedNoteId: String? = null
+
+        // Act
+        viewModel.confirmCategorization(
+            onNavigateBack = {},
+            onMoveManually = { noteId ->
+                movedNoteId = noteId
+            }
+        )
+        advanceUntilIdle()
+
+        // Assert
+        val state = viewModel.uiState.value
+        assertFalse(state.isCategorizing)
+        assertFalse(state.showCategorizationNoMatchDialog)
+        assertEquals(state.noteId, movedNoteId)
+        assertFalse(movedNoteId.isNullOrBlank())
+        coVerify { noteRepository.save(match { it.id == movedNoteId && it.folderId == null }) }
+    }
+
+    @Test
+    fun `given manual move dialog shown when manual move declined then saves at root and navigates back`() = runTest {
+        // Arrange
+        viewModel.load(noteId = null)
+        advanceUntilIdle()
+
+        viewModel.onTitleChange("Unsorted note")
+        coEvery { categorizeNoteUseCase(any(), any(), any()) } returns null
+
+        viewModel.handleBackPress {}
+        advanceUntilIdle()
+
+        var navigated = false
+        val onNavigateBack = { navigated = true }
+
+        // Act
+        viewModel.cancelCategorization(onNavigateBack)
+        advanceUntilIdle()
+
+        // Assert
+        val state = viewModel.uiState.value
+        assertFalse(state.showCategorizationNoMatchDialog)
+        assertTrue(navigated)
+        coVerify { noteRepository.save(match { it.folderId == null }) }
+    }
 
     @Test
     fun `given note already has folder when handleBackPress then saves and navigates immediately`() = runTest {
@@ -101,6 +188,7 @@ class NoteEditorViewModelCategorizeTest : BaseViewModelTest() {
         // Assert
         val state = viewModel.uiState.value
         assertFalse(state.showCategorizationDialog)
+        assertFalse(state.showCategorizationNoMatchDialog)
         assertTrue(navigated) // Navigates immediately
 
         // Verify repository save was called with the note having folderId = f2
@@ -207,6 +295,7 @@ class NoteEditorViewModelCategorizeTest : BaseViewModelTest() {
         // Assert
         val state = viewModel.uiState.value
         assertFalse(state.showCategorizationDialog)
+        assertFalse(state.showCategorizationNoMatchDialog)
         assertTrue(navigated) // Navigates immediately
     }
 
@@ -237,6 +326,7 @@ class NoteEditorViewModelCategorizeTest : BaseViewModelTest() {
         // Assert
         val state = viewModel.uiState.value
         assertFalse(state.showCategorizationDialog)
+        assertFalse(state.showCategorizationNoMatchDialog)
         assertFalse(state.isCategorizing)
         assertEquals("f1", state.folderId)
         assertTrue(navigated)

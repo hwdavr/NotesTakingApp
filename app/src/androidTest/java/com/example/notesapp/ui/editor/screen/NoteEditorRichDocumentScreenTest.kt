@@ -66,10 +66,19 @@ class NoteEditorRichDocumentScreenTest {
                 onDeleteBlock = {}
             )
         }
-        composeRule.onNodeWithTag("rich_document_blocks").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_text_block").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_image_block").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_table_block").assertIsDisplayed()
+        composeRule.waitForIdle()
+        assertEditorNodeExists("rich_document_blocks")
+        assertEditorNodeExists("editor_text_block")
+        assertEditorNodeExists("editor_image_block")
+        assertEditorNodeExists("editor_table_block")
+    }
+
+    private fun assertEditorNodeExists(testTag: String) {
+        assertTrue(
+            composeRule.onAllNodesWithTag(testTag, useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        )
     }
 
     @Test

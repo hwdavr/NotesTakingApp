@@ -162,6 +162,10 @@
     <string name="smart_categorization_dialog_text">This is the suggested folder to put the new note. Are you OK to move it there, or keep it at root folder?</string>
     <string name="smart_categorization_ok_button">OK</string>
     <string name="smart_categorization_cancel_button">Cancel</string>
+    <string name="smart_categorization_no_match_title">No matching folder</string>
+    <string name="smart_categorization_no_match_text">Cannot find the match folder, do you want to move manually?</string>
+    <string name="smart_categorization_no_match_yes_button">Yes</string>
+    <string name="smart_categorization_no_match_no_button">No</string>
     <string name="smart_categorization_analyzing">Analyzing note content...</string>
     <string name="editor_syncing_before_back">Saving and syncing note...</string>
 </resources>

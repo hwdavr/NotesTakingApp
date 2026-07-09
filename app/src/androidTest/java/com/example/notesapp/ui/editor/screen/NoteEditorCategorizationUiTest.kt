@@ -78,6 +78,57 @@ class NoteEditorCategorizationUiTest {
     }
 
     @Test
+    fun smartCategorizationNoMatchDialog_rendersExpectedElements_andTriggersCallbacks() {
+        var yesClicked = false
+        var noClicked = false
+        val state = NoteEditorUiState(
+            noteId = "note_1",
+            isLoaded = true,
+            showCategorizationNoMatchDialog = true
+        )
+
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = state,
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {},
+                onConfirmManualMove = { yesClicked = true },
+                onCancelManualMove = { noClicked = true }
+            )
+        }
+
+        composeRule.onNodeWithTag("smart_categorization_no_match_dialog").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("smart_categorization_no_match_yes").performClick()
+        assertTrue(yesClicked)
+
+        composeRule.onNodeWithTag("smart_categorization_no_match_no").performClick()
+        assertTrue(noClicked)
+    }
+
+    @Test
     fun smartCategorizationProgress_displaysWhenCategorizing() {
         val state = NoteEditorUiState(
             noteId = "note_1",

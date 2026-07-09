@@ -50,7 +50,8 @@ data class NoteEditorUiState(
     val isCategorizing: Boolean = false,
     val isBackSyncing: Boolean = false,
     val recommendedFolder: Folder? = null,
-    val showCategorizationDialog: Boolean = false
+    val showCategorizationDialog: Boolean = false,
+    val showCategorizationNoMatchDialog: Boolean = false
 ) {
     val content: String
         get() = document.toPlainText()
@@ -363,7 +364,13 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun handleBackPress(onNavigateBack: () -> Unit) {
-        if (uiStateInternal.value.isBackSyncing || uiStateInternal.value.isCategorizing) return
+        if (
+            uiStateInternal.value.isBackSyncing ||
+            uiStateInternal.value.isCategorizing ||
+            uiStateInternal.value.showCategorizationNoMatchDialog
+        ) {
+            return
+        }
         viewModelScope.launch {
             val initial = uiStateInternal.value
             if (initial.title.isNotBlank() || initial.content.isNotBlank()) {
@@ -411,41 +418,53 @@ open class NoteEditorViewModel @Inject constructor(
                     uiStateInternal.value = uiStateInternal.value.copy(
                         isCategorizing = false,
                         recommendedFolder = recommendation,
-                        showCategorizationDialog = true
+                        showCategorizationDialog = true,
+                        showCategorizationNoMatchDialog = false
                     )
                 } else {
-                    uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
-                    saveBeforeNavigatingBack()
+                    uiStateInternal.value = uiStateInternal.value.copy(
+                        isCategorizing = false,
+                        recommendedFolder = null,
+                        showCategorizationDialog = false,
+                        showCategorizationNoMatchDialog = true
+                    )
                 }
             } catch (e: Exception) {
-                Log.e("NoteEditorViewModel", "Smart categorization failed", e)
+                Log.e(TAG, "Smart categorization failed", e)
                 uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
                 saveBeforeNavigatingBack()
             }
         }
     }
-    fun confirmCategorization(onNavigateBack: () -> Unit) {
+    fun confirmCategorization(onNavigateBack: () -> Unit, onMoveManually: ((String) -> Unit)? = null) {
         val current = uiStateInternal.value
         val recommendedFolderId = current.recommendedFolder?.id
         uiStateInternal.value = current.copy(
             isCategorizing = true,
             showCategorizationDialog = false,
+            showCategorizationNoMatchDialog = false,
             folderId = recommendedFolderId
         )
         viewModelScope.launch {
             try {
                 saveInternally()
+                val savedNoteId = uiStateInternal.value.noteId
+                if (recommendedFolderId == null && onMoveManually != null && !savedNoteId.isNullOrBlank()) {
+                    onMoveManually(savedNoteId)
+                    return@launch
+                }
+                onNavigateBack()
             } catch (e: Exception) {
-                Log.e("NoteEditorViewModel", "Failed to save note during categorization", e)
+                Log.e(TAG, "Failed to save note during categorization", e)
             } finally {
                 uiStateInternal.value = uiStateInternal.value.copy(isCategorizing = false)
-                onNavigateBack()
             }
         }
     }
     fun cancelCategorization(onNavigateBack: () -> Unit) {
         uiStateInternal.value = uiStateInternal.value.copy(
-            showCategorizationDialog = false
+            showCategorizationDialog = false,
+            showCategorizationNoMatchDialog = false
         )
         viewModelScope.launch {
             saveInternally()
@@ -525,6 +544,8 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
 }
+
+private const val TAG = "NotesApp/NoteEditorViewModel"
 
 private fun NoteEditorViewModel.appendBlock(block: EditorBlock) {
     val current = uiStateInternal.value

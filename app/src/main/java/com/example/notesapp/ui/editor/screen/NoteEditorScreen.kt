@@ -168,7 +168,9 @@ fun NoteEditorScreen(
         onSelectionChange = viewModel::updateSelection,
         onDeleteBlock = viewModel::deleteBlock,
         onConfirmCategorization = { viewModel.confirmCategorization(onBack) },
-        onCancelCategorization = { viewModel.cancelCategorization(onBack) }
+        onCancelCategorization = { viewModel.cancelCategorization(onBack) },
+        onConfirmManualMove = { viewModel.confirmCategorization(onBack, onMoveNote) },
+        onCancelManualMove = { viewModel.cancelCategorization(onBack) }
     )
 }
 
@@ -202,7 +204,9 @@ fun NoteEditorScreenContent(
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
     onConfirmCategorization: () -> Unit = {},
-    onCancelCategorization: () -> Unit = {}
+    onCancelCategorization: () -> Unit = {},
+    onConfirmManualMove: () -> Unit = {},
+    onCancelManualMove: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -501,6 +505,12 @@ fun NoteEditorScreenContent(
                 }
             )
         }
+        if (state.showCategorizationNoMatchDialog) {
+            SmartCategorizationNoMatchDialog(
+                onConfirmManualMove = onConfirmManualMove,
+                onCancelManualMove = onCancelManualMove
+            )
+        }
         if (state.isCategorizing || state.isBackSyncing) {
             val progressTag =
                 if (state.isBackSyncing) "editor_back_sync_progress" else "smart_categorization_progress"
@@ -536,6 +546,32 @@ fun NoteEditorScreenContent(
             }
         }
     }
+}
+
+@Composable
+private fun SmartCategorizationNoMatchDialog(onConfirmManualMove: () -> Unit, onCancelManualMove: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancelManualMove,
+        modifier = Modifier.testTag("smart_categorization_no_match_dialog"),
+        title = { Text(stringResource(R.string.smart_categorization_no_match_title)) },
+        text = { Text(stringResource(R.string.smart_categorization_no_match_text)) },
+        confirmButton = {
+            Button(
+                onClick = onConfirmManualMove,
+                modifier = Modifier.testTag("smart_categorization_no_match_yes")
+            ) {
+                Text(stringResource(R.string.smart_categorization_no_match_yes_button))
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onCancelManualMove,
+                modifier = Modifier.testTag("smart_categorization_no_match_no")
+            ) {
+                Text(stringResource(R.string.smart_categorization_no_match_no_button))
+            }
+        }
+    )
 }
 
 @Composable
