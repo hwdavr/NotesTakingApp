@@ -161,6 +161,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
     implementation("com.google.mlkit:genai-summarization:1.0.0-beta1")
     implementation("com.google.ai.edge.aicore:aicore:0.0.1-exp01")
+    implementation("com.google.mediapipe:tasks-text:0.10.35")
     ksp("androidx.room:room-compiler:2.6.1")
 
     // Hilt

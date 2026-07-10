@@ -34,6 +34,7 @@ fun TestFoldersScreen(
     onRenameFolder: (Folder, String) -> Unit = { _, _ -> },
     onRenameNote: (Note, String) -> Unit = { _, _ -> },
     onMoveFolder: (Folder) -> Unit = {},
+    onAddDescription: (Folder) -> Unit = {},
     onMoveNote: (Note) -> Unit = {},
     onAddToFavoritesNote: (Note) -> Unit = {},
     onAddToFavoritesFolder: (Folder) -> Unit = {}
@@ -54,6 +55,7 @@ fun TestFoldersScreen(
             onOpenNote = {},
             onOpenCollection = { _, _, _ -> },
             onMoveFolder = onMoveFolder,
+            onAddDescription = onAddDescription,
             onMoveNote = onMoveNote
         )
     }
@@ -130,6 +132,32 @@ class FoldersScreenTest {
         composeRule.onNodeWithTag("move_item_action", useUnmergedTree = true).performClick()
         composeRule.waitForIdle()
         assertEquals(folder, folderToMove)
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun addDescriptionAction_emitsFolderCallback() {
+        var selectedFolder: Folder? = null
+        val folder = Folder(id = "f1", name = "Receipts", createdAt = 0, updatedAt = 0)
+        val state = FoldersUiState(
+            treeItems = listOf(FolderTreeItem.FolderItem(folder, 0, 0, false))
+        )
+        composeRule.setContent {
+            TestFoldersScreen(
+                state = state,
+                onAddDescription = { selectedFolder = it }
+            )
+        }
+        composeRule.onNodeWithTag("folder_more_actions").performClick()
+        composeRule.waitUntil(10000) {
+            composeRule.onAllNodesWithTag(
+                "add_folder_description_action",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("add_folder_description_action", useUnmergedTree = true).performClick()
+        composeRule.waitForIdle()
+        assertEquals(folder, selectedFolder)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

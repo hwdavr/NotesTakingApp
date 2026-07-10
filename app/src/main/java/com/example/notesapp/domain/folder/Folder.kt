@@ -5,6 +5,7 @@ import com.example.notesapp.domain.note.NoteAccessRole
 data class Folder(
     val id: String = "",
     val name: String,
+    val description: String = "",
     val parentFolderId: String? = null,
     val sortKey: String = "",
     val version: Long = 0,

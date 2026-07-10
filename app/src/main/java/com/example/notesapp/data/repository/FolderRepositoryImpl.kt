@@ -7,6 +7,7 @@ import com.example.notesapp.data.remote.FavoriteItemRequest
 import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
+import com.example.notesapp.data.remote.UpdateItemContentRequest
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
@@ -25,6 +26,8 @@ class FolderRepositoryImpl @Inject constructor(
     private val deviceIdProvider: DeviceIdProvider
 ) : FolderRepository {
     override fun getFolders(): Flow<List<Folder>> = folderDao.getFolders().map { list -> list.map { it.toDomain() } }
+    override fun getFolder(folderId: String): Flow<Folder?> =
+        folderDao.getFolder(folderId).map { folder -> folder?.toDomain() }
     override fun getArchivedFolders(): Flow<List<Folder>> =
         folderDao.getArchivedFolders().map { list -> list.map { it.toDomain() } }
     override suspend fun getArchivedFolderCount(): Int = folderDao.getArchivedFolderCount()
@@ -68,6 +71,30 @@ class FolderRepositoryImpl @Inject constructor(
                 folder.copy(
                     version = folder.version + 1,
                     deviceId = deviceIdProvider.deviceId
+                ).toEntity()
+            )
+        }
+    }
+    override suspend fun updateDescription(folder: Folder, description: String) {
+        val updatedAt = System.currentTimeMillis()
+        try {
+            api.updateItemContent(
+                folder.id,
+                UpdateItemContentRequest(
+                    content = description,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version
+                )
+            )
+            syncCoordinator.syncAll()
+        } catch (_: Exception) {
+            folderDao.insert(
+                folder.copy(
+                    description = description,
+                    version = folder.version + 1,
+                    deviceId = deviceIdProvider.deviceId,
+                    lastSyncedVersion = folder.version,
+                    updatedAt = updatedAt
                 ).toEntity()
             )
         }

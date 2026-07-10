@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -121,10 +122,13 @@ private class FakeMoveFolderRepository(
     private val folders = MutableStateFlow(initialFolders)
     var movedFolder: Pair<String, String?>? = null
     override fun getFolders(): Flow<List<Folder>> = folders
+    override fun getFolder(folderId: String): Flow<Folder?> =
+        folders.map { list -> list.firstOrNull { it.id == folderId && it.deletedAt == null } }
     override fun getArchivedFolders(): Flow<List<Folder>> = flowOf(emptyList())
     override suspend fun getArchivedFolderCount(): Int = 0
     override suspend fun insert(folder: Folder) = Unit
     override suspend fun update(folder: Folder) = Unit
+    override suspend fun updateDescription(folder: Folder, description: String) = Unit
     override suspend fun move(folder: Folder, parentFolderId: String?) {
         movedFolder = folder.id to parentFolderId
     }

@@ -27,6 +27,7 @@ import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.ui.common.components.ErrorDialog
 import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
+import com.example.notesapp.ui.folderdescription.screen.FolderDescriptionScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
 import com.example.notesapp.ui.notes.screen.CollectionNotesScreen
@@ -76,6 +77,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
     val showBottomBar = isLoggedIn &&
         currentRoute?.startsWith("editor") != true &&
         currentRoute?.startsWith("collectionNotes") != true &&
+        currentRoute?.startsWith("folderDescription") != true &&
         currentRoute?.startsWith("moveTo") != true &&
         currentRoute?.startsWith("sharedUsers") != true &&
         currentRoute?.startsWith("manageAccess") != true &&
@@ -183,10 +185,26 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                             Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_FOLDER, folder.id)
                         )
                     },
+                    onAddDescription = { folder ->
+                        navController.navigate(Destinations.FolderDescription.createRoute(folder.id))
+                    },
                     onMoveNote = { note ->
                         navController.navigate(Destinations.MoveTo.createRoute(MoveToViewModel.ITEM_TYPE_NOTE, note.id))
                     },
                     viewModel = hiltViewModel()
+                )
+            }
+            composable(
+                route = Destinations.FolderDescription.route,
+                arguments = listOf(
+                    navArgument("folderId") {
+                        type = NavType.StringType
+                    }
+                )
+            ) {
+                FolderDescriptionScreen(
+                    parentPadding = innerPadding,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(

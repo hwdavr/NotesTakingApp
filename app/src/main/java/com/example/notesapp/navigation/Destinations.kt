@@ -17,6 +17,9 @@ sealed class Destinations(val route: String) {
         fun createRoute(itemType: String, itemId: String): String =
             "moveTo?itemType=${Uri.encode(itemType)}&itemId=${Uri.encode(itemId)}"
     }
+    data object FolderDescription : Destinations("folderDescription/{folderId}") {
+        fun createRoute(folderId: String): String = "folderDescription/${Uri.encode(folderId)}"
+    }
     data object Editor : Destinations("editor?noteId={noteId}&folderId={folderId}") {
         fun createRoute(noteId: String? = null, folderId: String? = null): String {
             val notePart = if (noteId.isNullOrBlank()) "noteId=" else "noteId=$noteId"

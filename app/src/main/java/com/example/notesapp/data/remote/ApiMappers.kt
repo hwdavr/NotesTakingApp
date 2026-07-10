@@ -8,6 +8,7 @@ import java.time.Instant
 fun ApiItem.toFolderEntity(): FolderEntity = FolderEntity(
     id = id,
     name = name,
+    description = content,
     parentFolderId = parentId,
     sortKey = sortKey,
     version = version,

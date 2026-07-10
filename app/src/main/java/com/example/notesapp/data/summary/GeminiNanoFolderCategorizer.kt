@@ -24,14 +24,16 @@ class GeminiNanoFolderCategorizer @Inject constructor(
                     buildCategoryPrompt(title = title, content = content, folders = folders)
                 )
                 parseModelFolder(modelResult, folders)?.let { folder ->
+                    Log.d(TAG, "AICore categorization mapped output; responseLength=${modelResult.orEmpty().length}")
                     return@withContext folder
                 }
+                Log.d(TAG, "AICore categorization output unmapped; responseLength=${modelResult.orEmpty().length}")
             } catch (e: Exception) {
-                Log.w(TAG, "AICore categorization unavailable, using keyword fallback", e)
+                Log.w(TAG, "AICore categorization unavailable, using fallback; ${e.toAicoreDiagnosticMessage()}")
             }
 
-            // Fallback robust keyword-matching heuristic
             runKeywordMatching(title, content, folders)
+                ?: chooseRootFallback(folders)
         }
 
     private fun runKeywordMatching(title: String, content: String, folders: List<Folder>): Folder? {
@@ -79,12 +81,17 @@ class GeminiNanoFolderCategorizer @Inject constructor(
     }
 
     private fun buildCategoryPrompt(title: String, content: String, folders: List<Folder>): String {
+        val folderPaths = buildFolderPaths(folders)
         val folderOptions = folders.joinToString(separator = "\n") { folder ->
-            "- ${folder.id}: ${folder.name}"
+            "- ${folder.id}: ${folderPaths.getValue(folder.id)}${folder.descriptionPromptSuffix()}"
         }
         return """
             Choose the best folder for this note.
-            Reply with exactly one folder id from the list, or NONE if no folder fits.
+            Reply only with exactly one folder id from the Folders list.
+            Do not include prose, markdown, JSON, punctuation, or explanation.
+            Use the full folder path to understand subfolders.
+            If no exact folder or subfolder fits, choose the closest existing root folder.
+            Do not invent a folder id.
 
             Folders:
             $folderOptions
@@ -99,23 +106,67 @@ class GeminiNanoFolderCategorizer @Inject constructor(
 
     private fun parseModelFolder(modelResult: String?, folders: List<Folder>): Folder? {
         val normalizedResult = modelResult?.trim().orEmpty()
-        if (normalizedResult.isBlank() || normalizedResult.equals(NO_MATCH_RESPONSE, ignoreCase = true)) {
+        if (normalizedResult.isBlank()) {
             return null
         }
 
-        folders.firstOrNull { folder ->
+        val folderPaths = buildFolderPaths(folders)
+        val idMatch = folders.firstOrNull { folder ->
             normalizedResult.containsExactToken(folder.id)
-        }?.let { return it }
-
-        return folders.firstOrNull { folder ->
+        }
+        val pathMatch = folders.firstOrNull { folder ->
+            normalizedResult.equals(folderPaths.getValue(folder.id), ignoreCase = true)
+        }
+        val nameMatch = folders.firstOrNull { folder ->
             normalizedResult.equals(folder.name, ignoreCase = true)
         }
+
+        return idMatch ?: pathMatch ?: nameMatch
     }
+
+    private fun buildFolderPaths(folders: List<Folder>): Map<String, String> {
+        val foldersById = folders.associateBy { folder -> folder.id }
+        return folders.associate { folder ->
+            folder.id to buildFolderPath(folder, foldersById)
+        }
+    }
+
+    private fun buildFolderPath(folder: Folder, foldersById: Map<String, Folder>): String {
+        val pathSegments = ArrayDeque<String>()
+        val visitedIds = mutableSetOf<String>()
+        var current: Folder? = folder
+
+        while (current != null && visitedIds.add(current.id)) {
+            pathSegments.addFirst(current.name)
+            current = current.parentFolderId?.let(foldersById::get)
+        }
+
+        return pathSegments.joinToString(separator = FOLDER_PATH_SEPARATOR)
+    }
+
+    private fun Folder.descriptionPromptSuffix(): String {
+        val trimmedDescription = description.trim()
+        return if (trimmedDescription.isBlank()) {
+            ""
+        } else {
+            " | Description: ${trimmedDescription.take(MAX_FOLDER_DESCRIPTION_PROMPT_LENGTH)}"
+        }
+    }
+
+    private fun chooseRootFallback(folders: List<Folder>): Folder? = folders
+        .filter { folder -> folder.parentFolderId == null }
+        .sortedWith(
+            compareBy<Folder> { folder -> folder.sortKey }
+                .thenBy { folder -> folder.name }
+                .thenBy { folder -> folder.id }
+        )
+        .firstOrNull()
 
     private companion object {
         const val TAG = "NotesApp/GeminiNanoFolderCategorizer"
         const val MAX_PROMPT_CONTENT_LENGTH = 2_000
-        const val NO_MATCH_RESPONSE = "NONE"
+        const val MAX_FOLDER_DESCRIPTION_PROMPT_LENGTH = 300
+        const val FOLDER_PATH_SEPARATOR = " / "
     }
 }
 

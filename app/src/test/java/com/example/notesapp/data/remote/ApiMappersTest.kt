@@ -13,7 +13,7 @@ class ApiMappersTest {
             name = "Folder",
             parentId = "p1",
             userId = "u1",
-            content = "",
+            content = "Client receipts",
             sortKey = "100",
             version = 1L,
             deviceId = "device1",
@@ -26,6 +26,7 @@ class ApiMappersTest {
         val entity = apiItem.toFolderEntity()
         assertEquals(apiItem.id, entity.id)
         assertEquals(apiItem.name, entity.name)
+        assertEquals(apiItem.content, entity.description)
         assertEquals(apiItem.parentId, entity.parentFolderId)
         assertEquals(apiItem.sortKey, entity.sortKey)
         assertEquals(apiItem.version, entity.version)
