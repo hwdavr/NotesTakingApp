@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -144,5 +145,34 @@ class FolderDescriptionScreenTest {
 
         composeRule.onNodeWithTag("folder_description_error").assertIsDisplayed()
         composeRule.onNodeWithText("Folder is no longer available.").assertIsDisplayed()
+    }
+
+    @Test
+    fun givenTopParentPadding_whenRendering_thenTopAppBarIsAtTopAndNotShifted() {
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                FolderDescriptionContent(
+                    parentPadding = PaddingValues(top = 100.dp),
+                    state = FolderDescriptionUiState(
+                        isLoading = false,
+                        folderName = "Receipts",
+                        description = "Client receipts"
+                    ),
+                    onDescriptionChanged = {},
+                    onSave = {},
+                    onBack = {}
+                )
+            }
+        }
+
+        // Under the bug, the Scaffold's modifier padding(top = 100.dp) shifts the TopAppBar down,
+        // so its top position will be >= 100.dp.
+        // Under the fix, the TopAppBar should be at y = 0.
+        val topPosition = composeRule.onNodeWithText("Folder description").getUnclippedBoundsInRoot().top
+        val message = "TopAppBar should not be shifted down by parentPadding top: topPosition = $topPosition"
+        assertTrue(
+            message,
+            topPosition < 50.dp
+        )
     }
 }

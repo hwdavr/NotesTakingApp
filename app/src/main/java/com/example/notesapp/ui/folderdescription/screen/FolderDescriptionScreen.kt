@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -74,7 +76,7 @@ fun FolderDescriptionContent(
 ) {
     val colors = LocalAppColors.current
     Scaffold(
-        modifier = Modifier.padding(parentPadding),
+        modifier = Modifier.fillMaxSize(),
         containerColor = colors.background,
         contentWindowInsets = WindowInsets(0),
         topBar = {
@@ -119,6 +121,9 @@ fun FolderDescriptionContent(
                 .fillMaxSize()
                 .background(colors.background)
                 .padding(innerPadding)
+                .padding(bottom = parentPadding.calculateBottomPadding())
+                .navigationBarsPadding()
+                .imePadding()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
                 .testTag("folder_description_screen")
         ) {
