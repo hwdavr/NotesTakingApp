@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.map
 class FakeFolderDao : FolderDao {
     val foldersFlow = MutableStateFlow<List<FolderEntity>>(emptyList())
     override fun getFolders() = foldersFlow.map { folders -> folders.filter { it.deletedAt == null } }
+    override fun getFolder(id: String) = foldersFlow.map { folders ->
+        folders.firstOrNull { it.id == id && it.deletedAt == null }
+    }
+    override suspend fun getFolderById(id: String) = foldersFlow.value.firstOrNull { it.id == id }
     override fun getArchivedFolders() = foldersFlow.map { folders -> folders.filter { it.deletedAt != null } }
     override suspend fun getFolderCount() = foldersFlow.value.size
     override suspend fun getArchivedFolderCount() = foldersFlow.value.count { it.deletedAt != null }

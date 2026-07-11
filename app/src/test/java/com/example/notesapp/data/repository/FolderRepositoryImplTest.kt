@@ -139,4 +139,68 @@ class FolderRepositoryImplTest {
 
         coVerify { dao.insert(match { it.id == "f1" && it.version == 3L && it.name == "New Name" }) }
     }
+
+    @Test
+    fun `updateDescription syncs if api succeeds`() = runTest {
+        val folder = Folder(
+            id = "f1",
+            name = "Folder",
+            description = "",
+            version = 2,
+            createdAt = 1000L,
+            updatedAt = 1000L
+        )
+        val apiItem = ApiItem(
+            id = "f1", userId = "u1", type = "folder", parentId = null,
+            name = "Folder", content = "Client receipts", sortKey = "100",
+            version = 3, deviceId = "device1", lastSyncedVersion = 2,
+            deletedAt = null, createdAt = "2023-01-01T00:00:00Z", updatedAt = "2023-01-01T00:00:00Z"
+        )
+        val mutationResult = MutationResultDto(status = "success", item = apiItem)
+        coEvery { api.updateItemContent("f1", any()) } returns mutationResult
+        coEvery { syncCoordinator.syncAll() } returns Unit
+
+        repository.updateDescription(folder, "Client receipts")
+
+        coVerify {
+            api.updateItemContent(
+                "f1",
+                match {
+                    it.content == "Client receipts" &&
+                        it.deviceId == "device1" &&
+                        it.lastSyncedVersion == 2L
+                }
+            )
+        }
+        coVerify { syncCoordinator.syncAll() }
+        coVerify(exactly = 0) { dao.insert(any()) }
+    }
+
+    @Test
+    fun `updateDescription saves locally if api fails`() = runTest {
+        val folder = Folder(
+            id = "f1",
+            name = "Folder",
+            description = "",
+            version = 2,
+            createdAt = 1000L,
+            updatedAt = 1000L
+        )
+        coEvery { api.updateItemContent("f1", any()) } throws IOException("Network error")
+        coEvery { dao.insert(any()) } returns Unit
+
+        repository.updateDescription(folder, "Client receipts")
+
+        coVerify {
+            dao.insert(
+                match {
+                    it.id == "f1" &&
+                        it.description == "Client receipts" &&
+                        it.version == 3L &&
+                        it.deviceId == "device1" &&
+                        it.lastSyncedVersion == 2L
+                }
+            )
+        }
+    }
 }

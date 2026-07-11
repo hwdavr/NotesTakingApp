@@ -20,6 +20,7 @@ import androidx.room.PrimaryKey
 data class FolderEntity(
     @PrimaryKey val id: String,
     val name: String,
+    val description: String = "",
     val parentFolderId: String? = null,
     val sortKey: String,
     val version: Long,

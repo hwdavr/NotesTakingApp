@@ -11,6 +11,7 @@ class FolderMapperTest {
         val entity = FolderEntity(
             id = "f1",
             name = "Folder",
+            description = "Client receipts",
             parentFolderId = "p1",
             sortKey = "100",
             version = 1L,
@@ -24,6 +25,7 @@ class FolderMapperTest {
         val domain = entity.toDomain()
         assertEquals(entity.id, domain.id)
         assertEquals(entity.name, domain.name)
+        assertEquals(entity.description, domain.description)
         assertEquals(entity.parentFolderId, domain.parentFolderId)
         assertEquals(entity.sortKey, domain.sortKey)
         assertEquals(entity.version, domain.version)
@@ -40,6 +42,7 @@ class FolderMapperTest {
         val domain = Folder(
             id = "f1",
             name = "Folder",
+            description = "Client receipts",
             parentFolderId = "p1",
             sortKey = "100",
             version = 1,
@@ -53,6 +56,7 @@ class FolderMapperTest {
         val entity = domain.toEntity()
         assertEquals(domain.id, entity.id)
         assertEquals(domain.name, entity.name)
+        assertEquals(domain.description, entity.description)
         assertEquals(domain.parentFolderId, entity.parentFolderId)
         assertEquals(domain.sortKey, entity.sortKey)
         assertEquals(domain.version, entity.version)

@@ -12,6 +12,7 @@ The smart category implementation kept the Gemini/AICore prompt and inference pa
 
 - Put model access behind a small injectable data-layer client so tests can prove the prompt path is called and used.
 - Write a regression test where the AI-selected category has no keyword overlap with the note text.
+- Constrain local-model output to known identifiers, parse only known folders, and provide deterministic fallback when the model responds with weak or invalid text.
 - Keep heuristic fallback for unavailable or invalid model output, but never let fallback be the only executable implementation of an AI feature.
 - Delete commented sample inference code once a real client exists.
 

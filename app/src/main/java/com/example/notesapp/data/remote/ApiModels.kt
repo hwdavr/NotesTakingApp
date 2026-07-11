@@ -59,6 +59,11 @@ data class UpdateNoteContentRequest(
     val deviceId: String,
     val lastSyncedVersion: Long
 )
+data class UpdateItemContentRequest(
+    val content: String,
+    val deviceId: String,
+    val lastSyncedVersion: Long
+)
 data class DeleteItemRequest(
     val deviceId: String,
     val lastSyncedVersion: Long

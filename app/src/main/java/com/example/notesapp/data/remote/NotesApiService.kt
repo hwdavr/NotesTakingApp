@@ -43,6 +43,12 @@ interface NotesApiService {
         @Body request: UpdateNoteContentRequest
     ): MutationResultDto
 
+    @PATCH("v1/items/{itemID}/content")
+    suspend fun updateItemContent(
+        @Path("itemID") itemId: String,
+        @Body request: UpdateItemContentRequest
+    ): MutationResultDto
+
     @PATCH("v1/items/{itemID}/favorite")
     suspend fun favoriteItem(@Path("itemID") itemId: String, @Body request: FavoriteItemRequest): MutationResultDto
 

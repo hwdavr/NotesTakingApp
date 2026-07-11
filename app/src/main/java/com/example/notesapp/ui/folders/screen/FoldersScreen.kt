@@ -88,6 +88,7 @@ fun FoldersScreen(
     onOpenNote: (String) -> Unit = {},
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit = { _, _, _ -> },
     onMoveFolder: (Folder) -> Unit = {},
+    onAddDescription: (Folder) -> Unit = {},
     onMoveNote: (Note) -> Unit = {},
     viewModel: FoldersViewModel = hiltViewModel()
 ) {
@@ -107,6 +108,7 @@ fun FoldersScreen(
         onOpenNote = onOpenNote,
         onOpenCollection = onOpenCollection,
         onMoveFolder = onMoveFolder,
+        onAddDescription = onAddDescription,
         onMoveNote = onMoveNote,
         onRefresh = viewModel::refresh
     )
@@ -130,6 +132,7 @@ fun FoldersScreenContent(
     onOpenNote: (String) -> Unit,
     onOpenCollection: (type: String, label: String, folderId: String?) -> Unit,
     onMoveFolder: (Folder) -> Unit = {},
+    onAddDescription: (Folder) -> Unit = {},
     onMoveNote: (Note) -> Unit = {},
     onRefresh: () -> Unit = {}
 ) {
@@ -317,6 +320,10 @@ fun FoldersScreenContent(
                 onMoveTo = {
                     selectedItemForQuickActions = null
                     onMoveFolder(item.folder)
+                },
+                onAddDescription = {
+                    selectedItemForQuickActions = null
+                    onAddDescription(item.folder)
                 },
                 onRename = {
                     itemToRename = selectedItemForQuickActions
@@ -624,7 +631,7 @@ private fun FolderTreeRow(
         if (item.hasChildren) {
             Icon(
                 imageVector = if (item.depth == 0) Icons.Outlined.KeyboardArrowDown else Icons.Outlined.ChevronRight,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.folders_expand_folder_description),
                 tint = LocalAppColors.current.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
@@ -633,7 +640,7 @@ private fun FolderTreeRow(
         }
         Icon(
             imageVector = folderIconForName(item.folder.name),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.folders_folder_icon_description),
             tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(20.dp)
         )
@@ -689,7 +696,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
     ) {
         Icon(
             imageVector = Icons.Outlined.Description,
-            contentDescription = null,
+            contentDescription = stringResource(R.string.folders_note_icon_description),
             tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(20.dp)
         )
@@ -712,7 +719,7 @@ private fun NoteTreeRow(note: Note, depth: Int, onClick: () -> Unit, onQuickActi
         ) {
             Icon(
                 imageVector = Icons.Outlined.MoreHoriz,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.folders_more_note_actions),
                 tint = LocalAppColors.current.textTertiary,
                 modifier = Modifier.size(20.dp)
             )
@@ -784,6 +791,7 @@ private fun FolderItemActionsSheet(
     onDismiss: () -> Unit,
     onAddToFavorites: () -> Unit,
     onMoveTo: () -> Unit,
+    onAddDescription: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -839,6 +847,12 @@ private fun FolderItemActionsSheet(
                 label = stringResource(R.string.folders_move_to_action),
                 onClick = onMoveTo,
                 modifier = Modifier.testTag("move_item_action")
+            )
+            SheetActionRow(
+                icon = Icons.Outlined.Description,
+                label = stringResource(R.string.folders_add_description_action),
+                onClick = onAddDescription,
+                modifier = Modifier.testTag("add_folder_description_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Edit,

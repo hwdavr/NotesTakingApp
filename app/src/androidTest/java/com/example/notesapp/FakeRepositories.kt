@@ -13,6 +13,8 @@ class FakeFolderRepository(
 ) : FolderRepository {
     private val folders = MutableStateFlow(initialFolders)
     override fun getFolders(): Flow<List<Folder>> = folders.map { list -> list.filter { it.deletedAt == null } }
+    override fun getFolder(folderId: String): Flow<Folder?> =
+        folders.map { list -> list.firstOrNull { it.id == folderId && it.deletedAt == null } }
     override fun getArchivedFolders(): Flow<List<Folder>> = folders.map { list -> list.filter { it.deletedAt != null } }
     override suspend fun getArchivedFolderCount(): Int = folders.value.count { it.deletedAt != null }
     override suspend fun insert(folder: Folder) {
@@ -20,6 +22,9 @@ class FakeFolderRepository(
     }
     override suspend fun update(folder: Folder) {
         folders.value = folders.value.map { if (it.id == folder.id) folder else it }
+    }
+    override suspend fun updateDescription(folder: Folder, description: String) {
+        update(folder.copy(description = description))
     }
     override suspend fun move(folder: Folder, parentFolderId: String?) {
         folders.value = folders.value.map {

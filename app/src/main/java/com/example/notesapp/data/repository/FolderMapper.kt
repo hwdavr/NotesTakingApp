@@ -8,6 +8,7 @@ import com.example.notesapp.domain.note.NoteAccessRole
 fun FolderEntity.toDomain(): Folder = Folder(
     id = id,
     name = name,
+    description = description,
     parentFolderId = parentFolderId,
     sortKey = sortKey,
     version = version,
@@ -23,6 +24,7 @@ fun FolderEntity.toDomain(): Folder = Folder(
 fun Folder.toEntity(): FolderEntity = FolderEntity(
     id = id,
     name = name,
+    description = description,
     parentFolderId = parentFolderId,
     sortKey = sortKey,
     version = version,

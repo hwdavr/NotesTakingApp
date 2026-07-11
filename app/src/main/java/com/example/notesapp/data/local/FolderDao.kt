@@ -11,6 +11,12 @@ interface FolderDao {
     @Query("SELECT * FROM folders WHERE deletedAt IS NULL ORDER BY sortKey ASC, name ASC")
     fun getFolders(): Flow<List<FolderEntity>>
 
+    @Query("SELECT * FROM folders WHERE id = :id AND deletedAt IS NULL LIMIT 1")
+    fun getFolder(id: String): Flow<FolderEntity?>
+
+    @Query("SELECT * FROM folders WHERE id = :id LIMIT 1")
+    suspend fun getFolderById(id: String): FolderEntity?
+
     @Query("SELECT * FROM folders WHERE deletedAt IS NOT NULL ORDER BY deletedAt DESC, updatedAt DESC")
     fun getArchivedFolders(): Flow<List<FolderEntity>>
 
