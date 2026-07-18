@@ -31,6 +31,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `docs/current/spec_v<N>.md` — requirement summary, impact analysis, UiState & navigation design
 
 **Harness workflow** (`harness-generator`):
+- `docs/current/design.md` — screen purpose, layout, visual/interaction states, copy, components inventory, accessibility
+- `docs/current/spec.md` — screen specifications, functional requirements, edge cases, persistence schema
 - `docs/current/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan
 - `docs/current/summary_{feature_id}.md` — single source of truth for the active feature (key decisions, files changed, stage progress)
 

@@ -46,7 +46,7 @@ The domain layer must remain platform-independent.
 
 ## Output
 
-Update `coding/coding_report_v<N>.md` with a Domain Layer section:
+Update `docs/current/coding_report_v<N>.md` with a Domain Layer section:
 ```
 ## Domain Layer Changes
 

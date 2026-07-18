@@ -6,7 +6,7 @@ description: Verifies Android UI screens visually and interactively using screen
 # Skill — UI Verification
 
 ## Purpose
-Verify that the implemented UI renders correctly and matches the design specified in `spec_t<taskId>.md`.
+Verify that the implemented UI renders correctly and matches the design specified in `spec_v<N>.md`.
 This stage runs after implementation is complete and before (or as part of) the code review.
 
 Use the cheapest reliable check first — build and static analysis → instrumented UI tests → visual screenshot verification.
@@ -16,9 +16,9 @@ Use the cheapest reliable check first — build and static analysis → instrume
 ## Load
 - `skills/android-ui-verification/SKILL.md`
 - `rules/android-architecture.md` — ensure no layer violations (UI importing data classes, etc.)
-- `request_analysis/spec_t<taskId>.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
-- `request_analysis/design/` — **original design screenshots** provided by the user in the Requirement, Impact & Design Analysis stage (e.g. `design.png`)
-- `coding/implementation_plan_t<taskId>.md` — list of changed Composables
+- `docs/current/spec_v<N>.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
+- `docs/current/design/` — **original design screenshots** provided by the user in the Requirement, Impact & Design Analysis stage (e.g. `design.png`)
+- `docs/current/implementation_plan_v<N>.md` — list of changed Composables
 
 ---
 
@@ -70,10 +70,10 @@ adb shell input swipe 540 1200 540 400
 adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml
 ```
 
-**Compare every text string** against the design in `spec_t<taskId>.md`. Record any mismatches.
+**Compare every text string** against the design in `spec_v<N>.md`. Record any mismatches.
 
 ### 4. Side-by-side comparison against original design screenshot
-Locate the original design screenshot from `request_analysis/design/` (uploaded in the Requirement, Impact & Design Analysis stage).
+Locate the original design screenshot from `docs/current/design/` (uploaded in the Requirement, Impact & Design Analysis stage).
 
 For each screen state that has a reference design:
 1. Place the original design screenshot and the captured `screenshot.png` side by side.
@@ -90,7 +90,7 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 
 ### 5. Checklist — what to verify
 - [ ] Screen is shown with no crash
-- [ ] All text strings match the design (`spec_t<taskId>.md`)
+- [ ] All text strings match the design (`spec_v<N>.md`)
 - [ ] Correct content renders from mocked / real data
 - [ ] CTAs visible and correctly enabled/disabled per state
 - [ ] Loading / empty / error / success states all render
@@ -104,7 +104,7 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 
 ## Output
 
-Produce `coding/ui_verification.md`:
+Produce `docs/current/ui_verification.md`:
 ```
 ## UI Verification — v<N>
 
@@ -132,7 +132,7 @@ Produce `coding/ui_verification.md`:
 PASS / FAIL — <reason if fail>
 ```
 
-Update `summary_t<taskId>.md`: mark UI Verification stage complete.
+Update `docs/current/summary_v<N>.md`: mark UI Verification stage complete.
 
 ---
 
@@ -145,7 +145,7 @@ Update `summary_t<taskId>.md`: mark UI Verification stage complete.
 - [ ] All text strings verified against design — no unresolved mismatches
 - [ ] Actual screenshot compared against original design screenshot — no unresolved visual deviations (or SKIPPED with reason)
 - [ ] All UiState variants (loading, success, empty, error) confirmed rendering correctly
-- [ ] `coding/ui_verification.md` exists with verdict filled in
+- [ ] `docs/current/ui_verification.md` exists with verdict filled in
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

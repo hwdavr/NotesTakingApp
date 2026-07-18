@@ -22,8 +22,8 @@ For trivially small changes, skip this stage and go directly to the Implementati
 - `docs/templates/progress-template.md`
 - `docs/templates/sprint-contract-template.md`
 - **Requirement input** — read the path from the active workflow's `Input:` line:
-  - harness-planning workflow → `docs/current/requirement-summary.md`
-  - Other workflows → `request_analysis/spec_t<taskId>.md`
+  - harness-planning workflow → `docs/current/spec.md` (+ `docs/current/design.md` if present)
+  - Other workflows → `docs/current/spec_v<N>.md`
 
 ---
 
@@ -94,7 +94,7 @@ Write the **sprint contract** following `docs/templates/sprint-contract-template
 
 Output paths are defined by the calling workflow:
 - **harness-planning workflow** → `docs/current/feature_list.json`, `docs/current/progress.md`, and `docs/current/sprint-contract.md`
-- **Other workflows** → `request_analysis/feature_list.json`, `coding/progress.md`, and `request_analysis/sprint-contract.md`
+- **Other workflows** → `docs/current/feature_list.json`, `docs/current/progress.md`, and `docs/current/sprint-contract.md`
 
 Pre-populate the task list with all slices.
 Set Feature 1 to `in_progress`, all others to `not_started`.

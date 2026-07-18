@@ -51,6 +51,24 @@ Always test `NoteDetailContent` (stateless) — not `NoteDetailScreen` (stateful
 
 ---
 
+## Screen File Boundaries
+
+Each screen must live in its own Compose source file.
+
+Allowed:
+- `EditorScreen.kt` contains `EditorScreen`, `EditorContent`, and private helpers used only by that screen
+- `ProjectListScreen.kt` contains `ProjectListScreen`, `ProjectListContent`, and private helpers used only by that screen
+- Shared or repeated UI is extracted to focused files under `components/`
+
+Not allowed:
+- Multiple independent screens in one Kotlin file
+- A single catch-all UI file that contains an entire feature flow
+- Putting screen-specific implementations for unrelated destinations into one file because they share navigation or tab state
+
+If a screen grows too large, extract sections into screen-owned files or reusable components. Do not combine screens into one file to avoid creating new files.
+
+---
+
 ## Test Tags
 
 Add `Modifier.testTag(...)` to all:

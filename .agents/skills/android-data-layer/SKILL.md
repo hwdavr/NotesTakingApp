@@ -64,7 +64,7 @@ If local storage is affected:
 - Updated / created mapper
 - Updated `sharedContracts/openapi.yaml` (if API changed)
 
-Produce `coding/coding_report_v<N>.md`:
+Produce `docs/current/coding_report_v<N>.md`:
 ```
 ## Coding Report — Data Layer — v<N>
 

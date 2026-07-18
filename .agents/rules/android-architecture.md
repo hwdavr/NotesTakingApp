@@ -146,6 +146,7 @@ These are never allowed without explicit architectural justification:
 - Adding feature logic without tests
 - AI-generated code merged without review
 - Fully-qualified class names used inline in **any** file — production **or** test code (e.g. `com.example.Foo()` in function bodies, `io.mockk.mockk` in property declarations) — always use `import` at the top of the file
+- Wildcard imports (e.g., `import com.example.*`) and unsorted imports — always keep imports clean and sorted alphabetically according to standard Android Studio / Ktlint guidelines
 
 ---
 

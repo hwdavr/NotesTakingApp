@@ -67,7 +67,7 @@ Updated / created:
 - Navigation graph (if changed)
 - `strings.xml` (for all new copy)
 
-Update `coding/coding_report_v<N>.md` with a UI Layer section:
+Update `docs/current/coding_report_v<N>.md` with a UI Layer section:
 ```
 ## UI Layer Changes
 

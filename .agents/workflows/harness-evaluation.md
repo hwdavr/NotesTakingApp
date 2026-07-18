@@ -32,7 +32,7 @@ When a feature is submitted for review, execute these steps in order:
 **INVOKE** the `android-test-review` skill via the Skill tool (name: `android-test-review`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism. Evaluate test coverage, assertions, and shared JSON scenario completeness. Do not stop after this stage — proceed immediately to Stage 3.
 
 **Output**:
-- Test review report: `docs/current/coding/review/test_review_t<taskId>_v<N>.md`
+- Test review report: `docs/current/test_review_v<N>.md`
 - If no change directory exists: `test_review_v<N>.md` in the project root
 
 ---
@@ -41,7 +41,7 @@ When a feature is submitted for review, execute these steps in order:
 **INVOKE** the `android-code-review` skill via the Skill tool (name: `android-code-review`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism. Perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
 **Output**:
-- Code review report: `docs/current/coding/review/code_review_t<taskId>_v<N>.md`
+- Code review report: `docs/current/code_review_v<N>.md`
 - If no change directory exists: `code_review_v<N>.md` in the project root
 
 ---

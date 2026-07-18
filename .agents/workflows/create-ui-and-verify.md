@@ -16,12 +16,12 @@ Use this workflow when:
 ### Stage 1 — UI Implementation
 **INVOKE** the `android-ui-layer` skill via the Skill tool (name: `android-ui-layer`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
-Implement the UI changes. Save the provided design screenshot to `request_analysis/design/` before starting.
+Implement the UI changes. Save the provided design screenshot to `docs/current/design/` before starting.
 
 ### Stage 2 — UI Verification ↩️ Loop
 **INVOKE** the `ui-verification` skill via the Skill tool (name: `ui-verification`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
-Compare the implemented UI against the original design screenshot in `request_analysis/design/`.
+Compare the implemented UI against the original design screenshot in `docs/current/design/`.
 
 **Loop rule — if verification FAILS:**
 - Return to **Stage 1 — UI Implementation** to fix the implementation.

@@ -23,8 +23,8 @@ Load before starting (android-test-review SKILL.md context should already be loa
 - `rules/api-contract-rules.md` *(if API or data layer changed)*
 - `rules/analytics-rules.md`   *(if analytics events changed)*
 - `gates/review-checklist.md`
-- `coding/coding_report_t<taskId>_v<N>.md`
-- `request_analysis/spec_t<taskId>.md` (for design compliance)
+- `docs/current/coding_report_v<N>.md`
+- `docs/current/spec_v<N>.md` (for design compliance)
 
 ---
 
@@ -54,7 +54,7 @@ Record the exit code and any flagged violations from all three scripts in the **
 
 ### 2. Architecture & Design Validation
 
-Review every changed file against the designs in `spec_t<taskId>.md`:
+Review every changed file against the designs in `spec_v<N>.md`:
 - **UiState compliance**: Does the implementation match the designed `UiState`?
 - **Layer boundary check**:
   - UI → Presentation only
@@ -235,7 +235,7 @@ Verify secrets, PII logging, and backward compatibility.
 ## Output
 
 Produce:
-- `coding/review/code_review_t<taskId>_v<N>.md` by copying and filling in the template from `docs/templates/code-review-template.md`.
+- `docs/current/code_review_v<N>.md` by copying and filling in the template from `docs/templates/code-review-template.md`.
 
 ---
 
@@ -262,5 +262,5 @@ All conditions must pass before returning to the workflow:
 - [ ] `api-contract-rules.md` — all checks PASS or N/A
 - [ ] `analytics-rules.md` — all checks PASS or N/A
 - [ ] `gates/review-checklist.md` — every item marked PASS or N/A
-- [ ] UI matches the designed states in `spec_t<taskId>.md`
-- [ ] `coding/review/code_review_t<taskId>_v<N>.md` exists with all sections completed and overall verdict filled in
+- [ ] UI matches the designed states in `spec_v<N>.md`
+- [ ] `docs/current/code_review_v<N>.md` exists with all sections completed and overall verdict filled in

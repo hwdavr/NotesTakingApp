@@ -14,9 +14,9 @@ The article principle: "Every time you discover an agent has made a mistake, you
 
 ## Load
 - `skills/documentation-and-adrs/SKILL.md`
-- `coding/review/code_review_t<taskId>_v<N>.md` (Code Review stage output)
-- `coding/review/test_review_t<taskId>_v<N>.md` (Test Review stage output)
-- `summary_t<taskId>.md` (full change history)
+- `docs/current/code_review_v<N>.md` (Code Review stage output)
+- `docs/current/test_review_v<N>.md` (Test Review stage output)
+- `docs/current/summary_v<N>.md` (full change history)
 
 ---
 
@@ -47,8 +47,8 @@ Ask: "Is there a constraint we followed in this change that should be encoded in
 ### 5. Update shared JSON scenarios
 If new or changed scenarios were created, confirm they are committed to `sharedContracts/test-scenarios/` and cross-referenced with the endpoint in `sharedContracts/openapi.yaml`.
 
-### 6. Finalize summary_t<taskId>.md
-Update `summary_t<taskId>.md` to mark all stages complete and record the final state:
+### 6. Finalize docs/current/summary_v<N>.md
+Update `docs/current/summary_v<N>.md` to mark all stages complete and record the final state:
 ```
 ## Change Summary — <name>
 
@@ -72,7 +72,7 @@ Zero or more of:
 - `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md`
 - `docs/knowledge/pitfalls/<slug>.md`
 - Updated `rules/<rule-file>.md`
-- Finalized `summary_t<taskId>.md`
+- Finalized `docs/current/summary_v<N>.md`
 - Updated `docs/current/progress.md` (if a sliced plan is active)
 
 ---
@@ -85,7 +85,7 @@ Zero or more of:
 - [ ] Any **non-obvious, hard-to-diagnose, or systemic** bug is recorded in `docs/knowledge/past-bugs/` (routine/simple bugs are explicitly excluded)
 - [ ] Any non-obvious pitfall is recorded in `docs/knowledge/pitfalls/`
 - [ ] `rules/` files updated if a coding convention changed
-- [ ] `summary_t<taskId>.md` is finalized with all stages marked ✅ Complete
+- [ ] `docs/current/summary_v<N>.md` is finalized with all stages marked ✅ Complete
 - [ ] `docs/current/progress.md` is updated to mark the completed task as ✅ Complete (if a sliced plan is active)
 
 **APPROVED →** Change is complete. Notify the user that the workflow pipeline is done.
