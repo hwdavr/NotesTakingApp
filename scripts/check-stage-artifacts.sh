@@ -3,7 +3,7 @@
 #
 # Usage: bash scripts/check-stage-artifacts.sh <workflow> <stage>
 #   workflow: feature-delivery | bug-fixing | api-contract-update | harness-planning | create-ui-and-verify
-#   stage:    requirement-analysis | implementation-plan | requirement-capture | slice-planning
+#   stage:    requirement-analysis | implementation-plan | feature-specification | slice-planning
 #
 # Exits 0 if required artifacts are present, 1 otherwise.
 # Designed to run on macOS /bin/bash (Bash 3.2) — no mapfile, no arrays with set -u.
@@ -17,7 +17,7 @@ DOCS_DIR="docs/current"
 if [ -z "$WORKFLOW" ] || [ -z "$STAGE" ]; then
   echo "Usage: $0 <workflow> <stage>" >&2
   echo "Workflows: feature-delivery, bug-fixing, api-contract-update, harness-planning, create-ui-and-verify" >&2
-  echo "Stages: requirement-analysis, implementation-plan, requirement-capture, slice-planning" >&2
+  echo "Stages: requirement-analysis, implementation-plan, feature-specification, slice-planning" >&2
   exit 2
 fi
 
@@ -73,8 +73,11 @@ case "$WORKFLOW/$STAGE" in
     require_file "implementation_plan_v*.md" "implementation plan"
     require_file "test_plan_v*.md" "test plan"
     ;;
-  harness-planning/requirement-capture)
-    require_file "requirement-summary.md" "requirement summary"
+  harness-planning/feature-specification)
+    require_file "spec.md" "feature specification"
+    if grep -q "Screen States" "$DOCS_DIR/spec.md" || (git diff --name-only HEAD 2>/dev/null | grep -q "/ui/"); then
+      require_file "design.md" "design specification"
+    fi
     ;;
   harness-planning/slice-planning)
     require_file "feature_list.json" "feature list"
@@ -93,7 +96,7 @@ case "$WORKFLOW/$STAGE" in
     echo "  bug-fixing/implementation-plan" >&2
     echo "  api-contract-update/requirement-analysis" >&2
     echo "  api-contract-update/implementation-plan" >&2
-    echo "  harness-planning/requirement-capture" >&2
+    echo "  harness-planning/feature-specification" >&2
     echo "  harness-planning/slice-planning" >&2
     echo "  create-ui-and-verify/* (no gates)" >&2
     exit 2

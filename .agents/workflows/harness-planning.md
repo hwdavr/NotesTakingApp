@@ -28,9 +28,9 @@ Each planned feature in the list must represent a clean, end-to-end user-visible
 Objective:
 - Classify the task type (new screen, enhancement, or logic-only change).
 - Ask targeted clarifying questions in chat until every material ambiguity is resolved.
-- Write `docs/current/spec.md` (always) and `docs/current/design.md` (only for new screens or major UI flows).
+- Write `docs/current/spec.md` (always) and `docs/current/design.md` (for new screens or UI enhancements/flows).
 
-Output: `docs/current/spec.md` (+ `docs/current/design.md` if new screen)
+Output: `docs/current/spec.md` + `docs/current/design.md` (if the change includes UI modifications)
 Gate: Run `bash scripts/check-stage-artifacts.sh harness-planning feature-specification` — must exit 0. **STOP — present artifacts to user. Do not proceed until user explicitly approves.**
 
 ### Stage 2 — Slice Planning ⛔ STOP FOR APPROVAL

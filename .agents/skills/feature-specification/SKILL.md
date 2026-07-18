@@ -17,7 +17,7 @@ This skill replaces both `screen-specification` and `requirement-capture`. It ad
 | Task Type | `spec.md` | `design.md` | Screen-specific spec sections |
 |-----------|-----------|-------------|-------------------------------|
 | New screen or major UI flow | ✅ Full | ✅ Full | ✅ Include |
-| Enhancement to existing screen | ✅ Full | ❌ Skip | ⚠️ Only changed parts |
+| Enhancement to existing screen | ✅ Full | ✅ Full (if UI changed) / ❌ Skip (if logic-only) | ⚠️ Only changed parts |
 | Pure logic/behavior change | ✅ Full | ❌ Skip | ❌ Skip |
 
 Do not plan implementation slices. Do not write code. Do not invent missing product decisions.
