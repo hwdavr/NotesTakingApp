@@ -2,12 +2,12 @@ package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.data.local.NoteEntity
-import com.example.notesapp.domain.folder.CategorizeNoteUseCase
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderCategorizer
+import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
 import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
-import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import io.mockk.mockk

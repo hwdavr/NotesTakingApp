@@ -3,14 +3,14 @@ package com.example.notesapp.ui.editor.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesapp.domain.folder.CategorizeNoteUseCase
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.summary.NoteSummaryResult
-import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock

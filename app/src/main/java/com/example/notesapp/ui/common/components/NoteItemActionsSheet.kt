@@ -67,7 +67,7 @@ fun NoteItemActionsSheet(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Description,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.editor_note_icon_description),
                     tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
@@ -90,24 +90,34 @@ fun NoteItemActionsSheet(
                         R.string.folders_add_to_favorites_action
                     }
                 ),
+                iconDescription = stringResource(
+                    if (note.isFavorite) {
+                        R.string.folders_remove_from_favorites_action
+                    } else {
+                        R.string.folders_add_to_favorites_action
+                    }
+                ),
                 onClick = onAddToFavorites,
                 modifier = Modifier.testTag("add_to_favorites_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Folder,
                 label = stringResource(R.string.folders_move_to_action),
+                iconDescription = stringResource(R.string.folders_move_to_action),
                 onClick = onMoveTo,
                 modifier = Modifier.testTag("move_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Edit,
                 label = stringResource(R.string.folders_rename_action),
+                iconDescription = stringResource(R.string.folders_rename_action),
                 onClick = onRename,
                 modifier = Modifier.testTag("rename_item_action")
             )
             SheetActionRow(
                 icon = Icons.Outlined.Archive,
                 label = stringResource(R.string.folders_delete_action),
+                iconDescription = stringResource(R.string.folders_delete_action),
                 onClick = onDelete,
                 iconTint = colors.error,
                 textColor = colors.error,
@@ -121,6 +131,7 @@ fun NoteItemActionsSheet(
 fun SheetActionRow(
     icon: ImageVector,
     label: String,
+    iconDescription: String = label,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     iconTint: Color = LocalAppColors.current.textSecondary,
@@ -137,7 +148,7 @@ fun SheetActionRow(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = iconDescription,
             tint = iconTint,
             modifier = Modifier.size(18.dp)
         )

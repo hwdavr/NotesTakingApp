@@ -1,5 +1,6 @@
 package com.example.notesapp.domain.folder
 
+import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest

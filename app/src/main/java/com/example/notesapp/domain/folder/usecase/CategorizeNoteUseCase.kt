@@ -1,5 +1,7 @@
-package com.example.notesapp.domain.folder
+package com.example.notesapp.domain.folder.usecase
 
+import com.example.notesapp.domain.folder.Folder
+import com.example.notesapp.domain.folder.FolderCategorizer
 import javax.inject.Inject
 
 class CategorizeNoteUseCase @Inject constructor(

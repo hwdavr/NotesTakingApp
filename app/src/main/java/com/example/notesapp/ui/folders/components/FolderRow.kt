@@ -20,7 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.notesapp.R
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
@@ -47,7 +49,11 @@ fun FolderRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(Icons.Outlined.Folder, contentDescription = null, tint = LocalAppColors.current.textPrimary)
+            Icon(
+                Icons.Outlined.Folder,
+                contentDescription = stringResource(R.string.folders_folder_icon_description),
+                tint = LocalAppColors.current.textPrimary
+            )
             Text(text = name, color = LocalAppColors.current.textPrimary, style = MaterialTheme.typography.bodyLarge)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -66,14 +72,14 @@ fun FolderRow(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add sub-item",
+                        contentDescription = stringResource(R.string.folders_add_subfolder_description),
                         modifier = Modifier.padding(6.dp)
                     )
                 }
             } else {
                 Icon(
                     Icons.Outlined.ChevronRight,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.folders_open_folder_description),
                     tint = LocalAppColors.current.textSecondary
                 )
             }

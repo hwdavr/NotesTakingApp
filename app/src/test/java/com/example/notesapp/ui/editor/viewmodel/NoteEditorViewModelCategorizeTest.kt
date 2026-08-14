@@ -1,12 +1,12 @@
 package com.example.notesapp.ui.editor.viewmodel
 
 import com.example.notesapp.base.BaseViewModelTest
-import com.example.notesapp.domain.folder.CategorizeNoteUseCase
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
-import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

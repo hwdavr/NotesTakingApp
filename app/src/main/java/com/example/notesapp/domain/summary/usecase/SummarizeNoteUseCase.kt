@@ -1,5 +1,7 @@
-package com.example.notesapp.domain.summary
+package com.example.notesapp.domain.summary.usecase
 
+import com.example.notesapp.domain.summary.NoteSummarizer
+import com.example.notesapp.domain.summary.NoteSummaryResult
 import javax.inject.Inject
 
 private const val MIN_SUMMARY_INPUT_CHARS = 400

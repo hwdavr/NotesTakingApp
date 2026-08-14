@@ -15,8 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.notesapp.R
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
@@ -31,7 +33,7 @@ fun NoteRow(title: String, preview: String, depth: Int, onClick: () -> Unit, mod
     ) {
         Icon(
             imageVector = Icons.Outlined.Description,
-            contentDescription = null,
+            contentDescription = stringResource(R.string.folders_note_icon_description),
             tint = LocalAppColors.current.textSecondary,
             modifier = Modifier.size(18.dp)
         )

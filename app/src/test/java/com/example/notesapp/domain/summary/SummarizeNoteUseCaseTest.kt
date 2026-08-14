@@ -1,5 +1,6 @@
 package com.example.notesapp.domain.summary
 
+import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -102,7 +102,10 @@ fun ExportNoteScreen(
                         onClick = onBack,
                         modifier = Modifier.testTag("export_back_button")
                     ) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                        Icon(
+                            Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.editor_back_description)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

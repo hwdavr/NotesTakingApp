@@ -16,6 +16,8 @@
     <string name="folders_expand_folder_description">Folder contents</string>
     <string name="folders_folder_icon_description">Folder</string>
     <string name="folders_note_icon_description">Note</string>
+    <string name="folders_open_folder_description">Open folder</string>
+    <string name="folders_add_subfolder_description">Add subfolder</string>
     <string name="folders_add_folder_action">Add folder</string>
     <string name="folders_add_subfolder_action">Add Subfolder</string>
     <string name="folders_add_note_action">Add Note</string>
@@ -140,6 +142,8 @@
     <string name="editor_checkbox_action_description">Toggle Checkbox</string>
     <string name="editor_share_description">Share note</string>
     <string name="editor_more_description">More options</string>
+    <string name="editor_back_description">Back</string>
+    <string name="editor_note_icon_description">Note</string>
     <string name="editor_add_paragraph_description">Add paragraph</string>
     <string name="editor_link_description">Link</string>
     <string name="editor_mention_description">Mention</string>
