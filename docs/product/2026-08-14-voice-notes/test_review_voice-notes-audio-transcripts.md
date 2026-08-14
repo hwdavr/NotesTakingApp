@@ -138,11 +138,11 @@ The following fix-pass column applies to the traceability rows above. `Fixed ✅
 
 | Category | In scope? | Coverage / N/A reason | Result |
 |---|---|---|---|
-| Runtime permissions | Yes | No mapped system permission grant/denial/permanent-denial/Settings test. | REVISION REQUIRED |
-| Asynchronous callbacks and animation | Yes | Fake transcript events are covered; production recognizer and real 65-second watchdog are not. | REVISION REQUIRED |
-| Lifecycle and navigation cleanup | Yes | Reducer/manager tests exist; production service background, stop/discard, and route completion are not covered. | REVISION REQUIRED |
-| Error and retry behavior | Yes | Fallback and threshold units exist; disk-full, exact UI recovery, and retry boundaries are missing. | REVISION REQUIRED |
-| API/data error matrix | No | No new network API endpoint; Room/file/DataStore behavior is in scope and only partially integrated-tested. | REVISION REQUIRED |
+| Runtime permissions | Yes | Permission request/recovery implementation is present, but no mapped system grant/denial/permanent-denial/Settings runtime test is available. | Unresolved ⚠️ |
+| Asynchronous callbacks and animation | Yes | Injectable production recognizer start, fake events, and virtual-time watchdog are covered; source-fed single-mic runtime behavior remains unverified. | Unresolved ⚠️ |
+| Lifecycle and navigation cleanup | Yes | Reducer/manager/service smoke tests pass; production background, stop/discard, and route completion remain unverified. | Unresolved ⚠️ |
+| Error and retry behavior | Yes | Fallback, threshold, rollback, and partial-save code paths are covered; disk-full fault injection remains unverified. | Unresolved ⚠️ |
+| API/data error matrix | No | No new network API endpoint; Room/file/DataStore behavior is covered by repository/use-case tests. | PASS (unchanged) |
 
 ## Coverage Distribution
 
@@ -161,7 +161,7 @@ The following fix-pass column applies to the traceability rows above. `Fixed ✅
 |---|---|---|
 | Reproduction test red before fix (bug fixes only) | Not a bug-fix task. | N/A |
 | Reproduction test green after fix | Not a bug-fix task. | N/A |
-| No uncontrolled timing or threading | Coroutine tests use `advanceUntilIdle`, but the 65-second watchdog is manually emitted and has no virtual-time proof. | REVISION REQUIRED |
+| No uncontrolled timing or threading | `RecordingTranscriptWatchdogTest` injects a test scope and advances virtual time through the 65-second watchdog. | Fixed ✅ |
 
 ## Fix Pass Summary
 

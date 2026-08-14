@@ -153,7 +153,7 @@ The new private audio is stored in `files/voice-notes`, while the manifest retai
 | 1.2 render-only/no formatting | ✅ | Byte/file-size presentation mapping is outside the Composables. |
 | 1.3 no ViewModel in Content | ✅ | Scripted checker passed. |
 | 1.4 no repository/use-case calls in Composable | ✅ | Scripted checker passed. |
-| 1.5 no business/data transformation | ❌ | Byte/file-size formatting remains in Composables. |
+| 1.5 no business/data transformation | ✅ | Byte/file-size conversion is in presentation helpers; Composables only render localized output. |
 | 1.6 no hardcoded strings | ✅ | Scripted checker passed for production Compose files. |
 | 1.7 no hardcoded colors | ✅ | Scripted checker passed. |
 | 2.1 Screen/Content pair | ✅ | New screen wrappers and Content functions are present. |
@@ -172,7 +172,7 @@ The new private audio is stored in `files/voice-notes`, while the manifest retai
 | 6.3 one visual responsibility | ✅ | No cross-screen component mixing found. |
 | 7.1 lowest-common-ancestor state | ✅ | ViewModel owns durable flow state; Content receives callbacks. |
 | 7.2 no unnecessary hoisting | ✅ | No material violation found. |
-| 7.3 no remember in Content | ❌ | `VoiceRecorderContent` calls `rememberScrollState()`. |
+| 7.3 no remember in Content | ✅ | Scroll state is owned by `VoiceRecorderScreen` and passed to Content. |
 | 8.1 LazyColumn for lists | N/A | Waveform has a fixed 64-bar visual row, not an unbounded list. |
 | 8.2 stable parameter types | ✅ | Feature Content uses stable domain/UI state types. |
 | 8.3 stable keys in lazy lists | N/A | No new feature lazy list. |
@@ -205,7 +205,7 @@ The new private audio is stored in `files/voice-notes`, while the manifest retai
 | Package placement | ✅ | Global architecture scan is green after moving the two use cases into canonical `usecase/` folders. |
 | Fully-qualified inline names | ✅ | Scripted checker passed. |
 | Matching tests for ViewModels | ✅ | Scripted checker passed. |
-| Domain business logic outside UI | ❌ | Voice/UI byte formatting remains in Composables; move to presentation mapping. |
+| Domain business logic outside UI | ✅ | Voice/UI byte formatting now uses presentation mapping. |
 
 ### Navigation / API / Analytics
 
