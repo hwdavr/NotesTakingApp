@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VoiceNoteBlockDao {
@@ -25,4 +26,10 @@ interface VoiceNoteBlockDao {
 
     @Query("DELETE FROM voice_note_blocks WHERE noteId = :noteId")
     suspend fun deleteForNote(noteId: String)
+
+    @Query("SELECT COALESCE(SUM(fileSizeBytes), 0) FROM voice_note_blocks WHERE audioFilePath IS NOT NULL")
+    fun observeTotalAudioBytes(): Flow<Long>
+
+    @Query("SELECT COUNT(*) FROM voice_note_blocks WHERE audioFilePath IS NOT NULL")
+    fun observeAudioRecordingCount(): Flow<Int>
 }

@@ -9,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.notesapp.ui.settings.viewmodel.SettingsAudioFormat
+import com.example.notesapp.ui.settings.viewmodel.VoiceStorageUiState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,6 +25,9 @@ class SettingsScreenTest {
         composeRule.setContent {
             SettingsScreenContent(
                 parentPadding = PaddingValues(0.dp),
+                voiceAudioFormat = SettingsAudioFormat.AAC,
+                voiceStorage = VoiceStorageUiState(),
+                onVoiceAudioFormatSelected = {},
                 onLogout = {}
             )
         }
@@ -64,6 +69,9 @@ class SettingsScreenTest {
             SettingsScreenContent(
                 parentPadding = PaddingValues(0.dp),
                 profileTitle = "user@example.com",
+                voiceAudioFormat = SettingsAudioFormat.AAC,
+                voiceStorage = VoiceStorageUiState(),
+                onVoiceAudioFormatSelected = {},
                 onLogout = {}
             )
         }

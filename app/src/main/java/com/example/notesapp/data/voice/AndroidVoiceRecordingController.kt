@@ -8,6 +8,7 @@ import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStartRequest
 import com.example.notesapp.domain.voice.VoiceRecordingController
+import com.example.notesapp.domain.voice.VoiceSettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
@@ -19,20 +20,22 @@ class AndroidVoiceRecordingController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val audioFileSystem: AudioFileSystem,
     private val sessionManager: RecordingSessionManager,
-    private val stateStore: RecordingStateStore
+    private val stateStore: RecordingStateStore,
+    private val voiceSettingsRepository: VoiceSettingsRepository
 ) : VoiceRecordingController {
     override val state: StateFlow<RecordingSessionState> = stateStore.state
 
     override fun start(request: RecordingStartRequest) {
         val sessionId = UUID.randomUUID().toString()
         val blockId = request.blockId.ifBlank { UUID.randomUUID().toString() }
-        val file = audioFileSystem.createRecordingFile(request.noteId, blockId, request.format)
+        val selectedFormat = voiceSettingsRepository.currentAudioFormat()
+        val file = audioFileSystem.createRecordingFile(request.noteId, blockId, selectedFormat)
         val metadata = RecordingSessionMetadata(
             sessionId = sessionId,
             noteId = request.noteId,
             blockId = blockId,
             audioFilePath = file.absolutePath,
-            format = request.format,
+            format = selectedFormat,
             entryPoint = request.entryPoint
         )
         val active = sessionManager.replace(metadata) { oldSession ->

@@ -79,6 +79,19 @@
     <string name="settings_share_action">Share</string>
     <string name="settings_privacy_policy_action">Privacy Policy</string>
     <string name="settings_terms_of_use_action">Terms of Use</string>
+    <string name="settings_voice_notes_section_title">Voice Notes</string>
+    <string name="settings_voice_storage_used">Total storage used</string>
+    <string name="settings_voice_storage_helper">Audio files for all saved voice notes.</string>
+    <string name="settings_voice_audio_format">Audio format</string>
+    <string name="settings_voice_audio_format_helper">AAC: wider device support · OPUS: smaller speech files.</string>
+    <string name="settings_voice_aac_quality">AAC · 128 kbps · M4A</string>
+    <string name="settings_voice_opus_quality">OPUS · 32 kbps · OGG</string>
+    <string name="settings_voice_format_aac_label">AAC</string>
+    <string name="settings_voice_format_opus_label">OPUS</string>
+    <string name="settings_voice_storage_zero">0 B</string>
+    <string name="settings_voice_storage_kilobytes">%d KB</string>
+    <string name="settings_voice_storage_megabytes">%.1f MB</string>
+    <string name="settings_voice_storage_gigabytes">%.1f GB</string>
     <string name="home_recent_folders">Recent folders</string>
     <string name="home_shared_pill">Shared</string>
     <string name="home_search_placeholder">Search your notes&#8230;</string>
@@ -246,4 +259,8 @@
     <string name="editor_voice_delete_audio_message">The transcript text will remain as editable note content. Audio cannot be recovered after deletion.</string>
     <string name="editor_voice_delete_audio_action">Delete</string>
     <string name="editor_voice_audio_missing">Audio file missing</string>
+    <plurals name="settings_voice_storage_recordings">
+        <item quantity="one">%d recording</item>
+        <item quantity="other">%d recordings</item>
+    </plurals>
 </resources>

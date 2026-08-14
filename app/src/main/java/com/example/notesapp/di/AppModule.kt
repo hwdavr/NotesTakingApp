@@ -17,6 +17,7 @@ import com.example.notesapp.data.repository.JsonVoiceNoteDocumentStore
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
 import com.example.notesapp.data.repository.VoiceNoteRepositoryImpl
+import com.example.notesapp.data.repository.VoiceSettingsRepositoryImpl
 import com.example.notesapp.data.summary.AicoreFolderCategoryPromptClient
 import com.example.notesapp.data.summary.FolderTextEmbeddingClient
 import com.example.notesapp.data.summary.GeminiNanoFolderCategoryPromptClient
@@ -41,6 +42,7 @@ import com.example.notesapp.domain.voice.StorageInfoProvider
 import com.example.notesapp.domain.voice.VoiceNoteDocumentStore
 import com.example.notesapp.domain.voice.VoiceNoteRepository
 import com.example.notesapp.domain.voice.VoiceRecordingController
+import com.example.notesapp.domain.voice.VoiceSettingsRepository
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.util.NoteExporter
@@ -76,6 +78,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindVoiceNoteRepository(impl: VoiceNoteRepositoryImpl): VoiceNoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceSettingsRepository(impl: VoiceSettingsRepositoryImpl): VoiceSettingsRepository
 
     @Binds
     @Singleton

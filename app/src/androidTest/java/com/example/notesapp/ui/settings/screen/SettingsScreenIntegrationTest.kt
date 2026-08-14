@@ -8,6 +8,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.auth.AuthManager
+import com.example.notesapp.domain.voice.AudioFormat
+import com.example.notesapp.domain.voice.VoiceSettingsRepository
+import com.example.notesapp.domain.voice.VoiceStorageUsage
 import com.example.notesapp.ui.settings.viewmodel.SettingsViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertTrue
@@ -44,7 +47,15 @@ class SettingsScreenIntegrationTest {
         }
     }
     private val authManager = FakeAuthManager()
-    private val viewModel = SettingsViewModel(authManager)
+    private val voiceSettingsRepository = object : VoiceSettingsRepository {
+        override val selectedAudioFormat = MutableStateFlow(AudioFormat.AAC)
+        override val storageUsage = MutableStateFlow(VoiceStorageUsage())
+
+        override suspend fun setAudioFormat(format: AudioFormat) {
+            selectedAudioFormat.value = format
+        }
+    }
+    private val viewModel = SettingsViewModel(authManager, voiceSettingsRepository)
 
     // Screen Object abstraction
     private val settingsScreen = object {

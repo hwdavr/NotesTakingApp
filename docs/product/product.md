@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | In Progress | 2026-08-14 | US-1 recording core, US-2 progressive transcription/fallback, and US-3 Home/editor entry points are passing with API-33 evidence; US-4/US-5 remain, and US-5 owns final Light Theme visual verification. |
+| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be reviewed | 2026-08-15 | US-1 through US-5 are passing with API-33 evidence; final Light Theme captures cover Home, Recorder, Editor, and Settings. Evaluator review is pending. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -80,7 +80,7 @@ Lifecycle rules:
 | Downloading & Status Handling | ✅ Done | Handles model download states, progress updates, and fallback mechanisms. |
 | Summary Card Component | ✅ Done | Renders generated summaries directly within the note editor interface. |
 
-### 🚧 Voice Notes & Audio Transcripts
+### ✅ Voice Notes & Audio Transcripts
 
 | Feature | Status | Notes |
 |---|---|---|
@@ -88,7 +88,7 @@ Lifecycle rules:
 | Progressive transcription with safe fallback (US-2) | ✅ Done | Overlapping partial/final transcript preview, timeout/failure markers, model-unavailable audio-only fallback, and cancellation cleanup. |
 | Home/editor recording entry points (US-3) | ✅ Done | Home Create sheet allocates a placeholder before recording; editor Mic opens the recorder with note/focus context; context switches cleanly replace active Home sessions. |
 | Inline editor persistence and playback (US-4) | ✅ Done | Room-backed VoiceNote metadata, focused/Home document insertion, editable transcript TextBlocks, Media3 playback/seek, audio-only deletion, and private-file cascade cleanup. |
-| Voice Notes settings and final visual verification (US-5) | 🚧 Planned | AAC/OPUS settings and final Light Theme cross-surface verification remain the next approved slice. |
+| Voice Notes settings and final visual verification (US-5) | ✅ Done | DataStore-backed AAC/OPUS selection, Room-derived private storage totals, recorder format wiring, and Light Theme evidence across Home, Recorder, Editor, and Settings. |
 
 ### ✅ Note Sharing & Access Control
 
@@ -125,7 +125,6 @@ Lifecycle rules:
 ## Roadmap — Planned Features
 
 ### Group 1 — Rich Content & Attachments
-- **Voice Notes & Audio Transcripts**: US-1 through US-4 are delivered, including inline Room persistence, editable transcripts, Media3 playback, and private-file cleanup; Voice Notes settings and final visual verification remain planned in US-5.
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 
@@ -150,7 +149,7 @@ Lifecycle rules:
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
 | **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
-| **Voice Notes** | 🚧 In Progress | US-1 through US-4: private recording, progressive transcription/fallback, Home/editor entry points, Room-backed inline VoiceNote playback, editable transcripts, and local cleanup; US-5 settings/final visual verification remains |
+| **Voice Notes** | ✅ Shipped | Private recording, progressive transcription/fallback, Home/editor entry points, Room-backed inline VoiceNote playback, editable transcripts, local cleanup, AAC/OPUS settings, storage totals, and final Light Theme verification |
 
 ---
 
@@ -162,4 +161,4 @@ Lifecycle rules:
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
 
-*Document last updated: 2026-08-14*
+*Document last updated: 2026-08-15*

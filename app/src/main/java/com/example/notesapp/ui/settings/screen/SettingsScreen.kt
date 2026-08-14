@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -48,14 +49,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.ui.settings.viewmodel.SettingsAudioFormat
 import com.example.notesapp.ui.settings.viewmodel.SettingsViewModel
+import com.example.notesapp.ui.settings.viewmodel.VoiceStorageUiState
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @Composable
@@ -69,6 +76,9 @@ fun SettingsScreen(
     SettingsScreenContent(
         parentPadding = parentPadding,
         profileTitle = uiState.profileTitle,
+        voiceAudioFormat = uiState.voiceAudioFormat,
+        voiceStorage = uiState.voiceStorage,
+        onVoiceAudioFormatSelected = viewModel::selectVoiceAudioFormat,
         onLogout = {
             viewModel.logout(
                 activityContext = context as Activity,
@@ -83,6 +93,9 @@ fun SettingsScreen(
 fun SettingsScreenContent(
     parentPadding: PaddingValues,
     profileTitle: String = stringResource(R.string.settings_guest_profile),
+    voiceAudioFormat: SettingsAudioFormat,
+    voiceStorage: VoiceStorageUiState,
+    onVoiceAudioFormatSelected: (SettingsAudioFormat) -> Unit,
     onLogout: () -> Unit
 ) {
     Scaffold(
@@ -217,6 +230,20 @@ fun SettingsScreenContent(
                     showArrow = true
                 )
             }
+            Spacer(modifier = Modifier.height(32.dp))
+            SectionHeader(
+                title = stringResource(R.string.settings_voice_notes_section_title),
+                modifier = Modifier.testTag("settings_voice_section_header")
+            )
+            VoiceNotesSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .testTag("settings_voice_notes_section"),
+                audioFormat = voiceAudioFormat,
+                storage = voiceStorage,
+                onAudioFormatSelected = onVoiceAudioFormatSelected
+            )
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
@@ -364,7 +391,7 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
 
 // ─── Section header (outside cards) ──────────────────────────────────────────
 @Composable
-private fun SectionHeader(title: String) {
+private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelSmall.copy(
@@ -373,9 +400,183 @@ private fun SectionHeader(title: String) {
             fontSize = 11.sp,
             letterSpacing = 0.8.sp
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = 16.dp, bottom = 6.dp, end = 16.dp)
+            .semantics { heading() }
+    )
+}
+
+@Composable
+private fun VoiceNotesSection(
+    modifier: Modifier,
+    audioFormat: SettingsAudioFormat,
+    storage: VoiceStorageUiState,
+    onAudioFormatSelected: (SettingsAudioFormat) -> Unit
+) {
+    SectionCard(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .testTag("settings_voice_storage_row"),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.settings_voice_storage_used),
+                    color = LocalAppColors.current.textPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = stringResource(R.string.settings_voice_storage_helper),
+                    color = LocalAppColors.current.textSecondary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.testTag("settings_voice_storage_value")
+            ) {
+                Text(
+                    text = storageSizeText(storage.totalBytes),
+                    color = LocalAppColors.current.primary,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = pluralStringResource(
+                        R.plurals.settings_voice_storage_recordings,
+                        storage.recordingCount,
+                        storage.recordingCount
+                    ),
+                    color = LocalAppColors.current.textTertiary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+        SettingsDivider()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .testTag("settings_voice_format_row"),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.settings_voice_audio_format),
+                    color = LocalAppColors.current.textPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = stringResource(R.string.settings_voice_audio_format_helper),
+                    color = LocalAppColors.current.textSecondary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = stringResource(
+                        if (audioFormat == SettingsAudioFormat.AAC) {
+                            R.string.settings_voice_aac_quality
+                        } else {
+                            R.string.settings_voice_opus_quality
+                        }
+                    ),
+                    color = LocalAppColors.current.textTertiary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("settings_voice_format_quality")
+                )
+            }
+            VoiceFormatToggle(
+                selectedFormat = audioFormat,
+                onFormatSelected = onAudioFormatSelected
+            )
+        }
+    }
+}
+
+@Composable
+private fun VoiceFormatToggle(selectedFormat: SettingsAudioFormat, onFormatSelected: (SettingsAudioFormat) -> Unit) {
+    Row(
+        modifier = Modifier
+            .width(168.dp)
+            .height(48.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(10.dp))
+            .testTag("settings_voice_format_toggle"),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        VoiceFormatTab(
+            format = SettingsAudioFormat.AAC,
+            selectedFormat = selectedFormat,
+            onFormatSelected = onFormatSelected,
+            modifier = Modifier.weight(1f)
+        )
+        VoiceFormatTab(
+            format = SettingsAudioFormat.OPUS,
+            selectedFormat = selectedFormat,
+            onFormatSelected = onFormatSelected,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun VoiceFormatTab(
+    format: SettingsAudioFormat,
+    selectedFormat: SettingsAudioFormat,
+    onFormatSelected: (SettingsAudioFormat) -> Unit,
+    modifier: Modifier
+) {
+    val selected = format == selectedFormat
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                color = if (selected) LocalAppColors.current.primary else LocalAppColors.current.surface
+            )
+            .selectable(
+                selected = selected,
+                onClick = { onFormatSelected(format) },
+                role = Role.Tab
+            )
+            .testTag(
+                if (format == SettingsAudioFormat.AAC) {
+                    "settings_voice_format_aac"
+                } else {
+                    "settings_voice_format_opus"
+                }
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(
+                if (format == SettingsAudioFormat.AAC) {
+                    R.string.settings_voice_format_aac_label
+                } else {
+                    R.string.settings_voice_format_opus_label
+                }
+            ),
+            color = if (selected) LocalAppColors.current.onPrimary else LocalAppColors.current.textSecondary,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+private fun storageSizeText(totalBytes: Long): String = when {
+    totalBytes <= 0L -> stringResource(R.string.settings_voice_storage_zero)
+    totalBytes < 1_000_000L -> stringResource(
+        R.string.settings_voice_storage_kilobytes,
+        totalBytes / 1_000L
+    )
+    totalBytes < 1_000_000_000L -> stringResource(
+        R.string.settings_voice_storage_megabytes,
+        totalBytes.toDouble() / 1_000_000.0
+    )
+    else -> stringResource(
+        R.string.settings_voice_storage_gigabytes,
+        totalBytes.toDouble() / 1_000_000_000.0
     )
 }
 

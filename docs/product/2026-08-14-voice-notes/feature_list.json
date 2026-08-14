@@ -218,7 +218,7 @@
       "user_visible_behavior": "Settings shows Voice Notes storage and format controls; changing AAC/OPUS persists for future recordings. The complete Home → Recorder → Editor and Settings journey is reachable in the updated Light Theme and remains accessible/responsive.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-5-01",
         "TC-US-5-02",
@@ -230,13 +230,71 @@
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.settings.VoiceSettingsRepositoryTest\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.settings.VoiceSettingsFlowTest",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#recorderInProgressLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#homeFabSheetLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#editorVoiceBlockLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#settingsVoiceNotesLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\""
       ],
-      "evidence": [],
-      "notes": "Final priority slice and sole visual-verification owner. Visual review focuses on UI chrome, typography, spacing, colors, component placement, copy, contrast, and test-tag/accessibility contracts; recorded media content may differ from mockups."
+      "evidence": [
+        {
+          "test_id": "TC-US-5-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.settings.VoiceSettingsRepositoryTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.settings.VoiceSettingsRepositoryTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 2 repository tests on the DataStore-backed format setting and Room-derived storage totals; AAC→OPUS persisted and 184600000 bytes/12 recordings reported."
+        },
+        {
+          "test_id": "TC-US-5-02-settings-flow",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.settings.VoiceSettingsFlowTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.settings.VoiceSettingsFlowTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Settings flow test on emulator-5554 (API 33); Voice Notes storage, recording count, AAC selection, OPUS toggle, and quality copy were asserted."
+        },
+        {
+          "test_id": "TC-US-5-02",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted",
+          "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented reachability test on emulator-5554 (API 33); Home FAB, Recorder status, Editor Voice player, and Settings Voice Notes semantics were all asserted in one Light Theme production surface."
+        },
+        {
+          "test_id": "TC-US-5-VIS-001",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#recorderInProgressLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\"",
+          "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#recorderInProgressLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Recorder visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/recorder_in_progress_light.png (1080x2400)."
+        },
+        {
+          "test_id": "TC-US-5-VIS-002",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#homeFabSheetLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\"",
+          "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#homeFabSheetLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Home Create-sheet visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/home_fab_sheet_light.png (1080x2400)."
+        },
+        {
+          "test_id": "TC-US-5-VIS-003",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#editorVoiceBlockLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\"",
+          "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#editorVoiceBlockLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Editor VoiceNote visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/editor_voice_block_light.png (1080x2400)."
+        },
+        {
+          "test_id": "TC-US-5-VIS-004",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#settingsVoiceNotesLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\"",
+          "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#settingsVoiceNotesLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Settings visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/settings_voice_notes_light.png (1080x2400)."
+        }
+      ],
+      "notes": "Final priority slice and sole visual-verification owner. Visual review focuses on UI chrome, typography, spacing, colors, component placement, copy, contrast, and test-tag/accessibility contracts; the committed in-test captures show the asserted target states."
     }
   ]
 }

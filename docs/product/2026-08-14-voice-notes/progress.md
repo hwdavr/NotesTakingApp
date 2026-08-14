@@ -69,3 +69,15 @@
 - Files or artifacts updated: Room/data/domain/editor/recorder/navigation implementation, resources, tests, and product documentation.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected; US-5 still owns final Light Theme visual verification.
 - Next best step: Complete the clean-exit checklist, install the debug build, and leave US-4 passing for Evaluator review while US-5 remains the next unstarted slice.
+
+### Session 006
+
+- Date: 2026-08-15
+- Goal: Implement and verify US-5 — Configure Voice Notes and verify the completed Light Theme flow — through the harness-generator stages.
+- Completed: Added DataStore-backed AAC/OPUS settings, Room-derived private storage totals, recorder format wiring, localized Settings Voice Notes controls, stable semantics/test tags, and cross-surface Light Theme visual tests/evidence for Home Create, Recorder, Editor VoiceNote, and Settings.
+- Verification run: `assembleDebug`, full JVM suite (284/284), Kover (83.2334% overall), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rule scripts, full connected suite (74/74), exact US-5 repository/Settings/reachability/visual commands, and final debug installation all pass on `emulator-5554` (API 33).
+- Evidence captured: `summary_US-5.md`, passing `feature_list.json` evidence for TC-US-5-01, TC-US-5-02, and TC-US-5-VIS-001 through TC-US-5-VIS-004, plus inspected captures in `visual_evidence/`.
+- Commits: Pending clean-exit commit.
+- Files or artifacts updated: Settings/data/domain/recorder implementation, resources, tests, visual verification, and product documentation.
+- Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected; the Skill tool was unavailable in this session, so the checked-in skill instructions were applied manually and documented in the summary.
+- Next best step: Evaluator review of the complete Voice Notes feature; the tracker is intentionally `To be reviewed`, not `To be human reviewed`.
