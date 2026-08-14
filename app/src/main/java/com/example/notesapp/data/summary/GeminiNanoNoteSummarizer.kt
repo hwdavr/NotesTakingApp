@@ -41,8 +41,39 @@ class GeminiNanoNoteSummarizer @Inject constructor(
 
         return try {
             val status = summarizer.checkFeatureStatus().awaitFuture()
-            if (status == FeatureStatus.UNAVAILABLE) {
-                throw NoteSummaryUnavailableException("Gemini Nano summarization is unavailable on this device.")
+            android.util.Log.d(TAG, "Gemini Nano summarization checkFeatureStatus=$status")
+            when (status) {
+                FeatureStatus.AVAILABLE -> {
+                    android.util.Log.d(TAG, "Gemini Nano model is AVAILABLE")
+                }
+                FeatureStatus.DOWNLOADING -> {
+                    android.util.Log.d(TAG, "Gemini Nano model is DOWNLOADING")
+                    throw NoteSummaryUnavailableException("Gemini Nano model is still downloading.")
+                }
+                FeatureStatus.DOWNLOADABLE -> {
+                    android.util.Log.d(TAG, "Gemini Nano model is DOWNLOADABLE; initiating download...")
+                    runCatching {
+                        summarizer.downloadFeature(object : com.google.mlkit.genai.common.DownloadCallback {
+                            override fun onDownloadStarted(bytesToDownload: Long) {
+                                android.util.Log.d(TAG, "Gemini Nano download started; bytes=$bytesToDownload")
+                            }
+                            override fun onDownloadFailed(e: com.google.mlkit.genai.common.GenAiException) {
+                                android.util.Log.w(TAG, "Gemini Nano download failed", e)
+                            }
+                            override fun onDownloadProgress(totalBytesDownloaded: Long) {
+                                android.util.Log.d(TAG, "Gemini Nano download progress; bytes=$totalBytesDownloaded")
+                            }
+                            override fun onDownloadCompleted() {
+                                android.util.Log.d(TAG, "Gemini Nano download completed")
+                            }
+                        }).awaitFuture()
+                    }
+                    throw NoteSummaryUnavailableException("Gemini Nano model download initiated.")
+                }
+                else -> {
+                    android.util.Log.w(TAG, "Gemini Nano model status UNAVAILABLE (status=$status)")
+                    throw NoteSummaryUnavailableException("Gemini Nano summarization is unavailable on this device.")
+                }
             }
 
             val inputText = if (title.isNotBlank()) {
@@ -52,14 +83,28 @@ class GeminiNanoNoteSummarizer @Inject constructor(
             }
             val request = SummarizationRequest.builder(inputText.take(config.inputCharacterLimit)).build()
             val result = withContext(ioDispatcher) {
-                summarizer.runInference(request).get()
+                kotlinx.coroutines.withTimeout(30_000L) {
+                    android.util.Log.d(TAG, "Gemini Nano preparing inference engine...")
+                    summarizer.prepareInferenceEngine().awaitFuture()
+                    android.util.Log.d(TAG, "Gemini Nano inference engine prepared; running inference...")
+                    summarizer.runInference(request).awaitFuture()
+                }
             }
+            android.util.Log.d(TAG, "Gemini Nano inference succeeded")
             NoteSummary(result.getSummary())
+        } catch (exception: NoteSummaryUnavailableException) {
+            android.util.Log.w(TAG, "Gemini Nano summarization unavailable: ${exception.message}")
+            throw exception
         } catch (exception: Exception) {
+            android.util.Log.e(TAG, "Gemini Nano summarization failed with exception", exception)
             throw NoteSummaryUnavailableException("Gemini Nano summarization failed.", exception)
         } finally {
             summarizer.close()
         }
+    }
+
+    private companion object {
+        const val TAG = "NotesApp/GeminiNanoNoteSummarizer"
     }
 }
 
