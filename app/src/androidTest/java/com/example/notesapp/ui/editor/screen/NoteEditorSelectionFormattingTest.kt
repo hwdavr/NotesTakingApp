@@ -61,6 +61,7 @@ class NoteEditorSelectionFormattingTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = {},

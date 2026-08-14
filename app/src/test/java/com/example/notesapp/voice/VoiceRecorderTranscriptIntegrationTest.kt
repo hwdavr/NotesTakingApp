@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
 import com.example.notesapp.domain.voice.MicrophoneAvailability
+import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStartRequest
@@ -14,10 +15,12 @@ import com.example.notesapp.domain.voice.TranscriptStartRequest
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
+import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptStatus
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +57,9 @@ class VoiceRecorderTranscriptIntegrationTest : BaseViewModelTest() {
             microphoneAvailability = object : MicrophoneAvailability {
                 override fun isAvailable(): Boolean = true
             },
-            transcriptSession = transcriptSession
+            transcriptSession = transcriptSession,
+            recordingSessionManager = RecordingSessionManager(),
+            voiceNotePlaceholderUseCase = VoiceNotePlaceholderUseCase(mockk(relaxed = true))
         )
     }
 

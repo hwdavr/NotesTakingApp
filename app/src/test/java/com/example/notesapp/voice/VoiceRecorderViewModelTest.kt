@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.MicrophoneAvailability
+import com.example.notesapp.domain.voice.RecordingEntryPoint
+import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStoragePreflighter
@@ -11,15 +13,18 @@ import com.example.notesapp.domain.voice.StorageInfoProvider
 import com.example.notesapp.domain.voice.TranscriptSessionState
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
+import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -35,6 +40,8 @@ class VoiceRecorderViewModelTest : BaseViewModelTest() {
     private lateinit var storageInfoProvider: StorageInfoProvider
     private lateinit var transcriptSession: VoiceTranscriptSession
     private lateinit var transcriptState: MutableStateFlow<TranscriptSessionState>
+    private lateinit var recordingSessionManager: RecordingSessionManager
+    private lateinit var voiceNotePlaceholderUseCase: VoiceNotePlaceholderUseCase
     private lateinit var viewModel: VoiceRecorderViewModel
 
     @Before
@@ -51,12 +58,61 @@ class VoiceRecorderViewModelTest : BaseViewModelTest() {
         every { transcriptSession.state } returns transcriptState
         every { microphoneAvailability.isAvailable() } returns true
         every { storageInfoProvider.availableBytes() } returns 256L * 1024L * 1024L
+        recordingSessionManager = RecordingSessionManager()
+        voiceNotePlaceholderUseCase = mockk(relaxed = true)
         viewModel = VoiceRecorderViewModel(
             recordingController = controller,
             storagePreflighter = RecordingStoragePreflighter(storageInfoProvider),
             microphoneAvailability = microphoneAvailability,
-            transcriptSession = transcriptSession
+            transcriptSession = transcriptSession,
+            recordingSessionManager = recordingSessionManager,
+            voiceNotePlaceholderUseCase = voiceNotePlaceholderUseCase
         )
+    }
+
+    @Test
+    fun `discard removes a Home placeholder`() = runTest {
+        viewModel.onScreenReady(
+            targetNoteId = "home-placeholder",
+            permissionGranted = false,
+            source = RecordingEntryPoint.HOME
+        )
+
+        viewModel.onDiscard()
+        advanceUntilIdle()
+
+        coVerify { voiceNotePlaceholderUseCase.discard("home-placeholder") }
+    }
+
+    @Test
+    fun `starting from the editor discards an active Home placeholder first`() = runTest {
+        recordingSessionManager.replace(
+            metadata = RecordingSessionMetadata(
+                sessionId = "home-session",
+                noteId = "home-placeholder",
+                blockId = "home-block",
+                audioFilePath = "/tmp/home.m4a",
+                format = AudioFormat.AAC,
+                entryPoint = RecordingEntryPoint.HOME
+            ),
+            discardActive = {}
+        )
+
+        viewModel.onScreenReady(
+            targetNoteId = "editor-note",
+            permissionGranted = true,
+            source = RecordingEntryPoint.EDITOR
+        )
+        advanceUntilIdle()
+
+        coVerify { voiceNotePlaceholderUseCase.discard("home-placeholder") }
+        verify {
+            controller.start(
+                match { request ->
+                    request.noteId == "editor-note" && request.entryPoint == RecordingEntryPoint.EDITOR
+                }
+            )
+        }
     }
 
     @Test

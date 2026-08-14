@@ -5,7 +5,7 @@
 - Repository root: /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp
 - Standard startup path: Existing Android app shell with Home, Notes, Folders, Settings, and Note Editor; US-1 now exposes the production Recorder route and its lifecycle service contract.
 - Standard verification path: ./gradlew testDebugUnitTest, ./gradlew assembleDebug, ./gradlew ktlintCheck, ./gradlew detekt, and ./gradlew connectedDebugAndroidTest as applicable to each slice.
-- Current highest-priority unfinished feature: US-3 — Start recording from Home or the editor.
+- Current highest-priority unfinished feature: US-4 — Save and edit inline VoiceNote blocks.
 - Current blocker: None for the approved US-2 verification commands. API-24/API-31/API-34 runtime certification remains unverified because only the API-33 emulator is available; source compatibility and API-33 evidence are recorded in spike-us1-capture.md.
 
 ## Session Log
@@ -45,3 +45,15 @@
 - Files or artifacts updated: transcript domain/data/platform/UI/service/resource implementations and tests, `docs/product/2026-08-14-voice-notes/`, and `docs/product/product.md`.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification is pending due to unavailable emulator images. A production single-mic PCM tee/source bridge remains an explicit follow-up if live platform recognition is required; the current adapter safely falls back to audio-only while the recording remains usable.
 - Next best step: Complete the clean-exit checklist, install the debug build, then leave US-2 passing for Evaluator review while US-3 remains the next unstarted slice.
+
+### Session 004
+
+- Date: 2026-08-14
+- Goal: Implement and verify US-3 — Start recording from Home or the editor — through the harness-generator stages.
+- Completed: Added the Home light-theme Create sheet with localized Text Note and Record Note tiles, placeholder-note allocation and rollback, source-aware recorder navigation/session metadata, editor Mic routing with focused-block context, and silent Home-to-editor session replacement through `RecordingSessionManager`. Added stable interaction tags and tests for the production Home entry boundary, placeholder use case, ViewModels, and session replacement.
+- Verification run: Baseline build/tests, full JVM tests (67/67), full emulator instrumented tests (67/67), Kover (82.7795% overall; `VoiceEntryViewModel` 100%, modified `VoiceRecorderViewModel` 93.6%, `VoiceNotePlaceholderUseCase` 100%), `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rule scripts, and both exact US-3 acceptance commands passed on `emulator-5554` (API 33).
+- Evidence captured: `summary_US-3.md`, updated `feature_list.json` evidence for TC-US-3-01 and TC-US-3-02, and the API-33 Home entry instrumented test result.
+- Commits: Pending clean-exit commit.
+- Files or artifacts updated: Home/editor/navigation/recorder entry implementation, placeholder use case, localized resources, tests, `docs/product/2026-08-14-voice-notes/`, and `docs/product/product.md`.
+- Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected. Saved VoiceNote persistence/player behavior remains intentionally owned by US-4.
+- Next best step: Complete the clean-exit checklist, install the debug build, and leave US-3 passing for Evaluator review while US-4 remains the next slice.

@@ -131,6 +131,7 @@ fun NoteEditorScreen(
     onShareNote: (String) -> Unit,
     onMoveNote: (String) -> Unit,
     onExportNote: (String) -> Unit,
+    onOpenVoiceRecorder: (String, String?) -> Unit,
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -153,6 +154,9 @@ fun NoteEditorScreen(
         onToggleFavorite = viewModel::toggleFavorite,
         onMoveNote = { state.noteId?.let { onMoveNote(it) } },
         onExportNote = { state.noteId?.let { onExportNote(it) } },
+        onOpenVoiceRecorder = { currentNoteId, focusedBlockId ->
+            state.noteId?.let { onOpenVoiceRecorder(it, focusedBlockId) }
+        },
         onTextBlockChange = viewModel::onTextBlockChange,
         onToggleCheckbox = viewModel::toggleCheckbox,
         onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
@@ -189,6 +193,7 @@ fun NoteEditorScreenContent(
     onToggleFavorite: () -> Unit,
     onMoveNote: () -> Unit,
     onExportNote: () -> Unit,
+    onOpenVoiceRecorder: (String, String?) -> Unit,
     onTextBlockChange: (String, String) -> Unit,
     onToggleCheckbox: (String) -> Unit,
     onToggleCheckboxChecked: (String) -> Unit,
@@ -404,6 +409,9 @@ fun NoteEditorScreenContent(
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
+                onOpenVoiceRecorder = {
+                    onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
+                },
                 onToggleFormattingToolbar = onToggleFormattingToolbar
             )
         }
@@ -1112,6 +1120,7 @@ private fun EditorBottomBar(
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
+    onOpenVoiceRecorder: () -> Unit,
     onToggleFormattingToolbar: () -> Unit
 ) {
     if (!state.isEditable) return
@@ -1130,7 +1139,8 @@ private fun EditorBottomBar(
             onToggleFormattingToolbar = onToggleFormattingToolbar,
             onAddParagraph = onAddParagraph,
             onAddImage = onAddImage,
-            onAddTable = onAddTable
+            onAddTable = onAddTable,
+            onOpenVoiceRecorder = onOpenVoiceRecorder
         )
     }
 }
@@ -1143,7 +1153,8 @@ private fun DefaultBottomBar(
     onToggleFormattingToolbar: () -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
-    onAddTable: () -> Unit
+    onAddTable: () -> Unit,
+    onOpenVoiceRecorder: () -> Unit
 ) {
     val colors = LocalAppColors.current
     LazyRow(
@@ -1261,7 +1272,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = onOpenVoiceRecorder, modifier = Modifier.testTag("editor_mic_btn")) {
                 Icon(
                     Icons.Outlined.Mic,
                     contentDescription = stringResource(R.string.editor_mic_description),

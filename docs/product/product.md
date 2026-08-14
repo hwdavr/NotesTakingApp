@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | In Progress | 2026-08-14 | US-1 recording core and US-2 progressive transcription/fallback are passing with API-33 evidence; US-3 through US-5 remain, and US-5 owns final Light Theme visual verification. |
+| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | In Progress | 2026-08-14 | US-1 recording core, US-2 progressive transcription/fallback, and US-3 Home/editor entry points are passing with API-33 evidence; US-4/US-5 remain, and US-5 owns final Light Theme visual verification. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -86,7 +86,8 @@ Lifecycle rules:
 |---|---|---|
 | Safe recording session (US-1) | ✅ Done | Private AAC/OPUS file lifecycle, 128 MB preflight, foreground service notification controls, permission recovery, session guard, reducer/ViewModel state bridge, and deterministic cleanup. |
 | Progressive transcription with safe fallback (US-2) | ✅ Done | Overlapping partial/final transcript preview, timeout/failure markers, model-unavailable audio-only fallback, and cancellation cleanup. |
-| Entry points, editor persistence, playback, and settings (US-3–US-5) | 🚧 Planned | Delivered in the remaining approved vertical slices; US-5 owns final Light Theme visual verification. |
+| Home/editor recording entry points (US-3) | ✅ Done | Home Create sheet allocates a placeholder before recording; editor Mic opens the recorder with note/focus context; context switches cleanly replace active Home sessions. |
+| Inline editor persistence, playback, and settings (US-4–US-5) | 🚧 Planned | Remaining approved vertical slices; US-5 owns final Light Theme visual verification. |
 
 ### ✅ Note Sharing & Access Control
 
@@ -123,7 +124,7 @@ Lifecycle rules:
 ## Roadmap — Planned Features
 
 ### Group 1 — Rich Content & Attachments
-- **Voice Notes & Audio Transcripts**: US-1 recording core and US-2 progressive transcription with safe fallback are delivered; Home/editor entry points, inline editor persistence/playback, and Voice Notes settings remain planned in US-3 through US-5.
+- **Voice Notes & Audio Transcripts**: US-1 recording core, US-2 progressive transcription with safe fallback, and US-3 Home/editor entry points are delivered; inline editor persistence/playback and Voice Notes settings remain planned in US-4 and US-5.
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 
@@ -148,7 +149,7 @@ Lifecycle rules:
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
 | **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
-| **Voice Notes** | 🚧 In Progress | US-1 safe private recording core and US-2 progressive transcription/fallback; cross-surface integration remains |
+| **Voice Notes** | 🚧 In Progress | US-1 safe private recording core, US-2 progressive transcription/fallback, and US-3 Home/editor recording entry points; inline persistence/playback and settings remain |
 
 ---
 

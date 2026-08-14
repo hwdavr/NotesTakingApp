@@ -32,7 +32,8 @@ class AndroidVoiceRecordingController @Inject constructor(
             noteId = request.noteId,
             blockId = blockId,
             audioFilePath = file.absolutePath,
-            format = request.format
+            format = request.format,
+            entryPoint = request.entryPoint
         )
         val active = sessionManager.replace(metadata) { oldSession ->
             context.startService(

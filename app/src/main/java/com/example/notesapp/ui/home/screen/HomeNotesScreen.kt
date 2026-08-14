@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.home.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,10 +22,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -31,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,9 +49,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,6 +76,7 @@ import com.example.notesapp.ui.theme.LocalAppColors
 fun HomeNotesScreen(
     parentPadding: PaddingValues,
     onAddNote: () -> Unit,
+    onRecordNote: () -> Unit,
     onOpenNote: (String) -> Unit,
     onMoveNote: (Note) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
@@ -73,6 +86,7 @@ fun HomeNotesScreen(
         parentPadding = parentPadding,
         state = state,
         onAddNote = onAddNote,
+        onRecordNote = onRecordNote,
         onOpenNote = onOpenNote,
         onSelectFolder = viewModel::selectFolder,
         onAddToFavoritesNote = viewModel::addNoteToFavorites,
@@ -89,6 +103,7 @@ fun HomeNotesScreenContent(
     parentPadding: PaddingValues,
     state: HomeUiState,
     onAddNote: () -> Unit,
+    onRecordNote: () -> Unit,
     onOpenNote: (String) -> Unit,
     onSelectFolder: (String) -> Unit,
     onAddToFavoritesNote: (Note) -> Unit = {},
@@ -103,6 +118,8 @@ fun HomeNotesScreenContent(
     var noteToRename by remember { mutableStateOf<Note?>(null) }
     var renameTextFieldValue by rememberSaveable { mutableStateOf("") }
     var noteToDelete by remember { mutableStateOf<Note?>(null) }
+    var showCreateSheet by rememberSaveable { mutableStateOf(false) }
+    val createSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val cardColors = remember { listOf(colors.accentYellow, colors.accentPink, colors.accentMint, colors.accentBlue) }
     val filteredNotes = remember(state.recentNotes, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -226,7 +243,8 @@ fun HomeNotesScreenContent(
                 }
             }
             HomeAddButton(
-                onClick = onAddNote,
+                onClick = { showCreateSheet = true },
+                contentDescription = stringResource(R.string.home_add_note_description),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 28.dp)
@@ -237,6 +255,67 @@ fun HomeNotesScreenContent(
                 contentColor = colors.primary,
                 containerColor = colors.searchBackground
             )
+        }
+    }
+    if (showCreateSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showCreateSheet = false },
+            sheetState = createSheetState,
+            containerColor = colors.surface,
+            modifier = Modifier.testTag("home_fab_sheet")
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .navigationBarsPadding()
+                    .padding(bottom = 24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.home_fab_sheet_title),
+                    modifier = Modifier.testTag("home_fab_sheet_title"),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.textPrimary
+                    )
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CreateNoteOption(
+                        modifier = Modifier.weight(1f),
+                        testTag = "home_fab_text_note",
+                        icon = Icons.Outlined.Edit,
+                        label = stringResource(R.string.home_fab_text_note),
+                        contentDescription = stringResource(R.string.home_fab_text_note_description),
+                        iconTint = colors.textSecondary,
+                        labelColor = colors.textPrimary,
+                        background = colors.surface,
+                        borderColor = colors.border,
+                        onClick = {
+                            showCreateSheet = false
+                            onAddNote()
+                        }
+                    )
+                    CreateNoteOption(
+                        modifier = Modifier.weight(1f),
+                        testTag = "home_fab_record_note",
+                        icon = Icons.Outlined.Mic,
+                        label = stringResource(R.string.home_fab_record_note),
+                        contentDescription = stringResource(R.string.home_fab_record_note_description),
+                        iconTint = colors.primary,
+                        labelColor = colors.primary,
+                        background = colors.highlight,
+                        borderColor = colors.primary,
+                        onClick = {
+                            showCreateSheet = false
+                            onRecordNote()
+                        }
+                    )
+                }
+            }
         }
     }
     selectedNoteForQuickActions?.let { note ->
@@ -409,11 +488,15 @@ private fun EmptyNotesState(modifier: Modifier = Modifier, searchActive: Boolean
 }
 
 @Composable
-private fun HomeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun HomeAddButton(onClick: () -> Unit, contentDescription: String, modifier: Modifier = Modifier) {
     val colors = LocalAppColors.current
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier
+            .testTag("home_add_fab")
+            .semantics {
+                this.contentDescription = contentDescription
+            },
         shape = RoundedCornerShape(8.dp),
         color = colors.textSecondary,
         shadowElevation = 0.dp
@@ -427,6 +510,49 @@ private fun HomeAddButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
                 color = colors.onSecondary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+private fun CreateNoteOption(
+    modifier: Modifier,
+    testTag: String,
+    icon: ImageVector,
+    label: String,
+    contentDescription: String,
+    iconTint: Color,
+    labelColor: Color,
+    background: Color,
+    borderColor: Color,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier
+            .height(128.dp)
+            .testTag(testTag),
+        shape = RoundedCornerShape(12.dp),
+        color = background,
+        border = BorderStroke(1.dp, borderColor)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = iconTint,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = label,
+                color = labelColor,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
             )
         }
     }

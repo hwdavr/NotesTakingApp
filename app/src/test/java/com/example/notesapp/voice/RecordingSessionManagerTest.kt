@@ -1,6 +1,7 @@
 package com.example.notesapp.voice
 
 import com.example.notesapp.domain.voice.AudioFormat
+import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import org.junit.Assert.assertEquals
@@ -41,6 +42,22 @@ class RecordingSessionManagerTest {
         manager.clear(active.token)
 
         assertNull(manager.current())
+    }
+
+    @Test
+    fun replacesHomeSessionWhenEditorMicStarts() {
+        manager.replace(firstMetadata.copy(entryPoint = RecordingEntryPoint.HOME)) {}
+        var discardedHomeSessionId: String? = null
+
+        val replacement = manager.replace(
+            secondMetadata.copy(entryPoint = RecordingEntryPoint.EDITOR)
+        ) { previous ->
+            discardedHomeSessionId = previous.metadata.sessionId
+        }
+
+        assertEquals("first", discardedHomeSessionId)
+        assertEquals(RecordingEntryPoint.EDITOR, replacement.metadata.entryPoint)
+        assertEquals("second", manager.current()?.metadata?.sessionId)
     }
 
     private fun metadata(sessionId: String) = RecordingSessionMetadata(

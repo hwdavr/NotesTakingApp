@@ -51,6 +51,7 @@ class HomeScreenIntegrationTest {
                 HomeNotesScreen(
                     parentPadding = PaddingValues(0.dp),
                     onAddNote = {},
+                    onRecordNote = {},
                     onOpenNote = {},
                     viewModel = viewModel
                 )
@@ -83,6 +84,7 @@ class HomeScreenIntegrationTest {
                 HomeNotesScreen(
                     parentPadding = PaddingValues(0.dp),
                     onAddNote = {},
+                    onRecordNote = {},
                     onOpenNote = {},
                     viewModel = viewModel
                 )
@@ -113,6 +115,7 @@ class HomeScreenIntegrationTest {
                 HomeNotesScreen(
                     parentPadding = PaddingValues(0.dp),
                     onAddNote = {},
+                    onRecordNote = {},
                     onOpenNote = {},
                     viewModel = viewModel
                 )
@@ -155,6 +158,7 @@ class HomeScreenIntegrationTest {
                 HomeNotesScreen(
                     parentPadding = PaddingValues(0.dp),
                     onAddNote = {},
+                    onRecordNote = {},
                     onOpenNote = {},
                     viewModel = viewModel
                 )

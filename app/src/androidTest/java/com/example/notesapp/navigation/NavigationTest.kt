@@ -45,6 +45,7 @@ class NavigationTest {
                         parentPadding = PaddingValues(0.dp),
                         state = HomeUiState(),
                         onAddNote = { },
+                        onRecordNote = { },
                         onOpenNote = { _: String -> },
                         onSelectFolder = { _: String -> }
                     )
@@ -72,6 +73,7 @@ class NavigationTest {
                         parentPadding = PaddingValues(0.dp),
                         state = HomeUiState(),
                         onAddNote = { },
+                        onRecordNote = { },
                         onOpenNote = { _: String -> },
                         onSelectFolder = { _: String -> }
                     )

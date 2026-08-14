@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -66,6 +67,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatusLabel
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptWarning
@@ -76,6 +78,7 @@ import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
 @Composable
 fun VoiceRecorderScreen(
     noteId: String?,
+    source: RecordingEntryPoint,
     onSaved: (String) -> Unit,
     onDiscarded: () -> Unit,
     onBack: () -> Unit,
@@ -108,7 +111,7 @@ fun VoiceRecorderScreen(
     }
 
     LaunchedEffect(permissionGranted) {
-        viewModel.onScreenReady(noteId, permissionGranted)
+        viewModel.onScreenReady(noteId, permissionGranted, source)
         if (!permissionGranted && !state.permissionPermanentlyDenied) {
             showPermissionRationale = true
         }
@@ -129,6 +132,9 @@ fun VoiceRecorderScreen(
             }
             viewModel.clearPermissionDenial()
         }
+    }
+    BackHandler {
+        showDiscardConfirmation = true
     }
     LaunchedEffect(renderState.isSaved, discardSubmitted) {
         if (renderState.isSaved) {

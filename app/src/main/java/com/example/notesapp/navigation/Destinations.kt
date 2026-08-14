@@ -27,8 +27,13 @@ sealed class Destinations(val route: String) {
             return "editor?$notePart$folderPart"
         }
     }
-    data object VoiceRecorder : Destinations("voiceRecorder?noteId={noteId}") {
-        fun createRoute(noteId: String? = null): String = "voiceRecorder?noteId=${Uri.encode(noteId.orEmpty())}"
+    data object VoiceRecorder : Destinations(
+        "voiceRecorder?noteId={noteId}&source={source}&focusedBlockId={focusedBlockId}"
+    ) {
+        fun createRoute(noteId: String? = null, source: String = "EDITOR", focusedBlockId: String? = null): String =
+            "voiceRecorder?noteId=${Uri.encode(noteId.orEmpty())}" +
+                "&source=${Uri.encode(source)}" +
+                "&focusedBlockId=${Uri.encode(focusedBlockId.orEmpty())}"
     }
     data object ExportNote : Destinations("exportNote/{noteId}") {
         fun createRoute(noteId: String): String = "exportNote/$noteId"

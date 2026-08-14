@@ -5,7 +5,8 @@ data class RecordingSessionMetadata(
     val noteId: String,
     val blockId: String,
     val audioFilePath: String,
-    val format: AudioFormat
+    val format: AudioFormat,
+    val entryPoint: RecordingEntryPoint = RecordingEntryPoint.EDITOR
 )
 
 sealed interface RecordingSessionState {

@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.MicrophoneAvailability
+import com.example.notesapp.domain.voice.RecordingEntryPoint
+import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStartRequest
 import com.example.notesapp.domain.voice.RecordingStoragePreflighter
@@ -14,6 +16,7 @@ import com.example.notesapp.domain.voice.TranscriptSessionStatus
 import com.example.notesapp.domain.voice.TranscriptWarning
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
+import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptStatus
@@ -32,12 +35,15 @@ class VoiceRecorderViewModel @Inject constructor(
     private val recordingController: VoiceRecordingController,
     private val storagePreflighter: RecordingStoragePreflighter,
     private val microphoneAvailability: MicrophoneAvailability,
-    private val transcriptSession: VoiceTranscriptSession
+    private val transcriptSession: VoiceTranscriptSession,
+    private val recordingSessionManager: RecordingSessionManager,
+    private val voiceNotePlaceholderUseCase: VoiceNotePlaceholderUseCase
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(VoiceRecorderUiState())
     val uiState: StateFlow<VoiceRecorderUiState> = mutableUiState.asStateFlow()
     private var startAttempted = false
     private var noteId: String? = null
+    private var entryPoint: RecordingEntryPoint = RecordingEntryPoint.EDITOR
 
     init {
         viewModelScope.launch {
@@ -48,8 +54,13 @@ class VoiceRecorderViewModel @Inject constructor(
         }
     }
 
-    fun onScreenReady(targetNoteId: String?, permissionGranted: Boolean) {
+    fun onScreenReady(
+        targetNoteId: String?,
+        permissionGranted: Boolean,
+        source: RecordingEntryPoint = RecordingEntryPoint.EDITOR
+    ) {
         noteId = targetNoteId
+        entryPoint = source
         if (startAttempted) return
         if (!permissionGranted) {
             mutableUiState.value = mutableUiState.value.copy(
@@ -89,6 +100,12 @@ class VoiceRecorderViewModel @Inject constructor(
 
     fun onDiscard() {
         recordingController.discard()
+        val placeholderId = noteId?.takeIf { entryPoint == RecordingEntryPoint.HOME }
+        if (placeholderId != null) {
+            viewModelScope.launch {
+                voiceNotePlaceholderUseCase.discard(placeholderId)
+            }
+        }
     }
 
     fun clearPermissionDenial() {
@@ -108,9 +125,21 @@ class VoiceRecorderViewModel @Inject constructor(
                 val request = RecordingStartRequest(
                     noteId = noteId ?: "draft_${UUID.randomUUID()}",
                     blockId = UUID.randomUUID().toString(),
-                    format = AudioFormat.AAC
+                    format = AudioFormat.AAC,
+                    entryPoint = entryPoint
                 )
-                recordingController.start(request)
+                val previousHomeSession = recordingSessionManager.current()?.takeIf { activeSession ->
+                    activeSession.metadata.entryPoint == RecordingEntryPoint.HOME &&
+                        (entryPoint != RecordingEntryPoint.HOME || activeSession.metadata.noteId != request.noteId)
+                }
+                if (previousHomeSession == null) {
+                    recordingController.start(request)
+                } else {
+                    viewModelScope.launch {
+                        voiceNotePlaceholderUseCase.discard(previousHomeSession.metadata.noteId)
+                        recordingController.start(request)
+                    }
+                }
             }
 
             is StoragePreflightResult.Insufficient -> {

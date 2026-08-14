@@ -18,6 +18,7 @@ import com.example.notesapp.R
 import com.example.notesapp.data.voice.AudioFileSystem
 import com.example.notesapp.data.voice.RecordingStateStore
 import com.example.notesapp.domain.voice.AudioFormat
+import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.domain.voice.RecordingSessionEvent
 import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
@@ -88,12 +89,14 @@ class VoiceNoteRecordingService : LifecycleService() {
         val blockId = intent.getStringExtra(EXTRA_BLOCK_ID) ?: return
         val path = intent.getStringExtra(EXTRA_FILE_PATH) ?: return
         val format = AudioFormat.fromStorageValue(intent.getStringExtra(EXTRA_FORMAT).orEmpty())
+        val entryPoint = RecordingEntryPoint.fromRoute(intent.getStringExtra(EXTRA_ENTRY_POINT).orEmpty())
         val nextMetadata = RecordingSessionMetadata(
             sessionId = sessionId,
             noteId = noteId,
             blockId = blockId,
             audioFilePath = path,
-            format = format
+            format = format,
+            entryPoint = entryPoint
         )
         metadata = nextMetadata
         try {
@@ -388,6 +391,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         private const val EXTRA_BLOCK_ID = "extra_block_id"
         private const val EXTRA_FILE_PATH = "extra_file_path"
         private const val EXTRA_FORMAT = "extra_format"
+        private const val EXTRA_ENTRY_POINT = "extra_entry_point"
         private const val NOTIFICATION_CHANNEL_ID = "voice_recording"
         private const val NOTIFICATION_ID = 4101
         private const val REQUEST_TOGGLE = 4102
@@ -404,6 +408,7 @@ class VoiceNoteRecordingService : LifecycleService() {
                 putExtra(EXTRA_BLOCK_ID, metadata.blockId)
                 putExtra(EXTRA_FILE_PATH, metadata.audioFilePath)
                 putExtra(EXTRA_FORMAT, metadata.format.storageValue)
+                putExtra(EXTRA_ENTRY_POINT, metadata.entryPoint.name)
             }
 
         fun toggleIntent(context: Context): Intent =

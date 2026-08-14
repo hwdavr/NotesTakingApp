@@ -85,6 +85,12 @@
     <string name="home_note_preview_fallback">Open this note to start writing.</string>
     <string name="home_notes_empty_state">No recent notes yet.</string>
     <string name="home_search_empty_state">No notes match your search.</string>
+    <string name="home_add_note_description">Create a note</string>
+    <string name="home_fab_sheet_title">Create</string>
+    <string name="home_fab_text_note">Text Note</string>
+    <string name="home_fab_record_note">Record Note</string>
+    <string name="home_fab_text_note_description">New text note</string>
+    <string name="home_fab_record_note_description">New voice recording</string>
     <string name="collection_notes_back">Back</string>
     <string name="collection_notes_empty_state">No notes available here yet.</string>
     <string name="collection_folder_note_count">%1$d notes</string>
@@ -129,7 +135,7 @@
     <string name="editor_redo_description">Redo</string>
     <string name="editor_camera_description">Take photo</string>
     <string name="editor_image_description">Insert image</string>
-    <string name="editor_mic_description">Record audio</string>
+    <string name="editor_mic_description">Record voice note</string>
     <string name="editor_table_description">Insert table</string>
     <string name="editor_keyboard_hide_description">Hide keyboard</string>
     <string name="editor_close_description">Close</string>

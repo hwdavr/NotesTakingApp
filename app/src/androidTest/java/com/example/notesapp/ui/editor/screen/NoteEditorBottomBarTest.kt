@@ -7,6 +7,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -26,6 +28,7 @@ class NoteEditorBottomBarTest {
     @Test
     fun bottomBar_togglesBetweenDefaultAndFormatting() {
         val isFormattingVisible = mutableStateOf(false)
+        var voiceRecorderOpened = false
         composeRule.setContent {
             NoteEditorScreenContent(
                 parentPadding = PaddingValues(0.dp),
@@ -44,6 +47,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> voiceRecorderOpened = true },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = {},
@@ -75,6 +79,9 @@ class NoteEditorBottomBarTest {
         // Back to default bottom bar
         composeRule.onNodeWithTag("editor_default_bottom_bar").assertIsDisplayed()
         assertTrue(composeRule.onAllNodesWithTag("editor_formatting_bottom_bar").fetchSemanticsNodes().isEmpty())
+        composeRule.onNodeWithTag("editor_default_bottom_bar").performTouchInput { swipeLeft() }
+        composeRule.onNodeWithTag("editor_mic_btn").performClick()
+        assertTrue(voiceRecorderOpened)
     }
 
     @Test
@@ -106,6 +113,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = {},
@@ -155,6 +163,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = {},
@@ -195,6 +204,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = {},
@@ -239,6 +249,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = { toggledCheckboxBlocks += it },
                 onToggleCheckboxChecked = {},
@@ -288,6 +299,7 @@ class NoteEditorBottomBarTest {
                 onToggleFavorite = {},
                 onMoveNote = {},
                 onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
                 onTextBlockChange = { _, _ -> },
                 onToggleCheckbox = {},
                 onToggleCheckboxChecked = { toggledCheckedBlocks += it },

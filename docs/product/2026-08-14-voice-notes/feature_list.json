@@ -130,7 +130,7 @@
       "user_visible_behavior": "Tapping Home’s add button shows Create with Text Note and Record Note. Record Note opens the recorder for a new-note context; the editor’s bottom-toolbar Mic opens it for the current note; switching contexts replaces the active recording with a clean new session.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02"
@@ -139,7 +139,24 @@
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest",
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingSessionManagerTest\""
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-3-01",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 production-boundary Home Create-sheet navigation test on emulator-5554 (API 33); placeholder allocation and Record Note selection succeeded."
+        },
+        {
+          "test_id": "TC-US-3-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingSessionManagerTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingSessionManagerTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: Home session replacement test confirms the prior Home session is discarded before the editor context starts."
+        }
+      ],
       "notes": "Depends on US-1 recorder launch contract. This slice owns entry/navigation and placeholder-note lifecycle; it does not own the saved VoiceNote player."
     },
     {
