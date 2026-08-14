@@ -2,29 +2,29 @@
 
 ## Verified Now
 
-- What is currently working: US-2 exposes an injectable transcript recognizer/session boundary, overlap-aware progressive preview state, partial/final result handling, timeout and recognition-failure markers, model/source-unavailable audio-only fallback, and deterministic stop/discard cancellation. The Recorder UI renders localized transcript, warning, fallback, cursor, and stable test-tag states while US-1 continues to own the single MediaRecorder microphone path. The debug build is installed on `emulator-5554` (API 33).
-- What verification actually ran: `assembleDebug`, `testDebugUnitTest`, `koverLog` (82.8545% overall line coverage), Kover HTML report (VoiceRecorderViewModel 93%, RecordingTranscriptCoordinator 99%, ChunkedTranscriptConcatenator 93.1%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rule scripts, duplicate-class and warning checks, full connected tests (66/66) on `emulator-5554` API 33, and the three exact US-2 acceptance commands. All exited 0.
+- What is currently working: US-3 is passing. Home’s add FAB opens the localized Create sheet; Record Note persists a placeholder and opens the source-aware recorder. The editor Mic opens the recorder with note/focused-block context. Switching from an active Home session to the editor silently discards the old placeholder/session before starting the editor context.
+- What verification actually ran: The two exact US-3 acceptance commands exited 0; full JVM tests passed 67/67; full emulator tests passed 67/67 on `emulator-5554` (API 33); final Kover line coverage is 82.971%; `assembleDebug`, `ktlintCheck`, `detekt`, and `lintDebug` passed. Compose and localization checks passed with 0 violations. The changed-file architecture check passed with 0 violations.
 
 ## Changed This Session
 
-- Code or behavior added: `VoiceTranscriptRecognizer`, `VoiceTranscriptSession`, `TranscriptRecognitionEvent`, `TranscriptSessionState`, `ChunkedTranscriptConcatenator`, `RecordingTranscriptCoordinator` with a 65-second watchdog, Android availability/source-safe adapter, service lifecycle wiring, saved transcript state, Recorder ViewModel/UI mapping, localized copy, and JVM/connected tests.
-- Infrastructure or harness changes: Updated US-2 acceptance evidence, progress log, product tracker/capability/roadmap notes, and the US-1 capture spike with the safe single-microphone carry-forward decision. Implementation commit: `812d0c3`.
+- Code or behavior added: Added Home Create-sheet entry tiles and test tags, placeholder-note use case/ViewModels, source-aware recorder route/session metadata, editor Mic navigation, Home-placeholder cleanup, localized strings, and tests for the Home production boundary, use case, ViewModels, and session replacement. Extracted the navigation destination graph to keep Detekt method limits satisfied.
+- Infrastructure or harness changes: Updated `feature_list.json`, `progress.md`, `product.md`, and `summary_US-3.md`; no harness rules or lifecycle scripts were changed. Commit: `0bf2b30` (`feat(voice): add Home and editor recording entry points`).
 
 ## Broken Or Unverified
 
-- Known defect: None identified in the required US-2 verification scope.
-- Unverified path: API-24/API-31/API-34 runtime certification remains pending because only API 33 (`emulator-5554`) is available. The current production MediaRecorder output is compressed and has no approved single-microphone PCM tee; the Android adapter therefore reports source-unavailable instead of opening a concurrent SpeechRecognizer microphone client. A future verified PCM bridge can be injected behind the existing contract.
-- Risk for the next session: US-3 owns Home/editor recording entry points; preserve the US-1 single-session/single-microphone authority and do not move editor persistence/playback or settings work into US-2.
+- Known defect: None identified for US-3.
+- Unverified path: API-24/API-31/API-34 runtime certification remains unavailable because only the API-33 emulator is connected. Saved VoiceNote persistence/player behavior is intentionally deferred to US-4.
+- Risk for the next session: A clean-state architecture scan over the entire repository still reports two pre-existing use cases outside the checker’s `usecase/` folder convention (`CategorizeNoteUseCase.kt` and `SummarizeNoteUseCase.kt`); no new violation is present in this slice, and the changed-file scan is clean.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-3 — Start recording from Home or the editor.
-- Why it is next: US-2 is passing and its transcript state is available to later insertion work; US-3 supplies the source context required by US-4.
-- What counts as passing: Complete the approved US-3 navigation and session-manager acceptance commands, with production Home/editor entry points, placeholder lifecycle, context switching, and stable test tags covered.
-- What must not change during that step: Keep `VoiceNoteRecordingService` as the single MediaRecorder owner, keep audio private under `files/voice-notes`, preserve US-2 transcript cancellation/fallback behavior, and do not transition the feature tracker to `To be human reviewed`.
+- Highest-priority unfinished feature: US-4 — Save and edit inline VoiceNote blocks.
+- Why it is next: US-4 consumes the US-1 recorder lifecycle, US-2 transcript events, and the US-3 source/focus navigation context to persist and render VoiceNote blocks.
+- What counts as passing: Execute every US-4 acceptance-test command, attach exit-status evidence for TC-US-4-01 through TC-US-4-03, and transition only US-4 to `passing` after all commands succeed.
+- What must not change during that step: Preserve the approved US-3 behavior and `To be reviewed` lifecycle rule; do not transition the overall tracker to `To be human reviewed`, and do not replace the existing `EditorBlock.TextBlock` transcript model with a new rich-text type.
 
 ## Commands
 
-- Startup: `adb devices`; `bash scripts/check-feature-lifecycle.sh`
-- Verification: `./gradlew assembleDebug`; `./gradlew testDebugUnitTest`; `./gradlew koverLog`; `./gradlew ktlintCheck`; `./gradlew detekt`; `./gradlew lintDebug`; `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`; `./gradlew installDebug`
-- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest`
+- Startup: `./gradlew installDebug` with `emulator-5554` connected.
+- Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
+- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest --console=plain`.
