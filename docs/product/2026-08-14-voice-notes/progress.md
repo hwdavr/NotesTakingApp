@@ -32,4 +32,4 @@
 - Commits: `3fb6066` — `feat(voice): add safe recording session core`.
 - Files or artifacts updated: `app/` recording/domain/data/UI/navigation/manifest/resources/tests, `docs/product/2026-08-14-voice-notes/`, and `docs/product/product.md`.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification is pending due to unavailable emulator images. Progressive STT and cross-surface entry/persistence remain intentionally owned by US-2 through US-5.
-- Next best step: Complete the Stage 7 commit, Stage 8 clean-state checklist and handoff, then install the debug build to `emulator-5554`.
+- Next best step: Evaluator should review the passing US-1 slice; then implement US-2 using the documented single-microphone boundary. Debug build is installed on `emulator-5554`.
