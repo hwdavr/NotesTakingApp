@@ -2,30 +2,29 @@
 
 ## Verified Now
 
-- What is currently working: US-1 exposes the production Recorder route, requests/recoveries microphone permission, blocks insufficient storage, owns one private AAC/OPUS recording through a foreground `LifecycleService`, supports pause/resume/stop/discard cleanup, and maps service state into stable recorder UI controls and test tags. The API-33 emulator produced a non-empty private AAC file through the instrumented service test.
-- What verification actually ran: `assembleDebug`, full `testDebugUnitTest`, `koverLog` (82.5092% overall line coverage), Kover HTML report, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture scripts, exact feature-list verification commands, and API-33 Recorder UI/service instrumented tests. All in-scope feature and build checks passed.
+- What is currently working: US-2 exposes an injectable transcript recognizer/session boundary, overlap-aware progressive preview state, partial/final result handling, timeout and recognition-failure markers, model/source-unavailable audio-only fallback, and deterministic stop/discard cancellation. The Recorder UI renders localized transcript, warning, fallback, cursor, and stable test-tag states while US-1 continues to own the single MediaRecorder microphone path. The debug build is installed on `emulator-5554` (API 33).
+- What verification actually ran: `assembleDebug`, `testDebugUnitTest`, `koverLog` (82.8545% overall line coverage), Kover HTML report (VoiceRecorderViewModel 93%, RecordingTranscriptCoordinator 99%, ChunkedTranscriptConcatenator 93.1%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rule scripts, duplicate-class and warning checks, full connected tests (66/66) on `emulator-5554` API 33, and the three exact US-2 acceptance commands. All exited 0.
 
 ## Changed This Session
 
-- Code or behavior added: Domain recording contracts/reducer/session guard, filename and storage preflight rules, Android private file/microphone adapters, Hilt controller and state store, foreground service with notification actions and codec fallback, Recorder ViewModel/render-state mapper/Compose screen, navigation route, manifest permissions, localized copy, and JVM/instrumented tests.
-- Infrastructure or harness changes: `minSdk` is 24 with explicit manifest library compatibility overrides for existing API-26 AI dependencies. The MediaRecorder service is isolated in `data.voice.service` and excluded from JVM Kover because its framework lifecycle is verified by connected service tests. Product tracker/capability docs and US-1 evidence were updated. Implementation commit: `3fb6066`.
+- Code or behavior added: `VoiceTranscriptRecognizer`, `VoiceTranscriptSession`, `TranscriptRecognitionEvent`, `TranscriptSessionState`, `ChunkedTranscriptConcatenator`, `RecordingTranscriptCoordinator` with a 65-second watchdog, Android availability/source-safe adapter, service lifecycle wiring, saved transcript state, Recorder ViewModel/UI mapping, localized copy, and JVM/connected tests.
+- Infrastructure or harness changes: Updated US-2 acceptance evidence, progress log, product tracker/capability/roadmap notes, and the US-1 capture spike with the safe single-microphone carry-forward decision. Implementation commit: `812d0c3`.
 
 ## Broken Or Unverified
 
-- Known defect: None identified in the US-1 implementation or its required verification commands.
-- Unverified path: API-24, API-31, and API-34 runtime capture certification remains pending; only `emulator-5554` (API 33) was available. The spike records source compatibility and the API-33 result. Progressive STT, Home/editor entry points, editor persistence/playback, and settings are intentionally deferred to US-2 through US-5.
-- Risk for the next session: Do not add a second microphone client or make SpeechRecognizer consume MediaRecorder chunks until US-1's single-microphone boundary is preserved and the next adapter is proven.
-- Baseline checklist findings preserved without unrelated edits: repository-wide localization script reports four existing null icon descriptions in `ui/folders`, `ui/editor`, and `ui/common`; architecture script reports two existing use-case files outside `domain/*/usecase/`. They were not introduced by this slice.
+- Known defect: None identified in the required US-2 verification scope.
+- Unverified path: API-24/API-31/API-34 runtime certification remains pending because only API 33 (`emulator-5554`) is available. The current production MediaRecorder output is compressed and has no approved single-microphone PCM tee; the Android adapter therefore reports source-unavailable instead of opening a concurrent SpeechRecognizer microphone client. A future verified PCM bridge can be injected behind the existing contract.
+- Risk for the next session: US-3 owns Home/editor recording entry points; preserve the US-1 single-session/single-microphone authority and do not move editor persistence/playback or settings work into US-2.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-2 — Show progressive transcription with safe fallback.
-- Why it is next: US-2 consumes the capture boundary established by US-1 and owns recognizer windows, timeout/model-unavailable fallback, and transcript preview.
-- What counts as passing: Implement the injectable STT adapter without a concurrent unsupported microphone client; pass the approved US-2 acceptance commands, overall/ViewModel coverage gates, and connected fallback test.
-- What must not change during that step: Keep `RecordingSessionManager` as the single-session authority, keep audio private under `files/voice-notes`, preserve US-1 service cleanup, and do not reassign US-3/US-4/US-5 responsibilities.
+- Highest-priority unfinished feature: US-3 — Start recording from Home or the editor.
+- Why it is next: US-2 is passing and its transcript state is available to later insertion work; US-3 supplies the source context required by US-4.
+- What counts as passing: Complete the approved US-3 navigation and session-manager acceptance commands, with production Home/editor entry points, placeholder lifecycle, context switching, and stable test tags covered.
+- What must not change during that step: Keep `VoiceNoteRecordingService` as the single MediaRecorder owner, keep audio private under `files/voice-notes`, preserve US-2 transcript cancellation/fallback behavior, and do not transition the feature tracker to `To be human reviewed`.
 
 ## Commands
 
 - Startup: `adb devices`; `bash scripts/check-feature-lifecycle.sh`
-- Verification: `./gradlew assembleDebug && ./gradlew testDebugUnitTest && ./gradlew koverLog && ./gradlew ktlintCheck && ./gradlew detekt && ./gradlew lintDebug`
-- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecordingServiceIntegrationTest`
+- Verification: `./gradlew assembleDebug`; `./gradlew testDebugUnitTest`; `./gradlew koverLog`; `./gradlew ktlintCheck`; `./gradlew detekt`; `./gradlew lintDebug`; `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`; `./gradlew installDebug`
+- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest`

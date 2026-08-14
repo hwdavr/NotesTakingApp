@@ -82,7 +82,7 @@
       "user_visible_behavior": "While recording, the live transcript preview appends recognized speech. If offline speech recognition is unavailable or a segment times out, recording continues, the user sees warning/fallback copy, and saved audio remains usable for manual transcript editing.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "in_progress",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02"

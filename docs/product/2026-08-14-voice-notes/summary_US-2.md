@@ -2,7 +2,7 @@
 
 **Type**: feature
 **Started**: 2026-08-14 21:00
-**Status**: In Progress
+**Status**: Complete
 
 ## Stage Progress
 
@@ -12,11 +12,11 @@
 | Setup | ✅ | 2026-08-14 21:01 | `adb devices` found emulator `emulator-5554` in `device` state; it is the runtime target for instrumented verification. |
 | Verify Baseline | ✅ | 2026-08-14 21:02 | Pre-change `./gradlew assembleDebug --console=plain` and `./gradlew testDebugUnitTest --console=plain` both exited `0` (`BUILD SUCCESSFUL`). |
 | Implement | ✅ | 2026-08-14 21:14 | Added domain transcript events/state, overlap-aware `ChunkedTranscriptConcatenator`, injectable transcript recognizer/session contracts, coordinator with partial/final processing, 65-second silent-chunk watchdog, timeout/failure markers, cancellation cleanup, Android SpeechRecognizer availability/source-safe fallback, service lifecycle wiring, Recorder ViewModel StateFlow mapping, localized fallback copy, and Recorder preview/warning rendering. `./gradlew assembleDebug --console=plain` and the focused fallback instrumented test both exited `0`. |
-| Test | ✅ | 2026-08-14 21:20 | Added `ChunkedTranscriptConcatenatorTest`, production-boundary `VoiceRecorderTranscriptIntegrationTest`, coordinator/platform fallback coverage, and `VoiceRecorderTranscriptionFallbackTest`. Exact US-2 unit rows passed: `ChunkedTranscriptConcatenatorTest` and `VoiceRecorderTranscriptIntegrationTest`; exact connected fallback row passed on `emulator-5554`. Full `./gradlew testDebugUnitTest` passed with 268 JVM test cases and 0 failures; full connected suite passed 66/66; `./gradlew koverLog` passed at 82.9201% overall line coverage. `VoiceRecorderViewModel` HTML report line coverage is 93.3%; `RecordingTranscriptCoordinator` is 94.2%. |
-| Fix | ✅ | 2026-08-14 21:25 | Quality gates passed: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh`. Ktlint initially found import/formatting issues in the new tests and DI/service imports; `ktlintFormat` plus surgical import fixes resolved them. Detekt initially flagged `ReturnCount` in `ChunkedTranscriptConcatenator`; refactored the overlap merge into expression-based branches without suppression, then `detekt` passed. |
-| Update State | ✅ | 2026-08-14 21:31 | Marked US-2 `passing` with three acceptance-test evidence records in `feature_list.json`; updated `progress.md` and `product.md`. The feature tracker remains `In Progress` because US-3 through US-5 are not started. |
-| Clean Exit | | | |
-| Install App To Device | | | |
+| Test | ✅ | 2026-08-14 21:32 | Added `ChunkedTranscriptConcatenatorTest`, production-boundary `VoiceRecorderTranscriptIntegrationTest`, coordinator/platform fallback coverage, and `VoiceRecorderTranscriptionFallbackTest`. Exact US-2 unit rows passed: `ChunkedTranscriptConcatenatorTest` and `VoiceRecorderTranscriptIntegrationTest`; exact connected fallback row passed on `emulator-5554`. Full `./gradlew testDebugUnitTest` passed with 268 JVM test cases and 0 failures; full connected suite passed 66/66; `./gradlew koverLog` passed at 82.8545% overall line coverage. Kover HTML report shows `VoiceRecorderViewModel` 93% line coverage, `RecordingTranscriptCoordinator` 99%, and `ChunkedTranscriptConcatenator` 93.1%. |
+| Fix | ✅ | 2026-08-14 21:32 | Quality gates passed after the final adapter-state adjustment: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh`. Ktlint initially found import/formatting issues in the new tests and DI/service imports; `ktlintFormat` plus surgical import fixes resolved them. Detekt initially flagged `ReturnCount` in `ChunkedTranscriptConcatenator`; refactored the overlap merge into expression-based branches without suppression, then `detekt` passed. |
+| Update State | ✅ | 2026-08-14 21:33 | Commit `812d0c3` (`feat(voice): add progressive transcription fallback`) records the implementation, tests, feature evidence, progress log, spike decision, summary, and product capability updates. US-2 is `passing`; the feature tracker remains `In Progress` because US-3 through US-5 are not started. |
+| Clean Exit | ✅ | 2026-08-14 21:32 | Executed the clean-state checklist item by item: build/warnings/duplicate classes, suppression and secret scans, architecture/layer checks, UDF/resource/lifecycle review, full JVM/coverage/runtime verification, documentation/lifecycle validation, `git diff --check`, and final status review all passed or were documented as not applicable. No unresolved gate items remain for US-2. Session handoff is recorded at `session-handoff.md`. |
+| Install App To Device | ✅ | 2026-08-14 21:32 | `./gradlew installDebug` exited `0` and installed `app-debug.apk` on connected emulator `emulator-5554` / `Medium_Phone(AVD) - 13` (API 33). |
 
 ## Key Decisions
 
