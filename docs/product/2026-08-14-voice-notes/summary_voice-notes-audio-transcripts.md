@@ -36,7 +36,7 @@ The list is deduplicated across the code and test reviews; report sections remai
 | Fix-Stage 3 — Verify baseline | ✅ | `./gradlew assembleDebug --console=plain` and `./gradlew testDebugUnitTest --console=plain` both exited 0 on 2026-08-15. |
 | Fix-Stage 4 — Fix findings & update reports | ⚠️ partial | Source/report fixes are applied; unresolved production-route/runtime evidence is listed in both review reports. |
 | Fix-Stage 5 — Re-verify | ✅ | All sprint-contract commands, full JVM/API-33 connected suites, Ktlint, Detekt, lint, custom rule scans, and Kover passed on 2026-08-15. |
-| Fix-Stage 6 — Update state | ✅ | Tracker is `To be human reviewed`; lifecycle check passed; source commits are `e0e468e` and `8c45b8b`; final docs commit follows. |
+| Fix-Stage 6 — Update state | ✅ | Tracker is `To be human reviewed`; lifecycle check passed; source commits are `e0e468e` and `8c45b8b`; documentation commit is `ef04c7b`. |
 | Fix-Stage 7 — Clean exit | ✅ | `clean-state-checklist.md`, `progress.md`, and `session-handoff.md` are complete; all listed gates passed. |
 | Fix-Stage 8 — Install app | pending | |
 

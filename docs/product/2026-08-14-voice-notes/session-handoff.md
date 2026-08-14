@@ -20,6 +20,7 @@
 
 - Fix commit: `e0e468e` — evaluator finding implementation and test fixes.
 - Quality commit: `8c45b8b` — global localization/architecture gate fixes and package/import alignment.
+- Documentation commit: `ef04c7b` — review reports, clean-state checklist, tracker transition, visual evidence, and human-review handoff.
 - Harness records: `summary_voice-notes-audio-transcripts.md`, both review reports, `feature_list.json`, `product.md`, `clean-state-checklist.md`, and this handoff.
 
 ## Unresolved ⚠️ / Human Review Decisions
