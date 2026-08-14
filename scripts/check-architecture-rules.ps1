@@ -18,7 +18,22 @@ foreach ($argument in $Arguments) {
 
 $projectRoot = Get-RuleCheckProjectRoot $PSScriptRoot
 $sourceRoot = Resolve-RuleCheckSourceRoot $projectRoot $sourceArg
-$basePkg = Join-Path $sourceRoot "com/example/notesapp"
+
+# Auto-detect base package: walk up to 4 levels to find the dir containing ui/, domain/, data/
+# This avoids hard-coding the package name (original bug: was 'com/example/notesapp').
+$basePkg = $null
+$searchDirs = Get-ChildItem -Path $sourceRoot -Recurse -Depth 4 -Directory -ErrorAction SilentlyContinue | Sort-Object FullName
+foreach ($dir in $searchDirs) {
+    $hasUi     = Test-Path (Join-Path $dir.FullName "ui")
+    $hasDomain = Test-Path (Join-Path $dir.FullName "domain")
+    $hasData   = Test-Path (Join-Path $dir.FullName "data")
+    if ($hasUi -or $hasDomain -or $hasData) {
+        $basePkg = $dir.FullName
+        break
+    }
+}
+if ($null -eq $basePkg) { $basePkg = $sourceRoot }
+
 $uiRoot = [System.IO.Path]::GetFullPath((Join-Path $basePkg "ui"))
 $domainRoot = [System.IO.Path]::GetFullPath((Join-Path $basePkg "domain"))
 $dataRoot = [System.IO.Path]::GetFullPath((Join-Path $basePkg "data"))

@@ -60,6 +60,7 @@ Use for:
 - Critical multi-screen flows
 
 Rules:
+- Target device selection: Use an emulator for instrumented UI tests (e.g. `ANDROID_SERIAL=emulator-5554`). Only when an emulator is missing/not connected, use a connected physical device.
 - Use `createComposeRule()` — not `createAndroidComposeRule` unless Activity is strictly required
 - Test the stateless Composable (`Content`) — not the Hilt-wired screen wrapper
 - Do not use `Thread.sleep` — use `waitUntil` or `waitForIdle`

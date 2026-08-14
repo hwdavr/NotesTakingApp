@@ -51,6 +51,7 @@ If a shared JSON scenario exists:
     - Provide the ViewModel through Hilt or manual injection into the `Screen` wrapper.
 
 ## Rules
+- Target device selection: Use an Android emulator for instrumented UI tests (e.g. `ANDROID_SERIAL=emulator-5554`). Only when an emulator is missing/not connected, use a connected physical device.
 - one scenario per test
 - no Thread.sleep — use `waitUntil` or `waitForIdle`
 - stable selectors only (`Modifier.testTag`)

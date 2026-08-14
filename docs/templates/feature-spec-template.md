@@ -2,7 +2,7 @@
 
 **Date**: YYYY-MM-DD
 **Status**: Draft / Final
-**Related design**: `docs/current/design.md` *(if applicable)*
+**Related design**: `design.md` *(if applicable)*
 
 ---
 
@@ -23,6 +23,30 @@ As a <user type>, I want to <action> so that <outcome>.
 ### Out Of Scope
 
 - <explicit non-goal>
+
+## Technical Spec
+
+### Libraries & Dependencies
+
+| Library / SDK | Version | Purpose |
+|---------------|---------|---------|
+| `<library>` | `<version or "latest">` | `<why it's used>` |
+
+### Key Technical Decisions
+
+- **<Decision area>**: `<chosen approach and rationale>`
+
+### External APIs / Services
+
+- `<API or service>` — `<what it provides and any rate/auth constraints>`
+
+### Platform & Compatibility Constraints
+
+- **Min SDK**: `<value or "project default">`
+- **Permissions required**: `<list or "None">`
+- **Other constraints**: `<e.g., requires camera, network, file access>`
+
+---
 
 ## Functional Requirements
 

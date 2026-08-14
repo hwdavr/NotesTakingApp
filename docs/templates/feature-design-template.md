@@ -1,29 +1,50 @@
-# Screen Design — <Screen Name>
+# Feature Design — <Feature Name>
 
 **Date**: YYYY-MM-DD
 **Status**: Draft / Final
 **Source request**: <short reference to the user request>
-**Related spec**: `docs/current/spec.md`
+**Related spec**: `spec.md`
+**Project design system**: `docs/product/design_system.md`
+**Approved design-system exceptions**: None / <explicit user-approved exception and rationale>
 
 ---
 
-## Purpose
+## Screens Covered
+
+<!-- List every screen or major UI surface this design document covers. -->
+<!-- Remove this table and rename the title to "Screen Design — <Screen Name>" when only one screen is involved. -->
+
+| # | Screen / Surface | Status |
+|---|-----------------|--------|
+| 1 | <Screen Name> | New / Updated |
+| 2 | <Screen Name> | New / Updated |
+
+---
+
+<!-- ═══════════════════════════════════════════════════════════
+     REPEAT THIS BLOCK FOR EACH SCREEN.
+     Replace N with the screen number and <Screen Name> accordingly.
+     ═══════════════════════════════════════════════════════════ -->
+
+## Screen 1 — <Screen Name>
+
+### Purpose
 
 <What this screen helps the user accomplish and why it exists.>
 
-## UX Principles
+### UX Principles
 
 - <principle that guides layout and behavior>
 - <principle that guides interaction or density>
 
-## Entry And Exit
+### Entry And Exit
 
 - **Entry points**: <where this screen is opened from>
 - **Primary success exit**: <where the user goes after success>
 - **Cancel/back behavior**: <exact behavior>
 - **Failure exit or recovery**: <exact behavior>
 
-## Information Architecture
+### Information Architecture
 
 Describe the screen from top to bottom.
 
@@ -31,13 +52,13 @@ Describe the screen from top to bottom.
 2. **<Region name>**: <content and purpose>
 3. **<Region name>**: <content and purpose>
 
-## Component Inventory
+### Component Inventory
 
 | Component | Purpose | Required States | Test Tag |
 |-----------|---------|-----------------|----------|
 | <component> | <purpose> | <default/loading/selected/disabled/error/etc.> | `<tag>` |
 
-## Visual States
+### Visual States
 
 | State | User Sees | User Can Do |
 |-------|-----------|-------------|
@@ -46,7 +67,7 @@ Describe the screen from top to bottom.
 | Content | <visual behavior> | <allowed actions> |
 | Error | <visual behavior> | <allowed actions> |
 
-## Interaction Rules
+### Interaction Rules
 
 - **Primary action**: <trigger and result>
 - **Secondary actions**: <trigger and result>
@@ -54,7 +75,7 @@ Describe the screen from top to bottom.
 - **Destructive actions**: <confirmation and recovery behavior>
 - **Gestures**: <supported gestures and non-gesture alternatives>
 
-## Copy Requirements
+### Copy Requirements
 
 | Element | Copy |
 |---------|------|
@@ -63,19 +84,96 @@ Describe the screen from top to bottom.
 | Empty state | <exact text> |
 | Error state | <exact text> |
 
-## Accessibility
+### Accessibility
 
 - <content descriptions, roles, focus order, dynamic type, contrast, minimum touch target>
 
-## Responsive And Configuration Behavior
+### Responsive And Configuration Behavior
 
 - <portrait/landscape/tablet behavior>
 - <configuration-change survival expectations>
 
-## Design Assets
+### Design Assets
 
-- <paths to screenshots/mockups saved under docs/current/design/, or "None">
+- **Mockup image**: `design/mockup_<screen_name>.png` (or user-provided screenshot/mockup path in `design/`) — Visual mockup reflecting this screen's layout, components, and visual states.
+- <paths to any additional reference screenshots/assets, or "None">
 
-## Out Of Scope For This Design
+### Out Of Scope For This Design
 
 - <explicit non-goal>
+
+---
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCREEN 2 — copy the block above and paste it here
+     ═══════════════════════════════════════════════════════════ -->
+
+## Screen 2 — <Screen Name>
+
+### Purpose
+
+<What this screen helps the user accomplish and why it exists.>
+
+### UX Principles
+
+- <principle that guides layout and behavior>
+
+### Entry And Exit
+
+- **Entry points**: <where this screen is opened from>
+- **Primary success exit**: <where the user goes after success>
+- **Cancel/back behavior**: <exact behavior>
+- **Failure exit or recovery**: <exact behavior>
+
+### Information Architecture
+
+1. **<Region name>**: <content and purpose>
+2. **<Region name>**: <content and purpose>
+
+### Component Inventory
+
+| Component | Purpose | Required States | Test Tag |
+|-----------|---------|-----------------|----------|
+| <component> | <purpose> | <default/loading/selected/disabled/error/etc.> | `<tag>` |
+
+### Visual States
+
+| State | User Sees | User Can Do |
+|-------|-----------|-------------|
+| Loading | <visual behavior> | <allowed actions> |
+| Content | <visual behavior> | <allowed actions> |
+| Error | <visual behavior> | <allowed actions> |
+
+### Interaction Rules
+
+- **Primary action**: <trigger and result>
+- **Validation**: <inline errors, blocking rules, disabled states>
+- **Destructive actions**: <confirmation and recovery behavior>
+
+### Copy Requirements
+
+| Element | Copy |
+|---------|------|
+| Title | <exact text> |
+| Primary action | <exact text> |
+
+### Accessibility
+
+- <content descriptions, roles, focus order, dynamic type, contrast, minimum touch target>
+
+### Responsive And Configuration Behavior
+
+- <portrait/landscape/tablet behavior>
+
+### Design Assets
+
+- **Mockup image**: `design/mockup_<screen_name>.png` (or user-provided screenshot/mockup path in `design/`) — Visual mockup reflecting this screen's layout, components, and visual states.
+- <paths to any additional reference screenshots/assets, or "None">
+
+### Out Of Scope For This Design
+
+- <explicit non-goal>
+
+---
+
+<!-- Add more Screen N blocks as needed -->

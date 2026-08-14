@@ -17,7 +17,8 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 ## Load
 
 **Always load:**
-- `skills/android-ui-verification/SKILL.md`
+- `docs/product/design_system.md` — mandatory visual tokens and reusable component contracts for UI-affecting work
+- `skills/ui-verification/SKILL.md`
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
 - `rules/compose-rules.md`
@@ -25,16 +26,20 @@ Work in small, vertically-sliced increments: implement one layer, verify the bui
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
 - `rules/observability.md`
+- `rules/implementation-rules.md`
 
 **Adhoc workflows** (`feature-delivery`, `bug-fixing`):
 - `docs/current/implementation_plan_v<N>.md` — implementation plan approved by user
 - `docs/current/spec_v<N>.md` — requirement summary, impact analysis, UiState & navigation design
+- `docs/current/design.md` — screen purpose, layout, visual/interaction states, copy, components inventory (if UI changes involved)
+- `docs/current/design/` — user-provided screenshots or AI-generated `mockup_*.png` images (view these for visual layout reference before implementing UI)
 
 **Harness workflow** (`harness-generator`):
-- `docs/current/design.md` — screen purpose, layout, visual/interaction states, copy, components inventory, accessibility
-- `docs/current/spec.md` — screen specifications, functional requirements, edge cases, persistence schema
-- `docs/current/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan
-- `docs/current/summary_{feature_id}.md` — single source of truth for the active feature (key decisions, files changed, stage progress)
+- `$FEATURE_DIR/design.md` — screen purpose, layout, visual/interaction states, copy, components inventory, accessibility
+- `$FEATURE_DIR/design/` — user-provided screenshots or AI-generated `mockup_*.png` images (view these images to understand the intended visual layout before implementing UI)
+- `$FEATURE_DIR/spec.md` — screen specifications, functional requirements, edge cases, persistence schema
+- `$FEATURE_DIR/sprint-contract.md` — acceptance criteria, scope boundaries, verification plan
+- `$FEATURE_DIR/summary_{feature_id}.md` — single source of truth for the active feature (key decisions, files changed, stage progress)
 
 ---
 
@@ -117,8 +122,10 @@ If local storage is affected:
 #### 3.3 Composable screen
 1. Split every screen into stateless `Content` + stateful `Screen` wrapper (see `rules/compose-rules.md`)
 2. The stateless `Content` Composable receives `UiState` and callbacks — it does not call the ViewModel
-3. Use `stringResource()` for all user-visible text — **no hardcoded strings**
-4. Add `Modifier.testTag("stable_name")` to all interactive elements and key content areas
+3. **View the mockup images** in the active design directory (`$FEATURE_DIR/design/` or `docs/current/design/`) before writing UI code — use both `design.md` text and visual mockup images (user-provided or generated) as visual context for component layout, spacing, and visual hierarchy
+4. Use `stringResource()` for all user-visible text — **no hardcoded strings**
+5. Add `Modifier.testTag("stable_name")` to all interactive elements and key content areas
+6. Map every visual choice to `docs/product/design_system.md` semantic tokens/shared components or to an explicit approved exception in the active `design.md`; do not introduce raw colors or a parallel component family
 
 #### 3.4 Navigation, Analytics & String resources
 1. Update the navigation graph if new routes are added — use serializable argument types only
@@ -147,8 +154,10 @@ Update `summary_{feature_id}.md` (or `summary_v<N>.md` depending on the active w
 - [ ] Composable screens do not contain business logic
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings
 - [ ] All interactive elements have `Modifier.testTag(...)` with a stable name
+- [ ] UI conforms to `docs/product/design_system.md` plus explicit approved feature exceptions
 - [ ] UiState covers loading, success, empty, and error states
 - [ ] Log statements use `NotesApp/<ClassName>` tag, correct level, and no PII (see `rules/observability.md`)
+- [ ] No dummy code in production sources — `grep -rn "TODO()\|NotImplementedError\|// dummy\|// placeholder\|// stub" app/src/main/ sharedContracts/` returns 0 matches; no function, branch, or callback returns a hardcoded value or no-op where the spec requires a real computation or action (see `rules/implementation-rules.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file. 

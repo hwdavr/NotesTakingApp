@@ -4,6 +4,7 @@
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
     "do_not_skip_verification": true
   },
   "status_legend": {
@@ -21,12 +22,16 @@
       "description": "Implement the domain use case and local database schema additions to create a new empty note and post to server.",
       "ui_design": "docs/current/design/home_screen.png",
       "user_visible_behavior": "A user can click + floating action button at home to create a new empty note.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
       "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-VIS"
+      ],
       "verification": [
-        "Launch the app by instrumented test",
-        "Click + floating action button at home.",
-        "Verify the empty note UI is displayed",
-        "Verify a POST API call is called with the correct note data"
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=<fully.qualified.TestClass>",
+        "mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_screen_success.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_screen_success.png\""
       ],
       "evidence": [],
       "notes": ""
@@ -39,15 +44,17 @@
       "description": "Implement the sendMessage Retrofit API endpoint mapping and save the sent message into the local Room database thread.",
       "ui_design": "Pencil: Discussion Bottom Sheet",
       "user_visible_behavior": "A user can submit a message and see it appear in the active thread.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
       "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01"
+      ],
       "verification": [
-        "Open an existing conversation.",
-        "Type a message into the input.",
-        "Submit the message.",
-        "Verify the new message appears in the thread."
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=<fully.qualified.TestClass>"
       ],
       "evidence": [],
-      "notes": ""
+      "notes": "Intermediate UI slice; visual verification is owned by the final user-reachable slice."
     },
     {
       "id": "US-3",
@@ -57,14 +64,17 @@
       "description": "Implement automatic offline syncing using a WorkManager sync worker that triggers when internet is restored.",
       "ui_design": "Figma: Sidebar Navigation",
       "user_visible_behavior": "A user sees previously created conversations after restarting the app.",
+      "affects_ui": false,
+      "requires_visual_verification": false,
       "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01"
+      ],
       "verification": [
-        "Create two conversations.",
-        "Restart the app.",
-        "Verify both conversations still appear in the sidebar."
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=<fully.qualified.TestClass>"
       ],
       "evidence": [],
-      "notes": ""
+      "notes": "Background sync worker; no Composable changes. Visual verification (TC-US-*-VIS) is not required."
     }
   ]
 }

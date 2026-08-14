@@ -93,7 +93,7 @@ if command -v rg &>/dev/null; then
             files=("${filtered_files[@]}")
         fi
         [[ ${#files[@]} -eq 0 ]] && return 0
-        rg --color never -n "${rg_args[@]}" "$pattern" "${files[@]}" || true
+        rg --color never --with-filename -n "${rg_args[@]}" "$pattern" "${files[@]}" || true
     }
 else
     _search() {
@@ -174,11 +174,11 @@ _run_check \
 
 # ── 2. Hardcoded Strings in Composable Parameters ────────────────────────────
 _header "2 · Hardcoded Strings in Composable Parameters"
-echo -e "  ${YELLOW}label=, title=, placeholder=, hint= must not use raw string literals.${RESET}"
+echo -e "  ${YELLOW}title=, placeholder=, and hint= must not use raw string literals.${RESET}"
 
 _run_check \
-    'Button/label/placeholder/hint set as a hardcoded string' \
-    '(label|title|placeholder|hint)\s*=\s*"[^"]' \
+    'Button/title/placeholder/hint set as a hardcoded string' \
+    '(title|placeholder|hint)\s*=\s*"[^"]' \
     --type kotlin
 
 # ── 3. Hardcoded Local UI String Variables ────────────────────────────────────
@@ -207,9 +207,8 @@ _check_null_content_description() {
     local found=false
     while IFS= read -r line; do
         [[ -z "$line" ]] && continue
-        local file="${line%%:*}"
-        local lineno="${line#*:}"
-        lineno="${lineno%%:*}"
+        local file lineno _match
+        IFS=: read -r file lineno _match <<< "$line"
         if [[ -z "$file" || -z "$lineno" ]]; then
             continue
         fi

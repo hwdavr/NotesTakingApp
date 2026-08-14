@@ -25,15 +25,15 @@ The article principle: write the failing test *before* touching the application 
 - `docs/current/test_plan_v<N>.md` — test cases, layers, and coverage targets approved by user
 
 **Harness workflow** (`harness-generator`):
-- `docs/current/sprint-contract.md` — verification plan mapped to each acceptance criterion
-- `docs/current/summary_{feature_id}.md` — active feature context and stage progress
+- `$FEATURE_DIR/sprint-contract.md` — verification plan mapped to each acceptance criterion
+- `$FEATURE_DIR/summary_{feature_id}.md` — active feature context and stage progress
 
 ---
 
 ## Execute
 
 ### 1. Execute Planned Tests
-Read the approved test plan in `docs/current/test_plan_t<taskId>.md` to identify the test layers and test cases required for this task.
+For ad-hoc workflows, read the approved `docs/current/test_plan_v<N>.md`. For the harness workflow, read the selected user story and its acceptance-test rows in `$FEATURE_DIR/sprint-contract.md`, plus the matching `verification` entry in `$FEATURE_DIR/feature_list.json`.
 
 ### 2. Unit tests (`app/src/test/`)
 Write unit tests for all new or modified:
@@ -71,6 +71,7 @@ Rules:
 Write instrumented tests only when Android runtime or real UI rendering is required.
 
 Rules:
+- Target device selection: Use an Android emulator for instrumented UI tests (e.g. `ANDROID_SERIAL=emulator-5554`). Only when an emulator is missing/not connected, use a connected physical device.
 - Use `createComposeRule()` — **not** `createAndroidComposeRule` unless Activity is strictly required
 - Test the stateless `Content` Composable — not the Hilt-wired `Screen` wrapper
 - Do not use `Thread.sleep` — use `waitUntil` or `waitForIdle`
@@ -92,7 +93,7 @@ These rules apply to every test file regardless of layer:
 ./gradlew testDebugUnitTest
 ./gradlew koverLog
 ```
-If instrumented tests were added: `./gradlew connectedDebugAndroidTest`
+If instrumented tests were added: run on an emulator (e.g. `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`), using a connected physical device only if no emulator is present.
 
 Record every result number in the output report below. Do not summarize — copy actual pass/fail counts and coverage percentages verbatim from the tool output.
 

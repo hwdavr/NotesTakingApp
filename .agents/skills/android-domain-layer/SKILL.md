@@ -13,6 +13,7 @@ The domain layer must remain platform-independent.
 
 ## Load
 - `rules/android-architecture.md`
+- `rules/implementation-rules.md`
 - `docs/current/implementation_plan_v<N>.md` (Implementation Plan stage output)
 
 ---
@@ -72,6 +73,7 @@ Update `summary_v<N>.md`: mark the Domain Layer stage complete.
 - [ ] Repository interfaces updated and match the Data Layer stage implementation
 - [ ] Use cases are single-responsibility (one observable outcome per use case)
 - [ ] New enum domain models include `UNKNOWN` / fallback variant
+- [ ] No dummy code in domain-layer files — no `TODO()`, `NotImplementedError`, stub return values, no-op handlers, or `// dummy implementation` comments in `domain/` sources; every use case implements the actual business logic. Repository interface declarations are exempt (interfaces have no body by design — see the rule's "Allowed exceptions"); concrete `RepositoryImpl` implementations are checked in the Data Layer stage (see `rules/implementation-rules.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

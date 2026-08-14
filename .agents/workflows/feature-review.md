@@ -56,7 +56,7 @@ After reading, summarise the key constraints and open decisions you will verify 
 
 ### Stage 4: Execute Runtime Verification
 - Execute local unit and integration tests to verify correctness: `./gradlew testDebugUnitTest`.
-- Run instrumented Compose UI tests to check interactivity and transitions: `./gradlew connectedDebugAndroidTest` (or target specific UI classes).
+- Run instrumented Compose UI tests to check interactivity and transitions: target an emulator first (e.g. `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`), using a connected physical device only if no emulator is present.
 
 ---
 

@@ -14,6 +14,7 @@ Implement in small, working slices. Verify the build passes before proceeding.
 ## Load
 - `rules/android-architecture.md`
 - `rules/api-contract-rules.md`
+- `rules/implementation-rules.md`
 - `docs/current/implementation_plan_v<N>.md` (Implementation Plan stage output)
 
 ---
@@ -91,6 +92,7 @@ Update `summary_v<N>.md`: mark the Data Layer stage complete.
 - [ ] All new enum fields have an `UNKNOWN` / fallback variant
 - [ ] Room schema version incremented and migration added (if schema changed)
 - [ ] Repository method returns domain models, not DTOs
+- [ ] No dummy code in data-layer files — no `TODO()`, `NotImplementedError`, stub return values, no-op handlers, or `// dummy implementation` comments in `data/remote/`, `data/local/`, `data/repository/`, or `data/mapper/` sources; every repository method, mapper, and DAO query implements the actual requirement behavior (see `rules/implementation-rules.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

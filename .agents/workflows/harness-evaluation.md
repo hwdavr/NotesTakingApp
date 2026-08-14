@@ -23,8 +23,11 @@ description: You are a senior Android developer running an independent code and 
 When a feature is submitted for review, execute these steps in order:
 
 ### Stage 1: Read the Baselines
-- Read `sprint-contract.md` to see the agreed **Acceptance Criteria**, **Scope**, and **Exclusions**.
-- Read `feature_list.json` to verify the target feature definition and its current status.
+- Run `bash scripts/check-feature-lifecycle.sh`; stop if lifecycle state is invalid.
+- Select the active non-complete `FEATURE_DIR` from the Harness Feature Tracker in `docs/product/product.md`. Do not infer lifecycle state by scanning product directories.
+- Read `$FEATURE_DIR/sprint-contract.md` to see the agreed **Acceptance Criteria**, **Scope**, and **Exclusions**.
+- Read `$FEATURE_DIR/feature_list.json` to verify the target feature definition and its current status.
+- If the change affects UI, read `docs/product/design_system.md`, `$FEATURE_DIR/design.md`, and its visual assets. Treat unexplained deviations from the global design system as review findings.
 
 ---
 
@@ -32,8 +35,7 @@ When a feature is submitted for review, execute these steps in order:
 **INVOKE** the `android-test-review` skill via the Skill tool (name: `android-test-review`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism. Evaluate test coverage, assertions, and shared JSON scenario completeness. Do not stop after this stage — proceed immediately to Stage 3.
 
 **Output**:
-- Test review report: `docs/current/test_review_v<N>.md`
-- If no change directory exists: `test_review_v<N>.md` in the project root
+- Test review report: `$FEATURE_DIR/test_review_{feature_id}.md`
 
 ---
 
@@ -41,14 +43,13 @@ When a feature is submitted for review, execute these steps in order:
 **INVOKE** the `android-code-review` skill via the Skill tool (name: `android-code-review`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism. Perform static analysis and identify logic/architectural flaws. Do not stop after this stage — proceed immediately to Stage 4.
 
 **Output**:
-- Code review report: `docs/current/code_review_v<N>.md`
-- If no change directory exists: `code_review_v<N>.md` in the project root
+- Code review report: `$FEATURE_DIR/code_review_{feature_id}.md`
 
 ---
 
 ### Stage 4: Execute Runtime Verification
 - Execute local unit and integration tests to verify correctness: `./gradlew testDebugUnitTest`.
-- Run instrumented Compose UI tests to check interactivity and transitions: `./gradlew connectedDebugAndroidTest` (or target specific UI classes).
+- Run instrumented Compose UI tests to check interactivity and transitions: target an emulator first (e.g. `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`), using a connected physical device only if no emulator is present.
 
 ---
 
@@ -77,11 +78,17 @@ The Evaluator's primary deliverable is the final quality assessment report.
 > 4. **Issue Verdict & Follow-Up**: Document the final verdict (`Accept` | `Revise` | `Block`) and explicitly itemize any missing evidence, required fixes, or review triggers in the **Required Follow-Up** block.
 
 **⛔ STOP — present all review reports and the evaluator rubric to the user.**
-The user decides whether findings are acceptable or fixes are required.
+The findings are presented for transparency, but the status transition is **driven automatically by the overall score** (see the rule below), not by a manual accept/fix decision.
+
+After presenting the evaluation results, update the Harness Feature Tracker in `docs/product/product.md` with a **score-based transition**:
+*   **If the overall score is `5.0 / 5` (perfect)** → transition the feature status from `To be reviewed` → `To be human reviewed`.
+*   **If the overall score is less than `5.0 / 5` (not perfect)** → transition the feature status from `To be reviewed` → `To be fixed`. This routes the feature to the **harness-fix workflow** (`.agents/workflows/harness-fix.md`): the Generator resolves every finding in `$FEATURE_DIR/code_review_{feature_id}.md` and `$FEATURE_DIR/test_review_{feature_id}.md`, updates the per-finding status inside those reports, and then transitions to `To be human reviewed`.
+*   Update the date to today and add the evaluation verdict (`Accept` / `Revise` / `Block`) and overall score to the notes column.
+*   Run `bash scripts/check-feature-lifecycle.sh` after the tracker update. Do not claim completion if it fails.
 
 ---
 
 ## Human-in-the-Loop Confirmation Points
 
-1. **After Stage 5 (Quality Assessment)** — user sees all code findings, test findings, and the final evaluator rubric *(mandatory)*
+1. **After Stage 5 (Quality Assessment)** — user sees all code findings, test findings, and the final evaluator rubric *(mandatory)*. The evaluator then applies the score-based transition automatically: `5.0 / 5` → `To be human reviewed`; `< 5.0 / 5` → `To be fixed` (the Generator then runs the **harness-fix workflow** — `.agents/workflows/harness-fix.md` — and transitions to `To be human reviewed`).
 2. **Nit/Optional findings** — user decides which to accept *(optional but recommended)*

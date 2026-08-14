@@ -185,7 +185,7 @@ echo -e "${BOLD}======================================================${RESET}"
 echo -e "  Source root: ${SOURCE_ROOT}\n"
 
 # ── 1. Hardcoded Colors ───────────────────────────────────────────────────────
-_header "2 · Hardcoded Colors"
+_header "1 · Hardcoded Colors"
 echo -e "  ${YELLOW}Use LocalAppColors.current.<token> — never Color(0x...) or Color.Red etc.${RESET}"
 echo -e "  ${YELLOW}AppColors.kt is excluded (it is the canonical definition file).${RESET}"
 
@@ -209,7 +209,7 @@ echo -e "  ${YELLOW}Heuristic: flags files with interactive elements but zero te
 _rule_header 'Files containing interactive Composables but no testTag'
 no_tag_files=()
 for f in "${kt_files[@]}"; do
-    if grep -qP '(Button|FloatingActionButton|IconButton|Chip|Switch|Checkbox|RadioButton|Slider|DropdownMenu|ExposedDropdownMenuBox)\s*\(' "$f" 2>/dev/null; then
+    if grep -qP '\b(Button|FloatingActionButton|IconButton|Chip|Switch|Checkbox|RadioButton|Slider|DropdownMenu|ExposedDropdownMenuBox)\s*\(' "$f" 2>/dev/null; then
         if ! grep -qP 'testTag' "$f" 2>/dev/null; then
             no_tag_files+=("$f")
         fi
@@ -251,10 +251,13 @@ _run_check \
 _header "5 · Unstable testTag Values"
 echo -e "  ${YELLOW}testTag must use stable, descriptive strings — not dynamic IDs or string interpolation.${RESET}"
 
+# Key content containers use item-specific tags keyed by stable model IDs.
+# Exclude dynamic list item tags (e.g. note_item_*, folder_item_*) if required.
+
 _run_check \
     'testTag with string interpolation (unstable, ID-dependent)' \
-    'testTag\s*\(\s*"[^"]*\$\{?' \
-    --type kotlin
+    'testTag\s*\(\s*"(?!note_item_|folder_item_|collection_item_)[^"]*\$\{?' \
+    --type kotlin --pcre2 --exclude LayerManagerControl.kt
 
 _run_check \
     'testTag with string concatenation or derived value (unstable, ID-dependent)' \

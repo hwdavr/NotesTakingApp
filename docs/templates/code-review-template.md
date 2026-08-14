@@ -12,22 +12,54 @@ Use this template when producing the review summary in the relevant stage.
 
 ---
 
+## Review Scope and Evidence Provenance
+
+| Item | Value |
+|---|---|
+| Current commit | |
+| Merge base / prior reviewed commit | |
+| Baselines reviewed | `spec`, `sprint contract`, plan, test review |
+| Changed production files reviewed | |
+| Changed tests reviewed | |
+| Independently executed checks | |
+| Recorded / up-to-date / skipped checks | |
+
+## Requirement-to-Production Traceability
+
+List every FR, AC, and documented edge case from the active specification and sprint contract.
+
+| Source ID | Required behavior | Production entry point | Completion / cleanup path | Test evidence | Result |
+|---|---|---|---|---|---|
+| FR-001 | | | | | PASS / REVISION REQUIRED / N/A |
+
+## State Completion and Reachability Audit
+
+| Changed state, callback, job, or listener | Set / entry point | Production completion or cleanup call site | Test-only substitute found? | Result |
+|---|---|---|---|---|
+| | | | Yes / No | PASS / REVISION REQUIRED |
+
+Required: flag completion paths called only from tests, stale transition flags, ignored callbacks, placeholder/no-op branches, and final-state rendering that lacks a real production trigger.
+
+---
+
 ## Build & Test Results
 
-| Check | Result | Notes |
-|-------|--------|-------|
-| `assembleDebug` | ✅ PASS / ❌ FAIL | |
-| `testDebugUnitTest` | ✅ PASS / ❌ FAIL | |
-| `koverLog` overall | ✅ X% ≥ 80% / ❌ | |
-| `koverLog` new classes | ✅ X% ≥ 90% / ❌ | |
-| `connectedDebugAndroidTest` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED | |
-| `ktlintCheck` | ✅ PASS / ❌ FAIL | |
-| `detekt` | ✅ PASS / ❌ FAIL | |
-| `lintDebug` | ✅ PASS / ❌ FAIL | |
-| `check-compose-rules.sh` or `check-compose-rules.cmd` | ✅ PASS / ❌ FAIL / ⏭ SKIPPED (no Compose changes) | |
-| `check-localization-rules.sh` or `check-localization-rules.cmd` | ✅ PASS / ❌ FAIL | |
-| `check-architecture-rules.sh` or `check-architecture-rules.cmd` | ✅ PASS / ❌ FAIL | |
-| Suppression audit | ✅ PASS / ❌ FAIL | Confirm no new suppressions, ignores, baselines, or rule exclusions were added to make checks pass. |
+| Check | Exit code | Timestamp / commit | Provenance | Result | Failure detail / scope |
+|-------|---:|---|---|---|---|
+| `assembleDebug` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `testDebugUnitTest` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `koverLog` overall | | | Independently executed / Recorded / Up-to-date / Not run | ✅ X% ≥ 80% / ❌ | |
+| `koverLog` new classes | | | Independently executed / Recorded / Up-to-date / Not run | ✅ X% ≥ 90% / ❌ | |
+| `connectedDebugAndroidTest` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL / ⏭ SKIPPED | |
+| `ktlintCheck` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `detekt` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `lintDebug` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `check-compose-rules.sh` or `check-compose-rules.cmd` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL / ⏭ SKIPPED | |
+| `check-localization-rules.sh` or `check-localization-rules.cmd` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| `check-architecture-rules.sh` or `check-architecture-rules.cmd` | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | |
+| Suppression audit | | | Independently executed / Recorded / Up-to-date / Not run | ✅ PASS / ❌ FAIL | Confirm no new suppressions, ignores, baselines, or rule exclusions were added to make checks pass. |
+
+Any non-zero required gate makes the verdict non-approved, even when the source is pre-existing. Record the source and scope above.
 
 ---
 
@@ -327,7 +359,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 ## Security
 
 - [ ] No secrets or tokens hardcoded
-- [ ] No PII logged
+- [ ] No user-generated text, transcript, image content, identifier, or other sensitive content logged
 - [ ] Sensitive data not stored unencrypted
 - Concerns: `<list or "none">`
 

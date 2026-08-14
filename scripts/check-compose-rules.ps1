@@ -33,7 +33,7 @@ Write-Host "  Flags files with interactive elements but no testTag references."
 Write-RuleCheckRule "Files containing interactive Composables but no testTag"
 $noTagFiles = @()
 foreach ($file in $ktFiles) {
-    if ((Test-RuleCheckFileContains $file "(Button|FloatingActionButton|IconButton|Chip|Switch|Checkbox|RadioButton|Slider|DropdownMenu|ExposedDropdownMenuBox)\s*\(") -and
+    if ((Test-RuleCheckFileContains $file "\b(Button|FloatingActionButton|IconButton|Chip|Switch|Checkbox|RadioButton|Slider|DropdownMenu|ExposedDropdownMenuBox)\s*\(") -and
         -not (Test-RuleCheckFileContains $file "testTag")) {
         $noTagFiles += $file
     }

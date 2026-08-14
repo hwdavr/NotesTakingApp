@@ -19,7 +19,7 @@ Do not fix symptoms first. Do not guess — prove it with a failing test.
 **The reproduction test must be RED before the Fix Plan is written.**
 **The Fix Plan must be approved before any fix code is written.**
 
-Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Testing → Review → Knowledge
+Pipeline: Bug Context & Root Cause → Bug Reproduction (TDD) → Fix Plan → [User Approval] → Implementation → Testing → Code Quality Fix → Install App To Device
 
 ---
 
@@ -99,11 +99,18 @@ Gate:
 
 ---
 
-### Stage 7 — Knowledge Capture
-**INVOKE** the `knowledge-capture` skill via the Skill tool (name: `knowledge-capture`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
+### Stage 7 — Install App To Device
+Install the completed debug build to all connected devices and emulators as the final delivery step.
 
-Output: `docs/current/summary_v<N>.md` updated with Knowledge Capture stage marked complete.
+**Actions**:
+1. Install the app to every connected device and emulator:
+    ```bash
+    ./gradlew installDebug
+    ```
+2. Record the install command, connected device IDs, and exit status in `docs/current/summary_v<N>.md`.
 
+Output: Debug app installed on every connected device and emulator.
+Gate: install command exits with code 0. If no device is connected, mark this stage blocked with the `adb devices` output and do not claim delivery is fully complete.
 ---
 
 ## Human-in-the-Loop Confirmation Points

@@ -60,3 +60,4 @@ Run this checklist before committing and at the end of each session to ensure co
 *   [ ] **Progress Audit**: Update progress logs and task checklists in the changes audit directory.
 *   [ ] **Session Handoff**: Create or update the `session-handoff.md` file detailing modifications and next steps.
 *   [ ] **ADRs & Pitfalls**: Confirm that all new features and public API changes are accompanied by ADRs or knowledge updates.
+*   [ ] **Harness Lifecycle**: For complex features, run `bash scripts/check-feature-lifecycle.sh`; verify the stable product workspace, status, completion evidence, and active-feature count are consistent.

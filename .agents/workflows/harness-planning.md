@@ -18,6 +18,20 @@ Do not guess at scope. Clarify requirements first, decompose into structured fea
 Every open question must be answered and approved by the user before slice planning begins.
 Each planned feature in the list must represent a clean, end-to-end user-visible behavior with specific verification steps.
 
+## Feature Workspace
+
+At the start of planning, create one dated feature workspace:
+
+```text
+docs/product/<YYYY-MM-DD>-<feature-short-name>/
+```
+
+Use lowercase kebab case for `<feature-short-name>` and the local planning date for the prefix. This stable directory is the source of truth for every complex-feature artifact throughout planning, implementation, and completion. Do not use `docs/current/` for harness artifacts; it remains reserved for ad-hoc workflows.
+
+Immediately add a row to the **Harness Feature Tracker** in `docs/product/product.md` using a stable lowercase-kebab-case ID, status `Planning`, and a link labelled with the exact `docs/product/` workspace. Run `bash scripts/check-feature-lifecycle.sh` after creating or changing the row. The controlled lifecycle is `Planning` → `Awaiting specification approval` → `Awaiting implementation approval` → `In Progress` / `Blocked` → `Complete`.
+
+Workspace location never represents lifecycle status. Planning must never create a second lifecycle file or infer active work by scanning directories.
+
 ---
 
 ## Stage Execution
@@ -28,16 +42,18 @@ Each planned feature in the list must represent a clean, end-to-end user-visible
 Objective:
 - Classify the task type (new screen, enhancement, or logic-only change).
 - Ask targeted clarifying questions in chat until every material ambiguity is resolved.
-- Write `docs/current/spec.md` (always) and `docs/current/design.md` (for new screens or UI enhancements/flows).
+- Create `FEATURE_DIR=docs/product/<YYYY-MM-DD>-<feature-short-name>` before writing artifacts.
+- Write `$FEATURE_DIR/spec.md` (always) and `$FEATURE_DIR/design.md` (for new screens or UI enhancements/flows).
+- For UI work, read `docs/product/design_system.md` before design decisions, link it from `$FEATURE_DIR/design.md`, and record every explicit user-approved exception. Generated mockups must use its exact applicable tokens and component patterns.
 
-Output: `docs/current/spec.md` + `docs/current/design.md` (if the change includes UI modifications)
-Gate: Run `bash scripts/check-stage-artifacts.sh harness-planning feature-specification` — must exit 0. **STOP — present artifacts to user. Do not proceed until user explicitly approves.**
+Output: `$FEATURE_DIR/spec.md` + `$FEATURE_DIR/design.md` + `$FEATURE_DIR/design/mockup_*.png` visual mockup images (user-provided or AI-generated, if the change includes UI modifications)
+Gate: Update the tracker status to `Awaiting specification approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning feature-specification "$FEATURE_DIR"` — it validates stage artifacts and lifecycle state and must exit 0. For UI work, also verify `design.md` cites `docs/product/design_system.md`. **STOP — present specification, design document, and visual mockup images to user for review. Do not proceed until user explicitly approves.**
 
 ### Stage 2 — Slice Planning ⛔ STOP FOR APPROVAL
 **INVOKE** the `slice-planning` skill via the Skill tool (name: `slice-planning`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
-Input: `docs/current/spec.md` (+ `docs/current/design.md` if present)
-Output: `docs/current/feature_list.json`, `docs/current/progress.md`, `docs/current/sprint-contract.md`
-Gate: Run `bash scripts/check-stage-artifacts.sh harness-planning slice-planning` — must exit 0. **STOP — present `feature_list.json` and `sprint-contract.md` to user. Do not proceed until user explicitly approves the task breakdown and sprint contract.**
+Input: `$FEATURE_DIR/spec.md` (+ `$FEATURE_DIR/design.md` if present)
+Output: `$FEATURE_DIR/feature_list.json`, `$FEATURE_DIR/progress.md`, `$FEATURE_DIR/sprint-contract.md`
+Gate: Update the tracker status to `Awaiting implementation approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning slice-planning "$FEATURE_DIR"` — it validates both stage artifacts and lifecycle state and must exit 0. **STOP — present `feature_list.json` and `sprint-contract.md` to user. Do not proceed until user explicitly approves the task breakdown and sprint contract.**
 
 ---
 

@@ -6,14 +6,35 @@ description: Records ADRs, post-mortems, and learnings after feature or bug reso
 # Skill — Knowledge Capture
 
 ## Purpose
-Record decisions, findings, and lessons learned so every piece of institutional knowledge outlives this change.
+Record **only high-value institutional knowledge** that cannot be recovered from source code alone.
+Source code is the source of truth for *what* the system does. This skill records *why* decisions were made, *what* traps exist, and *what* rules should be enforced permanently.
 
 The article principle: "Every time you discover an agent has made a mistake, you take the time to engineer a solution so that it can never make that mistake again." (Mitchell Hashimoto)
 
 ---
 
+## High-Value Filter — Apply Before Writing Anything
+
+Before creating any document, ask: **"Would a skilled developer or agent lose significant time without this record?"**
+
+| Document type | Write only if… |
+|---|---|
+| ADR | A deliberate architectural trade-off was made that is not obvious from the code |
+| Past bug | The bug was non-obvious, hard to diagnose, systemic, or caused by a framework gotcha |
+| Pitfall | A non-obvious anti-pattern is easy to stumble into again |
+| Rule update | A coding constraint was followed that is not yet enforced by any existing rule |
+
+**If the answer is "no" for every category → produce zero documents. That is the correct outcome.**
+
+Do NOT record:
+- Routine bugs (typos, simple null checks, obvious fixes)
+- Decisions that are self-evident from reading the code
+- Implementation details already visible in source
+- Process steps or summaries that belong in `docs/current/`
+
+---
+
 ## Load
-- `skills/documentation-and-adrs/SKILL.md`
 - `docs/current/code_review_v<N>.md` (Code Review stage output)
 - `docs/current/test_review_v<N>.md` (Test Review stage output)
 - `docs/current/summary_v<N>.md` (full change history)
@@ -23,55 +44,55 @@ The article principle: "Every time you discover an agent has made a mistake, you
 ## Execute
 
 ### 1. Architecture decisions
-If this change made a significant architectural decision (new pattern, new abstraction, new convention), record it as an ADR in `docs/knowledge/architecture-decisions/` using the format in that folder's README.
+**Qualifying question:** "Did this change require a deliberate architectural trade-off that is not obvious from reading the code?"
 
-Ask: "Did anything in this change require a deliberate architectural trade-off?" If yes, write the ADR.
+If yes → write an ADR in `docs/knowledge/architecture-decisions/` using that folder's README format.
+If no → skip.
 
 ### 2. Past bugs
-Only record a bug if it was **non-obvious, hard to diagnose, or systemic** (e.g., subtle race condition, misleading error message, framework gotcha, broad architectural misunderstanding). Routine bugs — typos, simple null-pointer fixes, missing null-checks — do **not** qualify.
+**Qualifying question:** "Would a skilled developer waste significant time diagnosing this same bug in the future without this record?"
 
-If it qualifies, record it in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `docs/templates/regression-template.md`.
-
-Ask: "Would a skilled developer waste significant time diagnosing this same bug in the future without this record?" Only if yes, record it.
+If yes (non-obvious, hard-to-diagnose, systemic) → record in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `docs/templates/regression-template.md`.
+If no (routine typo, simple null-check, obvious fix) → skip.
 
 ### 3. Pitfalls
-If this change revealed a non-obvious footgun or anti-pattern that is easy to stumble into again, record it in `docs/knowledge/pitfalls/<slug>.md`.
+**Qualifying question:** "Would another developer or agent make the same mistake again without this knowledge?"
 
-Ask: "Would another developer or agent make the same mistake without this knowledge?" If yes, record it.
+If yes → record in `docs/knowledge/pitfalls/<slug>.md`.
+If no → skip.
 
 ### 4. Update rules if needed
-If this change revealed that an existing rule was incomplete, incorrect, or missing, update the relevant `rules/*.md` file.
+**Qualifying question:** "Is there a constraint we followed in this change that should always be enforced but is not yet in any rule file?"
 
-Ask: "Is there a constraint we followed in this change that should be encoded in the rules so it is always enforced?"
+If yes → update the relevant `.agents/rules/<rule-file>.md`.
+If no → skip.
 
-### 5. Update shared JSON scenarios
-If new or changed scenarios were created, confirm they are committed to `sharedContracts/test-scenarios/` and cross-referenced with the endpoint in `sharedContracts/openapi.yaml`.
-
-### 6. Finalize docs/current/summary_v<N>.md
+### 5. Finalize docs/current/summary_v\<N\>.md
 Update `docs/current/summary_v<N>.md` to mark all stages complete and record the final state:
 ```
 ## Change Summary — <name>
 
-> *Ensure the Stage Progress table (generated dynamically based on the active workflow) has all stages marked as ✅ Complete.*
+> *Ensure the Stage Progress table has all stages marked as ✅ Complete.*
 
 ## Knowledge Artifacts Produced
 - <path> — <description>
+(or "None — no high-value knowledge artifacts were warranted for this change.")
 ```
 
-### 7. Mark Task Complete in Sliced Plan
+### 6. Mark Task Complete in Sliced Plan
 If a sliced plan exists in `docs/current/progress.md`:
-1. Find the task that you just completed in `docs/current/progress.md`.
+1. Find the task you just completed.
 2. Update its progress status to ✅ Complete and set its completion date.
 
 ---
 
 ## Output
 
-Zero or more of:
+Zero or more of (zero is a valid and common outcome):
 - `docs/knowledge/architecture-decisions/ADR-NNN-<title>.md`
 - `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md`
 - `docs/knowledge/pitfalls/<slug>.md`
-- Updated `rules/<rule-file>.md`
+- Updated `.agents/rules/<rule-file>.md`
 - Finalized `docs/current/summary_v<N>.md`
 - Updated `docs/current/progress.md` (if a sliced plan is active)
 
@@ -80,12 +101,12 @@ Zero or more of:
 ## Done When
 
 **This stage is complete when all of the following are true:**
-- [ ] Every question in Execute steps was answered (even if the answer is "not applicable")
-- [ ] Any architectural decision is recorded as an ADR (or explicitly marked N/A)
-- [ ] Any **non-obvious, hard-to-diagnose, or systemic** bug is recorded in `docs/knowledge/past-bugs/` (routine/simple bugs are explicitly excluded)
-- [ ] Any non-obvious pitfall is recorded in `docs/knowledge/pitfalls/`
-- [ ] `rules/` files updated if a coding convention changed
+- [ ] Every qualifying question was answered (even if every answer is "no — skip")
+- [ ] Any qualifying ADR is recorded, or explicitly marked N/A
+- [ ] Any qualifying bug record is written, or explicitly marked N/A
+- [ ] Any qualifying pitfall is recorded, or explicitly marked N/A
+- [ ] Any qualifying rule update is applied, or explicitly marked N/A
 - [ ] `docs/current/summary_v<N>.md` is finalized with all stages marked ✅ Complete
-- [ ] `docs/current/progress.md` is updated to mark the completed task as ✅ Complete (if a sliced plan is active)
+- [ ] `docs/current/progress.md` updated to ✅ Complete (if a sliced plan is active)
 
 **APPROVED →** Change is complete. Notify the user that the workflow pipeline is done.

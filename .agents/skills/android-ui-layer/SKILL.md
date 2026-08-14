@@ -11,11 +11,13 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 ---
 
 ## Load
-- `skills/android-ui-verification/SKILL.md`
+- `docs/product/design_system.md` — mandatory project-wide visual tokens and component contracts
+- `skills/ui-verification/SKILL.md`
 - `rules/compose-rules.md`
 - `rules/navigation-rules.md`
 - `rules/analytics-rules.md`
 - `rules/localization-rules.md`
+- `rules/implementation-rules.md`
 - `docs/current/implementation_plan_v<N>.md` (Implementation Plan stage output)
 - `docs/current/spec_v<N>.md` — UiState design from the Requirement, Impact & Design Analysis stage
 
@@ -42,6 +44,7 @@ Implement UI layer changes: ViewModels, UiState, UI models, UI mappers, Composab
 3. Keep Composables small — extract reusable UI to `components/`
 4. Use `stringResource()` for all user-visible text — **no hardcoded strings**
 5. Add `Modifier.testTag("stable_name")` to all interactive elements and key content areas
+6. Reuse semantic tokens from `LocalAppColors` and established shared components according to `docs/product/design_system.md`; do not add raw colors or a parallel component style without an explicit approved design exception
 
 ### 4. Navigation wiring
 1. Update the navigation graph if new routes are added or arguments changed
@@ -93,8 +96,10 @@ Update `summary_v<N>.md`: mark the UI Layer stage complete.
 - [ ] Composable screens do not contain business logic
 - [ ] All user-visible text uses `stringResource()` — no hardcoded strings (`grep -r '"[A-Z]' ui/`)
 - [ ] All interactive elements have `Modifier.testTag(...)` with a stable name
+- [ ] UI uses `docs/product/design_system.md` semantic tokens/components and documents every approved exception
 - [ ] UiState covers loading, success, empty, and error states
 - [ ] Navigation arguments are serializable types
+- [ ] No dummy code in UI-layer files — no `TODO()`, `NotImplementedError`, stub return values, no-op handlers (`{}` or log-only), or `// dummy implementation` comments in `ui/` sources; every ViewModel method, UiState branch, and Composable callback implements the actual requirement behavior. `@Preview` composables may use sample `UiState` values for tooling (see the rule's "Allowed exceptions"); production composables and `UiState` data classes are still in scope (see `rules/implementation-rules.md`)
 - [ ] Build passes: `./gradlew assembleDebug`
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

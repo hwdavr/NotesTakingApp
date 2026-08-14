@@ -24,7 +24,7 @@ Do not write any code in this stage.
 
 ### 1. Requirement & Impact Analysis
 1. Read the user's feature request in full. Do not assume anything that is not explicitly stated.
-2. **Read `evaluator-rubric.md`** for final quality evidence and issues that require follow-up.
+2. **Read `docs/templates/evaluator-rubric-template.md`** for final quality evidence and issues that require follow-up.
 3. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 4. Classify changes (`modify`, `extend`, `new`, `delete`).
 5. **API & Contract Check**:

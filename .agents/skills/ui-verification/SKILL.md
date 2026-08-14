@@ -14,7 +14,7 @@ Use the cheapest reliable check first — build and static analysis → instrume
 ---
 
 ## Load
-- `skills/android-ui-verification/SKILL.md`
+- `docs/product/design_system.md` — project-wide visual and component baseline
 - `rules/android-architecture.md` — ensure no layer violations (UI importing data classes, etc.)
 - `docs/current/spec_v<N>.md` — UiState design and visual specification from the Requirement, Impact & Design Analysis stage
 - `docs/current/design/` — **original design screenshots** provided by the user in the Requirement, Impact & Design Analysis stage (e.g. `design.png`)
@@ -33,9 +33,9 @@ Use the cheapest reliable check first — build and static analysis → instrume
 All must pass before proceeding to visual steps.
 
 ### 2. Instrumented UI test verification
-Run existing instrumented tests for any changed screen:
+Run existing instrumented tests for any changed screen (target an emulator first, e.g. using `ANDROID_SERIAL=emulator-5554`, and fall back to a connected physical device only if no emulator is present):
 ```bash
-./gradlew connectedDebugAndroidTest
+ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest
 ```
 
 For each changed Composable, verify:
@@ -72,7 +72,7 @@ adb shell uiautomator dump /sdcard/ui.xml && adb pull /sdcard/ui.xml /tmp/ui.xml
 
 **Compare every text string** against the design in `spec_v<N>.md`. Record any mismatches.
 
-### 4. Side-by-side comparison against original design screenshot
+### 4. Side-by-side comparison against original design screenshot and design system
 Locate the original design screenshot from `docs/current/design/` (uploaded in the Requirement, Impact & Design Analysis stage).
 
 For each screen state that has a reference design:
@@ -85,6 +85,8 @@ For each screen state that has a reference design:
    - Spacing and padding
    - Any UI element that differs from the reference
 3. Record every visual deviation — no matter how minor — in the output report.
+
+Also compare colors, typography, spacing, shapes, opacity, toolbars, overlays/sheets, and control states against `docs/product/design_system.md`. A feature-local difference passes only when `design.md` records it as an explicit user-approved exception.
 
 If no original design screenshot exists, mark this step as `SKIPPED — no design reference provided`.
 
@@ -99,6 +101,7 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 - [ ] Long content handled correctly (scrolling verified)
 - [ ] Bottom sheets with long content use `skipPartiallyExpanded = true` for reliable accessibility
 - [ ] Actual screenshot matches the original design screenshot (or SKIPPED — no design reference)
+- [ ] Actual screenshot conforms to `docs/product/design_system.md` except for explicitly documented approved exceptions
 
 ---
 

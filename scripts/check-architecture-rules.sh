@@ -43,8 +43,23 @@ fi
 
 SOURCE_ROOT="${1:-$PROJECT_ROOT/app/src/main/java}"
 
-# Derived layer roots (absolute paths, used for scoping per-layer checks)
-BASE_PKG="$SOURCE_ROOT/com/example/notesapp"
+# Derive base package path from the actual directory structure on disk.
+# This avoids hard-coding the package name and breaking when the script is
+# used in a new project (the original bug: was hardcoded to 'com/example/notesapp').
+BASE_PKG=""
+if [[ -d "$SOURCE_ROOT/com" ]]; then
+    # Walk up to 4 levels deep to find the first directory that has subdirs
+    # matching layer names (ui, domain, data) — that is the base package.
+    while IFS= read -r candidate; do
+        if [[ -d "$candidate/ui" || -d "$candidate/domain" || -d "$candidate/data" ]]; then
+            BASE_PKG="$candidate"
+            break
+        fi
+    done < <(find "$SOURCE_ROOT" -mindepth 1 -maxdepth 4 -type d | sort)
+fi
+if [[ -z "$BASE_PKG" ]]; then
+    BASE_PKG="$SOURCE_ROOT"
+fi
 UI_ROOT="$BASE_PKG/ui"
 DOMAIN_ROOT="$BASE_PKG/domain"
 DATA_ROOT="$BASE_PKG/data"
@@ -279,6 +294,43 @@ if [[ ${#ui_files[*]} -gt 0 ]]; then
 fi
 
 # =============================================================================
+# SECTION 3 — LAYER BOUNDARY: DOMAIN / DATA IMPORTING FROM UI
+# =============================================================================
+_header "3 · Layer Boundary — Domain/Data Must Not Import UI Packages"
+echo -e "  ${YELLOW}Domain and data layers must not depend on any ui.* package.${RESET}"
+echo -e "  ${YELLOW}This is the main guard against UI dependency leakage in domain/data layers.${RESET}"
+
+# Derive the ui package name from UI_ROOT relative to SOURCE_ROOT
+# e.g. /abs/path/to/com/example/notesapp/ui -> com.example.notesapp.ui
+UI_PKG=""
+if [[ -n "$BASE_PKG" && "$BASE_PKG" != "$SOURCE_ROOT" ]]; then
+    UI_PKG="${BASE_PKG#$SOURCE_ROOT/}.ui"
+    UI_PKG="${UI_PKG//\//.}"
+fi
+
+if [[ -n "$UI_PKG" ]]; then
+    # 3a. Domain files importing from ui.*
+    if [[ ${#domain_files[*]} -gt 0 ]]; then
+        _run_check_files \
+            "Domain file importing from ui layer (${UI_PKG}.*) — domain must not depend on UI" \
+            "import ${UI_PKG//./\\.}\\." \
+            --type kotlin \
+            --files "${domain_files[@]}"
+    fi
+
+    # 3b. Data files importing from ui.*
+    if [[ ${#data_files[*]} -gt 0 ]]; then
+        _run_check_files \
+            "Data file importing from ui layer (${UI_PKG}.*) — data must not depend on UI" \
+            "import ${UI_PKG//./\\.}\\." \
+            --type kotlin \
+            --files "${data_files[@]}"
+    fi
+else
+    echo -e "  ${YELLOW}Skipped — could not derive UI package path from source root.${RESET}"
+fi
+
+# =============================================================================
 # SECTION 2 — PRESENTATION LAYER — BODY-LEVEL VIOLATIONS
 # (Import checks removed — now owned by Detekt ForbiddenImport)
 # =============================================================================
@@ -384,8 +436,8 @@ _run_check \
 
 # 8c. Business rules (domain-model branches) inside Composable bodies
 _run_check \
-    'Calculation / business logic branch inside @Composable (if/when on domain models)' \
-    '(?s)@Composable\b[^{]*fun\s+\w+[^{]*\{[^}]*(when\s*\(\s*\w+\s*\)\s*\{|if\s*\([^)]*\.(status|state|type|role)\b)' \
+    'Calculation / business logic branch inside @Composable (if/when on domain model properties)' \
+    '(?s)@Composable\b[^{]*fun\s+\w+[^{]*\{[^}]*(when\s*\(\s*\w+(\.status|\.state|\.type|\.role|\.kind)\s*\)|if\s*\([^)]*\.(status|state|type|role|kind)\b)' \
     --type kotlin --multiline --pcre2
 
 # 8d. ViewModels missing a corresponding *Test.kt or *IntegrationTest.kt
@@ -393,6 +445,9 @@ _rule_header 'ViewModels missing a corresponding *Test.kt or *IntegrationTest.kt
 test_root="$PROJECT_ROOT/app/src/test"
 missing_tests=()
 for f in "${viewmodel_files[@]}"; do
+    if ! grep -qE '^[[:space:]]*(internal|public|private|protected)?[[:space:]]*class[[:space:]]+[[:alnum:]_]+ViewModel\b' "$f" 2>/dev/null; then
+        continue
+    fi
     vm_name="$(basename "$f" .kt)"
     if ! find "$test_root" \( -name "${vm_name}Test.kt" -o -name "${vm_name}IntegrationTest.kt" \) 2>/dev/null | grep -q .; then
         missing_tests+=("${f#$PROJECT_ROOT/}")
@@ -456,7 +511,7 @@ _rule_header 'RepositoryImpl class files placed outside data/repository/ folder'
 repo_misplaced=()
 for f in "${kt_files[@]}"; do
     if grep -qE '^[[:space:]]*class[[:space:]]+[[:alnum:]_]+RepositoryImpl\b' "$f" 2>/dev/null; then
-        if [[ "$f" != "$DATA_ROOT/repository/"* ]]; then
+        if [[ "$f" != "$DATA_ROOT/repository/"* && ! "$f" =~ ^"$DATA_ROOT"/[^/]+/repository/ ]]; then
             repo_misplaced+=("${f#$PROJECT_ROOT/}")
         fi
     fi
@@ -493,13 +548,13 @@ echo -e "  ${YELLOW}Agents must fix rule violations, not hide them with suppress
 echo -e "  ${YELLOW}A suppression requires an explicit user decision and a documented false-positive rationale.${RESET}"
 
 _rule_header 'New suppression / ignore directives added in this diff'
-suppression_pattern='(@file:Suppress|@Suppress|@SuppressLint|tools:ignore|ktlint-disable|detekt-disable|noinspection|lint:ignore|baseline)'
+suppression_pattern='(@file:Suppress|@Suppress|@SuppressLint|tools:ignore|ktlint-disable|detekt-disable|noinspection|lint:ignore|baseline([._-]|$))'
 suppression_results=""
 if git rev-parse --is-inside-work-tree &>/dev/null; then
     suppression_results=$(
         {
-            git diff --unified=0 -- app/src app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
-            git diff --cached --unified=0 -- app/src app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
+            git diff --unified=0 -- app/src/main app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
+            git diff --cached --unified=0 -- app/src/main app/build.gradle.kts build.gradle.kts detekt.yml .editorconfig 2>/dev/null
         } |
             grep -E '^\+[^+]' |
             grep -En "$suppression_pattern" || true

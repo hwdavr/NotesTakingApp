@@ -68,6 +68,10 @@ Must NOT:
 - Depend on UI classes
 - Depend on Retrofit or Room implementation details
 
+Scoped exception — domain boundaries:
+- Features with complex processing (e.g. AI summarizer, rich text parser) may define domain contracts, keeping framework dependencies encapsulated in data layer implementations.
+- The feature must document the boundary and keep all heavy processing off the main thread.
+
 ---
 
 ### Data Layer
@@ -152,13 +156,14 @@ These are never allowed without explicit architectural justification:
 
 ## Package Structure
 
-Recommended feature folder layout:
+Mandatory feature folder layout:
 
 ```
 ui/<feature>/
   screen/          # Compose screens
   components/      # Feature-specific Compose components
   viewmodel/       # ViewModel + UiState
+
   model/           # UI model data classes
   mapper/          # Domain → UI mapper
 
@@ -172,4 +177,23 @@ data/<feature>/
   local/           # Room entities, DAOs
   repository/      # Repository implementations
   mapper/          # DTO → Domain mappers
+```
+
+### Kover Coverage Boundary
+
+The `screen/` and `components/` subpackages are **excluded from code coverage** because Composables cannot be meaningfully measured by Kover.
+The `viewmodel/` subpackage is **included in coverage** and must meet the 90% line coverage target.
+
+Rule: **Never place a `@Composable` function inside `viewmodel/`**, and **never place a `ViewModel` class inside `screen/` or `components/`**.
+This boundary is what makes the Kover `packages()` wildcard exclusion reliable.
+
+Kover excludes in `build.gradle.kts` must use `packages()` wildcard patterns — not per-class strings — to stay maintainable:
+```kotlin
+excludes {
+    packages(
+        "com.example.notesapp.**.screen",
+        "com.example.notesapp.**.components",
+        // other structural exclusions...
+    )
+}
 ```

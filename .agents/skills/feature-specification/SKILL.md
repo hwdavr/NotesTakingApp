@@ -9,8 +9,9 @@ description: Clarifies a broad feature requirement through chat questions, then 
 
 Turn a general feature request into approved source artifacts:
 
-- `docs/current/spec.md` — **always produced**
-- `docs/current/design.md` — **produced only for new screens or major UI flows**
+- `docs/current/spec.md` — **always produced by ad-hoc workflows**
+- `docs/current/design.md` — **produced only for new screens or major UI flows in ad-hoc workflows**
+- `$FEATURE_DIR/spec.md` and `$FEATURE_DIR/design.md` — the corresponding outputs when invoked by `harness-planning`
 
 This skill replaces both `screen-specification` and `requirement-capture`. It adapts its depth based on the task type:
 
@@ -27,6 +28,7 @@ This skill ends only when every material question has been answered by the user 
 
 ## Load
 
+- `docs/product/design_system.md` — mandatory for every UI-affecting specification and design
 - `skills/spec-driven-development/SKILL.md`
 - `docs/templates/feature-spec-template.md`
 - `docs/templates/feature-design-template.md`
@@ -45,7 +47,7 @@ Read the user's request exactly as stated. Preserve concrete inputs as source-of
 - Required copy, labels, or product terminology
 - Explicit non-goals
 
-If the user provides a screenshot, mockup, or visual reference, save it unchanged under `docs/current/design/` and reference it from `design.md` (if produced) or `spec.md`.
+If the user provides a screenshot, mockup, or visual reference, save it unchanged under the active artifact directory's `design/` folder and reference it from `design.md` (if produced) or `spec.md`. In `harness-planning`, the active artifact directory is `$FEATURE_DIR`.
 
 ### 2. Classify The Task Type
 
@@ -91,13 +93,14 @@ Before writing any artifacts, verify:
 
 If any item fails, ask more questions and do not write the artifacts yet.
 
-### 5. Write `docs/current/spec.md`
+### 5. Write the active `spec.md`
 
 Use `docs/templates/feature-spec-template.md`.
 
 The spec file must always describe:
 - Objective and user goal
 - Scope (in scope / out of scope)
+- **Technical spec** (libraries & dependencies, key technical decisions, external APIs/services, platform constraints)
 - Functional requirements with stable IDs
 - Acceptance criteria with stable IDs
 - Data and persistence requirements
@@ -113,31 +116,30 @@ The spec file must always describe:
 
 Do not include an "Open Questions" section with unresolved items. If there are unresolved items, return to Step 3 instead.
 
-### 6. Write `docs/current/design.md` (New Screen Only)
+### 6. Generate Design & Mockups (New Screen or UI Enhancement)
 
-**Skip this step** for enhancements and logic-only changes.
+**Skip this step** for logic-only changes.
 
-Use `docs/templates/feature-design-template.md`.
+Before handling either design-input path, read `docs/product/design_system.md`. The active `design.md` must link it and list every explicit user-approved exception, or state that there are none.
 
-The design file must describe:
-- Screen purpose and UX principles
-- Information architecture and layout regions
-- Component inventory
-- Visual states
-- Interaction states
-- Navigation behavior
-- Copy requirements
-- Accessibility requirements
-- Test tags and UI verification anchors
-- Design assets and references
+**If the user provided a screenshot or mockup image:**
+1. Save the user-provided image(s) unchanged to the active `design/` folder (`$FEATURE_DIR/design/` or `docs/current/design/`).
+2. Write `design.md` using `docs/templates/feature-design-template.md`, referencing the user-provided mockup(s) in the Design Assets section.
+3. Record any explicit user-approved differences between the supplied mockup and `docs/product/design_system.md`.
+4. **Do NOT invoke the `ux-design` skill** — the user-provided mockup is the feature-specific source of truth, with the global design system supplying all unspecified decisions.
+
+**If NO screenshot or mockup was provided:**
+**INVOKE** the `ux-design` skill via the Skill tool (name: `ux-design`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
+
+Input: The clarified requirements from Steps 1–5, the active artifact directory, and the task type classification.
+Output: `design.md` + `design/mockup_*.png` AI-generated visual mockup images in the active artifact directory.
 
 ---
 
 ## Output
 
-- `docs/current/spec.md` — always
-- `docs/current/design.md` — only for new screens or major UI flows
-- Optional preserved visual references in `docs/current/design/`
+- Ad-hoc workflows: `docs/current/spec.md`, `docs/current/design.md`, and `docs/current/design/` mockup assets (user-provided or generated)
+- Harness planning: `$FEATURE_DIR/spec.md`, `$FEATURE_DIR/design.md`, and `$FEATURE_DIR/design/` mockup assets (user-provided or generated)
 
 ---
 
@@ -146,9 +148,11 @@ The design file must describe:
 Present the produced artifacts to the user and confirm:
 
 - [ ] `spec.md` exists with all required sections filled and no open questions.
-- [ ] `design.md` exists (if task type is new screen) with all sections filled.
+- [ ] `design.md` exists (if task type is new screen or UI enhancement) with all sections filled according to template.
+- [ ] `design.md` links to `docs/product/design_system.md` and records approved exceptions (or states that none exist).
+- [ ] Visual mockup images exist in `design/` for every screen in `design.md` (user-provided screenshot or generated `mockup_*.png`).
 - [ ] No assumptions or open questions remain.
-- [ ] The user has approved the specification (and design, if produced).
+- [ ] The user has approved the specification (and design/mockups, if produced).
 - [ ] The artifacts are ready for slice planning.
 
 **APPROVED by user →** Return to the active workflow file and proceed to the Slice Planning stage.
