@@ -59,7 +59,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.notesapp"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -140,6 +140,7 @@ dependencies {
     implementation("androidx.tracing:tracing:1.2.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-service:2.8.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
     implementation("androidx.activity:activity-compose:1.9.1")
@@ -196,6 +197,8 @@ kover {
     reports {
         filters {
             excludes {
+                // Framework-bound MediaRecorder lifecycle is verified by connected service tests.
+                packages("com.example.notesapp.data.voice.service")
                 classes(
                     "com.example.notesapp.MainActivity",
                     "com.example.notesapp.NotesApplication",

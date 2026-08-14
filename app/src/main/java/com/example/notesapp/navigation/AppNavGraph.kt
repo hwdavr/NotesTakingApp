@@ -38,6 +38,7 @@ import com.example.notesapp.ui.settings.screen.SettingsScreen
 import com.example.notesapp.ui.share.screen.ManageAccessScreen
 import com.example.notesapp.ui.share.screen.ShareInviteScreen
 import com.example.notesapp.ui.share.screen.SharedUsersScreen
+import com.example.notesapp.ui.voice.screen.VoiceRecorderScreen
 
 @Composable
 fun AppNavGraph(authManager: AuthManager, activity: Context) {
@@ -82,6 +83,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         currentRoute?.startsWith("sharedUsers") != true &&
         currentRoute?.startsWith("manageAccess") != true &&
         currentRoute?.startsWith("shareInvite") != true &&
+        currentRoute?.startsWith("voiceRecorder") != true &&
         currentRoute !in authRoutes
     var authError by remember { mutableStateOf<String?>(null) }
     authError?.let { error ->
@@ -305,6 +307,23 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
                         navController.navigate(Destinations.ExportNote.createRoute(id))
                     },
                     viewModel = hiltViewModel()
+                )
+            }
+            composable(
+                route = Destinations.VoiceRecorder.route,
+                arguments = listOf(
+                    navArgument("noteId") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) { backStackEntry ->
+                val noteId = backStackEntry.arguments?.getString("noteId").orEmpty().ifBlank { null }
+                VoiceRecorderScreen(
+                    noteId = noteId,
+                    onSaved = { navController.popBackStack() },
+                    onDiscarded = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(

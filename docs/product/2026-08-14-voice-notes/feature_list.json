@@ -1,0 +1,175 @@
+{
+  "project": "Voice Notes & Audio Transcripts",
+  "last_updated": "2026-08-14",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "Work is the current active task.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "recording-core",
+      "title": "Prove and persist a safe recording session",
+      "description": "Run the required API 24, API 31, and target-API technical spike before implementation to prove one supported single-microphone path can produce one contiguous MediaRecorder file while feeding progressive STT windows; document the verified adapter and do not ship concurrent unsupported microphone clients. Then implement RECORD_AUDIO rationale/system/permanent-denial Settings flow, microphone feature guard, 128 MB StatFs preflight, app-private files/voice-notes storage and vn_{noteId}_{blockId}_{timestamp}.{m4a|ogg} naming, AAC default and format abstraction, VoiceNoteRecordingService as a LifecycleService with persistent notification Stop/Pause/Resume actions, singleton RecordingSessionManager, Recorder state reducer/ViewModel bridge, MediaRecorder pause/resume/stop/discard lifecycle, background survival, and cleanup of partial files/placeholders on discard or IO failure. Keep business logic out of Composables and expose stable semantics/test tags for every recorder control.",
+      "ui_design": "docs/product/2026-08-14-voice-notes/design/mockup_recorder_screen_v3.png",
+      "user_visible_behavior": "A user can enter the production recorder state, grant or recover microphone permission, see the light-theme recorder with timer/waveform/controls, pause and resume from the app or notification, save or explicitly discard audio, and receive clear storage, microphone, or permission errors.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "passing",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecordingSessionStateReducerTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.AudioFilenameGeneratorTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingStoragePreflighterTest\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderLifecycleTest"
+      ],
+      "evidence": [
+        {
+          "test_id": "TC-US-1-01",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderLifecycleTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderLifecycleTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 instrumented Compose lifecycle test on emulator-5554 (API 33)."
+        },
+        {
+          "test_id": "TC-US-1-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecordingSessionStateReducerTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecordingSessionStateReducerTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: reducer pause/resume, save, illegal-transition, and discard scenarios."
+        },
+        {
+          "test_id": "TC-US-1-03",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingStoragePreflighterTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingStoragePreflighterTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 128 MB threshold, below-threshold blocking, and diagnostic byte count."
+        },
+        {
+          "test_id": "TC-US-1-01-service-smoke",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecordingServiceIntegrationTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecordingServiceIntegrationTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: foreground service produced one non-empty private AAC file on API 33."
+        }
+      ],
+      "notes": "Risk-first slice passed all listed verification commands. The source-compatible capture spike and API-33 runtime evidence are documented in spike-us1-capture.md; API-24/API-31/API-34 runtime certification remains pending because those emulator images were unavailable. This slice owns recorder lifecycle and audio persistence, not transcript concatenation or editor block rendering."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "transcription",
+      "title": "Show progressive transcription with safe fallback",
+      "description": "Implement the verified STT adapter from US-1 behind an injectable interface, including 60-second overlapping windows, partial/final result handling, cursor-aware overlap deduplication, a 65-second silent-chunk watchdog, and cancellation on pause/stop/discard. Feed a StateFlow transcript preview into the production Recorder ViewModel and persist final text for later editor insertion. Detect API 31 on-device recognizer availability and API 24–30 offline preference behavior; show the specified warning and continue audio-only when the model is unavailable or an OEM callback is silent. Preserve the raw audio save path when a chunk fails and surface the exact failure copy.",
+      "ui_design": "docs/product/2026-08-14-voice-notes/design/mockup_recorder_screen_v3.png",
+      "user_visible_behavior": "While recording, the live transcript preview appends recognized speech. If offline speech recognition is unavailable or a segment times out, recording continues, the user sees warning/fallback copy, and saved audio remains usable for manual transcript editing.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.ChunkedTranscriptConcatenatorTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest"
+      ],
+      "evidence": [],
+      "notes": "Depends on the capture adapter selected and proven by US-1. Keep SpeechRecognizer platform details in the data/platform boundary; the ViewModel consumes domain transcript events."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "navigation-entry",
+      "title": "Start recording from Home or the editor",
+      "description": "Update the existing HomeAddButton flow to open the standard light-theme ModalBottomSheet with Text Note and Record Note tiles, preserving the existing text-note route. Add stable home_add_fab, home_fab_sheet_title, home_fab_text_note, and home_fab_record_note contracts. Allocate and persist a placeholder note before Home recording, pass source context through navigation, and roll it back on discard. Wire the existing DefaultBottomBar Mic action in NoteEditorScreen with editor_mic_btn to open the recorder with current note context. Route all entry points through RecordingSessionManager so a newly selected context silently terminates and cleans up any existing session before starting the new one; add no confirmation for this context switch.",
+      "ui_design": "docs/product/2026-08-14-voice-notes/design/mockup_home_fab_sheet_v3.png",
+      "user_visible_behavior": "Tapping Home’s add button shows Create with Text Note and Record Note. Record Note opens the recorder for a new-note context; the editor’s bottom-toolbar Mic opens it for the current note; switching contexts replaces the active recording with a clean new session.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-02"
+      ],
+      "verification": [
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingSessionManagerTest\""
+      ],
+      "evidence": [],
+      "notes": "Depends on US-1 recorder launch contract. This slice owns entry/navigation and placeholder-note lifecycle; it does not own the saved VoiceNote player."
+    },
+    {
+      "id": "US-4",
+      "priority": 4,
+      "area": "editor-persistence-playback",
+      "title": "Save and edit inline VoiceNote blocks",
+      "description": "Add the Room voice_note_block entity/DAO/repository mapping with nullable audioFilePath, audioFormat, duration, size, sample-rate, channel, and timestamps; add the document Voice metadata block paired with existing EditorBlock.TextBlock transcript sibling. Implement Stop-save insertion at the focused editor position and Home-save insertion at document position 0 with navigation to the new note. Build the Media3 ExoPlayer-backed inline VoiceNotePlayer card with play/pause, seek, elapsed/total labels, file size, missing-file state, and delete-audio-only confirmation. On audio-only delete set audioFilePath to null, remove only the player card, and keep the TextBlock; on transcript/block or note deletion delete associated private files in the same repository operation. Add integration and instrumented coverage for complete production paths.",
+      "ui_design": "docs/product/2026-08-14-voice-notes/design/mockup_editor_voice_block_v3.png",
+      "user_visible_behavior": "Stopping a recording inserts an inline audio player and editable transcript. Users can play, pause, seek, edit the transcript, delete only audio while keeping text, or delete the note and have all private audio files cleaned up.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-4-01",
+        "TC-US-4-02",
+        "TC-US-4-03"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceNoteRepositoryIntegrationTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.EditorVoiceNoteInsertionTest\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.VoiceNoteEditorFlowTest"
+      ],
+      "evidence": [],
+      "notes": "Depends on US-1 audio lifecycle, US-2 final transcript events, and US-3 source context/navigation. The canonical transcript type is the existing EditorBlock.TextBlock; do not introduce EditorBlock.RichText."
+    },
+    {
+      "id": "US-5",
+      "priority": 5,
+      "area": "settings-and-final-ui",
+      "title": "Configure Voice Notes and verify the completed Light Theme flow",
+      "description": "Append the Voice Notes section to the existing Settings screen using current settings row/card patterns and no new component family. Persist AAC/OPUS selection atomically in DataStore, expose total private voice storage from the repository, show per-format quality/bitrate information, and make the next recording honor the selected format with AAC fallback copy on unsupported codecs. Complete final cross-surface integration wiring and deterministic visual-verification tests so Home sheet, Recorder in-progress, Editor inline VoiceNote, and Settings Voice Notes are reachable through production navigation and captured only after state assertions. Compare UI chrome against all four v3 mockups and updated design_system.md tokens.",
+      "ui_design": "docs/product/2026-08-14-voice-notes/design/mockup_settings_voice_v3.png",
+      "user_visible_behavior": "Settings shows Voice Notes storage and format controls; changing AAC/OPUS persists for future recordings. The complete Home → Recorder → Editor and Settings journey is reachable in the updated Light Theme and remains accessible/responsive.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-5-01",
+        "TC-US-5-02",
+        "TC-US-5-VIS-001",
+        "TC-US-5-VIS-002",
+        "TC-US-5-VIS-003",
+        "TC-US-5-VIS-004"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.settings.VoiceSettingsRepositoryTest\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.settings.VoiceSettingsFlowTest",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#recorderInProgressLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#homeFabSheetLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#editorVoiceBlockLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\"",
+        "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#settingsVoiceNotesLightTheme && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\""
+      ],
+      "evidence": [],
+      "notes": "Final priority slice and sole visual-verification owner. Visual review focuses on UI chrome, typography, spacing, colors, component placement, copy, contrast, and test-tag/accessibility contracts; recorded media content may differ from mockups."
+    }
+  ]
+}

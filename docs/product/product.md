@@ -47,6 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
+| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | In Progress | 2026-08-14 | US-1 recording core is passing with API-33 runtime evidence; US-2 through US-5 remain, and US-5 owns final Light Theme visual verification. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -78,6 +79,13 @@ Lifecycle rules:
 | Gemini Nano Summarizer | ✅ Done | On-device AI note summarization using Gemini Nano AICore. |
 | Downloading & Status Handling | ✅ Done | Handles model download states, progress updates, and fallback mechanisms. |
 | Summary Card Component | ✅ Done | Renders generated summaries directly within the note editor interface. |
+
+### 🚧 Voice Notes & Audio Transcripts
+
+| Feature | Status | Notes |
+|---|---|---|
+| Safe recording session (US-1) | ✅ Done | Private AAC/OPUS file lifecycle, 128 MB preflight, foreground service notification controls, permission recovery, session guard, reducer/ViewModel state bridge, and deterministic cleanup. |
+| Progressive transcription, entry points, editor persistence, and settings | 🚧 Planned | Delivered in the remaining approved vertical slices US-2 through US-5. |
 
 ### ✅ Note Sharing & Access Control
 
@@ -114,7 +122,7 @@ Lifecycle rules:
 ## Roadmap — Planned Features
 
 ### Group 1 — Rich Content & Attachments
-- **Voice Notes & Audio Transcripts**: Record voice notes directly within a note with automated text transcription.
+- **Voice Notes & Audio Transcripts**: US-1 recording core is delivered; progressive transcription, Home/editor entry points, inline editor persistence/playback, and Voice Notes settings remain planned in US-2 through US-5.
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 
@@ -139,6 +147,7 @@ Lifecycle rules:
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
 | **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
+| **Voice Notes** | 🚧 In Progress | US-1 safe private recording core; transcription and cross-surface integration remain |
 
 ---
 
@@ -149,3 +158,5 @@ Lifecycle rules:
   - `domain/`: Business models, use cases (`SummarizeNoteUseCase`, `CategorizeNoteUseCase`), repository contracts.
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
+
+*Document last updated: 2026-08-14*

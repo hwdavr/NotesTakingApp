@@ -27,6 +27,9 @@ sealed class Destinations(val route: String) {
             return "editor?$notePart$folderPart"
         }
     }
+    data object VoiceRecorder : Destinations("voiceRecorder?noteId={noteId}") {
+        fun createRoute(noteId: String? = null): String = "voiceRecorder?noteId=${Uri.encode(noteId.orEmpty())}"
+    }
     data object ExportNote : Destinations("exportNote/{noteId}") {
         fun createRoute(noteId: String): String = "exportNote/$noteId"
     }
