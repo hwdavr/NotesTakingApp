@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import com.example.notesapp.domain.voice.AudioFormat
 import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
@@ -35,6 +36,7 @@ data class NoteDocument(
             is EditorBlock.TableBlock -> block.rows.joinToString("\n") { row ->
                 row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
             }
+            is EditorBlock.Voice -> ""
         }
     }.trim()
     fun toMarkdown(): String = blocks.joinToString("\n\n") { block ->
@@ -68,6 +70,7 @@ data class NoteDocument(
                 }
                 "| $header |\n| $divider |\n$body"
             }
+            is EditorBlock.Voice -> ""
         }
     }.trim()
     fun ensureEditableTextBlock(): NoteDocument {
@@ -118,6 +121,20 @@ sealed class EditorBlock {
         override val id: String = newBlockId(),
         val rows: List<List<List<RichText>>> = defaultTableRows()
     ) : EditorBlock()
+    data class Voice(
+        val blockId: String,
+        val audioFilePath: String?,
+        val audioFormat: AudioFormat,
+        val durationMs: Long,
+        val fileSizeBytes: Long,
+        val sampleRateHertz: Int,
+        val channels: Int,
+        val createdAt: Long,
+        val updatedAt: Long
+    ) : EditorBlock() {
+        override val id: String
+            get() = blockId
+    }
 }
 data class RichText(
     val text: String,
@@ -230,6 +247,18 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("id", id)
         .put("type", "table")
         .put("rows", rows.toRowsJson())
+    is EditorBlock.Voice -> JSONObject()
+        .put("id", id)
+        .put("blockId", blockId)
+        .put("type", "voice")
+        .put("audioFilePath", audioFilePath ?: JSONObject.NULL)
+        .put("audioFormat", audioFormat.storageValue)
+        .put("durationMs", durationMs)
+        .put("fileSizeBytes", fileSizeBytes)
+        .put("sampleRateHertz", sampleRateHertz)
+        .put("channels", channels)
+        .put("createdAt", createdAt)
+        .put("updatedAt", updatedAt)
 }
 private fun JSONObject.toEditorBlock(): EditorBlock? {
     val id = optString("id").ifBlank { newBlockId() }
@@ -248,6 +277,17 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
         "table" -> EditorBlock.TableBlock(
             id = id,
             rows = optJSONArray("rows").toRows()
+        )
+        "voice" -> EditorBlock.Voice(
+            blockId = optString("blockId", id),
+            audioFilePath = if (isNull("audioFilePath")) null else optString("audioFilePath").ifBlank { null },
+            audioFormat = AudioFormat.fromStorageValue(optString("audioFormat")),
+            durationMs = optLong("durationMs", 0L),
+            fileSizeBytes = optLong("fileSizeBytes", 0L),
+            sampleRateHertz = optInt("sampleRateHertz", 44_100),
+            channels = optInt("channels", 1),
+            createdAt = optLong("createdAt", 0L),
+            updatedAt = optLong("updatedAt", 0L)
         )
         else -> null
     }

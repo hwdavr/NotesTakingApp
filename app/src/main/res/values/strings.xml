@@ -233,4 +233,17 @@
     <string name="voice_notification_recording">Recording... %1$s</string>
     <string name="voice_notification_pause">Pause / Resume</string>
     <string name="voice_notification_stop">Stop and save</string>
+    <string name="editor_voice_recording_description">Voice recording</string>
+    <string name="editor_voice_play_description">Play voice recording</string>
+    <string name="editor_voice_pause_description">Pause voice recording</string>
+    <string name="editor_voice_play_symbol">Play</string>
+    <string name="editor_voice_pause_symbol">Pause</string>
+    <string name="editor_voice_seek_description">Playback position, currently %1$s of %2$s</string>
+    <string name="editor_voice_file_size_kb">%1$d KB</string>
+    <string name="editor_voice_file_size_mb">%1$.1f MB</string>
+    <string name="editor_voice_delete_audio_description">Delete audio only, keep transcript text</string>
+    <string name="editor_voice_delete_audio_title">Delete audio file?</string>
+    <string name="editor_voice_delete_audio_message">The transcript text will remain as editable note content. Audio cannot be recovered after deletion.</string>
+    <string name="editor_voice_delete_audio_action">Delete</string>
+    <string name="editor_voice_audio_missing">Audio file missing</string>
 </resources>

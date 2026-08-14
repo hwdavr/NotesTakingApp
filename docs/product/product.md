@@ -87,7 +87,8 @@ Lifecycle rules:
 | Safe recording session (US-1) | ✅ Done | Private AAC/OPUS file lifecycle, 128 MB preflight, foreground service notification controls, permission recovery, session guard, reducer/ViewModel state bridge, and deterministic cleanup. |
 | Progressive transcription with safe fallback (US-2) | ✅ Done | Overlapping partial/final transcript preview, timeout/failure markers, model-unavailable audio-only fallback, and cancellation cleanup. |
 | Home/editor recording entry points (US-3) | ✅ Done | Home Create sheet allocates a placeholder before recording; editor Mic opens the recorder with note/focus context; context switches cleanly replace active Home sessions. |
-| Inline editor persistence, playback, and settings (US-4–US-5) | 🚧 Planned | Remaining approved vertical slices; US-5 owns final Light Theme visual verification. |
+| Inline editor persistence and playback (US-4) | ✅ Done | Room-backed VoiceNote metadata, focused/Home document insertion, editable transcript TextBlocks, Media3 playback/seek, audio-only deletion, and private-file cascade cleanup. |
+| Voice Notes settings and final visual verification (US-5) | 🚧 Planned | AAC/OPUS settings and final Light Theme cross-surface verification remain the next approved slice. |
 
 ### ✅ Note Sharing & Access Control
 
@@ -124,7 +125,7 @@ Lifecycle rules:
 ## Roadmap — Planned Features
 
 ### Group 1 — Rich Content & Attachments
-- **Voice Notes & Audio Transcripts**: US-1 recording core, US-2 progressive transcription with safe fallback, and US-3 Home/editor entry points are delivered; inline editor persistence/playback and Voice Notes settings remain planned in US-4 and US-5.
+- **Voice Notes & Audio Transcripts**: US-1 through US-4 are delivered, including inline Room persistence, editable transcripts, Media3 playback, and private-file cleanup; Voice Notes settings and final visual verification remain planned in US-5.
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 
@@ -149,7 +150,7 @@ Lifecycle rules:
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
 | **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
-| **Voice Notes** | 🚧 In Progress | US-1 safe private recording core, US-2 progressive transcription/fallback, and US-3 Home/editor recording entry points; inline persistence/playback and settings remain |
+| **Voice Notes** | 🚧 In Progress | US-1 through US-4: private recording, progressive transcription/fallback, Home/editor entry points, Room-backed inline VoiceNote playback, editable transcripts, and local cleanup; US-5 settings/final visual verification remains |
 
 ---
 

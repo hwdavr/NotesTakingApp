@@ -10,6 +10,8 @@ import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.NoteSummaryUnavailableException
 import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.text
 import io.mockk.coEvery
@@ -32,6 +34,8 @@ import org.junit.Test
 class NoteEditorViewModelTest : BaseViewModelTest() {
     private val noteRepository: NoteRepository = mockk(relaxed = true)
     private val folderRepository: FolderRepository = mockk(relaxed = true)
+    private val deleteVoiceNoteAudioUseCase: DeleteVoiceNoteAudioUseCase = mockk(relaxed = true)
+    private val deleteVoiceNoteBlockUseCase: DeleteVoiceNoteBlockUseCase = mockk(relaxed = true)
     private lateinit var noteSummarizer: FakeNoteSummarizer
     private lateinit var viewModel: NoteEditorViewModel
     private val testNote = Note(
@@ -67,7 +71,9 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
             noteRepository,
             folderRepository,
             SummarizeNoteUseCase(noteSummarizer),
-            categorizeNoteUseCase
+            categorizeNoteUseCase,
+            deleteVoiceNoteAudioUseCase,
+            deleteVoiceNoteBlockUseCase
         )
     }
 

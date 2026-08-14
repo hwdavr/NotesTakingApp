@@ -169,7 +169,7 @@
       "user_visible_behavior": "Stopping a recording inserts an inline audio player and editable transcript. Users can play, pause, seek, edit the transcript, delete only audio while keeping text, or delete the note and have all private audio files cleaned up.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-4-01",
         "TC-US-4-02",
@@ -180,7 +180,32 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.EditorVoiceNoteInsertionTest\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.VoiceNoteEditorFlowTest"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-4-03",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceNoteRepositoryIntegrationTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceNoteRepositoryIntegrationTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 3 repository integration tests covering audio-only deletion, missing-file recovery, and full-note file cascade cleanup."
+        },
+        {
+          "test_id": "TC-US-4-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.EditorVoiceNoteInsertionTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.EditorVoiceNoteInsertionTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 4 insertion/use-case tests covering focused editor and Home position-zero Voice/TextBlock persistence plus audio-delete and block-delete use cases."
+        },
+        {
+          "test_id": "TC-US-4-02",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.VoiceNoteEditorFlowTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.VoiceNoteEditorFlowTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 production editor-content test on emulator-5554 (API 33) covering inline player tags, play/seek controls, elapsed/total/file-size labels, editable transcript presence, and audio-only delete confirmation."
+        }
+      ],
       "notes": "Depends on US-1 audio lifecycle, US-2 final transcript events, and US-3 source context/navigation. The canonical transcript type is the existing EditorBlock.TextBlock; do not introduce EditorBlock.RichText."
     },
     {

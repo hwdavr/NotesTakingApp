@@ -8,6 +8,9 @@ import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
+import io.mockk.mockk
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,7 +39,14 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(apiMock.getJSONArray("response").toString())
         )
 
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase(), testCategorizeUseCase())
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
         viewModel.load("note_001")
         advanceUntilIdle()
 
@@ -106,7 +116,14 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
                 .setBody(syncMock.getJSONArray("response").toString())
         )
         // 4. Load the note into the editor
-        viewModel = NoteEditorViewModel(noteRepository, folderRepository, testSummaryUseCase(), testCategorizeUseCase())
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
         viewModel.load("note_001")
         advanceUntilIdle()
         mockWebServer.takeRequest(5, TimeUnit.SECONDS)

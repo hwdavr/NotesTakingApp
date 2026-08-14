@@ -8,12 +8,15 @@ import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.local.NoteShareDao
+import com.example.notesapp.data.local.VoiceNoteBlockDao
 import com.example.notesapp.data.remote.AuthInterceptor
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.TokenAuthenticator
 import com.example.notesapp.data.repository.FolderRepositoryImpl
+import com.example.notesapp.data.repository.JsonVoiceNoteDocumentStore
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
+import com.example.notesapp.data.repository.VoiceNoteRepositoryImpl
 import com.example.notesapp.data.summary.AicoreFolderCategoryPromptClient
 import com.example.notesapp.data.summary.FolderTextEmbeddingClient
 import com.example.notesapp.data.summary.GeminiNanoFolderCategoryPromptClient
@@ -35,6 +38,8 @@ import com.example.notesapp.domain.share.NoteShareRepository
 import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.voice.MicrophoneAvailability
 import com.example.notesapp.domain.voice.StorageInfoProvider
+import com.example.notesapp.domain.voice.VoiceNoteDocumentStore
+import com.example.notesapp.domain.voice.VoiceNoteRepository
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
@@ -67,6 +72,14 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceNoteRepository(impl: VoiceNoteRepositoryImpl): VoiceNoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceNoteDocumentStore(impl: JsonVoiceNoteDocumentStore): VoiceNoteDocumentStore
 
     @Binds
     @Singleton
@@ -126,6 +139,9 @@ abstract class AppModule {
 
         @Provides
         fun provideNoteShareDao(database: AppDatabase): NoteShareDao = database.noteShareDao()
+
+        @Provides
+        fun provideVoiceNoteBlockDao(database: AppDatabase): VoiceNoteBlockDao = database.voiceNoteBlockDao()
 
         @Provides
         @Singleton

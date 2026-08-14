@@ -3,6 +3,7 @@ package com.example.notesapp.navigation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -221,6 +222,9 @@ internal fun AppNavigationHost(
         ) { backStackEntry ->
             val noteId = backStackEntry.arguments?.getString("noteId").orEmpty().ifBlank { null }
             val folderId = backStackEntry.arguments?.getString("folderId").orEmpty().ifBlank { null }
+            val voiceNoteSaved = backStackEntry.savedStateHandle
+                .getStateFlow(VOICE_NOTE_SAVED_KEY, false)
+                .collectAsStateWithLifecycle()
             NoteEditorScreen(
                 parentPadding = innerPadding,
                 noteId = noteId,
@@ -243,6 +247,10 @@ internal fun AppNavigationHost(
                             focusedBlockId = focusedBlockId
                         )
                     )
+                },
+                voiceNoteSaved = voiceNoteSaved.value,
+                onVoiceNoteSavedConsumed = {
+                    backStackEntry.savedStateHandle[VOICE_NOTE_SAVED_KEY] = false
                 },
                 viewModel = hiltViewModel()
             )
@@ -268,14 +276,20 @@ internal fun AppNavigationHost(
             val source = RecordingEntryPoint.fromRoute(
                 backStackEntry.arguments?.getString("source").orEmpty()
             )
+            val focusedBlockId = backStackEntry.arguments?.getString("focusedBlockId").orEmpty().ifBlank { null }
             VoiceRecorderScreen(
                 noteId = noteId,
                 source = source,
+                focusedBlockId = focusedBlockId,
                 onSaved = {
                     if (source == RecordingEntryPoint.HOME && noteId != null) {
                         navController.popBackStack()
                         navController.navigate(Destinations.Editor.createRoute(noteId))
                     } else {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(
+                            VOICE_NOTE_SAVED_KEY,
+                            true
+                        )
                         navController.popBackStack()
                     }
                 },
@@ -351,3 +365,5 @@ internal fun AppNavigationHost(
         }
     }
 }
+
+private const val VOICE_NOTE_SAVED_KEY = "voice_note_saved"

@@ -49,7 +49,9 @@ class NoteEditorViewModelCategorizeTest : BaseViewModelTest() {
             noteRepository = noteRepository,
             folderRepository = folderRepository,
             summarizeNoteUseCase = summarizeNoteUseCase,
-            categorizeNoteUseCase = categorizeNoteUseCase
+            categorizeNoteUseCase = categorizeNoteUseCase,
+            deleteVoiceNoteAudioUseCase = mockk(relaxed = true),
+            deleteVoiceNoteBlockUseCase = mockk(relaxed = true)
         )
     }
 

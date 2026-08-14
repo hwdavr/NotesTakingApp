@@ -15,9 +15,11 @@ import com.example.notesapp.domain.voice.TranscriptStartRequest
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
+import com.example.notesapp.domain.voice.usecase.SaveVoiceNoteRecordingUseCase
 import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptStatus
+import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderPersistence
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
 import io.mockk.every
 import io.mockk.mockk
@@ -59,7 +61,10 @@ class VoiceRecorderTranscriptIntegrationTest : BaseViewModelTest() {
             },
             transcriptSession = transcriptSession,
             recordingSessionManager = RecordingSessionManager(),
-            voiceNotePlaceholderUseCase = VoiceNotePlaceholderUseCase(mockk(relaxed = true))
+            voiceRecorderPersistence = VoiceRecorderPersistence(
+                voiceNotePlaceholderUseCase = VoiceNotePlaceholderUseCase(mockk(relaxed = true)),
+                saveVoiceNoteRecordingUseCase = mockk<SaveVoiceNoteRecordingUseCase>(relaxed = true)
+            )
         )
     }
 

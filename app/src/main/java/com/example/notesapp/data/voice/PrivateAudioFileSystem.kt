@@ -34,11 +34,21 @@ class PrivateAudioFileSystem @Inject constructor(
 
     override fun delete(path: String): Boolean {
         val file = File(path)
-        if (!file.isFile) return false
+        if (!isPrivateVoiceFile(file) || !file.isFile) return false
         return file.delete()
     }
 
-    override fun fileSize(path: String): Long = File(path).takeIf(File::isFile)?.length() ?: 0L
+    override fun fileSize(path: String): Long = File(path)
+        .takeIf(::isPrivateVoiceFile)
+        ?.takeIf(File::isFile)
+        ?.length()
+        ?: 0L
+
+    private fun isPrivateVoiceFile(file: File): Boolean {
+        val directory = File(context.filesDir, VOICE_NOTES_DIRECTORY)
+        val directoryPath = directory.canonicalPath + File.separator
+        return runCatching { file.canonicalPath.startsWith(directoryPath) }.getOrDefault(false)
+    }
 
     companion object {
         const val VOICE_NOTES_DIRECTORY = "voice-notes"

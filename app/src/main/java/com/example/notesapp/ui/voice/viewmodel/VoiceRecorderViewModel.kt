@@ -16,7 +16,6 @@ import com.example.notesapp.domain.voice.TranscriptSessionStatus
 import com.example.notesapp.domain.voice.TranscriptWarning
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
-import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptStatus
@@ -25,6 +24,7 @@ import com.example.notesapp.ui.voice.model.VoiceRecorderUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,13 +37,15 @@ class VoiceRecorderViewModel @Inject constructor(
     private val microphoneAvailability: MicrophoneAvailability,
     private val transcriptSession: VoiceTranscriptSession,
     private val recordingSessionManager: RecordingSessionManager,
-    private val voiceNotePlaceholderUseCase: VoiceNotePlaceholderUseCase
+    private val voiceRecorderPersistence: VoiceRecorderPersistence
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(VoiceRecorderUiState())
     val uiState: StateFlow<VoiceRecorderUiState> = mutableUiState.asStateFlow()
     private var startAttempted = false
     private var noteId: String? = null
+    private var focusedBlockId: String? = null
     private var entryPoint: RecordingEntryPoint = RecordingEntryPoint.EDITOR
+    private var savedSessionId: String? = null
 
     init {
         viewModelScope.launch {
@@ -57,9 +59,11 @@ class VoiceRecorderViewModel @Inject constructor(
     fun onScreenReady(
         targetNoteId: String?,
         permissionGranted: Boolean,
-        source: RecordingEntryPoint = RecordingEntryPoint.EDITOR
+        source: RecordingEntryPoint = RecordingEntryPoint.EDITOR,
+        targetFocusedBlockId: String? = null
     ) {
         noteId = targetNoteId
+        focusedBlockId = targetFocusedBlockId
         entryPoint = source
         if (startAttempted) return
         if (!permissionGranted) {
@@ -103,7 +107,7 @@ class VoiceRecorderViewModel @Inject constructor(
         val placeholderId = noteId?.takeIf { entryPoint == RecordingEntryPoint.HOME }
         if (placeholderId != null) {
             viewModelScope.launch {
-                voiceNotePlaceholderUseCase.discard(placeholderId)
+                voiceRecorderPersistence.discardPlaceholder(placeholderId)
             }
         }
     }
@@ -136,7 +140,7 @@ class VoiceRecorderViewModel @Inject constructor(
                     recordingController.start(request)
                 } else {
                     viewModelScope.launch {
-                        voiceNotePlaceholderUseCase.discard(previousHomeSession.metadata.noteId)
+                        voiceRecorderPersistence.discardPlaceholder(previousHomeSession.metadata.noteId)
                         recordingController.start(request)
                     }
                 }
@@ -178,17 +182,59 @@ class VoiceRecorderViewModel @Inject constructor(
                 error = null
             )
 
-            is RecordingSessionState.Saved -> current.copy(
-                status = VoiceRecorderStatus.Saved,
-                format = state.metadata.format,
-                elapsedMs = state.elapsedMs,
-                savedFilePath = state.metadata.audioFilePath,
-                savedFileSizeBytes = state.fileSizeBytes,
-                transcript = state.transcript,
-                transcriptPartial = "",
-                transcriptStatus = VoiceRecorderTranscriptStatus.Completed,
-                error = null
-            )
+            is RecordingSessionState.Saved -> {
+                if (savedSessionId == state.metadata.sessionId) {
+                    current
+                } else {
+                    savedSessionId = state.metadata.sessionId
+                    val savingState = current.copy(
+                        status = VoiceRecorderStatus.Saving,
+                        format = state.metadata.format,
+                        elapsedMs = state.elapsedMs,
+                        savedFilePath = state.metadata.audioFilePath,
+                        savedFileSizeBytes = state.fileSizeBytes,
+                        transcript = state.transcript,
+                        transcriptPartial = "",
+                        error = null
+                    )
+                    viewModelScope.launch {
+                        try {
+                            voiceRecorderPersistence.saveRecording(
+                                VoiceRecordingSaveRequest(
+                                    noteId = state.metadata.noteId,
+                                    blockId = state.metadata.blockId,
+                                    audioFilePath = state.metadata.audioFilePath,
+                                    audioFormat = state.metadata.format,
+                                    durationMs = state.elapsedMs,
+                                    fileSizeBytes = state.fileSizeBytes,
+                                    transcript = state.transcript,
+                                    focusedBlockId = focusedBlockId
+                                )
+                            )
+                            mutableUiState.value = mutableUiState.value.copy(
+                                status = VoiceRecorderStatus.Saved,
+                                format = state.metadata.format,
+                                elapsedMs = state.elapsedMs,
+                                savedFilePath = state.metadata.audioFilePath,
+                                savedFileSizeBytes = state.fileSizeBytes,
+                                transcript = state.transcript,
+                                transcriptPartial = "",
+                                transcriptStatus = VoiceRecorderTranscriptStatus.Completed,
+                                error = null
+                            )
+                        } catch (error: CancellationException) {
+                            throw error
+                        } catch (error: Throwable) {
+                            Log.e(TAG, "Failed to persist VoiceNote block", error)
+                            mutableUiState.value = mutableUiState.value.copy(
+                                status = VoiceRecorderStatus.Error,
+                                error = VoiceRecorderError.SavingFailed
+                            )
+                        }
+                    }
+                    savingState
+                }
+            }
 
             is RecordingSessionState.Error -> current.copy(
                 status = VoiceRecorderStatus.Error,

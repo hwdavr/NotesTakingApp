@@ -74,6 +74,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -112,6 +113,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
+import com.example.notesapp.ui.editor.components.VoiceNotePlayer
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
@@ -119,6 +121,7 @@ import com.example.notesapp.ui.editor.mapper.toAnnotatedString
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
+import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,10 +135,18 @@ fun NoteEditorScreen(
     onMoveNote: (String) -> Unit,
     onExportNote: (String) -> Unit,
     onOpenVoiceRecorder: (String, String?) -> Unit,
+    voiceNoteSaved: Boolean = false,
+    onVoiceNoteSavedConsumed: () -> Unit = {},
     viewModel: NoteEditorViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(noteId, folderId) { viewModel.load(noteId, folderId) }
+    LaunchedEffect(voiceNoteSaved) {
+        if (voiceNoteSaved) {
+            viewModel.load(noteId, folderId)
+            onVoiceNoteSavedConsumed()
+        }
+    }
 
     // Intercept physical system back gesture/button
     BackHandler(enabled = state.isEditable) {
@@ -154,8 +165,10 @@ fun NoteEditorScreen(
         onToggleFavorite = viewModel::toggleFavorite,
         onMoveNote = { state.noteId?.let { onMoveNote(it) } },
         onExportNote = { state.noteId?.let { onExportNote(it) } },
-        onOpenVoiceRecorder = { currentNoteId, focusedBlockId ->
-            state.noteId?.let { onOpenVoiceRecorder(it, focusedBlockId) }
+        onOpenVoiceRecorder = { _, focusedBlockId ->
+            viewModel.save {
+                state.noteId?.let { onOpenVoiceRecorder(it, focusedBlockId) }
+            }
         },
         onTextBlockChange = viewModel::onTextBlockChange,
         onToggleCheckbox = viewModel::toggleCheckbox,
@@ -171,6 +184,7 @@ fun NoteEditorScreen(
         onBlockFocused = viewModel::setFocusedBlock,
         onSelectionChange = viewModel::updateSelection,
         onDeleteBlock = viewModel::deleteBlock,
+        onDeleteVoiceAudio = { blockId -> viewModel.deleteVoiceAudio(blockId) },
         onConfirmCategorization = { viewModel.confirmCategorization(onBack) },
         onCancelCategorization = { viewModel.cancelCategorization(onBack) },
         onConfirmManualMove = { viewModel.confirmCategorization(onBack, onMoveNote) },
@@ -208,6 +222,7 @@ fun NoteEditorScreenContent(
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
+    onDeleteVoiceAudio: ((String) -> Unit)? = null,
     onConfirmCategorization: () -> Unit = {},
     onCancelCategorization: () -> Unit = {},
     onConfirmManualMove: () -> Unit = {},
@@ -249,7 +264,7 @@ fun NoteEditorScreenContent(
                 ?.id
     val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
     val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
-    var focusLastBlockTrigger by remember { mutableStateOf(0) }
+    var focusLastBlockTrigger by remember { mutableIntStateOf(0) }
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
         containerColor = colors.surface,
@@ -393,6 +408,7 @@ fun NoteEditorScreenContent(
                             onBlockFocused = onBlockFocused,
                             onSelectionChange = onSelectionChange,
                             onDeleteBlock = onDeleteBlock,
+                            onDeleteVoiceAudio = onDeleteVoiceAudio,
                             focusedBlockId = state.focusedBlockId,
                             focusLastBlockTrigger = focusLastBlockTrigger
                         )
@@ -641,6 +657,7 @@ private fun DocumentBlockList(
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
+    onDeleteVoiceAudio: ((String) -> Unit)? = null,
     focusedBlockId: String?,
     focusLastBlockTrigger: Int = 0
 ) {
@@ -691,6 +708,13 @@ private fun DocumentBlockList(
                             onTableCellChange(block.id, row, cell, value)
                         }
                     )
+                is EditorBlock.Voice -> if (block.audioFilePath != null) {
+                    VoiceNotePlayer(
+                        block = block,
+                        isEditable = isEditable,
+                        onDeleteAudio = { onDeleteVoiceAudio?.invoke(block.blockId) }
+                    )
+                }
             }
         }
     }

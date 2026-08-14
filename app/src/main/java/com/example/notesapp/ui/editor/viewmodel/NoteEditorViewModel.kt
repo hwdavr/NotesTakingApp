@@ -11,6 +11,8 @@ import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.summary.NoteSummaryResult
 import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
@@ -70,7 +72,9 @@ open class NoteEditorViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository,
     private val summarizeNoteUseCase: SummarizeNoteUseCase,
-    private val categorizeNoteUseCase: CategorizeNoteUseCase
+    private val categorizeNoteUseCase: CategorizeNoteUseCase,
+    internal val deleteVoiceNoteAudioUseCase: DeleteVoiceNoteAudioUseCase,
+    private val deleteVoiceNoteBlockUseCase: DeleteVoiceNoteBlockUseCase
 ) : ViewModel() {
     internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
@@ -155,25 +159,6 @@ open class NoteEditorViewModel @Inject constructor(
             val note = noteRepository.getNoteById(current.noteId ?: return@launch) ?: return@launch
             noteRepository.save(note.copy(isFavorite = newFavorite, updatedAt = System.currentTimeMillis()))
         }
-    }
-    fun onContentChange(value: String) {
-        if (!canEdit()) return
-        val current = uiStateInternal.value
-        val blocks = current.document.blocks
-        val firstTextIndex = blocks.indexOfFirst { it is EditorBlock.TextBlock }
-        val updatedBlocks = if (firstTextIndex >= 0) {
-            blocks.mapIndexed { index, block ->
-                if (index == firstTextIndex && block is EditorBlock.TextBlock) {
-                    parseMarkdownTextBlock(id = block.id, text = value)
-                } else {
-                    block
-                }
-            }
-        } else {
-            listOf(parseMarkdownTextBlock(text = value)) + blocks
-        }
-        uiStateInternal.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
-        scheduleAutoSave()
     }
     fun onTextBlockChange(blockId: String, value: String) {
         if (!canEdit()) return
@@ -515,18 +500,30 @@ open class NoteEditorViewModel @Inject constructor(
         if (blocks.size <= 1) return
         val index = blocks.indexOfFirst { it.id == blockId }
         if (index == -1) return
-        val nextFocusId = if (index > 0) {
-            blocks[index - 1].id
+        val precedingVoiceBlock = blocks.getOrNull(index - 1) as? EditorBlock.Voice
+        val idsToDelete = if (precedingVoiceBlock != null && blocks[index] is EditorBlock.TextBlock) {
+            setOf(blockId, precedingVoiceBlock.id)
         } else {
-            blocks[index + 1].id
+            setOf(blockId)
         }
-        val updatedBlocks = blocks.filter { it.id != blockId }
+        val updatedBlocks = blocks.filterNot { it.id in idsToDelete }.ifEmpty {
+            listOf(EditorBlock.TextBlock())
+        }
+        val nextFocusId = if (index > 0) {
+            updatedBlocks.getOrNull((index - 1).coerceAtMost(updatedBlocks.lastIndex))?.id
+        } else {
+            updatedBlocks.firstOrNull()?.id
+        }
         uiStateInternal.value = current.copy(
             document = current.document.copy(blocks = updatedBlocks),
             focusedBlockId = nextFocusId
         )
+        precedingVoiceBlock?.let { voiceBlock ->
+            viewModelScope.launch { deleteVoiceNoteBlockUseCase(voiceBlock.blockId) }
+        }
         scheduleAutoSave()
     }
+
     private fun generateSummaryForLoadedNote(state: NoteEditorUiState) {
         summaryJob?.cancel()
         if (state.noteId.isNullOrBlank()) {

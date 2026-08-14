@@ -5,6 +5,7 @@ import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
+import com.example.notesapp.domain.voice.VoiceNoteRepository
 import com.example.notesapp.fakes.FakeFolderDao
 import com.example.notesapp.fakes.FakeNoteDao
 import com.example.notesapp.fakes.FakeNoteShareDao
@@ -61,7 +62,13 @@ abstract class BaseViewModelIntegrationTest {
         every { fakeDeviceIdProvider.deviceId } returns "test_device"
         syncCoordinator = ItemsSyncCoordinator(apiService, fakeFolderDao, fakeNoteDao, fakeDeviceIdProvider)
         folderRepository = FolderRepositoryImpl(fakeFolderDao, apiService, syncCoordinator, fakeDeviceIdProvider)
-        noteRepository = NoteRepositoryImpl(fakeNoteDao, apiService, syncCoordinator, fakeDeviceIdProvider)
+        noteRepository = NoteRepositoryImpl(
+            fakeNoteDao,
+            apiService,
+            syncCoordinator,
+            fakeDeviceIdProvider,
+            mockk<VoiceNoteRepository>(relaxed = true)
+        )
         noteShareRepository = NoteShareRepositoryImpl(fakeNoteShareDao, apiService)
     }
 

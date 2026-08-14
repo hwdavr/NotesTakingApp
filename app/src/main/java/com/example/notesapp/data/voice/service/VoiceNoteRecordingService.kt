@@ -12,6 +12,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.notesapp.R
@@ -154,25 +155,44 @@ class VoiceNoteRecordingService : LifecycleService() {
     }
 
     private fun createRecorder(metadata: RecordingSessionMetadata): MediaRecorder {
-        val outputFormat = if (metadata.format == AudioFormat.OPUS) {
-            MediaRecorder.OutputFormat.OGG
+        return if (metadata.format == AudioFormat.OPUS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            createOpusRecorder(metadata)
         } else {
-            MediaRecorder.OutputFormat.MPEG_4
+            createAacRecorder(metadata)
         }
-        val audioEncoder = if (metadata.format == AudioFormat.OPUS) {
-            MediaRecorder.AudioEncoder.OPUS
-        } else {
-            MediaRecorder.AudioEncoder.AAC
-        }
-        return newMediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(outputFormat)
-            setAudioEncoder(audioEncoder)
-            setAudioEncodingBitRate(if (metadata.format == AudioFormat.OPUS) 32_000 else 128_000)
-            setAudioSamplingRate(44_100)
-            setOutputFile(metadata.audioFilePath)
-            prepare()
-        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun createOpusRecorder(metadata: RecordingSessionMetadata): MediaRecorder = configureRecorder(
+        metadata = metadata,
+        outputFormat = MediaRecorder.OutputFormat.OGG,
+        audioEncoder = MediaRecorder.AudioEncoder.OPUS,
+        bitRate = 32_000,
+        sampleRateHertz = 16_000
+    )
+
+    private fun createAacRecorder(metadata: RecordingSessionMetadata): MediaRecorder = configureRecorder(
+        metadata = metadata,
+        outputFormat = MediaRecorder.OutputFormat.MPEG_4,
+        audioEncoder = MediaRecorder.AudioEncoder.AAC,
+        bitRate = 128_000,
+        sampleRateHertz = 44_100
+    )
+
+    private fun configureRecorder(
+        metadata: RecordingSessionMetadata,
+        outputFormat: Int,
+        audioEncoder: Int,
+        bitRate: Int,
+        sampleRateHertz: Int
+    ): MediaRecorder = newMediaRecorder().apply {
+        setAudioSource(MediaRecorder.AudioSource.MIC)
+        setOutputFormat(outputFormat)
+        setAudioEncoder(audioEncoder)
+        setAudioEncodingBitRate(bitRate)
+        setAudioSamplingRate(sampleRateHertz)
+        setOutputFile(metadata.audioFilePath)
+        prepare()
     }
 
     private fun newMediaRecorder(): MediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -322,7 +342,7 @@ class VoiceNoteRecordingService : LifecycleService() {
 
     private fun startForegroundWithNotification(elapsedMs: Long) {
         val notification = buildNotification(elapsedMs)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             startForeground(
                 NOTIFICATION_ID,
                 notification,

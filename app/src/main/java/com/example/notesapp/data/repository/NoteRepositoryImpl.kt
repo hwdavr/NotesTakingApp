@@ -11,6 +11,7 @@ import com.example.notesapp.data.remote.UpdateNoteContentRequest
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.voice.VoiceNoteRepository
 import com.example.notesapp.util.DeviceIdProvider
 import java.util.UUID
 import javax.inject.Inject
@@ -24,7 +25,8 @@ class NoteRepositoryImpl @Inject constructor(
     private val noteDao: NoteDao,
     private val api: NotesApiService,
     private val syncCoordinator: ItemsSyncCoordinator,
-    private val deviceIdProvider: DeviceIdProvider
+    private val deviceIdProvider: DeviceIdProvider,
+    private val voiceNoteRepository: VoiceNoteRepository
 ) : NoteRepository {
     override fun getActiveNotes(): Flow<List<Note>> =
         noteDao.getActiveNotes().map { list -> list.map { it.toDomain() } }
@@ -125,6 +127,7 @@ class NoteRepositoryImpl @Inject constructor(
                 ).toEntity()
             )
         }
+        voiceNoteRepository.deleteForNote(note.id)
     }
     override suspend fun toggleFavorite(note: Note) {
         val newFavoriteStatus = !note.isFavorite

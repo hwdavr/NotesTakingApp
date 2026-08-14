@@ -7,6 +7,7 @@ import com.example.notesapp.data.remote.MutationResultDto
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.voice.VoiceNoteRepository
 import com.example.notesapp.util.DeviceIdProvider
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -38,7 +39,13 @@ class NoteRepositoryImplTest {
         deviceIdProvider = mockk()
 
         every { deviceIdProvider.deviceId } returns "device1"
-        repository = NoteRepositoryImpl(dao, api, syncCoordinator, deviceIdProvider)
+        repository = NoteRepositoryImpl(
+            dao,
+            api,
+            syncCoordinator,
+            deviceIdProvider,
+            mockk<VoiceNoteRepository>(relaxed = true)
+        )
     }
 
     @Test

@@ -152,6 +152,9 @@ class NoteExporter(private val context: Context) {
                 is EditorBlock.TableBlock -> {
                     renderTable(block, renderer, textPaint, borderPaint)
                 }
+                is EditorBlock.Voice -> {
+                    renderer.currentY += 10f
+                }
             }
         }
         pdfDocument.finishPage(renderer.currentPage)

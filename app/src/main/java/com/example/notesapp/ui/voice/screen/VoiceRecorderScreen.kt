@@ -79,6 +79,7 @@ import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
 fun VoiceRecorderScreen(
     noteId: String?,
     source: RecordingEntryPoint,
+    focusedBlockId: String? = null,
     onSaved: (String) -> Unit,
     onDiscarded: () -> Unit,
     onBack: () -> Unit,
@@ -111,7 +112,7 @@ fun VoiceRecorderScreen(
     }
 
     LaunchedEffect(permissionGranted) {
-        viewModel.onScreenReady(noteId, permissionGranted, source)
+        viewModel.onScreenReady(noteId, permissionGranted, source, focusedBlockId)
         if (!permissionGranted && !state.permissionPermanentlyDenied) {
             showPermissionRationale = true
         }

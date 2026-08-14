@@ -5,7 +5,7 @@
 - Repository root: /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp
 - Standard startup path: Existing Android app shell with Home, Notes, Folders, Settings, and Note Editor; US-1 now exposes the production Recorder route and its lifecycle service contract.
 - Standard verification path: ./gradlew testDebugUnitTest, ./gradlew assembleDebug, ./gradlew ktlintCheck, ./gradlew detekt, and ./gradlew connectedDebugAndroidTest as applicable to each slice.
-- Current highest-priority unfinished feature: US-4 — Save and edit inline VoiceNote blocks.
+- Current highest-priority unfinished feature: US-5 — Configure Voice Notes and verify the completed Light Theme flow.
 - Current blocker: None for the approved US-2 verification commands. API-24/API-31/API-34 runtime certification remains unverified because only the API-33 emulator is available; source compatibility and API-33 evidence are recorded in spike-us1-capture.md.
 
 ## Session Log
@@ -57,3 +57,15 @@
 - Files or artifacts updated: Home/editor/navigation/recorder entry implementation, placeholder use case, localized resources, tests, `docs/product/2026-08-14-voice-notes/`, and `docs/product/product.md`.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected. Saved VoiceNote persistence/player behavior remains intentionally owned by US-4.
 - Next best step: Complete the clean-exit checklist, install the debug build, and leave US-3 passing for Evaluator review while US-4 remains the next slice.
+
+### Session 005
+
+- Date: 2026-08-14
+- Goal: Implement and verify US-4 — Save and edit inline VoiceNote blocks — through the harness-generator stages.
+- Completed: Added Room voice_note_blocks persistence and migration, domain save/delete use cases, JSON document insertion/update, editor Voice metadata blocks with editable transcript siblings, Media3 inline playback/seek/file-size/missing-file state, audio-only deletion, block/note private-file cleanup, editor refresh signaling after recorder return, localized copy, and stable semantics/test tags. Added focused/Home use-case tests, repository cleanup integration tests, and production editor-content instrumented coverage.
+- Verification run: Exact US-4 repository, insertion, and emulator player acceptance commands all passed on `emulator-5554` (API 33); full JVM suite passed with 281 tests; Kover passed at 83.0872% overall line coverage; assembleDebug, ktlintCheck, detekt, lintDebug, Compose/localization/architecture rules all passed.
+- Evidence captured: `summary_US-4.md`, updated `feature_list.json` evidence for TC-US-4-01 through TC-US-4-03, and `VoiceNoteEditorFlowTest` runtime results.
+- Commits: Pending clean-exit commit.
+- Files or artifacts updated: Room/data/domain/editor/recorder/navigation implementation, resources, tests, and product documentation.
+- Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected; US-5 still owns final Light Theme visual verification.
+- Next best step: Complete the clean-exit checklist, install the debug build, and leave US-4 passing for Evaluator review while US-5 remains the next unstarted slice.

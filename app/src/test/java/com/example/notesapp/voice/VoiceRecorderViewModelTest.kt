@@ -16,6 +16,7 @@ import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.domain.voice.usecase.VoiceNotePlaceholderUseCase
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
+import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderPersistence
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
 import io.mockk.coVerify
 import io.mockk.every
@@ -66,7 +67,10 @@ class VoiceRecorderViewModelTest : BaseViewModelTest() {
             microphoneAvailability = microphoneAvailability,
             transcriptSession = transcriptSession,
             recordingSessionManager = recordingSessionManager,
-            voiceNotePlaceholderUseCase = voiceNotePlaceholderUseCase
+            voiceRecorderPersistence = VoiceRecorderPersistence(
+                voiceNotePlaceholderUseCase = voiceNotePlaceholderUseCase,
+                saveVoiceNoteRecordingUseCase = mockk(relaxed = true)
+            )
         )
     }
 
