@@ -35,13 +35,16 @@ Code remains the runtime source of truth. This document is the design and workfl
 
 ### App Shell & Note Editor
 
-- Clean light surfaces (`#F8F7FF`) for home, notes list, folders, and settings; sleek dark surfaces (`#121212`) for dark theme.
-- Purple/Violet (`#7C6CF2` / `#9B8CFF`) is the primary brand and action color.
-- High-contrast text (`textPrimary`) with subtle card borders (`border`) and dividers (`divider`).
+- The application uses **Light Theme** as its primary visual identity.
+- Clean light background (`#F8F7FF`) for home, notes list, folders, settings, and note editor screens.
+- Clean white surfaces (`#FFFFFF`) for cards, dialogs, floating panels, and modal bottom sheets.
+- Purple/Violet (`#7C6CF2`) is the primary brand accent and main action color, supported by light lavender (`#9B8CFF`) for secondary interactive accents.
+- High-contrast dark text (`textPrimary`: `#191627`) with subtle card borders (`border`: `#E7E3F6`) and dividers (`divider`: `#E7EBF0`).
+- Dark theme (`#121212` background, `#1E1E1E` surface, `#9B8CFF` primary) remains supported via system settings (`DarkAppColors`), but Light Theme is the visual baseline for all design contracts, mockups, and UI components.
 
 ## Color Tokens
 
-Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) and accessed via `LocalAppColors.current`.
+Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) and accessed via `LocalAppColors.current`. Light theme values specify the primary app baseline.
 
 ### Primary & Surface Tokens
 
@@ -49,9 +52,9 @@ Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) 
 |-------|-----------|----------|---------------|
 | `primary` | `#7C6CF2` | `#9B8CFF` | Primary app actions, selected tabs, floating action buttons, primary branding. |
 | `secondary` | `#9B8CFF` | `#7C6CF2` | Supporting interactive elements, secondary chips and badges. |
-| `background` | `#F8F7FF` | `#121212` | Main screen background surface. |
-| `surface` | `#FFFFFF` | `#1E1E1E` | Card containers, dialogs, bottom sheets, and elevated elements. |
-| `textPrimary` | `#191627` | `#E1E1E1` | Main text titles, body text, and prominent headers. |
+| `background` | `#F8F7FF` | `#121212` | Main screen background surface (Light theme baseline). |
+| `surface` | `#FFFFFF` | `#1E1E1E` | Card containers, dialogs, bottom sheets, and elevated elements in light theme. |
+| `textPrimary` | `#191627` | `#E1E1E1` | Main text titles, body text, and prominent headers on light surfaces. |
 | `textSecondary` | `#7B7694` | `#B0B0B0` | Subtitles, metadata, timestamps, and supporting labels. |
 | `textTertiary` | `#A0A6AC` | `#808080` | Placeholder text, disabled labels, and quiet hints. |
 | `onPrimary` | `#FFFFFF` | `#121212` | Content rendered over `primary` surfaces. |
@@ -68,7 +71,7 @@ Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) 
 | `accentMint` | `#C6F1E7` | `#00897B` | Success states, mint badges, and tag chips. |
 | `accentBlue` | `#CFE1FF` | `#1976D2` | Soft blue highlights and informational chips. |
 | `highlight` | `#F0F4FF` | `#2A2A3A` | Active note item highlight and selected background state. |
-| `searchBackground` | `#EEEFF1` | `#2C2C2C` | Search field container background. |
+| `searchBackground` | `#EEEFF1` | `#2C2C2C` | Search field container background in light theme. |
 | `searchIcon` | `#8E959B` | `#B0B0B0` | Search field icon tint. |
 
 ### Gradients & Special Tokens
@@ -84,16 +87,16 @@ Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) 
 ### Color Rules
 
 - Always access colors via `LocalAppColors.current.<token>`; never hardcode raw `Color(0x...)` hex values in `@Composable` functions.
-- The primary brand accent is **Purple/Violet (`#7C6CF2` / `#9B8CFF`)**.
-- Use `background` (`#F8F7FF` / `#121212`) for screen backgrounds and `surface` (`#FFFFFF` / `#1E1E1E`) for cards and elevated sheets.
-- Text contrast must follow Material 3 accessibility standards: `textPrimary` for high emphasis, `textSecondary` for medium emphasis.
+- The default theme is **Light Theme**. The primary brand accent is **Vibrant Purple (`#7C6CF2`)**.
+- Use `background` (`#F8F7FF`) for screen backgrounds and `surface` (`#FFFFFF`) for cards, elevated sheets, and dialogs.
+- Text contrast must follow Material 3 accessibility standards: `textPrimary` (`#191627`) for high emphasis on light surfaces, `textSecondary` (`#7B7694`) for medium emphasis.
 - Disabled interactive elements must use 38% alpha (`0.38f`) on text/icon content.
 - State changes (selection, errors, roles) must be communicated by combining color with iconography, typography, or shape.
 
 ## Typography
 
 - Font family: platform sans-serif through the existing Compose theme/components.
-- Editor top action title: 24sp, bold, white.
+- Editor top action title / Screen header title: 24sp, bold, `textPrimary` (`#191627`).
 - Editor control label: 14sp, semibold unless an established component requires otherwise.
 - Editor supporting/status text: 12–13sp with sufficient line height.
 - Editor tool label: 10sp, 11sp line height, semibold; selected label bold.
@@ -113,24 +116,24 @@ Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) 
 
 ### Top Action Bar / Header Bar
 
-- Clean top header surface (`background` / `surface`) with back action, title, search button, and note action menu.
-- Action icons inherit `textPrimary` with 48×48dp accessible touch targets.
-- Screen title uses `titleMedium` / `headlineMedium` semibold text.
+- Clean top header surface (`background` `#F8F7FF` / `surface` `#FFFFFF`) with back action, title, search button, and note action menu.
+- Action icons and screen title inherit `textPrimary` (`#191627`) with 48×48dp accessible touch targets.
+- Screen title uses `titleMedium` / `headlineMedium` semibold text in `textPrimary` (`#191627`).
 
 ### Note Action Sheet (`EditorNoteActionsSheet`)
 
-- Modal bottom sheet (`surface`) with rounded top corners (16dp).
-- Options list (Move to folder, Add to favorites, Export note, Delete note) using standard row height (56dp) and `textPrimary` labels.
-- Destructive options (e.g. Delete) use `error` tint for icons and text.
+- Modal bottom sheet (`surface` `#FFFFFF`) with rounded top corners (16dp).
+- Options list (Move to folder, Add to favorites, Export note, Delete note) using standard row height (56dp) and `textPrimary` (`#191627`) labels.
+- Destructive options (e.g. Delete) use `error` (`#C44A4A`) tint for icons and text.
 
 ### Search & Filter Controls
 
-- Search input container uses `searchBackground` (`#EEEFF1` light / `#2C2C2C` dark) with rounded corners (12dp).
-- Search icon uses `searchIcon` tint with `textSecondary` placeholder text.
+- Search input container uses `searchBackground` (`#EEEFF1` light theme) with rounded corners (12dp).
+- Search icon uses `searchIcon` tint (`#8E959B`) with `textSecondary` (`#7B7694`) placeholder text.
 
 ### Overlays And Sheets
 
-- Standard M3 `ModalBottomSheet` for action pickers and folder selectors.
+- Standard M3 `ModalBottomSheet` for action pickers and folder selectors, using `surface` (`#FFFFFF`).
 - Rounded surface corners (16dp top radius for bottom sheets; 12dp for cards and dialogs).
 - Respect `WindowInsets.safeDrawing`, status bars, navigation bars, and gesture insets.
 

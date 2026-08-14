@@ -322,7 +322,8 @@ launch_agent() {
     local stderr_file
     stderr_file=$(mktemp -t harness-agent-stderr.XXXXXX)
     local exit_code=0
-    $headless_cmd "$PROMPT" 2> >(tee "$stderr_file" >&2) || exit_code=$?
+    $headless_cmd "$PROMPT" 2>"$stderr_file" || exit_code=$?
+    cat "$stderr_file" >&2
 
     if [ "$exit_code" -ne 0 ] && [ "$can_fallback" -eq 1 ]; then
       local err_text
@@ -369,7 +370,8 @@ launch_agent() {
     local stderr_file2
     stderr_file2=$(mktemp -t harness-agent-stderr.XXXXXX)
     local exit_code2=0
-    $interactive_cmd "$PROMPT" 2> >(tee "$stderr_file2" >&2) || exit_code2=$?
+    $interactive_cmd "$PROMPT" 2>"$stderr_file2" || exit_code2=$?
+    cat "$stderr_file2" >&2
 
     if [ "$exit_code2" -ne 0 ] && [ "$can_fallback" -eq 1 ]; then
       local err_text2
