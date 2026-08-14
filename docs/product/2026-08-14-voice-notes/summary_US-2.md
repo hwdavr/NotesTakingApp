@@ -43,6 +43,6 @@
 ## Evidence Index
 
 - Orient evidence: `bash scripts/check-feature-lifecycle.sh` → `Feature lifecycle tracker valid: 1 feature(s), 1 in progress.`
-- Selection evidence: `docs/product/2026-08-14-voice-notes/feature_list.json` → US-2 has status `in_progress` and remains the active slice.
+- Selection evidence: `docs/product/2026-08-14-voice-notes/feature_list.json` → US-2 was selected as `in_progress` at orientation and now has status `passing` with evidence attached.
 - Design evidence: `docs/product/2026-08-14-voice-notes/design/mockup_recorder_screen_v3.png` → Light Theme recorder with live transcript preview, warning state, and bottom controls.
 - Acceptance evidence: `docs/product/2026-08-14-voice-notes/feature_list.json` → US-2 status `passing` with exact unit, production-boundary integration, and connected fallback commands recorded.
