@@ -81,3 +81,14 @@
 - Files or artifacts updated: Settings/data/domain/recorder implementation, resources, tests, visual verification, and product documentation.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected; the Skill tool was unavailable in this session, so the checked-in skill instructions were applied manually and documented in the summary.
 - Next best step: Evaluator review of the complete Voice Notes feature; the tracker is intentionally `To be reviewed`, not `To be human reviewed`.
+
+### Session 007 — Fix Mode
+
+- Date: 2026-08-15
+- Goal: Resolve evaluator code-review and test-review findings for `voice-notes-audio-transcripts` and route the feature back to human review.
+- Completed: Added the Android recognizer listener path, MediaRecorder I/O/partial-save handling, direct Voice-block cleanup, API 24–28 AAC fallback policy, state-aware notification actions, audio backup exclusions, recoverable persistence, presentation mappers, scroll-state hoisting, deterministic watchdog coverage, per-class Kover evidence, and root-cause fixes for global localization/architecture gate violations. Exported four in-test visual captures to the declared host evidence paths.
+- Verification run: `assembleDebug`, `testDebugUnitTest`, `koverLog` (81.8898% overall line), `ktlintCheck`, `detekt`, `lint`, Compose/localization/architecture scripts, duplicate-class check, full connected suite (74/74 on API 33), every sprint-contract acceptance command, and four visual export commands all passed. Post-tracker `bash scripts/check-feature-lifecycle.sh` passed.
+- Evidence captured: `summary_voice-notes-audio-transcripts.md`, `clean-state-checklist.md`, updated `code_review_voice-notes-audio-transcripts.md`, updated `test_review_voice-notes-audio-transcripts.md`, refreshed `feature_list.json`, and refreshed `visual_evidence/` PNGs.
+- Commits: `e0e468e` — evaluator fixes; `8c45b8b` — global quality gate fixes; final documentation commit is recorded in the handoff after Stage 6.
+- Residual risk: Production-route visual navigation, API-24/API-31/API-34 runtime certification, source-fed single-microphone STT, and system fault-injection tests remain explicitly unresolved for human review.
+- Next best step: Human review of the fix-pass reports; do not transition the tracker again in this session.

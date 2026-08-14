@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be reviewed | 2026-08-15 | US-1 through US-5 are passing with API-33 evidence; final Light Theme captures cover Home, Recorder, Editor, and Settings. Evaluator review is pending. |
+| voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass applied; re-verification evidence attached; 9/10 code-review findings fixed. Test-review residuals and unavailable API runtimes are documented for human review. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -84,11 +84,11 @@ Lifecycle rules:
 
 | Feature | Status | Notes |
 |---|---|---|
-| Safe recording session (US-1) | ✅ Done | Private AAC/OPUS file lifecycle, 128 MB preflight, foreground service notification controls, permission recovery, session guard, reducer/ViewModel state bridge, and deterministic cleanup. |
-| Progressive transcription with safe fallback (US-2) | ✅ Done | Overlapping partial/final transcript preview, timeout/failure markers, model-unavailable audio-only fallback, and cancellation cleanup. |
+| Safe recording session (US-1) | ✅ Done | Private AAC/OPUS file lifecycle, 128 MB preflight, foreground service notification controls, permission recovery, session guard, reducer/ViewModel state bridge, deterministic cleanup, and fix-pass I/O/backup hardening. |
+| Progressive transcription with safe fallback (US-2) | ✅ Done | Injectable Android recognizer path, overlapping partial/final transcript preview, timeout/failure markers, model-unavailable audio-only fallback, and cancellation cleanup; source-fed single-microphone bridge remains a documented review risk. |
 | Home/editor recording entry points (US-3) | ✅ Done | Home Create sheet allocates a placeholder before recording; editor Mic opens the recorder with note/focus context; context switches cleanly replace active Home sessions. |
 | Inline editor persistence and playback (US-4) | ✅ Done | Room-backed VoiceNote metadata, focused/Home document insertion, editable transcript TextBlocks, Media3 playback/seek, audio-only deletion, and private-file cascade cleanup. |
-| Voice Notes settings and final visual verification (US-5) | ✅ Done | DataStore-backed AAC/OPUS selection, Room-derived private storage totals, recorder format wiring, and Light Theme evidence across Home, Recorder, Editor, and Settings. |
+| Voice Notes settings and final visual verification (US-5) | ✅ Done | DataStore-backed AAC/OPUS selection, Room-derived private storage totals, recorder format wiring, and fix-pass Light Theme evidence across Home, Recorder, Editor, and Settings. |
 
 ### ✅ Note Sharing & Access Control
 
@@ -149,7 +149,7 @@ Lifecycle rules:
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
 | **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
-| **Voice Notes** | ✅ Shipped | Private recording, progressive transcription/fallback, Home/editor entry points, Room-backed inline VoiceNote playback, editable transcripts, local cleanup, AAC/OPUS settings, storage totals, and final Light Theme verification |
+| **Voice Notes** | ✅ Shipped | Private recording, progressive transcription/fallback, Home/editor entry points, Room-backed inline VoiceNote playback, editable transcripts, local cleanup, AAC/OPUS settings, storage totals, and fix-pass Light Theme evidence; residual production-route/API runtime gaps are documented |
 
 ---
 

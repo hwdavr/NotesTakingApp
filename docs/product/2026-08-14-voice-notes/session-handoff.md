@@ -1,30 +1,42 @@
-# Session Handoff
+# Session Handoff — voice-notes-audio-transcripts Fix Mode
 
 ## Verified Now
 
-- What is currently working: US-1 through US-5 are `passing`. US-5 persists AAC/OPUS selection in DataStore, reports Room-derived private storage totals, wires the next recorder configuration to the selected format, and renders the localized Voice Notes Settings section. The Home Create sheet, Recorder in-progress state, Editor VoiceNote player with editable transcript, and Settings Voice Notes state are all asserted and visually captured in Light Theme.
-- What verification actually ran: `./gradlew assembleDebug`, `./gradlew testDebugUnitTest` (284/284), `./gradlew koverLog` (83.2334% application line coverage), `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, all three custom rule scripts, full `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` (74/74 on API 33), and every US-5 acceptance command. Visual evidence is in `docs/product/2026-08-14-voice-notes/visual_evidence/` and was inspected against the approved Light Theme direction.
+- US-1 through US-5 remain `passing`; the feature tracker is now `To be human reviewed`.
+- Fixed implementation findings include Android recognizer startup/listener forwarding, MediaRecorder I/O partial-save handling, direct Voice-block cleanup, API 24–28 AAC fallback, state-aware notification actions, local-only backup exclusions, recoverable persistence, presentation mapping, and scroll-state hoisting.
+- Global Compose, localization, architecture, Ktlint, Detekt, lint, build, unit, Kover, and API-33 connected gates pass.
+
+## Verification Evidence
+
+- `./gradlew assembleDebug --console=plain` — exit 0.
+- `./gradlew testDebugUnitTest --console=plain` — exit 0.
+- `./gradlew koverLog --rerun-tasks --console=plain` — exit 0; 81.8898% aggregate application line coverage.
+- `./gradlew ktlintCheck --console=plain`, `./gradlew detekt --console=plain`, and `./gradlew lint --console=plain` — exit 0.
+- `bash scripts/check-compose-rules.sh`, `bash scripts/check-localization-rules.sh --all`, and `bash scripts/check-architecture-rules.sh --all` — exit 0.
+- `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` — exit 0; 74/74 on API 33.
+- All sprint-contract acceptance commands exited 0; four target-state PNGs were exported and are non-empty under `visual_evidence/`.
 
 ## Changed This Session
 
-- Code or behavior added: DataStore-backed voice format repository, Room storage aggregate queries, Settings ViewModel/UI state and localized AAC/OPUS controls, recorder format selection, Settings screen test tags/heading semantics, JVM/instrumented settings coverage, production-boundary target-state assertions, and on-device Light Theme evidence capture.
-- Infrastructure or harness changes: US-5 evidence, progress, summary, product tracker, product capability/roadmap/portfolio records, visual evidence, and ADR-004 were updated. Commit `6e86183` — `feat(voice): add settings and final visual verification`. The required Skill-tool registry was unavailable, so the checked-in skill instructions were followed manually and the limitation is documented in `summary_US-5.md`.
+- Fix commit: `e0e468e` — evaluator finding implementation and test fixes.
+- Quality commit: `8c45b8b` — global localization/architecture gate fixes and package/import alignment.
+- Harness records: `summary_voice-notes-audio-transcripts.md`, both review reports, `feature_list.json`, `product.md`, `clean-state-checklist.md`, and this handoff.
 
-## Broken Or Unverified
+## Unresolved ⚠️ / Human Review Decisions
 
-- Known defect: None found in the verified US-5 paths; no new suppressions or rule exclusions were added.
-- Unverified path: API-24/API-31/API-34 runtime certification remains unavailable; the connected emulator is API 33. The exact shell screenshot commands produce non-empty captures after test teardown, while the committed target-state images are captured in-test before teardown.
-- Risk for the next session: Evaluator review must compare the four committed images with the v3 mockups and design system, and may require API-24 codec fallback validation when a matching runtime is available.
+- The visual tests now export the asserted images, but they still compose Content functions instead of driving the complete `AppNavigationHost` route graph.
+- API-24/API-31/API-34 runtime certification is unavailable; only API 33 is connected.
+- The source-fed single-microphone STT bridge is not proven for the compressed MediaRecorder capture path; the Android recognizer seam and safe fallback are covered, but the platform bridge requires a design decision.
+- System permission recovery, background/screen-off, focus-loss injection, disk-full fault injection, and full production stop/navigation tests remain residual test-review rows.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: Evaluator review of `voice-notes-audio-transcripts`.
-- Why it is next: All five slices pass and the tracker is intentionally `To be reviewed`; only the Evaluator may move it to `To be human reviewed` after scoring.
-- What counts as passing: Review `summary_US-5.md`, `feature_list.json` evidence, all four visual captures, and the final quality/runtime results without bypassing the evaluation gate.
-- What must not change during that step: Do not transition directly to `To be human reviewed` before evaluation; preserve the Room/document VoiceNote contract, local-only audio paths, and Light Theme design-system tokens.
+- Human review of the fix-pass reports and residual-risk list.
+- Decide whether to accept the platform/runtime evidence limits or request a follow-up spike for the source-fed single-microphone recognizer and production-route visual harness.
+- Do not mark the feature `Complete` until the reviewer accepts the residuals and the lifecycle tracker requirements are satisfied.
 
 ## Commands
 
-- Startup: `./gradlew installDebug`; launch the installed debug app on `emulator-5554`.
-- Verification: `./gradlew assembleDebug`, `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, custom rule scripts, and `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
-- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted`.
+- Startup/install: `./gradlew installDebug` on connected `emulator-5554`.
+- Verification: the commands listed above and in `clean-state-checklist.md`.
+- Focused visual review: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted`.
