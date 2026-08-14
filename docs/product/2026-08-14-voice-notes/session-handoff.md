@@ -8,7 +8,7 @@
 ## Changed This Session
 
 - Code or behavior added: Domain recording contracts/reducer/session guard, filename and storage preflight rules, Android private file/microphone adapters, Hilt controller and state store, foreground service with notification actions and codec fallback, Recorder ViewModel/render-state mapper/Compose screen, navigation route, manifest permissions, localized copy, and JVM/instrumented tests.
-- Infrastructure or harness changes: `minSdk` is 24 with explicit manifest library compatibility overrides for existing API-26 AI dependencies. The MediaRecorder service is isolated in `data.voice.service` and excluded from JVM Kover because its framework lifecycle is verified by connected service tests. Product tracker/capability docs and US-1 evidence were updated. Commit: `f7a6947`.
+- Infrastructure or harness changes: `minSdk` is 24 with explicit manifest library compatibility overrides for existing API-26 AI dependencies. The MediaRecorder service is isolated in `data.voice.service` and excluded from JVM Kover because its framework lifecycle is verified by connected service tests. Product tracker/capability docs and US-1 evidence were updated. Implementation commit: `3fb6066`.
 
 ## Broken Or Unverified
 
