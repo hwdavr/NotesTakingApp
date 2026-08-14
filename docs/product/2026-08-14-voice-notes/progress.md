@@ -53,7 +53,7 @@
 - Completed: Added the Home light-theme Create sheet with localized Text Note and Record Note tiles, placeholder-note allocation and rollback, source-aware recorder navigation/session metadata, editor Mic routing with focused-block context, and silent Home-to-editor session replacement through `RecordingSessionManager`. Added stable interaction tags and tests for the production Home entry boundary, placeholder use case, ViewModels, and session replacement.
 - Verification run: Baseline build/tests, full JVM tests (67/67), full emulator instrumented tests (67/67), Kover (82.7795% overall; `VoiceEntryViewModel` 100%, modified `VoiceRecorderViewModel` 93.6%, `VoiceNotePlaceholderUseCase` 100%), `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rule scripts, and both exact US-3 acceptance commands passed on `emulator-5554` (API 33).
 - Evidence captured: `summary_US-3.md`, updated `feature_list.json` evidence for TC-US-3-01 and TC-US-3-02, and the API-33 Home entry instrumented test result.
-- Commits: Pending clean-exit commit.
+- Commits: `6e86183` — `feat(voice): add settings and final visual verification`.
 - Files or artifacts updated: Home/editor/navigation/recorder entry implementation, placeholder use case, localized resources, tests, `docs/product/2026-08-14-voice-notes/`, and `docs/product/product.md`.
 - Known risk or unresolved issue: API-24/API-31/API-34 runtime certification remains pending because only the API-33 emulator is connected. Saved VoiceNote persistence/player behavior remains intentionally owned by US-4.
 - Next best step: Complete the clean-exit checklist, install the debug build, and leave US-3 passing for Evaluator review while US-4 remains the next slice.
