@@ -26,10 +26,15 @@ import kotlinx.coroutines.launch
 class RecordingTranscriptCoordinator @Inject constructor(
     private val recognizer: VoiceTranscriptRecognizer
 ) : VoiceTranscriptSession {
+    private var watchdogScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    internal fun useWatchdogScope(scope: CoroutineScope) {
+        watchdogScope = scope
+    }
+
     private val mutableState = MutableStateFlow(TranscriptSessionState())
     private var activeSessionId: String? = null
     private var concatenator = ChunkedTranscriptConcatenator()
-    private val watchdogScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var watchdogJob: Job? = null
     private var nextChunkIndex = 0
 

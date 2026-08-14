@@ -1,6 +1,6 @@
 {
   "project": "Voice Notes & Audio Transcripts",
-  "last_updated": "2026-08-14",
+  "last_updated": "2026-08-15",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -43,7 +43,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderLifecycleTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Compose lifecycle test on emulator-5554 (API 33)."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 instrumented Compose lifecycle test on emulator-5554 (API 33)."
         },
         {
           "test_id": "TC-US-1-02",
@@ -51,7 +51,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecordingSessionStateReducerTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: reducer pause/resume, save, illegal-transition, and discard scenarios."
+          "result": "Fix pass 2026-08-15, attempt 1: passed reducer pause/resume, save, illegal-transition, and discard scenarios."
         },
         {
           "test_id": "TC-US-1-03",
@@ -59,7 +59,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingStoragePreflighterTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 128 MB threshold, below-threshold blocking, and diagnostic byte count."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 128 MB threshold, below-threshold blocking, and diagnostic byte count."
         },
         {
           "test_id": "TC-US-1-01-service-smoke",
@@ -67,7 +67,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecordingServiceIntegrationTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: foreground service produced one non-empty private AAC file on API 33."
+          "result": "Fix pass 2026-08-15, attempt 1: foreground service produced one non-empty private AAC file on API 33."
         }
       ],
       "notes": "Risk-first slice passed all listed verification commands. The source-compatible capture spike and API-33 runtime evidence are documented in spike-us1-capture.md; API-24/API-31/API-34 runtime certification remains pending because those emulator images were unavailable. This slice owns recorder lifecycle and audio persistence, not transcript concatenation or editor block rendering."
@@ -99,7 +99,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.ChunkedTranscriptConcatenatorTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 3 overlap, partial-result, and boundary-fragment tests."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 3 overlap, partial-result, and boundary-fragment tests."
         },
         {
           "test_id": "TC-US-2-02",
@@ -107,7 +107,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 2 production-boundary integration tests covering transcript fallback, timeout marker, saved transcript, and cancellation cleanup."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 2 production-boundary integration tests covering transcript fallback, timeout marker, saved transcript, and cancellation cleanup."
         },
         {
           "test_id": "TC-US-2-02-ui",
@@ -115,7 +115,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 Compose runtime fallback test on emulator-5554 (API 33), preserving recorder controls and showing unavailable-transcription warning."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 Compose runtime fallback test on emulator-5554 (API 33), preserving recorder controls and showing unavailable-transcription warning."
         }
       ],
       "notes": "US-2 is passing. The injectable recognizer/session boundary consumes service-owned recording state, concatenates partial/final overlapping chunks, applies a 65-second watchdog and failure marker, preserves audio-only fallback copy, and cancels cleanly on discard. Android platform recognition availability is checked without opening a second microphone client; the existing US-1 MediaRecorder ownership boundary remains intact. Because the current US-1 capture path produces a compressed MediaRecorder file and no approved single-mic PCM tee exists yet, the production Android adapter safely reports source-unavailable instead of opening a concurrent SpeechRecognizer microphone client; the injectable boundary and deterministic fallback are ready for a future verified PCM bridge."
@@ -146,7 +146,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.VoiceEntryNavigationTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 production-boundary Home Create-sheet navigation test on emulator-5554 (API 33); placeholder allocation and Record Note selection succeeded."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 production-boundary Home Create-sheet navigation test on emulator-5554 (API 33); placeholder allocation and Record Note selection succeeded."
         },
         {
           "test_id": "TC-US-3-02",
@@ -154,7 +154,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.RecordingSessionManagerTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: Home session replacement test confirms the prior Home session is discarded before the editor context starts."
+          "result": "Fix pass 2026-08-15, attempt 1: passed Home session replacement test confirming the prior Home session is discarded before the editor context starts."
         }
       ],
       "notes": "Depends on US-1 recorder launch contract. This slice owns entry/navigation and placeholder-note lifecycle; it does not own the saved VoiceNote player."
@@ -187,7 +187,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceNoteRepositoryIntegrationTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 3 repository integration tests covering audio-only deletion, missing-file recovery, and full-note file cascade cleanup."
+          "result": "Fix pass 2026-08-15, attempt 1: passed repository integration tests covering audio-only deletion, missing-file recovery, and full-note file cascade cleanup."
         },
         {
           "test_id": "TC-US-4-01",
@@ -195,7 +195,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.EditorVoiceNoteInsertionTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 4 insertion/use-case tests covering focused editor and Home position-zero Voice/TextBlock persistence plus audio-delete and block-delete use cases."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 7 insertion/use-case tests covering focused editor and Home position-zero Voice/TextBlock persistence, rollback, audio-delete, and block-delete use cases."
         },
         {
           "test_id": "TC-US-4-02",
@@ -203,7 +203,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.VoiceNoteEditorFlowTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 production editor-content test on emulator-5554 (API 33) covering inline player tags, play/seek controls, elapsed/total/file-size labels, editable transcript presence, and audio-only delete confirmation."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 production editor-content test on emulator-5554 (API 33) covering inline player tags, play/seek controls, elapsed/total/file-size labels, editable transcript presence, and audio-only delete confirmation."
         }
       ],
       "notes": "Depends on US-1 audio lifecycle, US-2 final transcript events, and US-3 source context/navigation. The canonical transcript type is the existing EditorBlock.TextBlock; do not introduce EditorBlock.RichText."
@@ -243,7 +243,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.settings.VoiceSettingsRepositoryTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 2 repository tests on the DataStore-backed format setting and Room-derived storage totals; AAC→OPUS persisted and 184600000 bytes/12 recordings reported."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 2 repository tests on the DataStore-backed format setting and Room-derived storage totals; AAC→OPUS persisted and 184600000 bytes/12 recordings reported."
         },
         {
           "test_id": "TC-US-5-02-settings-flow",
@@ -251,7 +251,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.settings.VoiceSettingsFlowTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Settings flow test on emulator-5554 (API 33); Voice Notes storage, recording count, AAC selection, OPUS toggle, and quality copy were asserted."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 instrumented Settings flow test on emulator-5554 (API 33); Voice Notes storage, recording count, AAC selection, OPUS toggle, and quality copy were asserted."
         },
         {
           "test_id": "TC-US-5-02",
@@ -259,7 +259,7 @@
           "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented reachability test on emulator-5554 (API 33); Home FAB, Recorder status, Editor Voice player, and Settings Voice Notes semantics were all asserted in one Light Theme production surface."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 1 instrumented target-state test on emulator-5554 (API 33); Home FAB, Recorder status, Editor Voice player, and Settings Voice Notes semantics were asserted."
         },
         {
           "test_id": "TC-US-5-VIS-001",
@@ -267,7 +267,7 @@
           "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#recorderInProgressLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/recorder_in_progress_light.png\"",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Recorder visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/recorder_in_progress_light.png (1080x2400)."
+          "result": "Fix pass 2026-08-15, attempt 1: passed Recorder visual test and exported non-empty in-test target-state evidence to docs/product/2026-08-14-voice-notes/visual_evidence/recorder_in_progress_light.png (1080x2400)."
         },
         {
           "test_id": "TC-US-5-VIS-002",
@@ -275,7 +275,7 @@
           "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#homeFabSheetLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/home_fab_sheet_light.png\"",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Home Create-sheet visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/home_fab_sheet_light.png (1080x2400)."
+          "result": "Fix pass 2026-08-15, attempt 1: passed Home Create-sheet visual test and exported non-empty in-test target-state evidence to docs/product/2026-08-14-voice-notes/visual_evidence/home_fab_sheet_light.png (1080x2400)."
         },
         {
           "test_id": "TC-US-5-VIS-003",
@@ -283,7 +283,7 @@
           "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#editorVoiceBlockLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/editor_voice_block_light.png\"",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Editor VoiceNote visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/editor_voice_block_light.png (1080x2400)."
+          "result": "Fix pass 2026-08-15, attempt 1: passed Editor VoiceNote visual test and exported non-empty in-test target-state evidence to docs/product/2026-08-14-voice-notes/visual_evidence/editor_voice_block_light.png (1080x2400)."
         },
         {
           "test_id": "TC-US-5-VIS-004",
@@ -291,7 +291,7 @@
           "executed_command": "FEATURE_DIR=/tmp/us5-acceptance; export FEATURE_DIR; ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#settingsVoiceNotesLightTheme --console=plain && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 exec-out screencap -p > \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\" && test -s \"$FEATURE_DIR/visual_evidence/settings_voice_notes_light.png\"",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed: 1 instrumented Settings visual test and non-empty temporary shell capture; inspected target-state evidence at docs/product/2026-08-14-voice-notes/visual_evidence/settings_voice_notes_light.png (1080x2400)."
+          "result": "Fix pass 2026-08-15, attempt 1: passed Settings visual test and exported non-empty in-test target-state evidence to docs/product/2026-08-14-voice-notes/visual_evidence/settings_voice_notes_light.png (1080x2400)."
         }
       ],
       "notes": "Final priority slice and sole visual-verification owner. Visual review focuses on UI chrome, typography, spacing, colors, component placement, copy, contrast, and test-tag/accessibility contracts; the committed in-test captures show the asserted target states."

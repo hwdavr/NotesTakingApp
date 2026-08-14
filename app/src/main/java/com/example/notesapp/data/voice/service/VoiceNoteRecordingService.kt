@@ -8,6 +8,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.SystemClock
@@ -28,6 +30,7 @@ import com.example.notesapp.domain.voice.RecordingSessionStateReducer
 import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.domain.voice.formatElapsedTime
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +63,29 @@ class VoiceNoteRecordingService : LifecycleService() {
     private var recordingStartedAt = 0L
     private var pausedElapsedMs = 0L
     private var currentState: RecordingSessionState = RecordingSessionState.Idle
+    private var pausedForFocus = false
+    private var audioFocusRequest: AudioFocusRequest? = null
+    private var failureHandled = false
+
+    private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                if (currentState is RecordingSessionState.Recording) {
+                    pausedForFocus = true
+                    togglePauseResume()
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (pausedForFocus && currentState is RecordingSessionState.Paused) {
+                    pausedForFocus = false
+                    togglePauseResume()
+                }
+            }
+        }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -88,8 +114,9 @@ class VoiceNoteRecordingService : LifecycleService() {
         val token = intent.getStringExtra(EXTRA_TOKEN) ?: return
         val noteId = intent.getStringExtra(EXTRA_NOTE_ID) ?: return
         val blockId = intent.getStringExtra(EXTRA_BLOCK_ID) ?: return
-        val path = intent.getStringExtra(EXTRA_FILE_PATH) ?: return
-        val format = AudioFormat.fromStorageValue(intent.getStringExtra(EXTRA_FORMAT).orEmpty())
+        val requestedPath = intent.getStringExtra(EXTRA_FILE_PATH) ?: return
+        val requestedFormat = AudioFormat.fromStorageValue(intent.getStringExtra(EXTRA_FORMAT).orEmpty())
+        val (path, format) = normalizeFormat(requestedPath, requestedFormat, noteId, blockId)
         val entryPoint = RecordingEntryPoint.fromRoute(intent.getStringExtra(EXTRA_ENTRY_POINT).orEmpty())
         val nextMetadata = RecordingSessionMetadata(
             sessionId = sessionId,
@@ -129,11 +156,27 @@ class VoiceNoteRecordingService : LifecycleService() {
     }
 
     private fun startRecorder(metadata: RecordingSessionMetadata) {
-        recorder = createRecorder(metadata).also(MediaRecorder::start)
+        failureHandled = false
+        recorder = createRecorder(metadata).apply {
+            setOnErrorListener { _, what, extra ->
+                if (!failureHandled) {
+                    failRecording(
+                        IOException(
+                            "MediaRecorder I/O failure (what=$what, extra=$extra)"
+                        )
+                    )
+                }
+            }
+            start()
+        }
         recordingStartedAt = SystemClock.elapsedRealtime()
         pausedElapsedMs = 0L
         reduce(RecordingSessionEvent.Started(metadata))
         transcriptSession.start(metadata)
+        if (!requestAudioFocus()) {
+            failRecording(IOException("Audio focus unavailable"))
+            return
+        }
         startAmplitudeUpdates()
     }
 
@@ -160,6 +203,19 @@ class VoiceNoteRecordingService : LifecycleService() {
         } else {
             createAacRecorder(metadata)
         }
+    }
+
+    private fun normalizeFormat(
+        requestedPath: String,
+        requestedFormat: AudioFormat,
+        noteId: String,
+        blockId: String
+    ): Pair<String, AudioFormat> {
+        if (requestedFormat != AudioFormat.OPUS || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return requestedPath to requestedFormat
+        }
+        audioFileSystem.delete(requestedPath)
+        return audioFileSystem.createRecordingFile(noteId, blockId, AudioFormat.AAC).absolutePath to AudioFormat.AAC
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -257,13 +313,10 @@ class VoiceNoteRecordingService : LifecycleService() {
         runCatching { recorder?.stop() }
             .onFailure { error ->
                 releaseRecorder()
-                audioFileSystem.delete(currentMetadata.audioFilePath)
-                recordingStateStore.update(
-                    RecordingSessionState.Error(
-                        message = error.message ?: getString(R.string.voice_recording_save_error),
-                        metadata = currentMetadata,
-                        elapsedMs = currentElapsed
-                    )
+                publishPartialOrError(
+                    metadata = currentMetadata,
+                    elapsedMs = currentElapsed,
+                    message = error.message ?: getString(R.string.voice_recording_save_error)
                 )
             }
             .onSuccess {
@@ -300,23 +353,63 @@ class VoiceNoteRecordingService : LifecycleService() {
     }
 
     private fun failRecording(error: Throwable) {
+        if (failureHandled) return
+        failureHandled = true
         Log.e(TAG, "Voice recording failed", error)
         val currentMetadata = metadata
-        transcriptSession.cancel()
         val elapsed = when (val state = currentState) {
             is RecordingSessionState.Recording -> pausedElapsedMs + (SystemClock.elapsedRealtime() - recordingStartedAt)
             is RecordingSessionState.Paused -> pausedElapsedMs
             else -> 0L
         }
-        recordingStateStore.update(
-            RecordingSessionState.Error(
-                message = error.message ?: getString(R.string.voice_recording_error),
-                metadata = currentMetadata,
-                elapsedMs = elapsed
-            )
-        )
-        currentMetadata?.audioFilePath?.let(audioFileSystem::delete)
+        val transcript = transcriptSession.stop()
         releaseRecorder()
+        if (currentMetadata != null) {
+            publishPartialOrError(
+                metadata = currentMetadata,
+                elapsedMs = elapsed,
+                transcript = transcript,
+                message = error.message ?: getString(R.string.voice_recording_error)
+            )
+        } else {
+            recordingStateStore.update(
+                RecordingSessionState.Error(
+                    message = error.message ?: getString(R.string.voice_recording_error),
+                    elapsedMs = elapsed
+                )
+            )
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
+    private fun publishPartialOrError(
+        metadata: RecordingSessionMetadata,
+        elapsedMs: Long,
+        transcript: String = transcriptSession.stop(),
+        message: String
+    ) {
+        val fileSize = audioFileSystem.fileSize(metadata.audioFilePath)
+        if (fileSize > 0L) {
+            recordingStateStore.update(
+                RecordingSessionState.Saved(
+                    metadata = metadata,
+                    elapsedMs = elapsedMs,
+                    fileSizeBytes = fileSize,
+                    transcript = transcript,
+                    isPartial = true
+                )
+            )
+        } else {
+            audioFileSystem.delete(metadata.audioFilePath)
+            recordingStateStore.update(
+                RecordingSessionState.Error(
+                    message = message,
+                    metadata = metadata,
+                    elapsedMs = elapsedMs
+                )
+            )
+        }
         clearActiveSession()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -331,6 +424,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         recorder?.runCatching { reset() }
         recorder?.release()
         recorder = null
+        releaseAudioFocus()
     }
 
     private fun clearActiveSession() {
@@ -358,21 +452,32 @@ class VoiceNoteRecordingService : LifecycleService() {
         notificationManager.notify(NOTIFICATION_ID, buildNotification(elapsedMs))
     }
 
-    private fun buildNotification(elapsedMs: Long): Notification =
-        NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+    private fun buildNotification(elapsedMs: Long): Notification {
+        val isPaused = currentState is RecordingSessionState.Paused
+        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
             .setContentTitle(getString(R.string.voice_notification_title))
             .setContentText(
                 getString(
-                    R.string.voice_notification_recording,
+                    if (isPaused) {
+                        R.string.voice_notification_paused
+                    } else {
+                        R.string.voice_notification_recording
+                    },
                     formatElapsedTime(elapsedMs)
                 )
             )
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .addAction(
-                android.R.drawable.ic_media_pause,
-                getString(R.string.voice_notification_pause),
+                if (isPaused) {
+                    android.R.drawable.ic_media_play
+                } else {
+                    android.R.drawable.ic_media_pause
+                },
+                getString(
+                    if (isPaused) R.string.voice_notification_resume else R.string.voice_notification_pause
+                ),
                 servicePendingIntent(ACTION_TOGGLE, REQUEST_TOGGLE)
             )
             .addAction(
@@ -381,6 +486,57 @@ class VoiceNoteRecordingService : LifecycleService() {
                 servicePendingIntent(ACTION_STOP, REQUEST_STOP)
             )
             .build()
+    }
+
+    private fun requestAudioFocus(): Boolean {
+        val audioManager = getSystemService(AudioManager::class.java) ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                .setOnAudioFocusChangeListener(audioFocusListener)
+                .setWillPauseWhenDucked(true)
+                .build()
+            audioFocusRequest = request
+            audioManager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        } else {
+            requestLegacyAudioFocus(audioManager)
+        }
+    }
+
+    private fun releaseAudioFocus() {
+        val audioManager = getSystemService(AudioManager::class.java) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let(audioManager::abandonAudioFocusRequest)
+            audioFocusRequest = null
+        } else {
+            abandonLegacyAudioFocus(audioManager)
+        }
+        pausedForFocus = false
+    }
+
+    private fun requestLegacyAudioFocus(audioManager: AudioManager): Boolean = runCatching {
+        val method = AudioManager::class.java.getMethod(
+            "requestAudioFocus",
+            AudioManager.OnAudioFocusChangeListener::class.java,
+            Integer.TYPE,
+            Integer.TYPE
+        )
+        method.invoke(
+            audioManager,
+            audioFocusListener,
+            AudioManager.STREAM_MUSIC,
+            AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+        ) as Int == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+    }.getOrDefault(false)
+
+    private fun abandonLegacyAudioFocus(audioManager: AudioManager) {
+        runCatching {
+            val method = AudioManager::class.java.getMethod(
+                "abandonAudioFocus",
+                AudioManager.OnAudioFocusChangeListener::class.java
+            )
+            method.invoke(audioManager, audioFocusListener)
+        }
+    }
 
     private fun servicePendingIntent(action: String, requestCode: Int): PendingIntent = PendingIntent.getService(
         this,

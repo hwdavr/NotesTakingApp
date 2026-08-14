@@ -15,9 +15,14 @@ class DeleteVoiceNoteAudioUseCase @Inject constructor(
         val updatedContent = note?.let {
             documentStore.updateAudioFilePath(it.content, blockId, audioFilePath = null)
         }
-        voiceNoteRepository.deleteAudioOnly(blockId)
         if (note != null && updatedContent != null) {
             noteRepository.save(note.copy(content = updatedContent, updatedAt = System.currentTimeMillis()))
+        }
+        try {
+            voiceNoteRepository.deleteAudioOnly(blockId)
+        } catch (error: Throwable) {
+            if (note != null) runCatching { noteRepository.save(note) }
+            throw error
         }
         return updatedContent
     }

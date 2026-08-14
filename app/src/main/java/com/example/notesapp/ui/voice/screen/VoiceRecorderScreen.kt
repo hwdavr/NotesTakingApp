@@ -5,10 +5,12 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +70,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.domain.voice.RecordingEntryPoint
+import com.example.notesapp.domain.voice.formatElapsedTime
 import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatusLabel
 import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptWarning
@@ -89,13 +92,28 @@ fun VoiceRecorderScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val renderState = state.toRenderState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val transcriptScrollState = rememberScrollState()
     var showPermissionRationale by rememberSaveable { mutableStateOf(false) }
     var showDiscardConfirmation by rememberSaveable { mutableStateOf(false) }
     var discardSubmitted by rememberSaveable { mutableStateOf(false) }
+    var notificationPermissionRequested by rememberSaveable { mutableStateOf(false) }
     val permissionGranted = ContextCompat.checkSelfPermission(
         context,
         Manifest.permission.RECORD_AUDIO
     ) == PackageManager.PERMISSION_GRANTED
+    val notificationPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    val shouldRequestNotificationPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        !notificationPermissionGranted &&
+        !notificationPermissionRequested
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) {
+        viewModel.onScreenReady(noteId, permissionGranted, source, focusedBlockId)
+    }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -105,16 +123,32 @@ fun VoiceRecorderScreen(
                 Manifest.permission.RECORD_AUDIO
             )
         } == true
-        viewModel.onPermissionResult(granted, permanentlyDenied)
+        if (
+            granted &&
+            shouldRequestNotificationPermission
+        ) {
+            notificationPermissionRequested = true
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.onPermissionResult(granted, permanentlyDenied)
+        }
         if (!granted && !permanentlyDenied) {
             showPermissionRationale = true
         }
     }
 
-    LaunchedEffect(permissionGranted) {
-        viewModel.onScreenReady(noteId, permissionGranted, source, focusedBlockId)
-        if (!permissionGranted && !state.permissionPermanentlyDenied) {
-            showPermissionRationale = true
+    LaunchedEffect(permissionGranted, notificationPermissionGranted) {
+        if (
+            permissionGranted &&
+            shouldRequestNotificationPermission
+        ) {
+            notificationPermissionRequested = true
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            viewModel.onScreenReady(noteId, permissionGranted, source, focusedBlockId)
+            if (!permissionGranted && !state.permissionPermanentlyDenied) {
+                showPermissionRationale = true
+            }
         }
     }
     LaunchedEffect(state.permissionPermanentlyDenied) {
@@ -132,6 +166,16 @@ fun VoiceRecorderScreen(
                 )
             }
             viewModel.clearPermissionDenial()
+        }
+    }
+    LaunchedEffect(state.partialRecordingSaved) {
+        if (state.partialRecordingSaved) {
+            snackbarHostState.showSnackbar(
+                context.getString(
+                    R.string.voice_recorder_partial_saved,
+                    formatElapsedTime(state.elapsedMs)
+                )
+            )
         }
     }
     BackHandler {
@@ -154,6 +198,7 @@ fun VoiceRecorderScreen(
     ) { innerPadding ->
         VoiceRecorderContent(
             state = state,
+            transcriptScrollState = transcriptScrollState,
             modifier = Modifier.padding(innerPadding),
             showDiscardConfirmation = showDiscardConfirmation,
             onClose = { showDiscardConfirmation = true },
@@ -205,6 +250,7 @@ fun VoiceRecorderScreen(
 @Composable
 fun VoiceRecorderContent(
     state: VoiceRecorderUiState,
+    transcriptScrollState: ScrollState,
     modifier: Modifier = Modifier,
     showDiscardConfirmation: Boolean = false,
     onClose: () -> Unit,
@@ -298,7 +344,7 @@ fun VoiceRecorderContent(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(transcriptScrollState)
                 .testTag("recorder_transcript_preview"),
             verticalArrangement = Arrangement.Top
         ) {

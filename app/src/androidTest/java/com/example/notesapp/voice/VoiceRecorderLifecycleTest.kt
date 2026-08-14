@@ -1,5 +1,6 @@
 package com.example.notesapp.voice
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,6 +35,7 @@ class VoiceRecorderLifecycleTest {
                         elapsedMs = 3_000L,
                         amplitudes = List(64) { 0.5f }
                     ),
+                    transcriptScrollState = rememberScrollState(),
                     onPauseResume = { pauseRequested = true },
                     onStop = {},
                     onDiscardRequest = {},

@@ -497,10 +497,11 @@ open class NoteEditorViewModel @Inject constructor(
     fun deleteBlock(blockId: String) {
         val current = uiStateInternal.value
         val blocks = current.document.blocks
-        if (blocks.size <= 1) return
+        if (blocks.size <= 1 && blocks.firstOrNull() !is EditorBlock.Voice) return
         val index = blocks.indexOfFirst { it.id == blockId }
         if (index == -1) return
         val precedingVoiceBlock = blocks.getOrNull(index - 1) as? EditorBlock.Voice
+        val directVoiceBlock = blocks[index] as? EditorBlock.Voice
         val idsToDelete = if (precedingVoiceBlock != null && blocks[index] is EditorBlock.TextBlock) {
             setOf(blockId, precedingVoiceBlock.id)
         } else {
@@ -518,7 +519,7 @@ open class NoteEditorViewModel @Inject constructor(
             document = current.document.copy(blocks = updatedBlocks),
             focusedBlockId = nextFocusId
         )
-        precedingVoiceBlock?.let { voiceBlock ->
+        (directVoiceBlock ?: precedingVoiceBlock)?.let { voiceBlock ->
             viewModelScope.launch { deleteVoiceNoteBlockUseCase(voiceBlock.blockId) }
         }
         scheduleAutoSave()

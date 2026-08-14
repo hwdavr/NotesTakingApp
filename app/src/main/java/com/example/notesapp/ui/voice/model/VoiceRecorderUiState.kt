@@ -44,6 +44,7 @@ data class VoiceRecorderUiState(
     val permissionPermanentlyDenied: Boolean = false,
     val savedFilePath: String? = null,
     val savedFileSizeBytes: Long = 0L,
+    val partialRecordingSaved: Boolean = false,
     val transcript: String = "",
     val transcriptPartial: String = "",
     val transcriptStatus: VoiceRecorderTranscriptStatus = VoiceRecorderTranscriptStatus.Idle,

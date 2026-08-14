@@ -10,9 +10,11 @@ import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.NoteSummaryUnavailableException
 import com.example.notesapp.domain.summary.SummarizeNoteUseCase
+import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.text
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -86,6 +88,36 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("Title", state.title)
         assertEquals("Content", state.content)
         assertTrue(state.isEditable)
+    }
+
+    @Test
+    fun `deleting a voice block removes its audio metadata through the cleanup use case`() = runTest {
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "n1",
+            document = NoteDocument(
+                blocks = listOf(
+                    EditorBlock.Voice(
+                        blockId = "voice-1",
+                        audioFilePath = "/data/data/app/files/voice-notes/voice.m4a",
+                        audioFormat = AudioFormat.AAC,
+                        durationMs = 1_000L,
+                        fileSizeBytes = 100L,
+                        sampleRateHertz = 44_100,
+                        channels = 1,
+                        createdAt = 1L,
+                        updatedAt = 1L
+                    ),
+                    EditorBlock.TextBlock(id = "transcript-1")
+                )
+            ),
+            isLoaded = true
+        )
+
+        viewModel.deleteBlock("voice-1")
+        advanceUntilIdle()
+
+        coVerify { deleteVoiceNoteBlockUseCase("voice-1") }
+        assertTrue(viewModel.uiState.value.document.blocks.none { it.id == "voice-1" })
     }
 
     @Test

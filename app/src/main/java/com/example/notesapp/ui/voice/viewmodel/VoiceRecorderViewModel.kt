@@ -193,6 +193,7 @@ class VoiceRecorderViewModel @Inject constructor(
                         elapsedMs = state.elapsedMs,
                         savedFilePath = state.metadata.audioFilePath,
                         savedFileSizeBytes = state.fileSizeBytes,
+                        partialRecordingSaved = state.isPartial,
                         transcript = state.transcript,
                         transcriptPartial = "",
                         error = null
@@ -217,6 +218,7 @@ class VoiceRecorderViewModel @Inject constructor(
                                 elapsedMs = state.elapsedMs,
                                 savedFilePath = state.metadata.audioFilePath,
                                 savedFileSizeBytes = state.fileSizeBytes,
+                                partialRecordingSaved = state.isPartial,
                                 transcript = state.transcript,
                                 transcriptPartial = "",
                                 transcriptStatus = VoiceRecorderTranscriptStatus.Completed,

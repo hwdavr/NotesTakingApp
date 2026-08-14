@@ -26,12 +26,14 @@ import com.example.notesapp.data.summary.GeminiNanoSummaryConfig
 import com.example.notesapp.data.summary.MediaPipeFolderTextEmbeddingClient
 import com.example.notesapp.data.summary.MediaPipeTextFolderCategorizer
 import com.example.notesapp.data.voice.AndroidMicrophoneAvailability
+import com.example.notesapp.data.voice.AndroidSpeechRecognizerFactory
 import com.example.notesapp.data.voice.AndroidStorageInfoProvider
 import com.example.notesapp.data.voice.AndroidVoiceRecordingController
 import com.example.notesapp.data.voice.AndroidVoiceTranscriptRecognizer
 import com.example.notesapp.data.voice.AudioFileSystem
 import com.example.notesapp.data.voice.PrivateAudioFileSystem
 import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
+import com.example.notesapp.data.voice.SpeechRecognizerFactory
 import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
@@ -112,6 +114,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindVoiceTranscriptRecognizer(impl: AndroidVoiceTranscriptRecognizer): VoiceTranscriptRecognizer
+
+    @Binds
+    @Singleton
+    abstract fun bindSpeechRecognizerFactory(impl: AndroidSpeechRecognizerFactory): SpeechRecognizerFactory
 
     @Binds
     @Singleton

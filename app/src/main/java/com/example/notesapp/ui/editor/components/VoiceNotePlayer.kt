@@ -48,6 +48,8 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.notesapp.R
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.model.VoiceFileSizeUnit
+import com.example.notesapp.ui.editor.model.voiceFileSizePresentation
 import com.example.notesapp.ui.theme.LocalAppColors
 import java.io.File
 import java.util.Locale
@@ -204,7 +206,18 @@ fun VoiceNotePlayer(block: EditorBlock.Voice, isEditable: Boolean, onDeleteAudio
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = formatVoiceFileSize(block.fileSizeBytes),
+                    text = with(voiceFileSizePresentation(block.fileSizeBytes)) {
+                        when (unit) {
+                            VoiceFileSizeUnit.Kilobytes -> stringResource(
+                                R.string.editor_voice_file_size_kb,
+                                value.toLong()
+                            )
+                            VoiceFileSizeUnit.Megabytes -> stringResource(
+                                R.string.editor_voice_file_size_mb,
+                                value.toDouble()
+                            )
+                        }
+                    },
                     color = colors.textTertiary,
                     fontSize = 12.sp,
                     modifier = Modifier.testTag("voice_file_size_label")
@@ -270,14 +283,4 @@ private fun formatDuration(durationMs: Long): String {
     val minutes = totalSeconds / 60L
     val seconds = totalSeconds % 60L
     return String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
-}
-
-@Composable
-private fun formatVoiceFileSize(fileSizeBytes: Long): String = if (fileSizeBytes < 1_024L * 1_024L) {
-    stringResource(
-        R.string.editor_voice_file_size_kb,
-        (fileSizeBytes / 1_024L).coerceAtLeast(1L)
-    )
-} else {
-    stringResource(R.string.editor_voice_file_size_mb, fileSizeBytes / (1_024f * 1_024f))
 }

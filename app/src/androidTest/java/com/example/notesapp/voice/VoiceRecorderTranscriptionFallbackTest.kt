@@ -1,5 +1,6 @@
 package com.example.notesapp.voice
 
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -29,6 +30,7 @@ class VoiceRecorderTranscriptionFallbackTest {
                         transcriptStatus = VoiceRecorderTranscriptStatus.AudioOnly,
                         transcriptWarning = VoiceRecorderTranscriptWarning.ModelUnavailable
                     ),
+                    transcriptScrollState = rememberScrollState(),
                     onPauseResume = {},
                     onStop = {},
                     onDiscardRequest = {},

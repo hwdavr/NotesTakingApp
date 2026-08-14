@@ -1,6 +1,7 @@
 package com.example.notesapp.data.voice
 
 import android.content.Context
+import android.os.Build
 import androidx.core.content.ContextCompat
 import com.example.notesapp.data.voice.service.VoiceNoteRecordingService
 import com.example.notesapp.domain.voice.RecordingSessionManager
@@ -9,6 +10,7 @@ import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStartRequest
 import com.example.notesapp.domain.voice.VoiceRecordingController
 import com.example.notesapp.domain.voice.VoiceSettingsRepository
+import com.example.notesapp.domain.voice.recordingAudioFormatForApi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
@@ -29,13 +31,14 @@ class AndroidVoiceRecordingController @Inject constructor(
         val sessionId = UUID.randomUUID().toString()
         val blockId = request.blockId.ifBlank { UUID.randomUUID().toString() }
         val selectedFormat = voiceSettingsRepository.currentAudioFormat()
-        val file = audioFileSystem.createRecordingFile(request.noteId, blockId, selectedFormat)
+        val actualFormat = recordingAudioFormatForApi(selectedFormat, Build.VERSION.SDK_INT)
+        val file = audioFileSystem.createRecordingFile(request.noteId, blockId, actualFormat)
         val metadata = RecordingSessionMetadata(
             sessionId = sessionId,
             noteId = request.noteId,
             blockId = blockId,
             audioFilePath = file.absolutePath,
-            format = selectedFormat,
+            format = actualFormat,
             entryPoint = request.entryPoint
         )
         val active = sessionManager.replace(metadata) { oldSession ->

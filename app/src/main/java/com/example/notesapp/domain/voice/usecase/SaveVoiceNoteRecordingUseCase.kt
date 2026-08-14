@@ -58,6 +58,12 @@ class SaveVoiceNoteRecordingUseCase @Inject constructor(
             updatedAt = now
         )
         noteRepository.save(updatedNote)
-        voiceNoteRepository.upsert(block)
+        try {
+            voiceNoteRepository.upsert(block)
+        } catch (error: Throwable) {
+            runCatching { noteRepository.save(source) }
+            runCatching { voiceNoteRepository.deleteBlock(block.blockId) }
+            throw error
+        }
     }
 }

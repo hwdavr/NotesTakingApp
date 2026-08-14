@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
+import com.example.notesapp.ui.settings.model.VoiceStorageSizeUnit
+import com.example.notesapp.ui.settings.model.voiceStorageSizePresentation
 import com.example.notesapp.ui.settings.viewmodel.SettingsAudioFormat
 import com.example.notesapp.ui.settings.viewmodel.SettingsViewModel
 import com.example.notesapp.ui.settings.viewmodel.VoiceStorageUiState
@@ -439,7 +441,23 @@ private fun VoiceNotesSection(
                 modifier = Modifier.testTag("settings_voice_storage_value")
             ) {
                 Text(
-                    text = storageSizeText(storage.totalBytes),
+                    text = with(voiceStorageSizePresentation(storage.totalBytes)) {
+                        when (unit) {
+                            VoiceStorageSizeUnit.Zero -> stringResource(R.string.settings_voice_storage_zero)
+                            VoiceStorageSizeUnit.Kilobytes -> stringResource(
+                                R.string.settings_voice_storage_kilobytes,
+                                value.toLong()
+                            )
+                            VoiceStorageSizeUnit.Megabytes -> stringResource(
+                                R.string.settings_voice_storage_megabytes,
+                                value.toDouble()
+                            )
+                            VoiceStorageSizeUnit.Gigabytes -> stringResource(
+                                R.string.settings_voice_storage_gigabytes,
+                                value.toDouble()
+                            )
+                        }
+                    },
                     color = LocalAppColors.current.primary,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
@@ -561,23 +579,6 @@ private fun VoiceFormatTab(
             fontWeight = FontWeight.SemiBold
         )
     }
-}
-
-@Composable
-private fun storageSizeText(totalBytes: Long): String = when {
-    totalBytes <= 0L -> stringResource(R.string.settings_voice_storage_zero)
-    totalBytes < 1_000_000L -> stringResource(
-        R.string.settings_voice_storage_kilobytes,
-        totalBytes / 1_000L
-    )
-    totalBytes < 1_000_000_000L -> stringResource(
-        R.string.settings_voice_storage_megabytes,
-        totalBytes.toDouble() / 1_000_000.0
-    )
-    else -> stringResource(
-        R.string.settings_voice_storage_gigabytes,
-        totalBytes.toDouble() / 1_000_000_000.0
-    )
 }
 
 // ─── Shared card wrapper ──────────────────────────────────────────────────────

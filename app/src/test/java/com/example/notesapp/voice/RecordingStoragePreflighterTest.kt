@@ -19,7 +19,7 @@ class RecordingStoragePreflighterTest {
     }
 
     @Test
-    fun `blocks recording below the threshold`() {
+    fun blocksRecordingBelowThreshold() {
         val result = RecordingStoragePreflighter(
             storageInfoProvider = FixedStorageInfoProvider(127L * 1024L * 1024L)
         ).check()

@@ -244,8 +244,11 @@
     <string name="voice_notification_channel_name">Voice recording</string>
     <string name="voice_notification_title">Voice Notes</string>
     <string name="voice_notification_recording">Recording... %1$s</string>
-    <string name="voice_notification_pause">Pause / Resume</string>
+    <string name="voice_notification_paused">Paused... %1$s</string>
+    <string name="voice_notification_pause">Pause</string>
+    <string name="voice_notification_resume">Resume</string>
     <string name="voice_notification_stop">Stop and save</string>
+    <string name="voice_recorder_partial_saved">Recording stopped early at %1$s and the partial audio was saved.</string>
     <string name="editor_voice_recording_description">Voice recording</string>
     <string name="editor_voice_play_description">Play voice recording</string>
     <string name="editor_voice_pause_description">Pause voice recording</string>

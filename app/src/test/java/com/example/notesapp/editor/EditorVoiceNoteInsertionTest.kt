@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EditorVoiceNoteInsertionTest {
@@ -116,6 +117,30 @@ class EditorVoiceNoteInsertionTest {
     }
 
     @Test
+    fun createsTheNoteSourceWhenHomePlaceholderIsMissing() = runTest {
+        val repository = mockk<NoteRepository>()
+        val voiceRepository = mockk<VoiceNoteRepository>(relaxed = true)
+        coEvery { repository.getNoteById("new-home-note") } returns null
+        coEvery { repository.save(any()) } returns Unit
+
+        SaveVoiceNoteRecordingUseCase(repository, voiceRepository, JsonVoiceNoteDocumentStore())(
+            noteId = "new-home-note",
+            blockId = "voice-new-home",
+            audioFilePath = "/private/voice.m4a",
+            audioFormat = AudioFormat.AAC,
+            durationMs = 1_000L,
+            fileSizeBytes = 100L,
+            transcript = "New note transcript",
+            focusedBlockId = null
+        )
+
+        coVerify {
+            repository.save(match { it.id == "new-home-note" && it.title.isEmpty() })
+        }
+        coVerify { voiceRepository.upsert(match { it.blockId == "voice-new-home" }) }
+    }
+
+    @Test
     fun deletesAudioAndKeepsTranscriptInDocument() = runTest {
         val repository = mockk<NoteRepository>()
         val voiceRepository = mockk<VoiceNoteRepository>()
@@ -177,11 +202,95 @@ class EditorVoiceNoteInsertionTest {
     }
 
     @Test
+    fun deletingAudioForMissingNoteDoesNotWriteDocument() = runTest {
+        val repository = mockk<NoteRepository>()
+        val voiceRepository = mockk<VoiceNoteRepository>()
+        coEvery { repository.getNoteById("missing-note") } returns null
+        coEvery { voiceRepository.deleteAudioOnly("missing-voice") } returns null
+
+        val result = DeleteVoiceNoteAudioUseCase(
+            repository,
+            voiceRepository,
+            JsonVoiceNoteDocumentStore()
+        )("missing-note", "missing-voice")
+
+        assertNull(result)
+        coVerify { voiceRepository.deleteAudioOnly("missing-voice") }
+        coVerify(exactly = 0) { repository.save(any()) }
+    }
+
+    @Test
+    fun restoresDocumentWhenAudioMetadataDeletionFails() = runTest {
+        val repository = mockk<NoteRepository>()
+        val voiceRepository = mockk<VoiceNoteRepository>()
+        val note = Note(
+            id = "note-delete-failure",
+            title = "Voice",
+            content = NoteDocument.empty().toJsonString(),
+            createdAt = 1L,
+            updatedAt = 1L
+        )
+        coEvery { repository.getNoteById(note.id) } returns note
+        coEvery { repository.save(any()) } returns Unit
+        coEvery { voiceRepository.deleteAudioOnly("voice-delete-failure") } throws
+            IllegalStateException("metadata delete failed")
+
+        val result = runCatching {
+            DeleteVoiceNoteAudioUseCase(
+                repository,
+                voiceRepository,
+                JsonVoiceNoteDocumentStore()
+            )(note.id, "voice-delete-failure")
+        }
+
+        assertTrue(result.isFailure)
+        coVerify(exactly = 1) { repository.save(note) }
+    }
+
+    @Test
     fun deletesVoiceBlockThroughRepositoryUseCase() = runTest {
         val voiceRepository = mockk<VoiceNoteRepository>(relaxed = true)
 
         DeleteVoiceNoteBlockUseCase(voiceRepository)("voice-block")
 
         coVerify { voiceRepository.deleteBlock("voice-block") }
+    }
+
+    @Test
+    fun rollsBackDocumentWhenVoiceMetadataPersistenceFails() = runTest {
+        val repository = mockk<NoteRepository>()
+        val voiceRepository = mockk<VoiceNoteRepository>()
+        val existing = Note(
+            id = "note-rollback",
+            title = "Rollback",
+            content = NoteDocument.empty().toJsonString(),
+            createdAt = 1L,
+            updatedAt = 1L
+        )
+        coEvery { repository.getNoteById(existing.id) } returns existing
+        coEvery { repository.save(any()) } returns Unit
+        coEvery { voiceRepository.upsert(any()) } throws IllegalStateException("metadata write failed")
+        coEvery { voiceRepository.deleteBlock("voice-rollback") } returns Unit
+
+        val result = runCatching {
+            SaveVoiceNoteRecordingUseCase(
+                repository,
+                voiceRepository,
+                JsonVoiceNoteDocumentStore()
+            )(
+                noteId = existing.id,
+                blockId = "voice-rollback",
+                audioFilePath = "/private/voice.m4a",
+                audioFormat = AudioFormat.AAC,
+                durationMs = 1_000L,
+                fileSizeBytes = 100L,
+                transcript = "Transcript",
+                focusedBlockId = null
+            )
+        }
+
+        assertTrue(result.isFailure)
+        coVerify(exactly = 1) { repository.save(existing) }
+        coVerify { voiceRepository.deleteBlock("voice-rollback") }
     }
 }

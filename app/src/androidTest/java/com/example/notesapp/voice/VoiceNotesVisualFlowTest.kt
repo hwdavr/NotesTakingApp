@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -62,6 +63,7 @@ class VoiceNotesVisualFlowTest {
                         amplitudes = List(64) { index -> (index % 5 + 1) / 5f },
                         transcript = "Hey team, quick follow-up on this morning's sync."
                     ),
+                    transcriptScrollState = rememberScrollState(),
                     onClose = {},
                     onDiscardRequest = {},
                     onDiscardConfirm = {},
@@ -107,6 +109,7 @@ class VoiceNotesVisualFlowTest {
                                 amplitudes = List(64) { 0.5f },
                                 transcript = "Live transcript preview"
                             ),
+                            transcriptScrollState = rememberScrollState(),
                             onClose = {},
                             onDiscardRequest = {},
                             onDiscardConfirm = {},
@@ -325,6 +328,11 @@ class VoiceNotesVisualFlowTest {
                 "Could not write visual evidence: $name"
             }
         }
+        InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand(
+                "cp ${File(directory, "$name.png").absolutePath} " +
+                    "/sdcard/Download/notesapp_visual_$name.png"
+            ).use { }
     }
 
     private fun visualAudioFixture(name: String): File {
