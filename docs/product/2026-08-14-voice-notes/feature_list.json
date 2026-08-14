@@ -82,7 +82,7 @@
       "user_visible_behavior": "While recording, the live transcript preview appends recognized speech. If offline speech recognition is unavailable or a segment times out, recording continues, the user sees warning/fallback copy, and saved audio remains usable for manual transcript editing.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "in_progress",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02"
@@ -92,8 +92,33 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\"",
         "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest"
       ],
-      "evidence": [],
-      "notes": "Depends on the capture adapter selected and proven by US-1. Keep SpeechRecognizer platform details in the data/platform boundary; the ViewModel consumes domain transcript events."
+      "evidence": [
+        {
+          "test_id": "TC-US-2-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.ChunkedTranscriptConcatenatorTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.ChunkedTranscriptConcatenatorTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 3 overlap, partial-result, and boundary-fragment tests."
+        },
+        {
+          "test_id": "TC-US-2-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 2 production-boundary integration tests covering transcript fallback, timeout marker, saved transcript, and cancellation cleanup."
+        },
+        {
+          "test_id": "TC-US-2-02-ui",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderTranscriptionFallbackTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: 1 Compose runtime fallback test on emulator-5554 (API 33), preserving recorder controls and showing unavailable-transcription warning."
+        }
+      ],
+      "notes": "US-2 is passing. The injectable recognizer/session boundary consumes service-owned recording state, concatenates partial/final overlapping chunks, applies a 65-second watchdog and failure marker, preserves audio-only fallback copy, and cancels cleanly on discard. Android platform recognition availability is checked without opening a second microphone client; the existing US-1 MediaRecorder ownership boundary remains intact. Because the current US-1 capture path produces a compressed MediaRecorder file and no approved single-mic PCM tee exists yet, the production Android adapter safely reports source-unavailable instead of opening a concurrent SpeechRecognizer microphone client; the injectable boundary and deterministic fallback are ready for a future verified PCM bridge."
     },
     {
       "id": "US-3",

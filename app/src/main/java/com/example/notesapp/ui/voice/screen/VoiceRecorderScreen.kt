@@ -68,6 +68,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.notesapp.R
 import com.example.notesapp.ui.theme.LocalAppColors
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatusLabel
+import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptWarning
 import com.example.notesapp.ui.voice.model.VoiceRecorderUiState
 import com.example.notesapp.ui.voice.model.toRenderState
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
@@ -259,7 +260,7 @@ fun VoiceRecorderContent(
                     fontWeight = FontWeight.SemiBold
                 )
             }
-            if (renderState.error != null) {
+            if (renderState.transcriptWarning != null) {
                 Icon(
                     imageVector = Icons.Outlined.Warning,
                     contentDescription = stringResource(R.string.voice_recorder_error_description),
@@ -294,12 +295,46 @@ fun VoiceRecorderContent(
                 .testTag("recorder_transcript_preview"),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(
-                text = stringResource(R.string.voice_recorder_live_transcript_empty),
-                color = colors.textSecondary,
-                style = MaterialTheme.typography.bodyLarge,
-                lineHeight = 22.sp
-            )
+            if (renderState.transcriptPreview.isBlank()) {
+                Text(
+                    text = when (renderState.transcriptWarning) {
+                        VoiceRecorderTranscriptWarning.ModelUnavailable ->
+                            stringResource(R.string.voice_recorder_live_transcript_unavailable)
+                        VoiceRecorderTranscriptWarning.AudioSourceUnavailable ->
+                            stringResource(R.string.voice_recorder_live_transcript_source_unavailable)
+                        else -> stringResource(R.string.voice_recorder_live_transcript_empty)
+                    },
+                    modifier = Modifier.testTag("recorder_transcript_empty"),
+                    color = colors.textSecondary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    lineHeight = 22.sp
+                )
+            } else {
+                Text(
+                    text = buildString {
+                        append(renderState.transcriptPreview)
+                        if (renderState.transcriptIsActive) {
+                            append(stringResource(R.string.voice_recorder_transcript_cursor))
+                        }
+                    },
+                    modifier = Modifier.testTag("recorder_transcript_text"),
+                    color = colors.textPrimary,
+                    style = MaterialTheme.typography.bodyLarge,
+                    lineHeight = 22.sp
+                )
+            }
+            when (renderState.transcriptWarning) {
+                VoiceRecorderTranscriptWarning.ChunkTimedOut,
+                VoiceRecorderTranscriptWarning.RecognitionFailed -> Text(
+                    text = stringResource(R.string.voice_recorder_live_transcript_segment_failed),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .testTag("recorder_transcript_fallback"),
+                    color = colors.textSecondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                else -> Unit
+            }
         }
         if (renderState.showLoading) {
             CircularProgressIndicator(

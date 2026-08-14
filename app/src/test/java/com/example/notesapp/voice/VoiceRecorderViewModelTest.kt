@@ -8,7 +8,9 @@ import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStoragePreflighter
 import com.example.notesapp.domain.voice.StorageInfoProvider
+import com.example.notesapp.domain.voice.TranscriptSessionState
 import com.example.notesapp.domain.voice.VoiceRecordingController
+import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
 import com.example.notesapp.ui.voice.viewmodel.VoiceRecorderViewModel
@@ -31,6 +33,8 @@ class VoiceRecorderViewModelTest : BaseViewModelTest() {
     private lateinit var controllerState: MutableStateFlow<RecordingSessionState>
     private lateinit var microphoneAvailability: MicrophoneAvailability
     private lateinit var storageInfoProvider: StorageInfoProvider
+    private lateinit var transcriptSession: VoiceTranscriptSession
+    private lateinit var transcriptState: MutableStateFlow<TranscriptSessionState>
     private lateinit var viewModel: VoiceRecorderViewModel
 
     @Before
@@ -42,12 +46,16 @@ class VoiceRecorderViewModelTest : BaseViewModelTest() {
         every { controller.state } returns controllerState
         microphoneAvailability = mockk()
         storageInfoProvider = mockk()
+        transcriptSession = mockk(relaxed = true)
+        transcriptState = MutableStateFlow(TranscriptSessionState())
+        every { transcriptSession.state } returns transcriptState
         every { microphoneAvailability.isAvailable() } returns true
         every { storageInfoProvider.availableBytes() } returns 256L * 1024L * 1024L
         viewModel = VoiceRecorderViewModel(
             recordingController = controller,
             storagePreflighter = RecordingStoragePreflighter(storageInfoProvider),
-            microphoneAvailability = microphoneAvailability
+            microphoneAvailability = microphoneAvailability,
+            transcriptSession = transcriptSession
         )
     }
 

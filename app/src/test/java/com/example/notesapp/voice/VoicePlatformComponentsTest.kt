@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.example.notesapp.data.voice.AndroidMicrophoneAvailability
 import com.example.notesapp.data.voice.AndroidStorageInfoProvider
+import com.example.notesapp.data.voice.AndroidVoiceTranscriptRecognizer
 import com.example.notesapp.data.voice.PrivateAudioFileSystem
 import com.example.notesapp.data.voice.RecordingStateStore
 import com.example.notesapp.domain.voice.AudioFilenameGenerator
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
+import com.example.notesapp.domain.voice.TranscriptRecognitionEvent
+import com.example.notesapp.domain.voice.TranscriptStartRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -65,5 +68,26 @@ class VoicePlatformComponentsTest {
         store.update(state)
 
         assertEquals(state, store.state.value)
+    }
+
+    @Test
+    fun `android transcript adapter reports safe availability fallback`() {
+        val events = mutableListOf<TranscriptRecognitionEvent>()
+        val adapter = AndroidVoiceTranscriptRecognizer(context)
+
+        adapter.start(
+            request = TranscriptStartRequest(
+                sessionId = "session",
+                audioFilePath = "/tmp/voice.m4a"
+            ),
+            onEvent = events::add
+        )
+
+        val event = events.single()
+        assertTrue(
+            event is TranscriptRecognitionEvent.ModelUnavailable ||
+                event is TranscriptRecognitionEvent.AudioSourceUnavailable
+        )
+        adapter.stop()
     }
 }

@@ -23,6 +23,7 @@ import com.example.notesapp.domain.voice.RecordingSessionManager
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingSessionStateReducer
+import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.domain.voice.formatElapsedTime
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -45,6 +46,9 @@ class VoiceNoteRecordingService : LifecycleService() {
 
     @Inject
     lateinit var sessionManager: RecordingSessionManager
+
+    @Inject
+    lateinit var transcriptSession: VoiceTranscriptSession
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val reducer = RecordingSessionStateReducer()
@@ -125,6 +129,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         recordingStartedAt = SystemClock.elapsedRealtime()
         pausedElapsedMs = 0L
         reduce(RecordingSessionEvent.Started(metadata))
+        transcriptSession.start(metadata)
         startAmplitudeUpdates()
     }
 
@@ -197,6 +202,7 @@ class VoiceNoteRecordingService : LifecycleService() {
                 runCatching { recorder.pause() }.onSuccess {
                     pausedElapsedMs += SystemClock.elapsedRealtime() - recordingStartedAt
                     reduce(RecordingSessionEvent.PauseRequested)
+                    transcriptSession.pause()
                     updateNotification(pausedElapsedMs)
                 }.onFailure { error -> failRecording(error) }
             }
@@ -206,6 +212,7 @@ class VoiceNoteRecordingService : LifecycleService() {
                 runCatching { recorder.resume() }.onSuccess {
                     recordingStartedAt = SystemClock.elapsedRealtime()
                     reduce(RecordingSessionEvent.ResumeRequested)
+                    transcriptSession.resume()
                     updateNotification(pausedElapsedMs)
                 }.onFailure { error -> failRecording(error) }
             }
@@ -223,6 +230,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         }
         reduce(RecordingSessionEvent.StopRequested)
         activeJob?.cancel()
+        val transcript = transcriptSession.stop()
         runCatching { recorder?.stop() }
             .onFailure { error ->
                 releaseRecorder()
@@ -242,7 +250,8 @@ class VoiceNoteRecordingService : LifecycleService() {
                     RecordingSessionState.Saved(
                         metadata = currentMetadata,
                         elapsedMs = currentElapsed,
-                        fileSizeBytes = fileSize
+                        fileSizeBytes = fileSize,
+                        transcript = transcript
                     )
                 )
             }
@@ -255,6 +264,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         val currentMetadata = metadata
         if (requestedSessionId != null && currentMetadata?.sessionId != requestedSessionId) return
         activeJob?.cancel()
+        transcriptSession.cancel()
         releaseRecorder()
         currentMetadata?.audioFilePath?.let(audioFileSystem::delete)
         clearActiveSession()
@@ -269,6 +279,7 @@ class VoiceNoteRecordingService : LifecycleService() {
     private fun failRecording(error: Throwable) {
         Log.e(TAG, "Voice recording failed", error)
         val currentMetadata = metadata
+        transcriptSession.cancel()
         val elapsed = when (val state = currentState) {
             is RecordingSessionState.Recording -> pausedElapsedMs + (SystemClock.elapsedRealtime() - recordingStartedAt)
             is RecordingSessionState.Paused -> pausedElapsedMs

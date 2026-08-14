@@ -25,7 +25,10 @@ data class VoiceRecorderRenderState(
     val errorDialogTag: String?,
     val showLoading: Boolean,
     val showPermissionRetry: Boolean,
-    val formatLabelRes: Int
+    val formatLabelRes: Int,
+    val transcriptPreview: String,
+    val transcriptIsActive: Boolean,
+    val transcriptWarning: VoiceRecorderTranscriptWarning?
 )
 
 fun VoiceRecorderUiState.toRenderState(): VoiceRecorderRenderState {
@@ -56,7 +59,10 @@ fun VoiceRecorderUiState.toRenderState(): VoiceRecorderRenderState {
             R.string.voice_recorder_format_opus
         } else {
             R.string.voice_recorder_format_aac
-        }
+        },
+        transcriptPreview = transcriptPreview,
+        transcriptIsActive = transcriptStatus == VoiceRecorderTranscriptStatus.Recognizing,
+        transcriptWarning = transcriptWarning
     )
 }
 

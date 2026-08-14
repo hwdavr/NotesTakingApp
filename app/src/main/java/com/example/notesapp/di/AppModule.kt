@@ -24,8 +24,10 @@ import com.example.notesapp.data.summary.MediaPipeTextFolderCategorizer
 import com.example.notesapp.data.voice.AndroidMicrophoneAvailability
 import com.example.notesapp.data.voice.AndroidStorageInfoProvider
 import com.example.notesapp.data.voice.AndroidVoiceRecordingController
+import com.example.notesapp.data.voice.AndroidVoiceTranscriptRecognizer
 import com.example.notesapp.data.voice.AudioFileSystem
 import com.example.notesapp.data.voice.PrivateAudioFileSystem
+import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
 import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
@@ -34,6 +36,8 @@ import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.voice.MicrophoneAvailability
 import com.example.notesapp.domain.voice.StorageInfoProvider
 import com.example.notesapp.domain.voice.VoiceRecordingController
+import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
+import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.util.NoteExporter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -85,6 +89,14 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindVoiceRecordingController(impl: AndroidVoiceRecordingController): VoiceRecordingController
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceTranscriptRecognizer(impl: AndroidVoiceTranscriptRecognizer): VoiceTranscriptRecognizer
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceTranscriptSession(impl: RecordingTranscriptCoordinator): VoiceTranscriptSession
 
     @Binds
     @Singleton

@@ -186,6 +186,10 @@
     <string name="voice_recorder_status_recording">&#8226; REC %1$s</string>
     <string name="voice_recorder_status_paused">PAUSED</string>
     <string name="voice_recorder_live_transcript_empty">Live transcript will appear here.</string>
+    <string name="voice_recorder_live_transcript_unavailable">Transcription unavailable — audio still saves. You can add the transcript manually after saving.</string>
+    <string name="voice_recorder_live_transcript_source_unavailable">Live transcription is unavailable on this device. Audio still saves. You can add the transcript manually after saving.</string>
+    <string name="voice_recorder_live_transcript_segment_failed">Transcription failed for a segment. Recording continues and audio will still be saved.</string>
+    <string name="voice_recorder_transcript_cursor">▎</string>
     <string name="voice_recorder_checking_preflight">Checking microphone and storage...</string>
     <string name="voice_recorder_permission_title">Microphone access</string>
     <string name="voice_recorder_permission_message">Voice Notes needs microphone access to record your voice. Audio and transcripts are stored privately on your device only.</string>
@@ -212,7 +216,7 @@
     <string name="voice_recorder_resume_description">Resume recording</string>
     <string name="voice_recorder_stop_description">Save recording and insert into note</string>
     <string name="voice_recorder_waveform_description">Live amplitude waveform</string>
-    <string name="voice_recorder_error_description">Recorder warning</string>
+    <string name="voice_recorder_error_description">Transcription unavailable. Audio will still be saved.</string>
     <string name="voice_recorder_format_aac">AAC &#8226; 128 kbps</string>
     <string name="voice_recorder_format_opus">OPUS &#8226; 32 kbps</string>
     <string name="voice_recording_start_error">Recording could not start.</string>

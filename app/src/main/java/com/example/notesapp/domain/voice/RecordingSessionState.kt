@@ -31,7 +31,8 @@ sealed interface RecordingSessionState {
     data class Saved(
         val metadata: RecordingSessionMetadata,
         val elapsedMs: Long,
-        val fileSizeBytes: Long
+        val fileSizeBytes: Long,
+        val transcript: String = ""
     ) : RecordingSessionState
 
     data class Error(

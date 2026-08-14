@@ -21,9 +21,15 @@ The service uses `MediaRecorder.AudioSource.MIC`, `MPEG_4` + AAC for `.m4a`, and
 
 The repository has no API-24, API-31, or API-34 emulator attached in this session, so this is a compatibility proof plus API-33 runtime verification rather than a three-device runtime certification. The implementation is safe to carry into US-2 only if the missing runtime executions are completed before shipping progressive transcription. US-2 must not add a second microphone client or infer that `SpeechRecognizer` can read arbitrary `MediaRecorder` file chunks.
 
+## US-2 Carry-Forward Decision
+
+US-2 keeps the recognizer behind `VoiceTranscriptRecognizer` and the Recorder-facing state behind `VoiceTranscriptSession`. The production Android adapter checks API 31 on-device recognition availability (and the API 24–30 system recognizer availability path), but reports source-unavailable when the current compressed `MediaRecorder` file has no approved PCM window bridge. This is an intentional safe fallback: recording continues, the transcript warning is shown, audio is saved, and no concurrent `SpeechRecognizer` microphone client is opened. The adapter boundary is injectable so a future single-mic PCM tee can be verified without changing the Recorder ViewModel or transcript concatenation contract.
+
 ## Files Reviewed
 
 - `app/src/main/java/com/example/notesapp/data/voice/VoiceNoteRecordingService.kt`
 - `app/src/main/java/com/example/notesapp/data/voice/AndroidVoiceRecordingController.kt`
+- `app/src/main/java/com/example/notesapp/data/voice/AndroidVoiceTranscriptRecognizer.kt`
+- `app/src/main/java/com/example/notesapp/data/voice/RecordingTranscriptCoordinator.kt`
 - `app/src/main/AndroidManifest.xml`
 - `app/build.gradle.kts`

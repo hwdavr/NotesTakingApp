@@ -9,9 +9,15 @@ import com.example.notesapp.domain.voice.RecordingSessionState
 import com.example.notesapp.domain.voice.RecordingStartRequest
 import com.example.notesapp.domain.voice.RecordingStoragePreflighter
 import com.example.notesapp.domain.voice.StoragePreflightResult
+import com.example.notesapp.domain.voice.TranscriptSessionState
+import com.example.notesapp.domain.voice.TranscriptSessionStatus
+import com.example.notesapp.domain.voice.TranscriptWarning
 import com.example.notesapp.domain.voice.VoiceRecordingController
+import com.example.notesapp.domain.voice.VoiceTranscriptSession
 import com.example.notesapp.ui.voice.model.VoiceRecorderError
 import com.example.notesapp.ui.voice.model.VoiceRecorderStatus
+import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptStatus
+import com.example.notesapp.ui.voice.model.VoiceRecorderTranscriptWarning
 import com.example.notesapp.ui.voice.model.VoiceRecorderUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
@@ -25,7 +31,8 @@ import kotlinx.coroutines.launch
 class VoiceRecorderViewModel @Inject constructor(
     private val recordingController: VoiceRecordingController,
     private val storagePreflighter: RecordingStoragePreflighter,
-    private val microphoneAvailability: MicrophoneAvailability
+    private val microphoneAvailability: MicrophoneAvailability,
+    private val transcriptSession: VoiceTranscriptSession
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(VoiceRecorderUiState())
     val uiState: StateFlow<VoiceRecorderUiState> = mutableUiState.asStateFlow()
@@ -35,6 +42,9 @@ class VoiceRecorderViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             recordingController.state.collect(::onRecordingStateChanged)
+        }
+        viewModelScope.launch {
+            transcriptSession.state.collect(::onTranscriptStateChanged)
         }
     }
 
@@ -145,6 +155,9 @@ class VoiceRecorderViewModel @Inject constructor(
                 elapsedMs = state.elapsedMs,
                 savedFilePath = state.metadata.audioFilePath,
                 savedFileSizeBytes = state.fileSizeBytes,
+                transcript = state.transcript,
+                transcriptPartial = "",
+                transcriptStatus = VoiceRecorderTranscriptStatus.Completed,
                 error = null
             )
 
@@ -159,6 +172,46 @@ class VoiceRecorderViewModel @Inject constructor(
             )
         }
         Log.d(TAG, "Recorder state changed to ${mutableUiState.value.status}")
+    }
+
+    private fun onTranscriptStateChanged(state: TranscriptSessionState) {
+        val current = mutableUiState.value
+        if (state.sessionId != null && state.sessionId != currentSessionId()) return
+        mutableUiState.value = current.copy(
+            transcript = state.committedText,
+            transcriptPartial = state.partialText,
+            transcriptStatus = state.status.toUiStatus(),
+            transcriptWarning = state.warning.toUiWarning()
+        )
+    }
+
+    private fun currentSessionId(): String? = when (val state = recordingController.state.value) {
+        RecordingSessionState.Idle -> null
+        is RecordingSessionState.Recording -> state.metadata.sessionId
+        is RecordingSessionState.Paused -> state.metadata.sessionId
+        is RecordingSessionState.Saving -> state.metadata.sessionId
+        is RecordingSessionState.Saved -> state.metadata.sessionId
+        is RecordingSessionState.Error -> state.metadata?.sessionId
+    }
+
+    private fun TranscriptSessionStatus.toUiStatus(): VoiceRecorderTranscriptStatus = when (this) {
+        TranscriptSessionStatus.Idle -> VoiceRecorderTranscriptStatus.Idle
+        TranscriptSessionStatus.Recognizing -> VoiceRecorderTranscriptStatus.Recognizing
+        TranscriptSessionStatus.Paused -> VoiceRecorderTranscriptStatus.Paused
+        TranscriptSessionStatus.AudioOnly -> VoiceRecorderTranscriptStatus.AudioOnly
+        TranscriptSessionStatus.Completed -> VoiceRecorderTranscriptStatus.Completed
+    }
+
+    private fun TranscriptWarning?.toUiWarning(): VoiceRecorderTranscriptWarning? = when (this) {
+        null -> null
+        is TranscriptWarning.ModelUnavailable ->
+            VoiceRecorderTranscriptWarning.ModelUnavailable
+        is TranscriptWarning.AudioSourceUnavailable ->
+            VoiceRecorderTranscriptWarning.AudioSourceUnavailable
+        is TranscriptWarning.ChunkTimedOut ->
+            VoiceRecorderTranscriptWarning.ChunkTimedOut
+        is TranscriptWarning.RecognitionFailed ->
+            VoiceRecorderTranscriptWarning.RecognitionFailed
     }
 
     companion object {
