@@ -80,6 +80,12 @@ bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"
 ```
 **Must pass.** Every visual verification method in the final owner's `feature_list.json` must have a matching `TC-*-VIS-*` row in `sprint-contract.md`, an acceptance-test ID, and successful connected-test evidence.
 
+### 10. Keyboard-Visible Planning Mockup (when a planned bottom sheet has text input)
+```bash
+bash scripts/check-keyboard-mockup-contract.sh "$FEATURE_DIR"
+```
+**Must pass during harness planning.** A design with a bottom-sheet textbox, text field, search field, or other text input must describe the keyboard-visible state and reference distinct non-empty base and keyboard-visible mockup assets.
+
 ---
 
 ## Conditional Checks

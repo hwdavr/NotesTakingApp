@@ -46,8 +46,8 @@ Objective:
 - Write `$FEATURE_DIR/spec.md` (always) and `$FEATURE_DIR/design.md` (for new screens or UI enhancements/flows).
 - For UI work, read `docs/product/design_system.md` before design decisions, link it from `$FEATURE_DIR/design.md`, and record every explicit user-approved exception. Generated mockups must use its exact applicable tokens and component patterns.
 
-Output: `$FEATURE_DIR/spec.md` + `$FEATURE_DIR/design.md` + `$FEATURE_DIR/design/mockup_*.png` visual mockup images (user-provided or AI-generated, if the change includes UI modifications)
-Gate: Update the tracker status to `Awaiting specification approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning feature-specification "$FEATURE_DIR"` — it validates stage artifacts and lifecycle state and must exit 0. For UI work, also verify `design.md` cites `docs/product/design_system.md`. **STOP — present specification, design document, and visual mockup images to user for review. Do not proceed until user explicitly approves.**
+Output: `$FEATURE_DIR/spec.md` + `$FEATURE_DIR/design.md` + `$FEATURE_DIR/design/mockup_*.png` visual mockup images (user-provided or AI-generated, if the change includes UI modifications). If a bottom sheet contains a textbox, text field, search field, or other text input, `design.md` must also define the keyboard-visible state and reference a distinct keyboard-visible mockup asset alongside the base mockup.
+Gate: Update the tracker status to `Awaiting specification approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning feature-specification "$FEATURE_DIR"` — it validates stage artifacts, lifecycle state, and the keyboard-visible mockup contract and must exit 0. For UI work, also verify `design.md` cites `docs/product/design_system.md`. **STOP — present specification, design document, and visual mockup images to user for review. Do not proceed until user explicitly approves.**
 
 ### Stage 2 — Slice Planning ⛔ STOP FOR APPROVAL
 **INVOKE** the `slice-planning` skill via the Skill tool (name: `slice-planning`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.

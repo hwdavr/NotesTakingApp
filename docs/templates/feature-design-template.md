@@ -9,6 +9,12 @@
 
 ---
 
+## Conditional Keyboard-Visible Mockup Contract
+
+If any screen contains a bottom sheet with a textbox, text field, search field, or other text-input control, define a separate keyboard-visible visual state. Explain how the sheet changes while the keyboard is shown, and reference a distinct non-empty image such as `design/mockup_<screen_name>_keyboard.png` in addition to the base mockup. The keyboard-visible mockup is required even when the keyboard changes only the sheet height or available content region.
+
+---
+
 ## Screens Covered
 
 <!-- List every screen or major UI surface this design document covers. -->
@@ -96,6 +102,7 @@ Describe the screen from top to bottom.
 ### Design Assets
 
 - **Mockup image**: `design/mockup_<screen_name>.png` (or user-provided screenshot/mockup path in `design/`) — Visual mockup reflecting this screen's layout, components, and visual states.
+- **Keyboard-visible mockup**: `design/mockup_<screen_name>_keyboard.png` when this screen has a bottom-sheet text input; otherwise state `Not applicable`.
 - <paths to any additional reference screenshots/assets, or "None">
 
 ### Out Of Scope For This Design
@@ -168,6 +175,7 @@ Describe the screen from top to bottom.
 ### Design Assets
 
 - **Mockup image**: `design/mockup_<screen_name>.png` (or user-provided screenshot/mockup path in `design/`) — Visual mockup reflecting this screen's layout, components, and visual states.
+- **Keyboard-visible mockup**: `design/mockup_<screen_name>_keyboard.png` when this screen has a bottom-sheet text input; otherwise state `Not applicable`.
 - <paths to any additional reference screenshots/assets, or "None">
 
 ### Out Of Scope For This Design

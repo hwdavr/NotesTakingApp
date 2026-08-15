@@ -101,7 +101,7 @@ case "$WORKFLOW/$STAGE" in
     ;;
   harness-planning/feature-specification)
     require_file "spec.md" "feature specification"
-    if grep -q "Screen States" "$DOCS_DIR/spec.md" || (git diff --name-only HEAD 2>/dev/null | grep -q "/ui/"); then
+    if [ -f "$DOCS_DIR/design.md" ] || grep -q "Screen States" "$DOCS_DIR/spec.md" || (git diff --name-only HEAD 2>/dev/null | grep -q "/ui/"); then
       if [ ! -f "docs/product/design_system.md" ]; then
         echo "FAIL: docs/product/design_system.md is required for UI planning." >&2
         exit 1
@@ -111,6 +111,7 @@ case "$WORKFLOW/$STAGE" in
         echo "FAIL: $DOCS_DIR/design.md must reference docs/product/design_system.md." >&2
         exit 1
       fi
+      bash scripts/check-keyboard-mockup-contract.sh "$DOCS_DIR"
     fi
     ;;
   harness-planning/slice-planning)
@@ -118,6 +119,9 @@ case "$WORKFLOW/$STAGE" in
     require_file "sprint-contract.md" "sprint contract"
     require_file "progress.md" "progress tracker"
     require_file "platform-capability-matrix.md" "platform capability matrix"
+    if [ -f "$DOCS_DIR/design.md" ]; then
+      bash scripts/check-keyboard-mockup-contract.sh "$DOCS_DIR"
+    fi
     if ! grep -q "Acceptance Test Cases" "$DOCS_DIR/sprint-contract.md"; then
       echo "FAIL: sprint contract has no 'Acceptance Test Cases' matrix." >&2
       exit 1
