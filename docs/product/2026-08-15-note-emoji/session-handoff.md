@@ -8,7 +8,7 @@
 ## Changed This Session
 
 - Code or behavior added: deterministic emoji catalog/domain contract, Hilt binding, search/category use case, picker UI state/mapper/ViewModel, localized category/grid/search/empty/skin-tone UI, stable interaction tags, and JVM/instrumented acceptance coverage.
-- Infrastructure or harness changes: updated US-2 acceptance evidence, progress/product capability records, Stage 7 summary, and this Stage 8 handoff/checklist. Commit `56111d8` contains the source, tests, and product-state delivery.
+- Infrastructure or harness changes: updated US-2 acceptance evidence, progress/product capability records, Stage 7 summary, and this Stage 8 handoff/checklist. Commit `56111d8` contains the source/tests/product-state delivery; follow-up commit `ce88ae3` hardens case-insensitive catalog-name matching with a regression assertion.
 
 ## Broken Or Unverified
 

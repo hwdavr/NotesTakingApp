@@ -45,6 +45,7 @@
 - Goal: Deliver the approved browse, search, and skin-tone variant slice over US-1's insertion path.
 - Completed: Added a deterministic app-bundled catalog for all nine approved categories; domain category/name/keyword search; localized picker state, category rail, adaptive grid, clearable empty states, and exact six-form skin-tone mapping; long-press variant selection keeps the picker open and emits the selected Unicode through US-1.
 - Verification run: focused catalog/mapper JVM command, full `NoteEditorEmojiPickerTest` (6/6 on `emulator-5554`, API 33), `koverLog` (82.5774% application line coverage), `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture checks, and slice-scoped platform evidence all passed.
+- Follow-up correction: normalized catalog display-name matching with `Locale.ROOT` and added an uppercase `EUROPE` regression assertion; focused JVM, full picker, quality, and coverage gates were rerun successfully in `ce88ae3`.
 - Files or artifacts updated: catalog/data/domain/presentation source, localized resources, JVM/instrumented tests, `feature_list.json`, `summary_US-2.md`, `product.md`, and this progress log.
 - Known risk or unresolved issue: US-3 still owns persisted Recents, visual evidence, and the required real Android `Paint.hasGlyph` boundary test; US-2 intentionally does not claim those gates.
 - Next best step: Continue with US-3 through the harness-generator workflow; preserve US-1 and US-2 passing evidence and run the declared real boundary/visual checks.

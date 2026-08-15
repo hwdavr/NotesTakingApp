@@ -9,7 +9,7 @@ Executed 2026-08-15 for `note-emoji` / `US-2`. `[x]` means mechanically verified
 - [x] Dependency safety — `./gradlew :app:checkDebugDuplicateClasses --console=plain`: `BUILD SUCCESSFUL`.
 - [x] Ktlint verification — `./gradlew ktlintCheck --console=plain`: `BUILD SUCCESSFUL`.
 - [x] Static analysis — `./gradlew detekt --console=plain`: `BUILD SUCCESSFUL`.
-- [x] Suppression audit — no new `@Suppress`, `@SuppressLint`, `tools:ignore`, disable directive, baseline, or broader exclusion in commit `56111d8`.
+- [x] Suppression audit — no new `@Suppress`, `@SuppressLint`, `tools:ignore`, disable directive, baseline, or broader exclusion in commits `56111d8` and `ce88ae3`.
 
 ## 2. Architecture & Standards
 
@@ -48,7 +48,7 @@ Executed 2026-08-15 for `note-emoji` / `US-2`. `[x]` means mechanically verified
 
 - [N/A] Reset execution — no database, preference, or reset implementation changed.
 - [N/A] Idempotence — no reset behavior changed.
-- [x] Artifact cleanup — final Git status before Stage 8 docs contains only the intended summary edit; no untracked product/source artifacts or diff-check whitespace errors.
+- [x] Artifact cleanup — the follow-up source/test correction was committed as `ce88ae3`, then only intended handoff documentation was staged; final status is clean with no untracked product/source artifacts or diff-check whitespace errors.
 
 ## 7. Documentation & Handoff
 
