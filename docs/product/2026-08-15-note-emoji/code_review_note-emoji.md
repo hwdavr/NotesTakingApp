@@ -34,11 +34,15 @@
 
 > **Fix Status:** Fixed ✅ — Reduced the Emoji title’s top inset, constrained the picker surface to one-third of the root height, made the results region scroll within that compact surface, and added three catalog entries to every browse category. Verified by `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` geometry assertion and the full `NoteEditorEmojiPickerTest`/connected suite (commit `246805c`; 2026-08-15).
 
+### Post-review user-requested UI revision
+
+> **Fix Status:** Fixed ✅ — The later approved revision changes the picker surface to two-fifths of the available root height and removes the `Emoji` title plus header cross button while retaining the search-clear action and scrim/system-back dismissal. `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` and `EmojiPickerLifecycleTest#pickerOmitsTitleAndHeaderCloseButton` pass in the 94/94 connected suite; refreshed runtime evidence and `design/mockup_note_editor_emoji_picker_v2.png` are recorded (2026-08-15).
+
 ## Requirement-to-Production Traceability
 
 | Source ID | Required behavior | Production entry point | Completion / cleanup path | Test evidence | Result |
 |---|---|---|---|---|---|
-| FR-001 / AC-001 / AC-US-1-01 | Editable toolbar opens picker with Recent selected and no navigation. | `NoteEditorScreen` → `EditorBottomBar` → `EmojiInsertionControl` → `showEmojiPicker`; `EmojiPickerOverlay` renders `EmojiPickerBottomSheet`. | `ModalBottomSheet.onDismissRequest` and close icon call `onDismiss`, which clears `showEmojiPicker`. | Historical evidence plus fresh Stage 4 picker-open replay. | PASS in code and runtime. |
+| FR-001 / AC-001 / AC-US-1-01 | Editable toolbar opens picker with Recent selected and no navigation. | `NoteEditorScreen` → `EditorBottomBar` → `EmojiInsertionControl` → `showEmojiPicker`; `EmojiPickerOverlay` renders `EmojiPickerBottomSheet`. | `ModalBottomSheet.onDismissRequest` handles sheet dismissal and clears `showEmojiPicker`; the revised surface has no header close action. | Historical evidence plus fresh picker-open/header-absence replay. | PASS in code and runtime. |
 | FR-002 / AC-002 / AC-US-1-02 | Read-only control visible, disabled, localized, and inert. | `EditorBottomBar` chooses `ReadOnlyEmojiBottomBar`; `EmojiInsertionControl(enabled = false)`. | No click callback is enabled. | Recorded read-only UI evidence. | PASS in code. |
 | FR-003 / AC-003 / AC-004 / AC-US-2-01 / AC-US-2-02 | Approved categories, local search, keyword matching, empty Recent, and clear action. | `EmojiPickerViewModel.onCategorySelected/onQueryChange/onClearQuery` → `FindEmojiCatalogUseCase` → mapper → `EmojiPickerUiState`. | `refreshItems()` clears loading and updates items after every query/category event. | JVM catalog/VM tests and recorded picker UI evidence. | PASS for normal path. |
 | FR-004 / AC-005 / AC-US-2-03 | Exact skin-tone variant path. | `EmojiPickerItem` long-click → `onSkinToneRequested`; `EmojiSkinToneOption` → `onEmojiSelected(variant.unicode)` → screen wrapper's VM callback. | Variant callback calls `onDismiss()` only for the compact selector; sheet remains mounted. | `NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent`. | PASS — production variant reaches document insertion and Recent recording. |
@@ -53,7 +57,7 @@
 | Edge: empty Recent / no search match | Non-blocking empty panels and clear action. | `EmojiPickerResults` checks `isEmptyRecent`/`isEmptySearch`. | Clear query returns to category/Recent source. | Recorded UI evidence. | PASS for normal path. |
 | Edge: Recent read failure | Empty Recent while catalog/insertion remains available. | `DataStoreRecentEmojiRepository.recentEmoji.catch` and `EmojiPickerViewModel.observeRecentEmoji.catch`. | Error is logged, empty list emitted, collection completes. | Failure-injection repository and ViewModel tests. | PASS — fallback is verified. |
 | Edge: device font lacks glyph | Preserve Unicode code points independent of rendering. | Existing RichText/JSON/export paths do not inspect glyph support; `Paint.hasGlyph` is a validation boundary. | Original string remains in document if the renderer lacks a glyph. | `EmojiPickerPlatformTest#missingGlyphSequencePreservesCodePoints`. | PASS — unsupported code points round-trip exactly. |
-| Edge: configuration/process recreation | Restore picker/editor presentation and reload Recent. | `rememberSaveable(showEmojiPicker)` plus `EmojiPickerViewModel` state/DataStore. | Modal dismissal and ViewModel scope provide cleanup; DataStore reloads after recreation. | `EmojiPickerLifecycleTest#pickerDismissesThroughCloseScrimBackAndRecreation`. | PASS — close, scrim, back, and saved-state restoration are exercised. |
+| Edge: configuration/process recreation | Restore picker/editor presentation and reload Recent. | `rememberSaveable(showEmojiPicker)` plus `EmojiPickerViewModel` state/DataStore. | Modal dismissal and ViewModel scope provide cleanup; DataStore reloads after recreation. | `EmojiPickerLifecycleTest` full class, including header omission, scrim, back, and saved-state restoration. | PASS — scrim, back, and saved-state restoration are exercised without a header close action. |
 | NFR: architecture / no API-schema-permission change | Keep UI/presentation/domain/data boundaries and existing note contract. | Hilt binds domain interfaces; VM uses use cases; DataStore is data implementation; note content is unchanged. | Existing serialization and save path complete the flow. | Rule scripts and source inspection. | PASS — all reported architecture findings are fixed. |
 | NFR: accessibility/testability | Localized descriptions, semantics, 48dp targets, stable tags. | Picker uses string resources, `Role.Tab`/`Role.Button`, state descriptions, and 48dp targets. | Disabled/selected/empty state semantics are exposed. | Dynamic-tag checker plus `EmojiPickerVisualFlowTest#pickerSupportsRtlTraversalAndLargeFontScale`. | PASS — stable IDs and RTL/font-scale traversal are verified. |
 
@@ -94,12 +98,12 @@
 | Boundary | Exit code | Fresh evidence |
 |---|---:|---|
 | `EmojiPickerPlatformTest` full class on `emulator-5554` / API 33 | 0 | 3/3 real Android platform tests passed, including missing-glyph and Markdown/PDF boundaries. |
-| `EmojiPickerLifecycleTest` full class | 0 | 4/4 real Android close, scrim, back, and saved-state tests passed. |
+| `EmojiPickerLifecycleTest` full class | 0 | 4/4 real Android header-absence, scrim, back, and saved-state tests passed. |
 | `EmojiPickerVisualFlowTest` full class | 0 | 4/4 tests passed, including RTL and 1.5x font scale. |
-| `NoteEditorEmojiPickerTest` full class | 0 | 8/8 production picker tests passed; compact search validation closes the IME before scrolling the one-third-height results region. |
-| `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | `visual_evidence/emoji_picker_content_light.png`, 217352 bytes; the test also asserts the sheet is one-third of the Compose root height. |
-| `EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` | 0 | `visual_evidence/emoji_read_only_light.png`, 46211 bytes. |
-| `EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme` | 0 | `visual_evidence/emoji_empty_search_light.png`, 78476 bytes. |
+| `NoteEditorEmojiPickerTest` full class | 0 | 8/8 production picker tests passed; compact search validation closes the IME before scrolling the two-fifths-height results region. |
+| `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | `visual_evidence/emoji_picker_content_light.png`, 138252 bytes; the test also asserts the sheet is two-fifths of the Compose root height. |
+| `EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` | 0 | `visual_evidence/emoji_read_only_light.png`, 44621 bytes. |
+| `EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme` | 0 | `visual_evidence/emoji_empty_search_light.png`, 74696 bytes. |
 
 The full connected suite passed 94/94 with no skips or failures. These final results close the required code/test findings and the user-approved UI/catalog refinement.
 

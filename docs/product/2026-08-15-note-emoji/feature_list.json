@@ -116,9 +116,9 @@
       "priority": 2,
       "area": "emoji-catalog",
       "title": "Browse, search, and choose skin-tone variants",
-      "description": "Add an expanded deterministic bundled Unicode emoji catalog behind a domain repository contract and search/category use cases. The data implementation supplies each approved category, at least three additional localized entries per category, localized display name/keywords, Unicode string, stable ID, and optional default plus five skin-tone variants; no network or third-party emoji SDK is introduced. Wire catalog state into the Note Editor picker with a 48dp adaptive lazy grid, localized search/clear controls, selected-category semantics, empty Recent/search surfaces, and a long-press compact skin-tone selector inside the one-third-height sheet. Normal tap inserts the default form; a variant selection routes through the US-1 insertion path and keeps the sheet open. Keep filtering/business decisions outside Composables and map domain catalog models into UI models in presentation.",
+      "description": "Add an expanded deterministic bundled Unicode emoji catalog behind a domain repository contract and search/category use cases. The data implementation supplies each approved category, at least three additional localized entries per category, localized display name/keywords, Unicode string, stable ID, and optional default plus five skin-tone variants; no network or third-party emoji SDK is introduced. Wire catalog state into the Note Editor picker with a 48dp adaptive lazy grid, localized search/clear controls, selected-category semantics, empty Recent/search surfaces, and a long-press compact skin-tone selector inside the two-fifths-height sheet without a picker title or header close action. Normal tap inserts the default form; a variant selection routes through the US-1 insertion path and keeps the sheet open. Keep filtering/business decisions outside Composables and map domain catalog models into UI models in presentation.",
       "ui_design": "docs/product/2026-08-15-note-emoji/design.md#screen-1--note-editor--emoji-picker-bottom-sheet",
-      "user_visible_behavior": "Users browse the expanded nine approved categories, search by name/keyword, see a recoverable empty-search state in the compact one-third-height sheet, and choose the exact skin-tone variant they want without closing the picker.",
+      "user_visible_behavior": "Users browse the expanded nine approved categories, search by name/keyword, see a recoverable empty-search state in the two-fifths-height sheet without a picker title or header close action, and choose the exact skin-tone variant they want without closing the picker.",
       "affects_ui": true,
       "requires_visual_verification": false,
       "status": "passing",
@@ -175,7 +175,7 @@
       "title": "Remember selected emoji and validate the completed picker",
       "description": "Add a domain RecentEmojiRepository contract and DataStore Preferences implementation that records an exact selected Unicode sequence as a bounded MRU list and restores it across app recreation. Inject it through Hilt, connect successful default/variant selections to its update path, and render Recent with the specified empty/fallback state. Complete UI/accessibility/configuration behavior, visual evidence capture, and real Android Unicode-font boundary validation. The instrumented boundary test must run against the shipped picker/text rendering path on an emulator and call Android Paint.hasGlyph for selected catalog sequences; it must fail rather than skip when the expected device/runtime is unavailable. Do not sync, share, export, or add recents to note data unless an emoji was inserted into note content.",
       "ui_design": "docs/product/2026-08-15-note-emoji/design.md#screen-1--note-editor--emoji-picker-bottom-sheet",
-      "user_visible_behavior": "After an emoji or skin-tone variant is inserted, it appears first in Recent after restarting the app. The compact one-third-height picker is visually and accessibly verified on a real Android runtime.",
+      "user_visible_behavior": "After an emoji or skin-tone variant is inserted, it appears first in Recent after restarting the app. The two-fifths-height picker without a title or header close action is visually and accessibly verified on a real Android runtime.",
       "affects_ui": true,
       "requires_visual_verification": true,
       "status": "passing",
@@ -220,7 +220,7 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed the content screenshot, the one-third-height sheet geometry assertion, and the visual class's RTL/1.5x font-scale traversal; captured a non-empty content state with Recent, category rail, expanded grid, search, and skin-tone affordance."
+          "result": "Final replay passed the content screenshot, the two-fifths-height sheet geometry assertion, and the visual class's RTL/1.5x font-scale traversal; captured a non-empty content state with Recent, category rail, expanded grid, search, and skin-tone affordance."
         },
         {
           "test_id": "TC-US-3-VIS-002",
@@ -252,7 +252,7 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerLifecycleTest",
           "exit_status": 0,
           "attempts": 3,
-          "result": "Fix-pass lifecycle boundary passed 4/4: close icon, scrim, system back, and StateRestorationTester recreation all dismissed/restored the sheet without changing note content."
+          "result": "Fix-pass lifecycle boundary passed 4/4: header omission, scrim, system back, and StateRestorationTester recreation all preserved/dismissed the sheet without changing note content."
         }
       ],
       "notes": "Final user-reachable slice and sole visual-verification owner. It depends on US-1 and US-2. Missing/emulator-unavailable platform evidence is a loud failure or Blocked state, never a passing skip."

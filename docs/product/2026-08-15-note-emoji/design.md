@@ -1,13 +1,13 @@
 # Feature Design — Note Emoji
 
 **Date**: 2026-08-15  
-**Status**: Updated — user-approved fix-pass refinement
+**Status**: Updated — user-approved picker refinement
 **Source request**: Add emoji to notes through the existing Note Editor toolbar control.  
 **Related spec**: `spec.md`  
 **Project design system**: `docs/product/design_system.md`  
-**Approved design-system exceptions**: The user-approved fix pass makes the picker a compact
-one-third-screen sheet, removes the extra title top inset, and expands the bundled catalog while
-preserving the existing component tokens and 48dp targets.
+**Approved design-system exceptions**: The user-approved picker refinement makes the sheet occupy
+two-fifths of the available height, removes the picker title and header close action, and preserves
+the existing component tokens, drag-handle dismissal, search clear action, and 48dp targets.
 
 ---
 
@@ -34,14 +34,14 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 
 - **Entry points**: The existing `Insert emoticon` icon in the default Note Editor bottom bar, only while `isEditable` is true.
 - **Primary success exit**: No route transition. A selected emoji is inserted at the focused body-text cursor and the picker remains open.
-- **Cancel/back behavior**: The sheet’s close icon, tap outside/scrim, Android Back, or predictive Back dismisses the sheet without inserting an emoji; focus returns to the editor’s prior body target when one exists.
+- **Cancel/back behavior**: Tapping outside the sheet/scrim, Android Back, or predictive Back dismisses the sheet without inserting an emoji; focus returns to the editor’s prior body target when one exists.
 - **Failure exit or recovery**: Empty search and Recent states are handled in the sheet. Users can clear search, change category, or dismiss; a local recents read failure falls back to an empty Recent list.
 
 ### Information Architecture
 
 1. **Existing bottom tool rail**: Retains the outlined `InsertEmoticon` icon. Enabled state uses `textPrimary`; disabled uses 38% alpha and disabled semantics. It gains `editor_insert_emoji` as its stable test tag.
-2. **Emoji picker sheet header**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners and a compact one-third-screen height. The title “Emoji” starts at the sheet content edge without an additional top inset; a 48dp close action labeled “Close emoji picker” sits beside it.
-3. **Search**: Full-width search field using `searchBackground` #EEEFF1 and 12dp corners, a search icon with `searchIcon` #8E959B, localized placeholder “Search emoji”, and a 48dp clear action when text is present.
+2. **Emoji picker sheet surface**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners, the default drag handle, and two-fifths of the available height. There is no picker title or header close action; the search field is the first content row.
+3. **Search**: Full-width search field using `searchBackground` #EEEFF1 and 12dp corners, a search icon with `searchIcon` #8E959B, localized placeholder “Search emoji”, and a 48dp clear action when text is present. The clear action remains available because it is part of query editing, not sheet dismissal.
 4. **Category rail**: Horizontally scrollable M3 tab/chip rail in the approved category order: Recent, Smileys & Emotion, People & Body, Animals & Nature, Food & Drink, Activities, Travel & Places, Objects, Symbols, and Flags. The selected category uses `primary` #7C6CF2 plus an explicit selected indicator/semantics.
 5. **Emoji results grid**: A virtualized adaptive grid of 48dp minimum emoji cells using the expanded bundled catalog (at least three additional entries in every browse category). The grid scrolls within the compact sheet’s remaining results region. Each cell shows one Unicode emoji and a localized accessible name; eligible items expose a visible/semantically announced skin-tone affordance. A long press opens the compact skin-tone selector; ordinary tap inserts the default variant. The selected variant is inserted exactly as shown.
 6. **Skin-tone selector**: Compact anchored selector above the emoji cell with Default plus the five standard modifier choices. It uses `surface`, `border` #E7E3F6, 8dp corners, 48dp targets, selected `primary`, and accessible labels such as “Thumbs up: medium skin tone”.
@@ -53,7 +53,6 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 |-----------|---------|-----------------|----------|
 | Existing emoticon toolbar action | Opens picker for editable notes; remains visible but disabled for read-only notes | enabled, pressed, disabled | `editor_insert_emoji` |
 | Emoji picker bottom sheet | Contains discovery and selection UI | open, dismissed, editable | `emoji_picker_sheet` |
-| Close action | Dismisses without editing | enabled | `emoji_picker_close` |
 | Search field | Finds emoji by name/keyword | empty, populated, focused, no results | `emoji_picker_search` |
 | Clear-search action | Removes active query | visible only with query | `emoji_picker_clear_search` |
 | Category rail | Selects an approved catalog category | selected, unselected, scrollable | `emoji_picker_categories` |
@@ -76,7 +75,7 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 |-------|-----------|-------------|
 | Editable/closed | Existing toolbar control in `textPrimary`; no added editor chrome. | Open the picker. |
 | Read-only/closed | Existing toolbar control remains visible at 38% opacity with disabled semantics. | Cannot open the picker. |
-| Recent/content | Sheet with title, search, category rail, selected Recent tab, and emoji grid. | Search, select category, choose emoji, open skin tone, insert repeatedly, dismiss. |
+| Recent/content | Sheet with search, category rail, selected Recent tab, and emoji grid. | Search, select category, choose emoji, open skin tone, insert repeatedly, dismiss. |
 | Category/content | Same sheet with selected category indicator and virtualized emoji grid. | Search, choose emoji/variant, change category, dismiss. |
 | Empty Recent | “Your recently used emoji will appear here.” with category rail/search still visible. | Choose another category or search. |
 | Empty Search | “No emoji found” and “Clear search” action; category rail remains visible. | Clear query, edit query, change category, dismiss. |
@@ -91,39 +90,38 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 - **No focused block**: An emoji selection appends and focuses a new paragraph, then inserts its Unicode string. No new screen or confirmation is shown.
 - **Skin tone**: Long-pressing an eligible cell opens its selector. Choosing a variant inserts the exact selected sequence, keeps the picker open, and records that exact sequence in Recent. A normal tap still inserts the default emoji.
 - **Recent**: Each successful selection moves the exact Unicode sequence to the front of Recent and saves it locally. Recent is never written to note content unless the emoji is actually inserted.
-- **Dismissal**: Close, scrim, or system Back dismisses the sheet without content change. There are no destructive actions and no confirmation dialog.
+- **Dismissal**: Scrim or system Back dismisses the sheet without content change. There is no header close button, no destructive action, and no confirmation dialog.
 
 ### Copy Requirements
 
 | Element | Copy |
 |---------|------|
-| Picker title | Emoji |
 | Search placeholder | Search emoji |
 | Recent category | Recent |
 | Recent empty state | Your recently used emoji will appear here. |
 | Search empty state | No emoji found |
 | Clear-search action | Clear search |
-| Close content description | Close emoji picker |
 | Skin-tone selector content description | Choose skin tone for %1$s |
 | Disabled toolbar state description | Emoji insertion is unavailable in a read-only note. |
 
 ### Accessibility
 
 - Every interactive item has a stable test tag, a localized content description, 48×48dp minimum target, keyboard-focus treatment, and Material ripple feedback.
-- TalkBack order is: close action, title, search, clear search when visible, category tabs, results/empty state, skin-tone selector. Emoji cells announce their localized name and whether skin-tone variants are available; tabs announce selected state.
+- TalkBack order is: search, clear search when visible, category tabs, results/empty state, skin-tone selector. Emoji cells announce their localized name and whether skin-tone variants are available; tabs announce selected state.
 - `editor_insert_emoji` exposes disabled semantics and the localized state description for read-only notes; it is not focusable as an actionable control in that state.
 - The grid and tab rail support RTL traversal, localized copy, system font scaling, and dark-theme semantic tokens. Text labels use `textPrimary` #191627 or `textSecondary` #7B7694 in light mode and their `LocalAppColors` dark counterparts.
 - Color is never the only selected/disabled/empty-state cue. The UI uses the selected indicator, state semantics, text labels, and disabled semantics alongside color.
 
 ### Responsive And Configuration Behavior
 
-- On phones in portrait, the sheet occupies one-third of the available screen height, respects `WindowInsets.safeDrawing`/gesture insets, and leaves the editor context visible above it. The results grid scrolls when the expanded catalog exceeds the compact results region.
+- On phones in portrait, the sheet occupies two-fifths of the available screen height, respects `WindowInsets.safeDrawing`/gesture insets, and leaves the editor context visible above it. The results grid scrolls when the expanded catalog exceeds the available results region.
 - In landscape and on tablets, the sheet remains width-constrained and the adaptive grid increases columns rather than shrinking below 48dp targets. The horizontally scrollable category rail retains all categories.
 - The current query, selected category, sheet visibility, and active skin-tone selector survive configuration changes through screen/presentation state. Persisted Recent reloads after process recreation; no note document mutation occurs until a selection.
 
 ### Design Assets
 
 - **Generated mockup**: `design/mockup_note_editor_emoji_picker.png` — AI-generated visual mockup reflecting the existing editor with the new picker open.
+- **Generated mockup v2**: `design/mockup_note_editor_emoji_picker_v2.png` — AI-generated visual mockup of the two-fifths-height picker with the title and header close action removed.
 
 ### Out Of Scope For This Design
 

@@ -82,3 +82,13 @@
 - Commit: `246805c` (`fix(note-emoji): compact picker and expand catalog`).
 - Known risk or unresolved issue: None within the approved feature or explicit user refinement. The callable Skill tool was unavailable; repository skill procedures were followed from source files and remain documented in the handoff.
 - Next best step: Human review; do not select a new slice or change any slice status.
+
+### Session 007 — User-requested picker layout revision
+
+- Date: 2026-08-15
+- Goal: Increase the picker to two-fifths of the available height and remove the `Emoji` title and header cross button.
+- Completed: Updated the production `ModalBottomSheet` and geometry assertion to `2f / 5f`, removed the header/title/close semantics while retaining search-clear and scrim/system-back dismissal, refreshed the design contract and feature evidence, and generated `design/mockup_note_editor_emoji_picker_v2.png`.
+- Verification run: Pending final build and connected UI replay after the source change.
+- Evidence and report updates: `design.md`, `feature_list.json`, `clean-state-checklist.md`, this progress log, and the session handoff will record the revised layout.
+- Known risk or unresolved issue: None identified; the final quality and runtime gates remain to be rerun for this revision.
+- Next best step: Run the focused picker tests, full quality gates, lifecycle check, and route the updated feature to human review.
