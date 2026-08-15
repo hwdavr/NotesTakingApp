@@ -37,7 +37,7 @@ Run this checklist before committing and at the end of each session to ensure co
 *   [ ] **Global Coverage**: Verify that overall project line coverage meets the minimum threshold of **80%** (via `koverLog`).
 *   [ ] **Feature Coverage**: Verify that new ViewModel and domain Use Cases hit the minimum target of **90%** coverage.
 *   [ ] **Platform Capability Matrix**: Verify `platform-capability-matrix.md` declares minimum/target/API-boundary behavior and the `fail_loudly` unsupported-environment policy.
-*   [ ] **Real Platform Boundary**: For platform-bound behavior, run the declared real instrumented test; fake/JVM-only tests are supplemental and missing environments must fail or be marked `Blocked`/`Revise`.
+*   [ ] **Real Platform Boundary**: For platform-bound behavior, the slice that owns the declared real instrumented test must run it; fake/JVM-only tests are supplemental and missing environments must fail or be marked `Blocked`/`Revise`. Non-owning slices must run `check-platform-evidence.sh --evaluate --slice "$FEATURE_ID"`; the no-slice evaluation remains required before final feature evaluation.
 *   [ ] **Mock Data Discipline**: Ensure no inline mock data is used; utilize shared JSON scenarios loaded from `sharedContracts/test-scenarios/`.
 *   [ ] **TDD Cleanup**: Verify that any temporary `@Ignore` or `@Disabled` annotations added during the TDD bug-reproduction phase are completely removed.
 

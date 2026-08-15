@@ -42,6 +42,7 @@ write_feature_list() {
     printf '%s\n' '  },'
     printf '%s\n' '  "features": [{'
     printf '%s\n' '    "id": "US-1",'
+    printf '%s\n' '    "acceptance_test_ids": ["TC-US-REAL"],'
     printf '%s\n' '    "evidence": [{'
     printf '%s\n' '      "test_id": "TC-US-REAL",'
     printf '%s\n' '      "exit_status": 0,'
@@ -81,6 +82,28 @@ write_matrix "$pending_runtime" "Pending"
 printf '%s\n' 'class PlatformTest { val recognizer = SpeechRecognizer.createSpeechRecognizer(context) }' > "$pending_runtime/app/src/androidTest/java/example/PlatformTest.kt"
 expect_failure "pending/unavailable/blocked/skipped" bash "$VALIDATOR" "$pending_runtime" --evaluate
 
+deferred_slice="$fixture_root/deferred-slice"
+mkdir -p "$deferred_slice"
+write_contract "$deferred_slice"
+write_feature_list "$deferred_slice"
+write_matrix "$deferred_slice" "Planned"
+jq '.features[0].acceptance_test_ids = []' "$deferred_slice/feature_list.json" > "$deferred_slice/feature_list.json.tmp"
+mv "$deferred_slice/feature_list.json.tmp" "$deferred_slice/feature_list.json"
+(cd "$deferred_slice" && bash "$VALIDATOR" . --evaluate --slice US-1) | \
+  grep -Fq "slice US-1 does not own a declared real platform boundary test"
+
+owner_missing_evidence="$fixture_root/owner-missing-evidence"
+mkdir -p "$owner_missing_evidence/app/src/androidTest/java/example"
+write_contract "$owner_missing_evidence"
+write_feature_list "$owner_missing_evidence"
+write_matrix "$owner_missing_evidence" "Verified"
+printf '%s\n' 'class PlatformTest { val recognizer = SpeechRecognizer.createSpeechRecognizer(context) }' > \
+  "$owner_missing_evidence/app/src/androidTest/java/example/PlatformTest.kt"
+jq '.features[0].evidence = []' "$owner_missing_evidence/feature_list.json" > \
+  "$owner_missing_evidence/feature_list.json.tmp"
+mv "$owner_missing_evidence/feature_list.json.tmp" "$owner_missing_evidence/feature_list.json"
+expect_failure "has no successful connected-test evidence" bash "$VALIDATOR" "$owner_missing_evidence" --evaluate --slice US-1
+
 fake_only="$fixture_root/fake-only"
 mkdir -p "$fake_only/app/src/androidTest/java/example"
 write_contract "$fake_only"
@@ -97,4 +120,4 @@ write_matrix "$valid" "Verified"
 printf '%s\n' 'class PlatformTest { val recognizer = SpeechRecognizer.createSpeechRecognizer(context) }' > "$valid/app/src/androidTest/java/example/PlatformTest.kt"
 (cd "$valid" && bash "$VALIDATOR" . --evaluate)
 
-echo "PASS: platform evidence validator rejects missing matrices, unavailable runtimes, and fake-only tests."
+echo "PASS: platform evidence validator defers non-owning slices and rejects missing matrices, unavailable runtimes, fake-only tests, and boundary owners without evidence."

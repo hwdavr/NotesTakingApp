@@ -7,6 +7,8 @@ set -e
 
 FEATURE_DIR="${1:-}"
 MODE="${2:---evaluate}"
+SLICE_FLAG="${3:-}"
+SLICE_ID="${4:-}"
 
 fail() {
   echo "FAIL: $1" >&2
@@ -14,12 +16,17 @@ fail() {
 }
 
 if [ -z "$FEATURE_DIR" ]; then
-  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate]" >&2
+  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
   exit 2
 fi
 
 if [ "$MODE" != "--planning" ] && [ "$MODE" != "--evaluate" ]; then
-  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate]" >&2
+  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
+  exit 2
+fi
+
+if [ -n "$SLICE_FLAG" ] && { [ "$SLICE_FLAG" != "--slice" ] || [ -z "$SLICE_ID" ]; }; then
+  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
   exit 2
 fi
 
@@ -85,9 +92,34 @@ REAL_SIGNAL=$(jq -r '.platform_validation.real_boundary_test_signal // empty' "$
 [ -n "$REAL_SIGNAL" ] \
   || fail "platform-bound feature must declare real_boundary_test_signal"
 
+if [ -n "$SLICE_ID" ]; then
+  jq -e --arg id "$SLICE_ID" '.features[]? | select(.id == $id)' "$FEATURE_JSON" >/dev/null \
+    || fail "feature_list.json has no slice with id $SLICE_ID"
+fi
+
 if [ "$MODE" = "--planning" ]; then
   echo "PASS: platform capability matrix and planned real-boundary test contract are present."
   exit 0
+fi
+
+if [ -n "$SLICE_ID" ]; then
+  SLICE_OWNS_REAL_BOUNDARY=false
+  while IFS= read -r test_id; do
+    [ -n "$test_id" ] || continue
+    if jq -e --arg id "$SLICE_ID" --arg test_id "$test_id" \
+      '.features[]? | select(.id == $id) | (.acceptance_test_ids // []) | index($test_id) != null' \
+      "$FEATURE_JSON" >/dev/null; then
+      SLICE_OWNS_REAL_BOUNDARY=true
+      break
+    fi
+  done <<EOF
+$REAL_TEST_IDS
+EOF
+
+  if [ "$SLICE_OWNS_REAL_BOUNDARY" = false ]; then
+    echo "PASS: slice $SLICE_ID does not own a declared real platform boundary test; full-feature evidence is deferred."
+    exit 0
+  fi
 fi
 
 # Evaluation is stricter than planning. A required row that has not been

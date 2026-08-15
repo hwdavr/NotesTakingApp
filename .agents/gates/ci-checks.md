@@ -66,9 +66,13 @@ scripts\check-compose-rules.cmd
 
 ### 8. Platform Capability Evidence (when a platform boundary is in scope)
 ```bash
+# Generator: validates the selected slice's platform-boundary ownership.
+bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate --slice "$FEATURE_ID"
+
+# Final feature evaluation: validates every declared real boundary.
 bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
 ```
-**Must pass.** Rejects missing capability matrices, pending/unavailable/skipped runtime evidence, and fake-only platform-boundary tests.
+**Must pass.** A non-owning slice validates the declared contract without waiting for a later slice's boundary test. The boundary-owning slice and final feature evaluation reject missing capability matrices, pending/unavailable/skipped runtime evidence, and fake-only platform-boundary tests.
 
 ---
 
