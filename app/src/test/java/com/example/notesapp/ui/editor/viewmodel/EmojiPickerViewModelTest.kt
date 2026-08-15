@@ -5,12 +5,21 @@ import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCategory
 import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
+import com.example.notesapp.domain.emoji.usecase.ObserveRecentEmojiUseCase
+import com.example.notesapp.domain.emoji.usecase.RecordRecentEmojiUseCase
+import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EmojiPickerViewModelTest : BaseViewModelTest() {
     @Test
     fun startsWithAnEmptyRecentState() {
@@ -76,13 +85,52 @@ class EmojiPickerViewModelTest : BaseViewModelTest() {
         val failingRepository = object : EmojiCatalogRepository {
             override fun getCatalog() = error("catalog unavailable")
         }
-        val viewModel = EmojiPickerViewModel(FindEmojiCatalogUseCase(failingRepository))
+        val viewModel = createViewModel(
+            catalogRepository = failingRepository
+        )
 
         assertTrue(viewModel.uiState.value.hasCatalogError)
         assertTrue(viewModel.uiState.value.items.isEmpty())
         assertTrue(viewModel.uiState.value.isEmptyRecent)
     }
 
-    private fun createViewModel(): EmojiPickerViewModel =
-        EmojiPickerViewModel(FindEmojiCatalogUseCase(BundledEmojiCatalogRepository()))
+    @Test
+    fun loadsExactPersistedRecentUnicodeInMostRecentOrder() {
+        val viewModel = createViewModel(recentEmoji = listOf("👍🏽", "🚀"))
+
+        assertEquals(listOf("👍🏽", "🚀"), viewModel.uiState.value.recentEmoji)
+        assertEquals(listOf("👍🏽", "🚀"), viewModel.uiState.value.items.map { it.unicode })
+    }
+
+    @Test
+    fun recordsExactSelectedUnicodeThroughTheUseCase() = runTest {
+        val recentRepository = FakeRecentEmojiRepository(emptyList())
+        val viewModel = createViewModel(recentRepository = recentRepository)
+
+        viewModel.onEmojiSelected("👍🏽")
+        advanceUntilIdle()
+
+        assertEquals("👍🏽", recentRepository.recordedEmoji)
+    }
+
+    private fun createViewModel(
+        catalogRepository: EmojiCatalogRepository = BundledEmojiCatalogRepository(),
+        recentEmoji: List<String> = emptyList(),
+        recentRepository: FakeRecentEmojiRepository = FakeRecentEmojiRepository(recentEmoji)
+    ): EmojiPickerViewModel = EmojiPickerViewModel(
+        findEmojiCatalogUseCase = FindEmojiCatalogUseCase(catalogRepository),
+        observeRecentEmojiUseCase = ObserveRecentEmojiUseCase(recentRepository),
+        recordRecentEmojiUseCase = RecordRecentEmojiUseCase(recentRepository)
+    )
+
+    private class FakeRecentEmojiRepository(
+        private val storedEmoji: List<String>
+    ) : RecentEmojiRepository {
+        var recordedEmoji: String? = null
+        override val recentEmoji: Flow<List<String>> = flowOf(storedEmoji)
+
+        override suspend fun recordSelectedEmoji(emoji: String) {
+            recordedEmoji = emoji
+        }
+    }
 }

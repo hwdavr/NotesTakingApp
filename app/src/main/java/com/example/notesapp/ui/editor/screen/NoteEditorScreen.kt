@@ -186,7 +186,11 @@ fun NoteEditorScreen(
         onAddImage = viewModel::addImageBlock,
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
-        onEmojiSelected = viewModel::insertEmoji,
+        onEmojiSelected = { emoji ->
+            if (viewModel.insertEmoji(emoji)) {
+                emojiPickerViewModel.onEmojiSelected(emoji)
+            }
+        },
         emojiPickerState = emojiPickerState,
         onEmojiQueryChange = emojiPickerViewModel::onQueryChange,
         onEmojiClearQuery = emojiPickerViewModel::onClearQuery,

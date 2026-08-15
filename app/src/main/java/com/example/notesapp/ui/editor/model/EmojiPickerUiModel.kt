@@ -27,6 +27,7 @@ data class EmojiPickerUiState(
     val selectedCategory: EmojiCategory = EmojiCategory.RECENT,
     val query: String = "",
     val categories: List<EmojiCategoryUiModel> = EmojiPickerUiMapper.categoryModels(),
+    val recentEmoji: List<String> = emptyList(),
     val items: List<EmojiPickerItemUiModel> = emptyList(),
     val isLoading: Boolean = false,
     val hasCatalogError: Boolean = false,

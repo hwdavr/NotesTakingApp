@@ -94,8 +94,8 @@ open class NoteEditorViewModel @Inject constructor(
         )
     }
 
-    fun insertEmoji(emoji: String) {
-        if (!canEdit() || emoji.isEmpty()) return
+    fun insertEmoji(emoji: String): Boolean {
+        if (!canEdit() || emoji.isEmpty()) return false
 
         val current = uiStateInternal.value
         val focusedTextBlock = current.focusedBlockId
@@ -112,7 +112,7 @@ open class NoteEditorViewModel @Inject constructor(
                 selectionEnd = emoji.length
             )
             scheduleAutoSave()
-            return
+            return true
         }
 
         val textLength = focusedTextBlock.text().length
@@ -135,6 +135,7 @@ open class NoteEditorViewModel @Inject constructor(
             selectionEnd = nextSelection
         )
         scheduleAutoSave()
+        return true
     }
 
     private var autoSaveJob: Job? = null
