@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onFirst
@@ -35,6 +36,7 @@ import com.example.notesapp.ui.editor.screen.NoteEditorScreenContent
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import java.io.File
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +72,14 @@ class EmojiPickerVisualFlowTest {
                     .getString(R.string.emoji_picker_item_skin_tone_hint)
             )
         ).onFirst().assertIsDisplayed()
+        val rootHeight = composeRule.onAllNodes(isRoot(), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .maxOf { node -> node.boundsInRoot.height }
+        val sheetHeight = composeRule.onNodeWithTag(
+            "emoji_picker_sheet",
+            useUnmergedTree = true
+        ).fetchSemanticsNode().boundsInRoot.height
+        assertEquals(rootHeight / 3f, sheetHeight, 12f)
         captureVisualEvidence("notesapp_emoji_picker_content_light")
     }
 

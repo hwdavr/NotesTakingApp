@@ -51,6 +51,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 keywords = setOf("cool")
             ),
             item(
+                id = "slightly_smiling_face",
+                unicode = "🙂",
+                nameKey = EmojiNameKey.SLIGHTLY_SMILING_FACE,
+                category = EmojiCategory.SMILEYS_EMOTION,
+                keywords = setOf("happy", "smile", "positive")
+            ),
+            item(
+                id = "beaming_face_with_smiling_eyes",
+                unicode = "😁",
+                nameKey = EmojiNameKey.BEAMING_FACE_WITH_SMILING_EYES,
+                category = EmojiCategory.SMILEYS_EMOTION,
+                keywords = setOf("grin", "happy", "smile")
+            ),
+            item(
+                id = "crying_face",
+                unicode = "😢",
+                nameKey = EmojiNameKey.CRYING_FACE,
+                category = EmojiCategory.SMILEYS_EMOTION,
+                keywords = setOf("sad", "tear")
+            ),
+            item(
                 id = "red_heart",
                 unicode = "❤️",
                 nameKey = EmojiNameKey.RED_HEART,
@@ -99,6 +120,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 category = EmojiCategory.PEOPLE_BODY,
                 keywords = setOf("human", "adult")
             ),
+            itemWithSkinTones(
+                id = "thumbs_down",
+                unicode = "👎",
+                nameKey = EmojiNameKey.THUMBS_DOWN,
+                category = EmojiCategory.PEOPLE_BODY,
+                keywords = setOf("dislike", "disapprove", "hand")
+            ),
+            itemWithSkinTones(
+                id = "raising_hands",
+                unicode = "🙌",
+                nameKey = EmojiNameKey.RAISING_HANDS,
+                category = EmojiCategory.PEOPLE_BODY,
+                keywords = setOf("celebrate", "hooray", "hand")
+            ),
+            itemWithSkinTones(
+                id = "ok_hand",
+                unicode = "👌",
+                nameKey = EmojiNameKey.OK_HAND,
+                category = EmojiCategory.PEOPLE_BODY,
+                keywords = setOf("okay", "approve", "hand")
+            ),
             item(
                 id = "dog",
                 unicode = "🐶",
@@ -133,6 +175,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 nameKey = EmojiNameKey.FROG,
                 category = EmojiCategory.ANIMALS_NATURE,
                 keywords = setOf("animal", "nature")
+            ),
+            item(
+                id = "monkey_face",
+                unicode = "🐵",
+                nameKey = EmojiNameKey.MONKEY_FACE,
+                category = EmojiCategory.ANIMALS_NATURE,
+                keywords = setOf("animal", "ape")
+            ),
+            item(
+                id = "lion",
+                unicode = "🦁",
+                nameKey = EmojiNameKey.LION,
+                category = EmojiCategory.ANIMALS_NATURE,
+                keywords = setOf("animal", "wildlife")
+            ),
+            item(
+                id = "panda",
+                unicode = "🐼",
+                nameKey = EmojiNameKey.PANDA,
+                category = EmojiCategory.ANIMALS_NATURE,
+                keywords = setOf("animal", "bear", "wildlife")
             ),
             item(
                 id = "pizza",
@@ -170,6 +233,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 keywords = setOf("dessert", "birthday", "food")
             ),
             item(
+                id = "banana",
+                unicode = "🍌",
+                nameKey = EmojiNameKey.BANANA,
+                category = EmojiCategory.FOOD_DRINK,
+                keywords = setOf("fruit", "food")
+            ),
+            item(
+                id = "doughnut",
+                unicode = "🍩",
+                nameKey = EmojiNameKey.DOUGHNUT,
+                category = EmojiCategory.FOOD_DRINK,
+                keywords = setOf("dessert", "sweet", "food")
+            ),
+            item(
+                id = "hot_beverage",
+                unicode = "☕",
+                nameKey = EmojiNameKey.HOT_BEVERAGE,
+                category = EmojiCategory.FOOD_DRINK,
+                keywords = setOf("coffee", "tea", "drink")
+            ),
+            item(
                 id = "soccer_ball",
                 unicode = "⚽",
                 nameKey = EmojiNameKey.SOCCER_BALL,
@@ -196,6 +280,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 nameKey = EmojiNameKey.PARTY_POPPER,
                 category = EmojiCategory.ACTIVITIES,
                 keywords = setOf("celebrate", "party")
+            ),
+            item(
+                id = "musical_note",
+                unicode = "🎵",
+                nameKey = EmojiNameKey.MUSICAL_NOTE,
+                category = EmojiCategory.ACTIVITIES,
+                keywords = setOf("music", "song", "sound")
+            ),
+            item(
+                id = "video_game",
+                unicode = "🎮",
+                nameKey = EmojiNameKey.VIDEO_GAME,
+                category = EmojiCategory.ACTIVITIES,
+                keywords = setOf("game", "play", "controller")
+            ),
+            item(
+                id = "sports_medal",
+                unicode = "🏅",
+                nameKey = EmojiNameKey.SPORTS_MEDAL,
+                category = EmojiCategory.ACTIVITIES,
+                keywords = setOf("award", "medal", "sport")
             ),
             item(
                 id = "automobile",
@@ -233,6 +338,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 keywords = setOf("home", "place")
             ),
             item(
+                id = "train",
+                unicode = "🚆",
+                nameKey = EmojiNameKey.TRAIN,
+                category = EmojiCategory.TRAVEL_PLACES,
+                keywords = setOf("rail", "transport", "travel")
+            ),
+            item(
+                id = "bicycle",
+                unicode = "🚲",
+                nameKey = EmojiNameKey.BICYCLE,
+                category = EmojiCategory.TRAVEL_PLACES,
+                keywords = setOf("bike", "cycle", "transport")
+            ),
+            item(
+                id = "beach_with_umbrella",
+                unicode = "🏖️",
+                nameKey = EmojiNameKey.BEACH_WITH_UMBRELLA,
+                category = EmojiCategory.TRAVEL_PLACES,
+                keywords = setOf("vacation", "summer", "place")
+            ),
+            item(
                 id = "light_bulb",
                 unicode = "💡",
                 nameKey = EmojiNameKey.LIGHT_BULB,
@@ -268,6 +394,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 keywords = setOf("lock", "security")
             ),
             item(
+                id = "books",
+                unicode = "📚",
+                nameKey = EmojiNameKey.BOOKS,
+                category = EmojiCategory.OBJECTS,
+                keywords = setOf("read", "library", "study")
+            ),
+            item(
+                id = "bell",
+                unicode = "🔔",
+                nameKey = EmojiNameKey.BELL,
+                category = EmojiCategory.OBJECTS,
+                keywords = setOf("alert", "notification", "sound")
+            ),
+            item(
+                id = "headphone",
+                unicode = "🎧",
+                nameKey = EmojiNameKey.HEADPHONE,
+                category = EmojiCategory.OBJECTS,
+                keywords = setOf("music", "audio", "listen")
+            ),
+            item(
                 id = "star",
                 unicode = "⭐",
                 nameKey = EmojiNameKey.STAR,
@@ -294,6 +441,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 nameKey = EmojiNameKey.QUESTION_MARK,
                 category = EmojiCategory.SYMBOLS,
                 keywords = setOf("question", "confused")
+            ),
+            item(
+                id = "cross_mark",
+                unicode = "❌",
+                nameKey = EmojiNameKey.CROSS_MARK,
+                category = EmojiCategory.SYMBOLS,
+                keywords = setOf("no", "wrong", "cancel")
+            ),
+            item(
+                id = "purple_heart",
+                unicode = "💜",
+                nameKey = EmojiNameKey.PURPLE_HEART,
+                category = EmojiCategory.SYMBOLS,
+                keywords = setOf("love", "heart")
+            ),
+            item(
+                id = "high_voltage",
+                unicode = "⚡",
+                nameKey = EmojiNameKey.HIGH_VOLTAGE,
+                category = EmojiCategory.SYMBOLS,
+                keywords = setOf("lightning", "electricity", "energy")
             ),
             item(
                 id = "flag_united_states",
@@ -334,6 +502,27 @@ class BundledEmojiCatalogRepository @Inject constructor() : EmojiCatalogReposito
                 id = "flag_canada",
                 unicode = "🇨🇦",
                 nameKey = EmojiNameKey.CANADA,
+                category = EmojiCategory.FLAGS,
+                keywords = setOf("country")
+            ),
+            item(
+                id = "flag_south_korea",
+                unicode = "🇰🇷",
+                nameKey = EmojiNameKey.SOUTH_KOREA,
+                category = EmojiCategory.FLAGS,
+                keywords = setOf("korea", "country")
+            ),
+            item(
+                id = "flag_india",
+                unicode = "🇮🇳",
+                nameKey = EmojiNameKey.INDIA,
+                category = EmojiCategory.FLAGS,
+                keywords = setOf("country")
+            ),
+            item(
+                id = "flag_france",
+                unicode = "🇫🇷",
+                nameKey = EmojiNameKey.FRANCE,
                 category = EmojiCategory.FLAGS,
                 keywords = setOf("country")
             )

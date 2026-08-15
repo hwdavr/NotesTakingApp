@@ -19,6 +19,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.R
@@ -218,7 +219,10 @@ class NoteEditorEmojiPickerTest {
 
         openEmojiPicker()
         composeRule.onNodeWithTag("emoji_picker_search").performTextInput("launch")
-        composeRule.onNodeWithContentDescription(text(R.string.emoji_name_rocket)).assertIsDisplayed()
+        closeSoftKeyboard()
+        composeRule.onNodeWithContentDescription(text(R.string.emoji_name_rocket))
+            .performScrollTo()
+            .assertIsDisplayed()
 
         composeRule.onNodeWithTag("emoji_picker_clear_search").performClick()
         composeRule.onNodeWithTag("emoji_picker_recent_empty").assertIsDisplayed()

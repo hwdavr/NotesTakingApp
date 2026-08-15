@@ -11,8 +11,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -75,7 +76,9 @@ fun EmojiPickerBottomSheet(
     val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        modifier = Modifier.testTag("emoji_picker_sheet"),
+        modifier = Modifier
+            .fillMaxHeight(1f / 3f)
+            .testTag("emoji_picker_sheet"),
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -83,9 +86,10 @@ fun EmojiPickerBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxSize()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             EmojiPickerHeader(onDismiss = onDismiss)
             EmojiPickerSearchField(
@@ -103,7 +107,8 @@ fun EmojiPickerBottomSheet(
                 onEmojiSelected = onEmojiSelected,
                 onSkinToneRequested = onSkinToneRequested,
                 onSkinToneDismissed = onSkinToneDismissed,
-                onClearQuery = onClearQuery
+                onClearQuery = onClearQuery,
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -235,14 +240,14 @@ private fun EmojiPickerResults(
     onEmojiSelected: (String) -> Unit,
     onSkinToneRequested: (String) -> Unit,
     onSkinToneDismissed: () -> Unit,
-    onClearQuery: () -> Unit
+    onClearQuery: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     when {
         uiState.isLoading -> {
             Box(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
-                    .heightIn(min = 160.dp)
                     .testTag("emoji_picker_loading"),
                 contentAlignment = Alignment.Center
             ) {
@@ -252,19 +257,22 @@ private fun EmojiPickerResults(
         uiState.hasCatalogError -> {
             EmojiPickerEmptyState(
                 message = stringResource(R.string.emoji_picker_catalog_error),
-                testTag = "emoji_picker_catalog_error"
+                testTag = "emoji_picker_catalog_error",
+                modifier = modifier
             )
         }
         uiState.isEmptyRecent -> {
             EmojiPickerEmptyState(
                 message = stringResource(R.string.emoji_picker_recent_empty),
-                testTag = "emoji_picker_recent_empty"
+                testTag = "emoji_picker_recent_empty",
+                modifier = modifier
             )
         }
         uiState.isEmptySearch -> {
             EmojiPickerEmptyState(
                 message = stringResource(R.string.emoji_picker_no_results),
                 testTag = "emoji_picker_search_empty",
+                modifier = modifier,
                 action = {
                     TextButton(
                         onClick = onClearQuery,
@@ -278,15 +286,15 @@ private fun EmojiPickerResults(
         uiState.isEmptyCategory -> {
             EmojiPickerEmptyState(
                 message = stringResource(R.string.emoji_picker_category_empty),
-                testTag = "emoji_picker_category_empty"
+                testTag = "emoji_picker_category_empty",
+                modifier = modifier
             )
         }
         else -> {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 48.dp),
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
-                    .height(360.dp)
                     .testTag("emoji_picker_grid"),
                 contentPadding = PaddingValues(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -307,12 +315,16 @@ private fun EmojiPickerResults(
 }
 
 @Composable
-private fun EmojiPickerEmptyState(message: String, testTag: String, action: (@Composable () -> Unit)? = null) {
+private fun EmojiPickerEmptyState(
+    message: String,
+    testTag: String,
+    modifier: Modifier = Modifier,
+    action: (@Composable () -> Unit)? = null
+) {
     val colors = LocalAppColors.current
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 160.dp)
             .testTag(testTag),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

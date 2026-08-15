@@ -16,8 +16,21 @@ class FindEmojiCatalogUseCaseTest {
         }
 
         assertEquals(9, resultsByCategory.size)
-        resultsByCategory.values.forEach { results ->
-            assertTrue(results.isNotEmpty())
+        val expectedCounts = mapOf(
+            EmojiCategory.SMILEYS_EMOTION to 8,
+            EmojiCategory.PEOPLE_BODY to 9,
+            EmojiCategory.ANIMALS_NATURE to 8,
+            EmojiCategory.FOOD_DRINK to 8,
+            EmojiCategory.ACTIVITIES to 7,
+            EmojiCategory.TRAVEL_PLACES to 8,
+            EmojiCategory.OBJECTS to 8,
+            EmojiCategory.SYMBOLS to 8,
+            EmojiCategory.FLAGS to 9
+        )
+        expectedCounts.forEach { (category, expectedCount) ->
+            val results = resultsByCategory.getValue(category)
+            assertEquals(expectedCount, results.size)
+            assertTrue(results.all { it.category == category })
         }
     }
 

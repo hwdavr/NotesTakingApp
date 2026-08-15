@@ -1,11 +1,13 @@
 # Feature Design — Note Emoji
 
 **Date**: 2026-08-15  
-**Status**: Draft — awaiting specification approval  
+**Status**: Updated — user-approved fix-pass refinement
 **Source request**: Add emoji to notes through the existing Note Editor toolbar control.  
 **Related spec**: `spec.md`  
 **Project design system**: `docs/product/design_system.md`  
-**Approved design-system exceptions**: None.
+**Approved design-system exceptions**: The user-approved fix pass makes the picker a compact
+one-third-screen sheet, removes the extra title top inset, and expands the bundled catalog while
+preserving the existing component tokens and 48dp targets.
 
 ---
 
@@ -38,10 +40,10 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 ### Information Architecture
 
 1. **Existing bottom tool rail**: Retains the outlined `InsertEmoticon` icon. Enabled state uses `textPrimary`; disabled uses 38% alpha and disabled semantics. It gains `editor_insert_emoji` as its stable test tag.
-2. **Emoji picker sheet header**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners. A 48dp close action labeled “Close emoji picker” sits beside localized title “Emoji”.
+2. **Emoji picker sheet header**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners and a compact one-third-screen height. The title “Emoji” starts at the sheet content edge without an additional top inset; a 48dp close action labeled “Close emoji picker” sits beside it.
 3. **Search**: Full-width search field using `searchBackground` #EEEFF1 and 12dp corners, a search icon with `searchIcon` #8E959B, localized placeholder “Search emoji”, and a 48dp clear action when text is present.
 4. **Category rail**: Horizontally scrollable M3 tab/chip rail in the approved category order: Recent, Smileys & Emotion, People & Body, Animals & Nature, Food & Drink, Activities, Travel & Places, Objects, Symbols, and Flags. The selected category uses `primary` #7C6CF2 plus an explicit selected indicator/semantics.
-5. **Emoji results grid**: A virtualized adaptive grid of 48dp minimum emoji cells. Each cell shows one Unicode emoji and a localized accessible name; eligible items expose a visible/semantically announced skin-tone affordance. A long press opens the compact skin-tone selector; ordinary tap inserts the default variant. The selected variant is inserted exactly as shown.
+5. **Emoji results grid**: A virtualized adaptive grid of 48dp minimum emoji cells using the expanded bundled catalog (at least three additional entries in every browse category). The grid scrolls within the compact sheet’s remaining results region. Each cell shows one Unicode emoji and a localized accessible name; eligible items expose a visible/semantically announced skin-tone affordance. A long press opens the compact skin-tone selector; ordinary tap inserts the default variant. The selected variant is inserted exactly as shown.
 6. **Skin-tone selector**: Compact anchored selector above the emoji cell with Default plus the five standard modifier choices. It uses `surface`, `border` #E7E3F6, 8dp corners, 48dp targets, selected `primary`, and accessible labels such as “Thumbs up: medium skin tone”.
 7. **State panel**: In the results region, an empty state uses `textSecondary` #7B7694 with the exact localized message appropriate to an empty Recent list or no search result. Its clear-search button uses `primary` and a 48dp target.
 
@@ -115,7 +117,7 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 
 ### Responsive And Configuration Behavior
 
-- On phones in portrait, the sheet occupies a content-driven lower portion of the editor, respects `WindowInsets.safeDrawing`/gesture insets, and leaves the editor context visible above it where space permits.
+- On phones in portrait, the sheet occupies one-third of the available screen height, respects `WindowInsets.safeDrawing`/gesture insets, and leaves the editor context visible above it. The results grid scrolls when the expanded catalog exceeds the compact results region.
 - In landscape and on tablets, the sheet remains width-constrained and the adaptive grid increases columns rather than shrinking below 48dp targets. The horizontally scrollable category rail retains all categories.
 - The current query, selected category, sheet visibility, and active skin-tone selector survive configuration changes through screen/presentation state. Persisted Recent reloads after process recreation; no note document mutation occurs until a selection.
 
