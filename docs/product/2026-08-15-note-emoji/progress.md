@@ -6,7 +6,7 @@
 - Standard startup path: Existing Note Editor → editable note → existing Insert emoticon toolbar control.
 - Standard verification path: JVM unit/integration tests, focused Android Compose instrumented tests on `emulator-5554`, then the declared visual and platform evidence commands.
 - Current highest-priority unfinished feature: US-2 — Browse, search, and choose skin-tone variants.
-- Current blocker: None for US-1. US-2 follows only after the Generator clean-exit gate is complete.
+- Current blocker: None for US-1. US-2 was externally advanced to `in_progress` during this slice's clean exit; it remains a separate Generator task.
 
 ## Planned Dependency Order
 
@@ -37,4 +37,4 @@
 - Harness correction: documented and repaired the platform-evidence gate so a non-owning slice validates its contract without being blocked by US-3's future real Android glyph test. See `docs/changes/harness-retro-2026-08-15-slice-platform-gate/retrospective.md`.
 - Files or artifacts updated: editor ViewModel/screen/picker component/resources, focused tests, summary/evidence, product tracker/capabilities, and harness templates/scripts.
 - Known risk or unresolved issue: US-2 still owns catalog/search/skin-tone selection; US-3 still owns durable Recents, visual evidence, and the required real Android Unicode glyph boundary test.
-- Next best step: Begin US-2 only after this slice's clean exit is committed.
+- Next best step: Begin US-2 as the externally selected active slice; preserve US-1's passing evidence and do not modify US-3-owned platform/visual scope.

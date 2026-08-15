@@ -2,7 +2,7 @@
 
 **Type**: feature
 **Started**: 2026-08-15 15:55 +08
-**Status**: In Progress
+**Status**: Complete (US-1 slice; parent feature remains In Progress)
 
 ## Stage Progress
 
@@ -14,9 +14,9 @@
 | Implement | ✅ | 2026-08-15 16:12 +08 | Added typed rich-text insertion and autosave in `app/src/main/java/com/example/notesapp/ui/editor/viewmodel/NoteEditorViewModel.kt`; wired the sheet shell in `app/src/main/java/com/example/notesapp/ui/editor/screen/NoteEditorScreen.kt`; added `ui/editor/components/EmojiPickerBottomSheet.kt` and localized strings. Evidence: `./gradlew assembleDebug` exited 0 with `BUILD SUCCESSFUL` after one targeted Material API opt-in correction. |
 | Test | ✅ | 2026-08-15 16:20 +08 | All US-1 gates passed: 322 JVM tests, focused ViewModel and persistence suites, and 3/3 `NoteEditorEmojiPickerTest` emulator tests. `koverLog` reported `application line coverage: 80.3978%`; `NoteEditorViewModel` line coverage is 94.9% (185/195). Initial feature-wide platform evaluation correctly failed three times because US-3 owns `TC-US-3-REAL-UNICODE`; the slice-aware harness repair is recorded in `docs/changes/harness-retro-2026-08-15-slice-platform-gate/retrospective.md` (`slice US-1 does not own a declared real platform boundary test; full-feature evidence is deferred.`). |
 | Fix | ✅ | 2026-08-15 16:21 +08 | `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh` all exited 0. Evidence: `✓ All Compose rules passed — 0 violations`, `✓ All localization rules passed — 0 violations`, and `✓ All architecture rules passed — 0 violations`. |
-| Update State | ✅ | 2026-08-15 16:23 +08 | `feature_list.json` records US-1 as `passing` with objective evidence for TC-US-1-01 through TC-US-1-05. Evidence: `"status": "passing"`; the tracker remains `In Progress` while US-2 and US-3 are not started. |
-| Clean Exit | ⏳ | — | Pending checklist and handoff. |
-| Install App To Device | ⏳ | — | Pending final install gate. |
+| Update State | ✅ | 2026-08-15 16:23 +08 | `feature_list.json` records US-1 as `passing` with objective evidence for TC-US-1-01 through TC-US-1-05. Evidence: `"status": "passing"`; delivery commit `940aa9d` passed the lifecycle gate. A callback-binding correction was committed as `3cf1e77` and reverified. |
+| Clean Exit | ✅ | 2026-08-15 16:30 +08 | Every clean-state item is recorded in `clean-state-checklist.md`; handoff is `session-handoff.md`. Evidence: `application line coverage: 80.3978%` and `NoteEditorViewModel` line coverage `94.6% (295/312)`. The only non-clean working-tree item is the externally advanced US-2 lifecycle state, deliberately preserved and documented. Selected slice summary is Complete. |
+| Install App To Device | ✅ | 2026-08-15 16:31 +08 | `./gradlew installDebug --console=plain` exited 0. Evidence: `Installed on 1 device.` for `Medium_Phone(AVD) - 13` (`emulator-5554`). |
 
 ## Key Decisions
 
@@ -34,4 +34,4 @@
 ## Open Items
 
 - US-1 acceptance tests cover the picker shell, read-only semantics, cursor/selection insertion, new paragraph fallback, and Unicode persistence. Catalog browsing, recents persistence, skin-tone choices, visual screenshots, and Android glyph evidence remain scoped to US-2/US-3.
-- `docs/product/product.md` was already modified before this session to place the tracker In Progress. It is intentionally preserved until US-1 verification permits its next update.
+- US-2 was externally advanced to `in_progress` during US-1 clean exit. It remains out of scope for this completed slice; US-3 still owns durable Recents, visual evidence, and real Android glyph validation.
