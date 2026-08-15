@@ -79,7 +79,7 @@ class EmojiPickerVisualFlowTest {
             "emoji_picker_sheet",
             useUnmergedTree = true
         ).fetchSemanticsNode().boundsInRoot.height
-        assertEquals(rootHeight / 3f, sheetHeight, 12f)
+        assertEquals(rootHeight * 2f / 5f, sheetHeight, 12f)
         captureVisualEvidence("notesapp_emoji_picker_content_light")
     }
 

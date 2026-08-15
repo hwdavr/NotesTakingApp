@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -37,15 +38,20 @@ class EmojiPickerLifecycleTest {
     val activityRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun closeButtonDismissesSheetWithoutChangingDocument() {
+    fun pickerOmitsTitleAndHeaderCloseButton() {
         renderActivityContent()
         openPicker(activityRule)
 
-        activityRule.onNodeWithTag("emoji_picker_close").performClick()
-        activityRule.waitForIdle()
-
-        assertSheetDismissed(activityRule)
-        assertDocumentUnchanged(activityRule)
+        assertTrue(
+            activityRule.onAllNodesWithText("Emoji", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
+        assertTrue(
+            activityRule.onAllNodesWithTag("emoji_picker_close", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
     }
 
     @Test

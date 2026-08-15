@@ -149,8 +149,6 @@
     <string name="editor_mention_description">Mention</string>
     <string name="editor_emoticon_description">Insert emoticon</string>
     <string name="emoji_picker_read_only_description">Emoji insertion is unavailable in a read-only note.</string>
-    <string name="emoji_picker_title">Emoji</string>
-    <string name="emoji_picker_close_description">Close emoji picker</string>
     <string name="emoji_picker_recent_category">Recent</string>
     <string name="emoji_picker_category_smileys_emotion">Smileys &amp; Emotion</string>
     <string name="emoji_picker_category_people_body">People &amp; Body</string>

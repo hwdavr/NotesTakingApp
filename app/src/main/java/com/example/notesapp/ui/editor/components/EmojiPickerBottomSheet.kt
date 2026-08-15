@@ -77,7 +77,7 @@ fun EmojiPickerBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = Modifier
-            .fillMaxHeight(1f / 3f)
+            .fillMaxHeight(2f / 5f)
             .testTag("emoji_picker_sheet"),
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
@@ -91,7 +91,6 @@ fun EmojiPickerBottomSheet(
                 .padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            EmojiPickerHeader(onDismiss = onDismiss)
             EmojiPickerSearchField(
                 query = uiState.query,
                 onQueryChange = onQueryChange,
@@ -109,35 +108,6 @@ fun EmojiPickerBottomSheet(
                 onSkinToneDismissed = onSkinToneDismissed,
                 onClearQuery = onClearQuery,
                 modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmojiPickerHeader(onDismiss: () -> Unit) {
-    val colors = LocalAppColors.current
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.emoji_picker_title),
-            color = colors.textPrimary,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(
-            onClick = onDismiss,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("emoji_picker_close")
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Close,
-                contentDescription = stringResource(R.string.emoji_picker_close_description),
-                tint = colors.textPrimary
             )
         }
     }
