@@ -105,7 +105,7 @@ data class EmojiCatalogItem(
     fun matchesQuery(query: String): Boolean {
         val normalizedQuery = query.trim().lowercase(Locale.ROOT)
         if (normalizedQuery.isEmpty()) return true
-        return nameKey.searchLabel.contains(normalizedQuery) ||
+        return nameKey.searchLabel.lowercase(Locale.ROOT).contains(normalizedQuery) ||
             keywords.any { keyword -> keyword.lowercase(Locale.ROOT).contains(normalizedQuery) }
     }
 }

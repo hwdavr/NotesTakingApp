@@ -24,9 +24,11 @@ class FindEmojiCatalogUseCaseTest {
     @Test
     fun matchesEmojiNamesAndKeywords() {
         val nameMatch = useCase(EmojiCategory.RECENT, query = "rocket")
+        val caseInsensitiveNameMatch = useCase(EmojiCategory.RECENT, query = "EUROPE")
         val keywordMatch = useCase(EmojiCategory.RECENT, query = "launch")
 
         assertEquals(listOf("rocket"), nameMatch.map { it.id })
+        assertEquals(listOf("globe_showing_europe_africa"), caseInsensitiveNameMatch.map { it.id })
         assertEquals(listOf("rocket"), keywordMatch.map { it.id })
     }
 
