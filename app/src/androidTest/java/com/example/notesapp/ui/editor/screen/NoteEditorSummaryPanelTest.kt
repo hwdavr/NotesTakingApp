@@ -88,6 +88,7 @@ class NoteEditorSummaryPanelTest {
                 onToggleMark = { _, _ -> },
                 onAddParagraph = {},
                 onAddImage = {},
+                onEmojiSelected = {},
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },

@@ -218,7 +218,7 @@ fun NoteEditorScreenContent(
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
-    onEmojiSelected: (String) -> Unit = {},
+    onEmojiSelected: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -1365,16 +1365,16 @@ private fun ReadOnlyEmojiBottomBar() {
             .testTag("editor_read_only_bottom_bar"),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        EmojiInsertionControl(onOpenEmojiPicker = {}, isEditable = false)
+        EmojiInsertionControl(onOpenEmojiPicker = null, isEditable = false)
     }
 }
 
 @Composable
-private fun EmojiInsertionControl(onOpenEmojiPicker: () -> Unit, isEditable: Boolean) {
+private fun EmojiInsertionControl(onOpenEmojiPicker: (() -> Unit)?, isEditable: Boolean) {
     val colors = LocalAppColors.current
     EditorBarButton(
-        onClick = onOpenEmojiPicker,
-        enabled = isEditable,
+        onClick = { onOpenEmojiPicker?.invoke() },
+        enabled = isEditable && onOpenEmojiPicker != null,
         width = 48.dp,
         modifier = Modifier.testTag("editor_insert_emoji")
     ) {

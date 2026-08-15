@@ -72,6 +72,7 @@ class NoteEditorSelectionFormattingTest {
                 },
                 onAddParagraph = {},
                 onAddImage = {},
+                onEmojiSelected = {},
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
