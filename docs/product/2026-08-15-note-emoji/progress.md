@@ -6,7 +6,7 @@
 - Standard startup path: Existing Note Editor → editable note → existing Insert emoticon toolbar control.
 - Standard verification path: JVM unit/integration tests, focused Android Compose instrumented tests on `emulator-5554`, then the declared visual and platform evidence commands.
 - Current highest-priority unfinished feature: None within Note Emoji; the evaluator fix pass is complete and all three slices remain `passing`.
-- Current blocker: None. All required code/test findings are fixed; the feature is routed to human review after 94/94 connected tests, full JVM gates, quality checks, coverage, platform evidence, lifecycle, and visual captures passed.
+- Current blocker: None. All required code/test findings and the user-approved UI/catalog refinement are fixed; the feature is routed to human review after 94/94 connected tests, full JVM gates, quality checks, 83.4701% coverage, platform evidence, lifecycle, and visual captures passed.
 
 ## Planned Dependency Order
 
@@ -71,3 +71,14 @@
 - Commits: `54e0749` (`fix(note-emoji): resolve evaluator findings`) plus the final fix-pass evidence commit.
 - Known risk or unresolved issue: No unresolved code or test finding. The callable Skill tool was not exposed in this session; repository skill procedures were followed from the source files and this limitation is documented in the handoff.
 - Next best step: Human review of the routed feature; do not select a new slice or change any slice status.
+
+### Session 006 — User-requested picker refinement
+
+- Date: 2026-08-15
+- Goal: Reduce the Emoji title’s top margin, constrain the picker to one-third of the screen, and add more emojis to every category.
+- Completed: Added the compact sheet surface and scrollable results region; removed the extra title top inset; added three localized Unicode entries to each of the nine browse categories; updated the design exception and category-count regression test; made compact search verification close the test IME before scrolling.
+- Verification run: `./gradlew assembleDebug`, `./gradlew testDebugUnitTest`, `./gradlew koverLog` (83.4701%), `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lint`, Compose/localization/architecture checks, platform-evidence evaluation, focused visual geometry test, and final full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` (94/94) all passed.
+- Evidence and report updates: `design.md`, `feature_list.json`, both evaluator reports, `summary_note-emoji.md`, this progress log, `session-handoff.md`, `clean-state-checklist.md`, and the product tracker record the final UI/catalog behavior.
+- Commit: `246805c` (`fix(note-emoji): compact picker and expand catalog`).
+- Known risk or unresolved issue: None within the approved feature or explicit user refinement. The callable Skill tool was unavailable; repository skill procedures were followed from source files and remain documented in the handoff.
+- Next best step: Human review; do not select a new slice or change any slice status.

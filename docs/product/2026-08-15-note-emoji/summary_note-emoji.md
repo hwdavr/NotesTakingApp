@@ -12,11 +12,11 @@
 | Fix-Stage 1 — Orient | ✅ | 2026-08-15 19:26 +0800 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “No slice is being selected or transitioned; `US-1`, `US-2`, and `US-3` remain `passing`.” |
 | Fix-Stage 2 — Setup | ✅ | 2026-08-15 19:27 +0800 | `docs/product/2026-08-15-note-emoji/platform-capability-matrix.md` plus `adb devices -l` — “`emulator-5554` is connected.” |
 | Fix-Stage 3 — Verify Baseline | ✅ | 2026-08-15 19:28 +0800 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “`./gradlew assembleDebug` exit 0; `./gradlew testDebugUnitTest` exit 0.” |
-| Fix-Stage 4 — Fix Findings & Update Report Status | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/code_review_note-emoji.md` — “**Fix Status:** Fixed ✅”; `test_review_note-emoji.md` — “15/15 `Fixed ✅`.” |
-| Fix-Stage 5 — Re-verify | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/feature_list.json` — “94/94 connected tests passed” and platform/visual evidence exit 0. |
-| Fix-Stage 6 — Update State | ✅ | 2026-08-15 | `docs/product/product.md` — “To be human reviewed … Fix pass applied; re-verification evidence attached; 10/10 findings fixed.”; lifecycle check exit 0. |
-| Fix-Stage 7 — Clean Exit | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/clean-state-checklist.md` — “all required evaluator findings are fixed, verification evidence is attached, and the feature is ready for human review”; `git status --short` is clean; lifecycle check reports 0 in progress. |
-| Fix-Stage 8 — Install App To Device | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “`env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` exit 0; APK installed on 1 device.” |
+| Fix-Stage 4 — Fix Findings & Update Report Status | ✅ | 2026-08-15 | `code_review_note-emoji.md` — “**Fix Status:** Fixed ✅”; `test_review_note-emoji.md` — “15/15 `Fixed ✅`”; user-approved compact UI/catalog refinement is in `246805c`. |
+| Fix-Stage 5 — Re-verify | ✅ | 2026-08-15 | `feature_list.json` — “94/94 connected tests passed”; coverage is 83.4701%; platform/visual evidence exit 0; one-third-height geometry assertion passed. |
+| Fix-Stage 6 — Update State | ✅ | 2026-08-15 | `docs/product/product.md` — “To be human reviewed … compact one-third-height picker and expanded catalog applied”; lifecycle check exit 0. |
+| Fix-Stage 7 — Clean Exit | ✅ | 2026-08-15 | `clean-state-checklist.md` — “all required evaluator findings and user-approved UI refinement are fixed”; `git status --short` is clean; lifecycle check reports 0 in progress. |
+| Fix-Stage 8 — Install App To Device | ✅ | 2026-08-15 | `summary_note-emoji.md` — “`env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` exit 0; compact picker APK installed on 1 device.” |
 
 ## Fix Pass
 
@@ -24,7 +24,7 @@ Each item is deduplicated across `code_review_note-emoji.md` and `test_review_no
 
 | ID | Root-cause finding | Report traceability | Status |
 |---|---|---|---|
-| F-01 | Remove the five silent no-op picker callback defaults and make every production call site explicit. | `code_review_note-emoji.md`, Required Findings 1; State Completion Audit “No-op default callbacks”. | Fixed ✅ — `54e0749`; compile/full UI gates pass. |
+| F-01 | Remove the five silent no-op picker callback defaults and make every production call site explicit. | `code_review_note-emoji.md`, Required Findings 1; State Completion Audit “No-op default callbacks”. | Fixed ✅ — `246805c` final verification; compile/full UI gates pass. |
 | F-02 | Render a localized recoverable catalog-error / empty-category state and test catalog failure recovery. | `code_review_note-emoji.md`, Required Findings 2 / Architecture Rule 2.4; test report recovery row. | Fixed ✅ — catalog-error UI test and full connected suite pass. |
 | F-03 | Replace generic category/item/variant tags with stable unique IDs matching the approved convention, and cover the convention in tests. | `code_review_note-emoji.md`, Required Findings 3 / Compose Rule 3.3; test report NFR row. | Fixed ✅ — dynamic-tag rule script passes. |
 | F-04 | Add a production screen-wiring test covering default and skin-tone selection through `NoteEditorViewModel.insertEmoji` and Recent recording, including the picker/cursor outcome. | Code/test traceability FR-004/005/007 and AC-US-1/2 rows. | Fixed ✅ — focused production test and full connected suite pass. |
@@ -34,6 +34,8 @@ Each item is deduplicated across `code_review_note-emoji.md` and `test_review_no
 | F-08 | Add a missing-glyph code-point preservation test with a test-backed fallback rationale. | Code/test missing-glyph rows. | Fixed ✅ — `EmojiPickerPlatformTest` platform class 3/3 pass. |
 | F-09 | Add runtime accessibility/layout coverage for stable semantics under RTL and enlarged font settings, without weakening the approved design contract. | Code/test NFR accessibility rows; `design.md` tag convention. | Fixed ✅ — RTL/1.5x test and rule checks pass. |
 | F-10 | Reconcile all harness artifacts and evidence claims with the fixed behavior, including feature evidence, progress, handoff, and clean-state checklist. | This summary, `feature_list.json`, `progress.md`, `session-handoff.md`, `clean-state-checklist.md`. | Fixed ✅ — artifacts updated and final lifecycle check recorded in Stage 6. |
+| F-11 | Reduce the Emoji title top inset and constrain the picker to one-third screen height while keeping the results region usable. | User follow-up; `design.md`; `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme`. | Fixed ✅ — `246805c`; runtime geometry assertion and full connected suite pass. |
+| F-12 | Add more Unicode emoji to every browse category without changing persistence or insertion contracts. | User follow-up; `FindEmojiCatalogUseCaseTest#returnsEveryApprovedCategory`; `feature_list.json`. | Fixed ✅ — `246805c`; every category has the expanded expected count and full JVM/connected suites pass. |
 
 ## Knowledge Artifacts
 
@@ -49,5 +51,5 @@ Each item is deduplicated across `code_review_note-emoji.md` and `test_review_no
 
 ## Open Items
 
-- No code or test findings remain unresolved. Human review is the next required gate.
+- No code or test findings remain unresolved. The user-approved UI/catalog refinement is also verified. Human review is the next required gate.
 - The callable Skill tool was not exposed in this session; the relevant repository skill procedures will be followed from their source files and this limitation will remain documented in the final handoff.

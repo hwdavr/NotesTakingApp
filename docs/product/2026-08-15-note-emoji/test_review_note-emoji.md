@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Feature / slice | `note-emoji` / US-1, US-2, and US-3; final submitted feature state |
-| Current fix commit | `54e0749` (`fix(note-emoji): resolve evaluator findings`) |
+| Current fix commit | `246805c` (`fix(note-emoji): compact picker and expand catalog`) |
 | Baselines reviewed | `docs/product/2026-08-15-note-emoji/spec.md`, `sprint-contract.md`, `feature_list.json`, `platform-capability-matrix.md`, `progress.md`, `session-handoff.md`, `summary_US-1.md`, `summary_US-2.md`, `summary_US-3.md`, `.agents/rules/testing-strategy.md`, `docs/templates/test-review-template.md` |
 | Changed production files reviewed | `EmojiCatalog.kt`, `BundledEmojiCatalogRepository.kt`, `DataStoreRecentEmojiRepository.kt`, three emoji use cases, `EmojiPickerUiModel.kt`, `EmojiPickerUiMapper.kt`, `EmojiPickerViewModel.kt`, `EmojiPickerBottomSheet.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `AppModule.kt` |
 | Changed test files reviewed | `NoteEditorEmojiPickerTest.kt`, `EmojiPickerPlatformTest.kt`, `EmojiPickerVisualFlowTest.kt`, `NoteEditorViewModelEmojiTest.kt`, `NoteEmojiPersistenceIntegrationTest.kt`, `FindEmojiCatalogUseCaseTest.kt`, `EmojiPickerUiMapperTest.kt`, `DataStoreRecentEmojiRepositoryTest.kt`, `RecentEmojiUseCaseTest.kt`, `EmojiPickerViewModelTest.kt` |
@@ -27,13 +27,15 @@ The generator's earlier evidence is retained for provenance. The fix-pass result
 
 ### Stage 4 Independent Replay
 
-The following fix-pass commands were executed on `54e0749` using `emulator-5554` (`sdk_gphone64_arm64`, API 33).
+The final fix-pass commands were executed on `246805c` using `emulator-5554` (`sdk_gphone64_arm64`, API 33).
 
 | Command | Exit code | Result |
 |---|---:|---|
 | `./gradlew testDebugUnitTest --rerun-tasks` | 0 | Fresh JVM/unit + integration suite passed; 36 Gradle tasks executed; `BUILD SUCCESSFUL`. |
-| `./gradlew koverLog` | 0 | Application line coverage `82.7233%`; `BUILD SUCCESSFUL`. |
+| `./gradlew koverLog` | 0 | Application line coverage `83.4701%`; `BUILD SUCCESSFUL`. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` | 0 | 94/94 connected tests passed, 0 skipped/failed; `BUILD SUCCESSFUL`. |
+| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest` | 0 | 8/8 production picker tests passed, including compact search recovery after closing the test IME. |
+| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest` | 0 | 4/4 visual/runtime tests passed; content test asserts the sheet is one-third of the Compose root height. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime` | 0 | Declared real Android glyph boundary test passed; 1/1 test completed. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` plus pull/size check | 0 | Fix-pass screenshot pulled to `visual_evidence/emoji_picker_content_light.png` (217352 bytes). |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` plus pull/size check | 0 | Fix-pass screenshot pulled to `visual_evidence/emoji_read_only_light.png` (46211 bytes). |
@@ -92,8 +94,9 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 
 - Traceability rows originally marked `REVISION REQUIRED` or missing evidence: 15/15 `Fixed ✅`.
 - Fixed evidence groups: Recent read failure, production default/variant insertion chain, share/sync/Markdown/PDF mapping, close/scrim/back/recreation, missing-glyph preservation, immutable dynamic tags, and RTL/font-scale traversal.
+- User-approved UI refinement: the Emoji title top inset is reduced, the sheet is constrained to one-third of the root height, the compact results region scrolls, and every browse category now has three additional catalog entries.
 - Unresolved rows: 0.
-- Verification: `assembleDebug`, `testDebugUnitTest`, `koverLog` (82.7233%), `ktlintCheck`, `detekt`, `lint`, all rule scripts, platform-evidence evaluation, and full `connectedDebugAndroidTest` (94/94) exited 0.
+- Verification: `assembleDebug`, `testDebugUnitTest`, `koverLog` (83.4701%), `ktlintCheck`, `detekt`, `lint`, all rule scripts, platform-evidence evaluation, and full `connectedDebugAndroidTest` (94/94) exited 0.
 
 ## Test Quality Findings
 
@@ -119,7 +122,7 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 
 | Scope / class | Coverage | Branches or requirements not proven | Result |
 |---|---:|---|---|
-| Overall project | 82.7233% line | Above 80% threshold; downstream, failure, and lifecycle boundaries are separately covered below. | PASS |
+| Overall project | 83.4701% line | Above 80% threshold; downstream, failure, lifecycle, and compact-layout boundaries are separately covered below. | PASS |
 | `EmojiPickerViewModel` | 100% line; 87.5% branch | Recent failure and insertion behavior are covered by targeted tests; branch percentage remains a report metric, not an unresolved requirement. | PASS |
 | `FindEmojiCatalogUseCase` | 100% line; 90% branch | Catalog query branches covered. | PASS |
 | `ObserveRecentEmojiUseCase` | 100% line | Repository failure is covered at the repository/ViewModel boundary. | PASS |
@@ -137,4 +140,4 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 
 ## Verdict
 
-**APPROVED FOR HUMAN REVIEW / FIX PASS COMPLETE** — All 14 previously revision-required or missing-evidence traceability rows are marked `Fixed ✅`, with no unresolved findings. The sprint-contract gates and real Android boundary checks pass.
+**APPROVED FOR HUMAN REVIEW / FIX PASS COMPLETE** — All 15 previously revision-required or missing-evidence traceability rows are marked `Fixed ✅`, with no unresolved findings. The compact UI/catalog refinement, sprint-contract gates, and real Android boundary checks pass.

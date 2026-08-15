@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass applied; re-verification evidence attached; 10/10 findings fixed. Reports record 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows fixed; full JVM, 94/94 connected, quality, coverage, platform, lifecycle, and visual gates pass. |
+| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass plus user-requested UI refinement `246805c` applied: reduced Emoji title inset, one-third-height sheet, and three additional emojis per category. Reports record 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows fixed; full JVM, 94/94 connected, 83.4701% coverage, quality, platform, lifecycle, and visual gates pass. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 <!-- HARNESS_TRACKER_END -->
 
@@ -64,7 +64,7 @@ Lifecycle rules:
 | Note Actions Sheet | ✅ Done | Bottom sheet for quick actions: move to folder, export, delete, favorite. |
 | Document Block Structure | ✅ Done | Modular note document model for structured content blocks. |
 | Emoji insertion foundation (US-1) | ✅ Slice done | Existing editor control opens a localized picker for editable notes, inserts Unicode at the cursor/range or a new paragraph, and stays disabled for read-only notes. |
-| Emoji discovery catalog (US-2) | ✅ Slice done | App-bundled Unicode catalog covers nine approved categories with localized name/keyword search, clearable empty states, and exact default plus five skin-tone variants; selection reuses the editor insertion path and keeps the sheet open. |
+| Emoji discovery catalog (US-2) | ✅ Slice done | Expanded app-bundled Unicode catalog covers nine approved categories with three additional localized entries per category, localized name/keyword search, clearable empty states, and exact default plus five skin-tone variants; selection reuses the editor insertion path and keeps the compact one-third-height sheet open. |
 | Emoji Recent persistence and runtime validation (US-3) | ✅ Slice done | Exact inserted Unicode, including skin-tone variants, is stored as a bounded local MRU and restored after repository/app recreation with an empty fallback on read failure; the shipped picker has real Android glyph evidence and approved content, read-only, and empty-search visual captures. |
 
 ### ✅ Folder & Collection Management
@@ -147,7 +147,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | ✅ Shipped | Text editing, document blocks, summary cards, action sheets, and the complete emoji path: Unicode insertion, nine-category searchable catalog, exact skin-tone variants, bounded durable Recents, real Android glyph validation, and final visual evidence |
+| **Note Editor** | ✅ Shipped | Text editing, document blocks, summary cards, action sheets, and the complete emoji path: Unicode insertion, expanded nine-category searchable catalog, compact one-third-height picker, exact skin-tone variants, bounded durable Recents, real Android glyph validation, and final visual evidence |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |

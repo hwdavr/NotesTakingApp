@@ -8,7 +8,7 @@
 
 | Item | Value |
 |---|---|
-| Current fix commit | `54e0749` |
+| Current fix commit | `246805c` (`fix(note-emoji): compact picker and expand catalog`) |
 | Merge base / prior reviewed commit | `6723a7cc5c18275fc22219dc832cf2f32a5866f5` (before US-1 implementation) |
 | Baselines reviewed | `spec.md`, `sprint-contract.md`, `feature_list.json`, `platform-capability-matrix.md`, `design.md`, `test_review_note-emoji.md`, all three slice summaries and the active design system |
 | Changed production files reviewed | Emoji catalog/data/domain/recent files; `EmojiPickerBottomSheet.kt`, `EmojiPickerUiMapper.kt`, `EmojiPickerUiModel.kt`, `EmojiPickerViewModel.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `AppModule.kt`, and the existing note document/save/export surfaces they depend on |
@@ -19,16 +19,20 @@
 ## Required Findings
 
 1. **Required — production no-op defaults**: `NoteEditorScreenContent` previously allowed five picker callbacks to default to `{}`, which could silently disable required interactions.
-> **Fix Status:** Fixed ✅ — Removed all five production callback defaults and supplied explicit callbacks at every call site (commit `54e0749`; verified: `./gradlew ktlintCheck` exit 0; 2026-08-15).
+> **Fix Status:** Fixed ✅ — Removed all five production callback defaults and supplied explicit callbacks at every call site (original fix `54e0749`; final verification commit `246805c`; verified: `./gradlew ktlintCheck` and full connected suite exit 0; 2026-08-15).
 
 2. **Required — catalog error state is not rendered**: The picker previously exposed catalog-error and empty-category state without rendering a recoverable UI.
-> **Fix Status:** Fixed ✅ — Added localized catalog-error and category-empty recovery panels and verified the recoverable state in the real Android picker test (commit `54e0749`; verified: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest` exit 0; 2026-08-15).
+> **Fix Status:** Fixed ✅ — Added localized catalog-error and category-empty recovery panels and verified the recoverable state in the real Android picker test (original fix `54e0749`; final verification commit `246805c`; verified: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest` exit 0; 2026-08-15).
 
 3. **Required — testability contract deviation**: Category, item, and skin-tone controls previously used generic tags instead of the approved immutable-ID convention.
-> **Fix Status:** Fixed ✅ — Added stable `emoji_category_<id>`, `emoji_picker_item_<id>`, `emoji_skin_tone_selector_<id>`, and variant tags, and documented the approved convention (commit `54e0749`; verified: `bash scripts/check-compose-rules.sh` exit 0; 2026-08-15).
+> **Fix Status:** Fixed ✅ — Added stable `emoji_category_<id>`, `emoji_picker_item_<id>`, `emoji_skin_tone_selector_<id>`, and variant tags, and documented the approved convention (original fix `54e0749`; final verification commit `246805c`; verified: `bash scripts/check-compose-rules.sh` exit 0; 2026-08-15).
 
 4. **Testing findings** are detailed in `test_review_note-emoji.md`.
-> **Fix Status:** Fixed ✅ — Added failure-injection, production wiring, downstream export, lifecycle, missing-glyph, and accessibility-boundary evidence (commit `54e0749`; verified: full JVM and connected suites exit 0; 2026-08-15).
+> **Fix Status:** Fixed ✅ — Added failure-injection, production wiring, downstream export, lifecycle, missing-glyph, and accessibility-boundary evidence (original fix `54e0749`; final verification commit `246805c`; verified: full JVM and connected suites exit 0; 2026-08-15).
+
+### User-approved UI refinement
+
+> **Fix Status:** Fixed ✅ — Reduced the Emoji title’s top inset, constrained the picker surface to one-third of the root height, made the results region scroll within that compact surface, and added three catalog entries to every browse category. Verified by `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` geometry assertion and the full `NoteEditorEmojiPickerTest`/connected suite (commit `246805c`; 2026-08-15).
 
 ## Requirement-to-Production Traceability
 
@@ -71,32 +75,33 @@
 
 | Check | Exit code | Timestamp / commit | Provenance | Result | Failure detail / scope |
 |---|---:|---|---|---|---|
-| `assembleDebug` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | Build successful. |
-| `testDebugUnitTest` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | Full JVM/unit + integration suite green. |
-| `koverLog` overall | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ 82.7233% ≥ 80% | Aggregate threshold passes. |
-| `koverLog` new classes | 0 | 2026-08-15 / `54e0749` | HTML class report | ✅ ViewModel/use-case/repository line coverage ≥90% | `EmojiPickerViewModel` 100% line; `FindEmojiCatalogUseCase` 100%; `DataStoreRecentEmojiRepository` 100%. |
-| `connectedDebugAndroidTest` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification on emulator-5554 | ✅ 94/94 | 0 skipped/failed; `BUILD SUCCESSFUL`. |
-| `ktlintCheck` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | No style violations. |
-| `detekt` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | No active findings. |
-| `lint` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | Android Lint green. |
-| `bash scripts/check-compose-rules.sh` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | 0 violations; approved immutable-ID dynamic tags are enforced. |
-| `bash scripts/check-localization-rules.sh` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | 0 violations. |
-| `bash scripts/check-architecture-rules.sh` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | 0 violations and no new suppressions. |
-| `bash scripts/check-platform-evidence.sh ... --evaluate` | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | Matrix and real platform boundary evidence present. |
-| Suppression/diff audit | 0 | 2026-08-15 / `54e0749` | Fix-pass verification | ✅ PASS | `git diff --check` and source scan found no new suppression/ignore/baseline directives. |
+| `assembleDebug` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Build successful. |
+| `testDebugUnitTest` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Full JVM/unit + integration suite green. |
+| `koverLog` overall | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ 83.4701% ≥ 80% | Aggregate threshold passes. |
+| `koverLog` new classes | 0 | 2026-08-15 / `246805c` | HTML class report | ✅ ViewModel/use-case/repository line coverage ≥90% | Existing fix-pass class evidence remains green; catalog additions are covered by the expanded category-count test. |
+| `connectedDebugAndroidTest` | 0 | 2026-08-15 / `246805c` | Fix-pass verification on emulator-5554 | ✅ 94/94 | 0 skipped/failed; `BUILD SUCCESSFUL`. |
+| `ktlintCheck` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | No style violations. |
+| `detekt` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | No active findings. |
+| `lint` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Android Lint green. |
+| `bash scripts/check-compose-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations; approved immutable-ID dynamic tags are enforced. |
+| `bash scripts/check-localization-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations. |
+| `bash scripts/check-architecture-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations and no new suppressions. |
+| `bash scripts/check-platform-evidence.sh ... --evaluate` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Matrix and real platform boundary evidence present. |
+| Suppression/diff audit | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | `git diff --check` and source scan found no new suppression/ignore/baseline directives. |
 
-### Stage 4 Runtime Replay
+### Final Runtime Replay — `246805c`
 
 | Boundary | Exit code | Fresh evidence |
 |---|---:|---|
 | `EmojiPickerPlatformTest` full class on `emulator-5554` / API 33 | 0 | 3/3 real Android platform tests passed, including missing-glyph and Markdown/PDF boundaries. |
 | `EmojiPickerLifecycleTest` full class | 0 | 4/4 real Android close, scrim, back, and saved-state tests passed. |
 | `EmojiPickerVisualFlowTest` full class | 0 | 4/4 tests passed, including RTL and 1.5x font scale. |
-| `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | `visual_evidence/emoji_picker_content_light.png`, 217352 bytes. |
+| `NoteEditorEmojiPickerTest` full class | 0 | 8/8 production picker tests passed; compact search validation closes the IME before scrolling the one-third-height results region. |
+| `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | `visual_evidence/emoji_picker_content_light.png`, 217352 bytes; the test also asserts the sheet is one-third of the Compose root height. |
 | `EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` | 0 | `visual_evidence/emoji_read_only_light.png`, 46211 bytes. |
 | `EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme` | 0 | `visual_evidence/emoji_empty_search_light.png`, 78476 bytes. |
 
-The full connected suite passed 94/94 with no skips or failures. These fix-pass results close the required code and test findings above.
+The full connected suite passed 94/94 with no skips or failures. These final results close the required code/test findings and the user-approved UI/catalog refinement.
 
 ## Compose Rules Enforcement
 
@@ -220,7 +225,7 @@ The full connected suite passed 94/94 with no skips or failures. These fix-pass 
 
 ## Verdict
 
-> **Fix Pass:** 4/4 required findings fixed; 0 unresolved (2026-08-15).
+> **Fix Pass:** 4/4 required findings fixed; 0 unresolved. Final UI/catalog refinement verified in `246805c` (2026-08-15).
 
 **APPROVED FOR HUMAN REVIEW** — The implementation and verification evidence now satisfy the sprint-contract acceptance gates, including the real Android platform boundary and full connected suite.
 

@@ -8,14 +8,14 @@ Date: 2026-08-15
 - [x] `code_review_note-emoji.md` records 4/4 required findings as `Fixed ✅`.
 - [x] `test_review_note-emoji.md` records 15/15 originally revision-required/missing rows as `Fixed ✅`; unresolved rows: 0.
 - [x] No implementation plan was regenerated and no lifecycle transition logic was rerun.
-- [x] Final source fix is in commit `54e0749`; final evidence/docs are in the follow-up fix-pass commit.
+- [x] Original evaluator fix is in `54e0749`; final compact-picker/catalog refinement is in `246805c`; final evidence/docs are in the follow-up documentation commit.
 
 ## Build and quality gates
 
 - [x] `./gradlew assembleDebug` — exit 0.
 - [x] `./gradlew checkDebugDuplicateClasses` — exit 0.
 - [x] `./gradlew testDebugUnitTest` — exit 0.
-- [x] `./gradlew koverLog` — exit 0; application line coverage `82.7233%` (≥80%).
+- [x] `./gradlew koverLog` — exit 0; application line coverage `83.4701%` (≥80%).
 - [x] Kover class evidence: `EmojiPickerViewModel` 100% line, `FindEmojiCatalogUseCase` 100% line, `DataStoreRecentEmojiRepository` 100% line; new ViewModel/use-case requirements meet the ≥90% line threshold.
 - [x] `./gradlew ktlintCheck` — exit 0.
 - [x] `./gradlew detekt` — exit 0.
@@ -31,6 +31,8 @@ Date: 2026-08-15
 - [x] Catalog-error and empty-category states render localized recovery copy.
 - [x] All five picker callbacks are required parameters with explicit behavior at every call site.
 - [x] Interactive elements retain stable `testTag`s; category/item/skin-tone tags use immutable IDs.
+- [x] Emoji title top inset is reduced; the picker surface is exactly one-third of the Compose root height and its results region remains scrollable.
+- [x] Every browse category has three additional localized Unicode emoji entries, covered by the expanded category-count regression test.
 
 ## Functional and boundary evidence
 
