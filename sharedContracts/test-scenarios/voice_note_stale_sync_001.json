@@ -1,0 +1,69 @@
+{
+  "id": "voice_note_stale_sync_001",
+  "description": "A successful voice-document update remains locally available when the following item list is stale.",
+  "apiMocks": [
+    {
+      "method": "PATCH",
+      "path": "/v1/notes/voice_placeholder/content",
+      "status": 200,
+      "response": {
+        "status": "success",
+        "item": {
+          "id": "voice_placeholder",
+          "userId": "auth0|voice",
+          "type": "note",
+          "parentId": null,
+          "name": "",
+          "content": "{\"blocks\":[{\"id\":\"voice_001\",\"type\":\"voice\"}]}",
+          "sortKey": "voice-sort",
+          "version": 2,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-08-15T09:00:00Z",
+          "updatedAt": "2026-08-15T09:00:02Z"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/items",
+      "status": 200,
+      "response": [
+        {
+          "id": "voice_placeholder",
+          "userId": "auth0|voice",
+          "type": "note",
+          "parentId": null,
+          "name": "",
+          "content": "",
+          "sortKey": "voice-sort",
+          "version": 1,
+          "deviceId": "test_device",
+          "lastSyncedVersion": 1,
+          "createdAt": "2026-08-15T09:00:00Z",
+          "updatedAt": "2026-08-15T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notes/voice_placeholder/content",
+      "status": 409,
+      "response": {
+        "message": "A newer server revision is already available."
+      }
+    }
+  ],
+  "expected": {
+    "domain": {
+      "noteId": "voice_placeholder",
+      "content": "{\"blocks\":[{\"id\":\"voice_001\",\"type\":\"voice\"}]}"
+    }
+  },
+  "tags": [
+    "voice",
+    "sync",
+    "stale-list",
+    "regression"
+  ]
+}

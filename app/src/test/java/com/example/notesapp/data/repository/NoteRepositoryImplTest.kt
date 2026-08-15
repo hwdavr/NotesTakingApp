@@ -92,13 +92,14 @@ class NoteRepositoryImplTest {
         )
         coEvery { dao.getNoteById(any()) } returns null
         coEvery { api.createNote(any()) } returns apiItem
+        coEvery { dao.insert(any()) } returns Unit
         coEvery { syncCoordinator.syncAll() } returns Unit
 
         repository.save(note)
 
         coVerify { api.createNote(match { it.name == "Title" && it.content == "Content" }) }
         coVerify { syncCoordinator.syncAll() }
-        coVerify(exactly = 0) { dao.insert(any()) }
+        coVerify { dao.insert(match { it.id == "n1" && it.content == "Content" && it.version == 1L }) }
     }
 
     @Test
@@ -130,6 +131,7 @@ class NoteRepositoryImplTest {
         coEvery { api.renameItem(any(), any()) } returns mutationResult
         coEvery { api.updateNoteContent(any(), any()) } returns mutationResult
         coEvery { api.moveItem(any(), any()) } returns mutationResult
+        coEvery { dao.insert(any()) } returns Unit
         coEvery { syncCoordinator.syncAll() } returns Unit
 
         repository.save(note)
@@ -138,7 +140,68 @@ class NoteRepositoryImplTest {
         coVerify { api.updateNoteContent("n1", match { it.content == "New" }) }
         coVerify { api.moveItem("n1", match { it.parentId == "f2" }) }
         coVerify { syncCoordinator.syncAll() }
-        coVerify(exactly = 0) { dao.insert(any()) }
+        coVerify { dao.insert(match { it.id == "n1" && it.content == "New" && it.version == 2L }) }
+    }
+
+    @Test
+    fun `save persists acknowledged voice document locally before syncing`() = runTest {
+        val existingEntity = NoteEntity(
+            id = "voice-placeholder",
+            title = "",
+            content = "",
+            folderId = null,
+            sortKey = "100",
+            version = 1,
+            deviceId = "device1",
+            lastSyncedVersion = 1,
+            isFavorite = false,
+            isShared = false,
+            createdAt = 1000L,
+            updatedAt = 1000L,
+            deletedAt = null
+        )
+        val voiceDocument = """{"blocks":[{"id":"voice_1","type":"voice"}]}"""
+        val note = Note(
+            id = "voice-placeholder",
+            title = "",
+            content = voiceDocument,
+            folderId = null,
+            sortKey = "100",
+            createdAt = 1000L,
+            updatedAt = 2000L
+        )
+        val acknowledgedItem = ApiItem(
+            id = "voice-placeholder",
+            userId = "u1",
+            type = "note",
+            parentId = null,
+            name = "",
+            content = voiceDocument,
+            sortKey = "100",
+            version = 2,
+            deviceId = "device1",
+            lastSyncedVersion = 2,
+            deletedAt = null,
+            createdAt = "2023-01-01T00:00:00Z",
+            updatedAt = "2023-01-01T00:00:02Z"
+        )
+        coEvery { dao.getNoteById("voice-placeholder") } returns existingEntity
+        coEvery { api.updateNoteContent(any(), any()) } returns MutationResultDto("success", acknowledgedItem)
+        coEvery { dao.insert(any()) } returns Unit
+        coEvery { syncCoordinator.syncAll() } returns Unit
+
+        repository.save(note)
+
+        coVerify {
+            dao.insert(
+                match {
+                    it.id == "voice-placeholder" &&
+                        it.content == voiceDocument &&
+                        it.version == 2L &&
+                        it.lastSyncedVersion == 2L
+                }
+            )
+        }
     }
 
     @Test

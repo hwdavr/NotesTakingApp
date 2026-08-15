@@ -38,7 +38,7 @@ class VoiceNoteEditorFlowTest {
     }
 
     @Test
-    fun playsAndSeeksInlineVoicePlayer() {
+    fun savedDocumentRoundTripPlaysAndSeeksInlineVoicePlayer() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         audioFile = File(context.filesDir, "voice-notes/editor-flow.m4a").apply {
             parentFile?.mkdirs()
@@ -57,7 +57,7 @@ class VoiceNoteEditorFlowTest {
         )
         var deletedBlockId: String? = null
 
-        val document = NoteDocument(
+        val savedDocument = NoteDocument(
             blocks = listOf(
                 block,
                 EditorBlock.TextBlock(
@@ -66,6 +66,7 @@ class VoiceNoteEditorFlowTest {
                 )
             )
         )
+        val document = NoteDocument.fromContent(savedDocument.toJsonString())
         composeRule.setContent {
             NoteEditorScreenContent(
                 parentPadding = PaddingValues(0.dp),

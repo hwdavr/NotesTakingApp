@@ -63,8 +63,9 @@ class EditorVoiceNoteInsertionTest {
             repository.save(
                 match { saved ->
                     val blocks = NoteDocument.fromContent(saved.content).blocks
+                    val voiceBlock = blocks.getOrNull(1) as? EditorBlock.Voice
                     blocks[0].id == "focus" &&
-                        blocks[1] is EditorBlock.Voice &&
+                        voiceBlock?.audioFilePath == "/private/vn_note-editor_voice-editor_1.m4a" &&
                         blocks[2] is EditorBlock.TextBlock &&
                         (blocks[2] as EditorBlock.TextBlock).text() == "Recorded transcript"
                 }

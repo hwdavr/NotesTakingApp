@@ -40,6 +40,16 @@ class RecordingTranscriptCoordinatorTest {
     }
 
     @Test
+    fun `stop commits the latest partial transcript when no final callback arrived`() {
+        coordinator.start(metadata)
+        recognizer.emit(TranscriptRecognitionEvent.Partial("session", 0, "Are you okay"))
+
+        val transcript = coordinator.stop()
+
+        assertEquals("Are you okay", transcript)
+    }
+
+    @Test
     fun `source unavailable and stale events do not corrupt active transcript`() {
         coordinator.start(metadata)
         recognizer.emit(TranscriptRecognitionEvent.AudioSourceUnavailable("session", "en-US"))

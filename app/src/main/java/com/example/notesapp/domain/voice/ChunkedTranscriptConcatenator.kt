@@ -30,6 +30,17 @@ class ChunkedTranscriptConcatenator {
 
     fun currentText(): String = committedText()
 
+    fun commitPartial(): String {
+        val chunkIndex = partialChunkIndex
+        val normalizedPartial = normalize(partialText)
+        if (chunkIndex != null && normalizedPartial.isNotBlank()) {
+            committedChunks[chunkIndex] = normalizedPartial
+        }
+        partialChunkIndex = null
+        partialText = ""
+        return committedText()
+    }
+
     fun currentPartialText(): String = partialText
 
     fun previewText(): String = preview()

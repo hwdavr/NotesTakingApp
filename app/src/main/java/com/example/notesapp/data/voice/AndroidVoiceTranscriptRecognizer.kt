@@ -124,6 +124,7 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
             putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING, source.encoding)
             putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, source.sampleRateHertz)
             putExtra(RecognizerIntent.EXTRA_SEGMENTED_SESSION, RecognizerIntent.EXTRA_AUDIO_SOURCE)
+            putExtra(RecognizerIntent.EXTRA_ENABLE_FORMATTING, RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY)
         }
         listening = true
         sourceFed = true

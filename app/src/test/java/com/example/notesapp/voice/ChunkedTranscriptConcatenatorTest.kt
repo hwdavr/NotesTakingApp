@@ -26,6 +26,17 @@ class ChunkedTranscriptConcatenatorTest {
     }
 
     @Test
+    fun `commit partial promotes the latest partial to committed text`() {
+        val concatenator = ChunkedTranscriptConcatenator()
+
+        concatenator.appendPartial(0, "Are you okay")
+
+        assertEquals("Are you okay", concatenator.commitPartial())
+        assertEquals("", concatenator.currentPartialText())
+        assertEquals("Are you okay", concatenator.currentText())
+    }
+
+    @Test
     fun `boundary fragments prefer the complete word from the next chunk`() {
         val concatenator = ChunkedTranscriptConcatenator()
 

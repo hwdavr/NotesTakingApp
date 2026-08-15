@@ -79,13 +79,14 @@ class RecordingTranscriptCoordinator @Inject constructor(
     override fun stop(): String {
         watchdogJob?.cancel()
         recognizer.stop()
+        val transcript = concatenator.commitPartial()
         val current = mutableState.value
         mutableState.value = current.copy(
-            committedText = concatenator.currentText(),
+            committedText = transcript,
             partialText = "",
             status = TranscriptSessionStatus.Completed
         )
-        return concatenator.currentText()
+        return transcript
     }
 
     override fun cancel() {

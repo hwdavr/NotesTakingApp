@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +52,11 @@ class VoiceTranscriptionFailureReproductionTest {
         assertTrue(
             "The recognizer started a microphone-only intent instead of using the recording source",
             intentSlot.captured.hasExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE)
+        )
+        assertEquals(
+            "The recognizer did not request automatic punctuation/formatting",
+            RecognizerIntent.FORMATTING_OPTIMIZE_QUALITY,
+            intentSlot.captured.getStringExtra(RecognizerIntent.EXTRA_ENABLE_FORMATTING)
         )
         adapter.stop()
         registry.remove("session")

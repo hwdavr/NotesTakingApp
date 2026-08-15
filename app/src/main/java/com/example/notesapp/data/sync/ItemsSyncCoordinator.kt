@@ -3,6 +3,7 @@ package com.example.notesapp.data.sync
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.FolderEntity
 import com.example.notesapp.data.local.NoteDao
+import com.example.notesapp.data.local.NoteEntity
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.UpdateItemContentRequest
 import com.example.notesapp.data.remote.UpdateNoteContentRequest
@@ -12,6 +13,7 @@ import com.example.notesapp.util.DeviceIdProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -28,12 +30,14 @@ class ItemsSyncCoordinator @Inject constructor(
         val initialItems = api.listItems(includeDeleted = true)
         var hasUpdates = false
         val retainedLocalFolders = mutableMapOf<String, FolderEntity>()
+        val retainedLocalNotes = mutableMapOf<String, NoteEntity>()
+        val localActiveNotesById = noteDao.getActiveNotes().first().associateBy { it.id }
         for (apiItem in initialItems) {
             if (apiItem.type == "note") {
-                val localNote = noteDao.getNoteById(apiItem.id)
+                val localNote = localActiveNotesById[apiItem.id]
                 if (localNote != null && localNote.version > apiItem.version) {
                     try {
-                        api.updateNoteContent(
+                        val acknowledgedItem = api.updateNoteContent(
                             localNote.id,
                             UpdateNoteContentRequest(
                                 content = localNote.content,
@@ -41,11 +45,12 @@ class ItemsSyncCoordinator @Inject constructor(
                                 lastSyncedVersion = apiItem.version
                             )
                         )
+                        retainedLocalNotes[localNote.id] = acknowledgedItem.item.toNoteEntity()
                         hasUpdates = true
                     } catch (e: CancellationException) {
                         throw e
                     } catch (ignored: Exception) {
-                        // Keep local version for next sync if API call fails
+                        retainedLocalNotes[localNote.id] = localNote
                     }
                 }
             } else if (apiItem.type == "folder") {
@@ -73,7 +78,15 @@ class ItemsSyncCoordinator @Inject constructor(
         val folders = items
             .filter { it.type == "folder" }
             .map { apiItem -> retainedLocalFolders[apiItem.id] ?: apiItem.toFolderEntity() }
-        val notes = items.filter { it.type == "note" }.map { it.toNoteEntity() }
+        val remoteNoteItems = items.filter { it.type == "note" }
+        val remoteNoteIds = remoteNoteItems.mapTo(mutableSetOf()) { it.id }
+        val notes = remoteNoteItems.map { apiItem ->
+            retainedLocalNotes[apiItem.id]
+                ?.takeIf { localNote -> localNote.version > apiItem.version }
+                ?: apiItem.toNoteEntity()
+        } + localActiveNotesById
+            .filterKeys { noteId -> noteId !in remoteNoteIds }
+            .map { (noteId, localNote) -> retainedLocalNotes[noteId] ?: localNote }
         folderDao.clearAll()
         noteDao.clearAll()
         folderDao.insertAll(folders)

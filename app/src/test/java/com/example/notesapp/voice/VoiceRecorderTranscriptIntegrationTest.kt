@@ -112,6 +112,28 @@ class VoiceRecorderTranscriptIntegrationTest : BaseViewModelTest() {
     }
 
     @Test
+    fun savesLatestPartialTranscriptWhenStopHasNoFinalCallback() = runTest {
+        viewModel.onScreenReady(targetNoteId = "note", permissionGranted = true)
+        advanceUntilIdle()
+
+        recognizer.emit(
+            TranscriptRecognitionEvent.Partial(
+                sessionId = controller.sessionId,
+                chunkIndex = 0,
+                text = "Are you okay"
+            )
+        )
+        advanceUntilIdle()
+
+        controller.stopAndSave()
+        advanceUntilIdle()
+
+        assertEquals("Are you okay", controller.savedTranscript)
+        assertEquals("Are you okay", viewModel.uiState.value.transcript)
+        assertEquals(VoiceRecorderStatus.Saved, viewModel.uiState.value.status)
+    }
+
+    @Test
     fun fallsBackAndCancelsCleanly() = runTest {
         viewModel.onScreenReady(targetNoteId = "note", permissionGranted = true)
         advanceUntilIdle()

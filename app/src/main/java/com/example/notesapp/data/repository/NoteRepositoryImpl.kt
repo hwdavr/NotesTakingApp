@@ -1,6 +1,7 @@
 package com.example.notesapp.data.repository
 
 import com.example.notesapp.data.local.NoteDao
+import com.example.notesapp.data.remote.ApiItem
 import com.example.notesapp.data.remote.CreateNoteRequest
 import com.example.notesapp.data.remote.DeleteItemRequest
 import com.example.notesapp.data.remote.FavoriteItemRequest
@@ -8,6 +9,7 @@ import com.example.notesapp.data.remote.MoveItemRequest
 import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.RenameItemRequest
 import com.example.notesapp.data.remote.UpdateNoteContentRequest
+import com.example.notesapp.data.remote.toNoteEntity
 import com.example.notesapp.data.sync.ItemsSyncCoordinator
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
@@ -44,7 +46,7 @@ class NoteRepositoryImpl @Inject constructor(
         val existing = note.id.takeIf { it.isNotBlank() }?.let { noteDao.getNoteById(it)?.toDomain() }
         val deviceId = deviceIdProvider.deviceId
         val noteId = note.id.ifBlank { "note_${UUID.randomUUID()}" }
-        try {
+        val acknowledgedItem: ApiItem? = try {
             if (existing == null) {
                 api.createNote(
                     CreateNoteRequest(
@@ -57,38 +59,39 @@ class NoteRepositoryImpl @Inject constructor(
                     )
                 )
             } else {
+                var latestAcknowledgement: ApiItem? = null
                 if (existing.title != note.title) {
-                    api.renameItem(
+                    latestAcknowledgement = api.renameItem(
                         note.id,
                         RenameItemRequest(
                             name = note.title,
                             deviceId = deviceId,
                             lastSyncedVersion = existing.version
                         )
-                    )
+                    ).item
                 }
                 if (existing.content != note.content) {
-                    api.updateNoteContent(
+                    latestAcknowledgement = api.updateNoteContent(
                         note.id,
                         UpdateNoteContentRequest(
                             content = note.content,
                             deviceId = deviceId,
                             lastSyncedVersion = existing.version
                         )
-                    )
+                    ).item
                 }
                 if (existing.folderId != note.folderId) {
-                    api.moveItem(
+                    latestAcknowledgement = api.moveItem(
                         note.id,
                         MoveItemRequest(
                             parentId = note.folderId,
                             deviceId = deviceId,
                             lastSyncedVersion = existing.version
                         )
-                    )
+                    ).item
                 }
+                latestAcknowledgement
             }
-            syncCoordinator.syncAll()
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
@@ -100,6 +103,14 @@ class NoteRepositoryImpl @Inject constructor(
                 lastSyncedVersion = existing?.version ?: 0
             )
             noteDao.insert(fallback.toEntity())
+            return
+        }
+        acknowledgedItem?.let { noteDao.insert(it.toNoteEntity()) }
+        try {
+            syncCoordinator.syncAll()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
         }
     }
     override suspend fun move(note: Note, folderId: String?) {
