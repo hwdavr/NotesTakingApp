@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be reviewed | 2026-08-15 | US-1, US-2, and US-3 are passing: editable Unicode insertion, the app-bundled nine-category catalog with local search and exact skin-tone selection, bounded DataStore-backed Recent persistence, real Android `Paint.hasGlyph` evidence, and final content/read-only/empty-search screenshots. |
+| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass applied; re-verification evidence attached; 10/10 findings fixed. Reports record 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows fixed; full JVM, 94/94 connected, quality, coverage, platform, lifecycle, and visual gates pass. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 <!-- HARNESS_TRACKER_END -->
 

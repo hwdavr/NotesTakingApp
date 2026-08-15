@@ -48,7 +48,8 @@
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest"
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent"
       ],
       "evidence": [
         {
@@ -77,11 +78,11 @@
         },
         {
           "test_id": "TC-US-1-03-ui",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#selectionInsertsEmojiAndKeepsPickerOpen",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#selectionInsertsEmojiAndKeepsPickerOpen",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent",
           "exit_status": 0,
-          "attempts": 1,
-          "result": "Passed 1 Compose test on emulator-5554 (API 33): selection replacement preserved the title and left the picker visible."
+          "attempts": 3,
+          "result": "Fix-pass replay passed the shipped NoteEditorScreen wiring on emulator-5554 (API 33): default and medium-tone selections reached NoteEditorViewModel insertion, preserved the title, advanced the cursor, left the picker open, and recorded exact Recent values."
         },
         {
           "test_id": "TC-US-1-04",
@@ -97,7 +98,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Passed production serialization/repository/export integration test: default and skin-tone Unicode survived JSON, local reload, sync/share mapping, and export sources."
+          "result": "Fix-pass JVM integration test passed: default and skin-tone Unicode survived JSON, local reload, sync/share mapping, and Markdown export; the Android PDF boundary is recorded under US-3 platform evidence."
         },
         {
           "test_id": "platform-capability-contract-US-1",
@@ -128,7 +129,8 @@
       ],
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.domain.emoji.FindEmojiCatalogUseCaseTest\" --tests \"com.example.notesapp.ui.editor.mapper.EmojiPickerUiMapperTest\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest"
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent"
       ],
       "evidence": [
         {
@@ -152,8 +154,8 @@
           "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest",
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest",
           "exit_status": 0,
-          "attempts": 1,
-          "result": "Passed 6/6 production editor-content Compose tests on emulator-5554 (API 33), including exact medium-tone thumbs-up insertion and a still-visible picker. The JVM mapper test asserted all six exact tone variants."
+          "attempts": 3,
+          "result": "Fix-pass replay passed 8/8 production editor-content Compose tests on emulator-5554 (API 33), including exact medium-tone thumbs-up insertion and the shipped screen/ViewModel/Recent chain. The JVM mapper test asserted all six exact tone variants."
         },
         {
           "test_id": "platform-capability-contract-US-2",
@@ -187,6 +189,9 @@
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerLifecycleTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_read_only_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
@@ -199,15 +204,15 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed the production DataStore repository test for exact default and skin-tone Unicode MRU ordering across repository recreation."
+          "result": "Fix-pass replay passed exact default/skin-tone MRU ordering across repository recreation, corrupt-preference fallback, and injected DataStore read failure."
         },
         {
           "test_id": "TC-US-3-REAL-UNICODE",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest",
           "exit_status": 0,
-          "attempts": 2,
-          "result": "Final replay passed the real Android API 33 boundary test on emulator-5554; production picker sequences were validated with Android Paint.hasGlyph for default and medium-tone thumbs-up."
+          "attempts": 3,
+          "result": "Fix-pass replay passed 3/3 real Android API 33 platform tests on emulator-5554: Paint.hasGlyph, missing-glyph code-point preservation, and exact Markdown/PDF export."
         },
         {
           "test_id": "TC-US-3-VIS-001",
@@ -215,7 +220,7 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty content-state screenshot with Recent, category rail, grid, search, and skin-tone affordance."
+          "result": "Fix-pass replay passed the content screenshot and the visual class's RTL/1.5x font-scale traversal; captured a non-empty content state with Recent, category rail, grid, search, and skin-tone affordance."
         },
         {
           "test_id": "TC-US-3-VIS-002",
@@ -223,7 +228,7 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_read_only_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty read-only screenshot showing the visible disabled emoji control."
+          "result": "Fix-pass replay passed the read-only screenshot and the full visual class; captured a non-empty screenshot showing the visible disabled emoji control."
         },
         {
           "test_id": "TC-US-3-VIS-003",
@@ -231,7 +236,7 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty empty-search screenshot with localized no-result copy and clear action."
+          "result": "Fix-pass replay passed the empty-search screenshot and the full visual class; captured localized no-result copy and clear action."
         },
         {
           "test_id": "platform-capability-contract-US-3",
@@ -240,6 +245,14 @@
           "exit_status": 0,
           "attempts": 1,
           "result": "Passed the final feature-wide platform capability check with loud unsupported-environment policy and successful real Android boundary evidence."
+        },
+        {
+          "test_id": "TC-US-3-FIX-PASS-BOUNDARIES",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerLifecycleTest",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerLifecycleTest",
+          "exit_status": 0,
+          "attempts": 3,
+          "result": "Fix-pass lifecycle boundary passed 4/4: close icon, scrim, system back, and StateRestorationTester recreation all dismissed/restored the sheet without changing note content."
         }
       ],
       "notes": "Final user-reachable slice and sole visual-verification owner. It depends on US-1 and US-2. Missing/emulator-unavailable platform evidence is a loud failure or Blocked state, never a passing skip."
