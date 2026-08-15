@@ -25,6 +25,14 @@ Use this template when producing the sprint contract in the **Requirement Analys
 *   *   `{Out-of-scope item 1}` (separate feature/deferred)
 *   *   `{Out-of-scope item 2}` (separate feature/deferred)
 
+## Platform Capability & Environment Contract *(required)*
+
+Link the feature workspace artifact: `platform-capability-matrix.md`.
+
+The matrix MUST declare the minimum API, target API, every important API boundary, the single owner of each device resource, the input/output contract, and the required fallback for unsupported platforms. A missing emulator, device, model, locale, permission, hardware capability, or platform service is an evidence failure—not a passing skip. The exact failure policy is `fail_loudly`: the command must exit non-zero or the feature must be marked `Blocked`/`Revise`.
+
+Platform-bound features MUST declare at least one real instrumented boundary test. A fake adapter, fake recognizer, JVM-only intent test, or manually emitted callback is supplemental evidence and cannot satisfy the platform gate by itself. The test must exercise the shipped Android boundary and record a successful `connectedDebugAndroidTest` result in `feature_list.json` evidence.
+
 ---
 
 ## Spec Coverage Matrix *(required)*
@@ -73,6 +81,7 @@ Every acceptance criterion must have exactly one primary automated test case. A 
 3. The assertions must cover every named outcome in the linked AC, including fallback, error, and persistence behavior where required.
 4. Record the Test ID, command, exit status, and result in the feature evidence before a status can become `passing`.
 5. **Visual verification gate** *(applies only when the slice's `requires_visual_verification` flag in `feature_list.json` is `true`)*: select one final user story that has a stable production entry point and makes the completed visual flow reviewable. That story MUST include one `TC-US-*-VIS` row per visually distinct completed-flow state that needs visual assessment; intermediate UI slices do not need screenshot rows. Each visual row's `Exact command` MUST first prove the named production screen state with a deterministic instrumented UI assertion or an accessibility-query assertion, then capture the screenshot in the same verified state. It must save the image at `$FEATURE_DIR/visual_evidence/<screen_id>_<state>.png` and verify that the file is non-empty. A bare `adb exec-out screencap` command is invalid because it can capture an unrelated app screen. The Generator cannot transition the visual-verification owner to `passing` until every declared `TC-US-*-VIS` row has exit code 0, a saved screenshot, and recorded target-state proof. The Evaluator then visually compares the captured screenshot against `$FEATURE_DIR/design.md` and records any deviation in layout, typography, color, spacing, or control placement as a review finding — canvas/photo content may legitimately differ between mockup and real app, so the comparison focuses on UI chrome, not image content.
+6. **Platform verification gate**: run `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --planning` during planning and `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate` during evaluation. The evaluation command MUST exit 0 before a platform-bound slice can be accepted or marked `passing`.
 
 ---
 

@@ -14,6 +14,16 @@ Use this rubric after implementation and before final acceptance.
 
 ### Overall: 5.0 / 5
 
+### Platform Hard Gate
+
+- Platform capability matrix present and linked from `feature_list.json`: Yes / No
+- Minimum, target, and important API boundaries explicitly tested: Yes / No
+- Unsupported environment policy is `fail_loudly`: Yes / No
+- Real instrumented platform-boundary test passed: Yes / No / N/A
+- Fake-only or JVM-only evidence used as the sole platform proof: Yes / No
+
+If any required answer is `No`, the evaluator MUST score the feature below `5.0 / 5` and use `Revise` or `Block`. Missing devices, models, locales, permissions, or platform services are failed/blocked evidence, never passing skips.
+
 ### Harness File Assessment
 
 | File | Present | Quality | Notes |

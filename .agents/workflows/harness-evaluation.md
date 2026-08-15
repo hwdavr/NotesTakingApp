@@ -27,6 +27,7 @@ When a feature is submitted for review, execute these steps in order:
 - Select the active non-complete `FEATURE_DIR` from the Harness Feature Tracker in `docs/product/product.md`. Do not infer lifecycle state by scanning product directories.
 - Read `$FEATURE_DIR/sprint-contract.md` to see the agreed **Acceptance Criteria**, **Scope**, and **Exclusions**.
 - Read `$FEATURE_DIR/feature_list.json` to verify the target feature definition and its current status.
+- Read `$FEATURE_DIR/platform-capability-matrix.md` and validate it with `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. A missing matrix, missing required API row, pending/unavailable/skipped environment, or non-zero real-boundary test is a review failure; do not convert it into a pass because the environment is inconvenient.
 - If the change affects UI, read `docs/product/design_system.md`, `$FEATURE_DIR/design.md`, and its visual assets. Treat unexplained deviations from the global design system as review findings.
 
 ---
@@ -50,6 +51,8 @@ When a feature is submitted for review, execute these steps in order:
 ### Stage 4: Execute Runtime Verification
 - Execute local unit and integration tests to verify correctness: `./gradlew testDebugUnitTest`.
 - Run instrumented Compose UI tests to check interactivity and transitions: target an emulator first (e.g. `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`), using a connected physical device only if no emulator is present.
+- Execute the declared real platform boundary tests from `platform_validation.real_boundary_test_ids`. The test must exercise the shipped Android API/resource boundary and produce successful `connectedDebugAndroidTest` evidence. Fake recognizers, fake callbacks, JVM-only intent tests, and tests that merely instantiate a seam are supplemental and cannot close the finding.
+- If the required runtime, device, model, locale, permission, or service is missing, record the command as failed/blocked and keep the verdict `Revise` or `Block`. Never record a skip, warning, or absent result as evidence of support.
 
 ---
 
@@ -76,6 +79,7 @@ The Evaluator's primary deliverable is the final quality assessment report.
 >    *   `clean-state-checklist.md`
 >    *   `evaluator-rubric.md` (This file itself)
 > 4. **Issue Verdict & Follow-Up**: Document the final verdict (`Accept` | `Revise` | `Block`) and explicitly itemize any missing evidence, required fixes, or review triggers in the **Required Follow-Up** block.
+> 5. **Platform Hard Gate**: If the platform capability matrix is missing or invalid, or if only fake/JVM recognizer tests exist for a platform-bound behavior, the overall score MUST be below `5.0 / 5` and the verdict MUST be `Revise` or `Block`. The feature must transition to `To be fixed` through the score-based rule.
 
 **⛔ STOP — present all review reports and the evaluator rubric to the user.**
 The findings are presented for transparency, but the status transition is **driven automatically by the overall score** (see the rule below), not by a manual accept/fix decision.

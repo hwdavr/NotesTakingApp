@@ -52,8 +52,9 @@ Gate: Update the tracker status to `Awaiting specification approval`, then run `
 ### Stage 2 — Slice Planning ⛔ STOP FOR APPROVAL
 **INVOKE** the `slice-planning` skill via the Skill tool (name: `slice-planning`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 Input: `$FEATURE_DIR/spec.md` (+ `$FEATURE_DIR/design.md` if present)
-Output: `$FEATURE_DIR/feature_list.json`, `$FEATURE_DIR/progress.md`, `$FEATURE_DIR/sprint-contract.md`
-Gate: Update the tracker status to `Awaiting implementation approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning slice-planning "$FEATURE_DIR"` — it validates both stage artifacts and lifecycle state and must exit 0. **STOP — present `feature_list.json` and `sprint-contract.md` to user. Do not proceed until user explicitly approves the task breakdown and sprint contract.**
+Output: `$FEATURE_DIR/feature_list.json`, `$FEATURE_DIR/progress.md`, `$FEATURE_DIR/sprint-contract.md`, and `$FEATURE_DIR/platform-capability-matrix.md`.
+The feature list MUST include a root `platform_validation` object. For platform-bound work set `required: true`, `unsupported_environment_policy: "fail_loudly"`, and declare at least one real instrumented boundary test. For work with no Android/device/platform boundary, set `required: false`, provide a reason, and still create the matrix artifact with an explicit N/A statement.
+Gate: Update the tracker status to `Awaiting implementation approval`, then run `bash scripts/check-stage-artifacts.sh harness-planning slice-planning "$FEATURE_DIR"` and `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --planning` — both validate the artifacts and must exit 0. **STOP — present `feature_list.json`, `sprint-contract.md`, and `platform-capability-matrix.md` to user. Do not proceed until user explicitly approves the task breakdown, platform contract, and sprint contract.**
 
 ---
 

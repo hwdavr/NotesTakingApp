@@ -117,6 +117,7 @@ case "$WORKFLOW/$STAGE" in
     require_file "feature_list.json" "feature list"
     require_file "sprint-contract.md" "sprint contract"
     require_file "progress.md" "progress tracker"
+    require_file "platform-capability-matrix.md" "platform capability matrix"
     if ! grep -q "Acceptance Test Cases" "$DOCS_DIR/sprint-contract.md"; then
       echo "FAIL: sprint contract has no 'Acceptance Test Cases' matrix." >&2
       exit 1
@@ -162,6 +163,7 @@ case "$WORKFLOW/$STAGE" in
       echo "FAIL: every feature must declare boolean affects_ui and requires_visual_verification fields." >&2
       exit 1
     fi
+    bash scripts/check-platform-evidence.sh "$DOCS_DIR" --planning
     ui_feature_count=$(jq '[.features[] | select(.affects_ui)] | length' "$DOCS_DIR/feature_list.json")
     visual_owner_count=$(jq '[.features[] | select(.requires_visual_verification)] | length' "$DOCS_DIR/feature_list.json")
     if [ "$ui_feature_count" -eq 0 ] && [ "$visual_owner_count" -ne 0 ]; then

@@ -34,6 +34,16 @@
 *   *   Automatic audio purge, Settings per-clip deletion, and user-accessible audio sharing (explicit v1 boundaries).
 *   *   User-tunable bitrate/sample-rate/chunk-length controls (fixed sensible defaults and implementation detail in v1).
 
+## Platform Capability & Environment Contract
+
+The machine-checkable matrix is [platform-capability-matrix.md](platform-capability-matrix.md). This feature is platform-bound, so `feature_list.json.platform_validation.required` is `true`, the unsupported-environment policy is `fail_loudly`, and `TC-US-2-REAL-PLATFORM` is required as a real instrumented boundary test. The existing JVM intent, fake-listener, and fallback tests remain supplemental; they cannot prove that the shipped `SpeechRecognizer` consumes the service-owned PCM source.
+
+If a required emulator, device, model, locale, permission, hardware capability, or platform service is unavailable, the command must fail or the feature must be marked `Blocked`/`Revise`. A skipped test or missing result is never acceptance evidence.
+
+| Test ID | Covers | Test layer | Test file and method | Setup and action | Required assertions | Exact command |
+|---|---|---|---|---|---|---|
+| TC-US-2-REAL-PLATFORM | NFR: API compatibility / FR-006 | Instrumented Android platform boundary | `app/src/androidTest/java/com/example/notesapp/voice/VoiceSourceFedRecognitionInstrumentedTest.kt#realSourceFedRecognitionProducesFinalResult` | Configure API 33+ on-device recognition, provide deterministic local PCM speech fixture, and invoke the shipped recognizer adapter | Assert a real `SpeechRecognizer` consumes the supplied PCM source and returns a bounded final result; assert unavailable API/model paths fail loudly or use the declared fallback | `ANDROID_SERIAL=<configured-api-33-device> ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceSourceFedRecognitionInstrumentedTest` |
+
 ## Spec Coverage Matrix (required)
 
 | Source requirement | Requirement summary | Primary user story | Primary acceptance test | Handling |

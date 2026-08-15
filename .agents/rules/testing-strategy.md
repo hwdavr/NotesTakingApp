@@ -67,6 +67,11 @@ Rules:
 - One main business scenario per test
 - Do not use real production backend — use mocked data
 
+Platform-bound exception:
+- When a feature depends on an Android SDK, device, hardware, OS service, model, locale, or permission contract, add a real instrumented boundary test in addition to deterministic JVM/fake tests.
+- The real test must exercise the shipped platform adapter with a deterministic local fixture and assert an observable platform result. A fake adapter, fake recognizer, JVM-only intent assertion, or manually emitted callback is supplemental evidence only.
+- If the required runtime environment is unavailable, the test must fail or report `Blocked`/`Revise`; do not use a skip, warning, or missing result as passing evidence.
+
 Do NOT use instrumented UI tests for:
 - ViewModel + repository + mocked backend verification when JVM integration tests can cover it
 
@@ -170,4 +175,3 @@ Catches integration bugs earlier. Use real database, domain mappers, or in-memor
 | Testing framework code | Verifying Room or Retrofit libraries actually save/fetch | Rely on libraries being tested by their authors. Only test your custom business code and mappings |
 | Lack of test isolation | Test class state carrying over between runs | Recreate mock objects and databases in `@Before` setup blocks |
 | Mocking everything | Mocking domain models or standard library lists | Use real objects for simple models. Mock only boundaries |
-

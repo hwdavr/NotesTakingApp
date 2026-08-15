@@ -64,6 +64,12 @@ scripts\check-compose-rules.cmd
 - Unstable `testTag` values (string interpolation)
 - `Column` + `forEach` instead of `LazyColumn`
 
+### 8. Platform Capability Evidence (when a platform boundary is in scope)
+```bash
+bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
+```
+**Must pass.** Rejects missing capability matrices, pending/unavailable/skipped runtime evidence, and fake-only platform-boundary tests.
+
 ---
 
 ## Conditional Checks
@@ -73,4 +79,3 @@ scripts\check-compose-rules.cmd
 ./gradlew connectedDebugAndroidTest
 ```
 Run when the change modifies Composable screens or navigation.
-

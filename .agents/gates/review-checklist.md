@@ -32,6 +32,9 @@ Checklist for reviewing any code change before it is considered complete.
 - [ ] New use cases, ViewModels, and mappers have unit tests
 - [ ] At least one integration test per new API endpoint
 - [ ] Shared JSON scenarios used — no inline mock data in test cases
+- [ ] Platform capability matrix exists and covers minimum, target, and important API boundaries
+- [ ] Unsupported runtime/device/model/locale/permission conditions fail loudly; no skipped environment is recorded as pass
+- [ ] Platform-bound behavior has a real instrumented boundary test; fake recognizers and JVM-only intent tests are supplemental only
 - [ ] `koverLog` coverage ≥ 80% overall, ≥ 90% for new classes
 - [ ] All tests pass: `./gradlew testDebugUnitTest`
 

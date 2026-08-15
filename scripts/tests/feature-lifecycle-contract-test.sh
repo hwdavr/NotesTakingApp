@@ -3,12 +3,17 @@
 set -e
 
 PRODUCT_FILE="docs/product/product.md"
-VALIDATOR="scripts/check-feature-lifecycle.sh"
+REPO_ROOT="$(pwd)"
+VALIDATOR="$REPO_ROOT/scripts/check-feature-lifecycle.sh"
 
 bash "$VALIDATOR" "$PRODUCT_FILE"
 
 fixture_dir=$(mktemp -d "${TMPDIR:-/tmp}/feature-lifecycle-test.XXXXXX")
 trap 'rm -rf "$fixture_dir"' EXIT
+
+mkdir -p "$fixture_dir/docs/product/valid-feature" "$fixture_dir/docs/product/incomplete-feature" "$fixture_dir/docs/knowledge"
+printf '%s\n' '{"features":[{"status":"passing"}]}' > "$fixture_dir/docs/product/valid-feature/feature_list.json"
+printf '%s\n' '{"features":[{"status":"in_progress"}]}' > "$fixture_dir/docs/product/incomplete-feature/feature_list.json"
 
 write_tracker() {
   local target="$1"
@@ -27,7 +32,7 @@ expect_failure() {
   local fixture="$1"
   local expected="$2"
   local output
-  if output=$(bash "$VALIDATOR" "$fixture" 2>&1); then
+  if output=$(cd "$fixture_dir" && bash "$VALIDATOR" "$fixture" 2>&1); then
     echo "FAIL: validator unexpectedly accepted $fixture" >&2
     exit 1
   fi
@@ -38,8 +43,8 @@ expect_failure() {
   }
 }
 
-active_path="[docs/product/2026-08-02-background-object-editing/](2026-08-02-background-object-editing/)"
-incomplete_feature_path="[docs/product/2026-07-31 AI-workflow-1/](2026-07-31 AI-workflow-1/)"
+active_path="[docs/product/valid-feature/](valid-feature/)"
+incomplete_feature_path="[docs/product/incomplete-feature/](incomplete-feature/)"
 
 write_tracker "$fixture_dir/unknown-status.md" \
   "| feature-a | Feature A | $active_path | Unknown | 2026-08-04 | Fixture |"
@@ -60,7 +65,7 @@ write_tracker "$fixture_dir/missing-path.md" \
 expect_failure "$fixture_dir/missing-path.md" "points to missing directory"
 
 write_tracker "$fixture_dir/broken-link.md" \
-  "| feature-a | Feature A | [docs/product/2026-08-02-background-object-editing/](wrong-target/) | Planning | 2026-08-04 | Fixture |"
+  "| feature-a | Feature A | [docs/product/valid-feature/](wrong-target/) | Planning | 2026-08-04 | Fixture |"
 expect_failure "$fixture_dir/broken-link.md" "link target must be"
 
 write_tracker "$fixture_dir/outside-product.md" \
