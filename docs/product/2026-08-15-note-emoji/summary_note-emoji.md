@@ -16,7 +16,7 @@
 | Fix-Stage 5 — Re-verify | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/feature_list.json` — “94/94 connected tests passed” and platform/visual evidence exit 0. |
 | Fix-Stage 6 — Update State | ✅ | 2026-08-15 | `docs/product/product.md` — “To be human reviewed … Fix pass applied; re-verification evidence attached; 10/10 findings fixed.”; lifecycle check exit 0. |
 | Fix-Stage 7 — Clean Exit | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/clean-state-checklist.md` — “all required evaluator findings are fixed, verification evidence is attached, and the feature is ready for human review”; `git status --short` is clean; lifecycle check reports 0 in progress. |
-| Fix-Stage 8 — Install App To Device | pending | | |
+| Fix-Stage 8 — Install App To Device | ✅ | 2026-08-15 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “`env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` exit 0; APK installed on 1 device.” |
 
 ## Fix Pass
 
