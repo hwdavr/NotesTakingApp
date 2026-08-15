@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.notesapp.BuildConfig
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.auth.SessionInvalidator
+import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
@@ -38,6 +39,7 @@ import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
 import com.example.notesapp.data.voice.SpeechRecognizerFactory
 import com.example.notesapp.data.voice.VoiceAudioCapture
 import com.example.notesapp.data.voice.VoiceAudioEncoder
+import com.example.notesapp.domain.emoji.EmojiCatalogRepository
 import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
@@ -72,6 +74,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteRepository(impl: NoteRepositoryImpl): NoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEmojiCatalogRepository(impl: BundledEmojiCatalogRepository): EmojiCatalogRepository
 
     @Binds
     @Singleton

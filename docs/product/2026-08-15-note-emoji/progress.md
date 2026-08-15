@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → editable note → existing Insert emoticon toolbar control.
 - Standard verification path: JVM unit/integration tests, focused Android Compose instrumented tests on `emulator-5554`, then the declared visual and platform evidence commands.
-- Current highest-priority unfinished feature: US-2 — Browse, search, and choose skin-tone variants.
-- Current blocker: None for US-1. US-2 was externally advanced to `in_progress` during this slice's clean exit; it remains a separate Generator task.
+- Current highest-priority unfinished feature: US-3 — Remember selected emoji and validate the completed picker.
+- Current blocker: None. US-1 and US-2 are passing; US-3 remains for durable Recents, visual evidence, and the real Android Unicode glyph boundary.
 
 ## Planned Dependency Order
 
@@ -38,3 +38,13 @@
 - Files or artifacts updated: editor ViewModel/screen/picker component/resources, focused tests, summary/evidence, product tracker/capabilities, and harness templates/scripts.
 - Known risk or unresolved issue: US-2 still owns catalog/search/skin-tone selection; US-3 still owns durable Recents, visual evidence, and the required real Android Unicode glyph boundary test.
 - Next best step: Begin US-2 as the externally selected active slice; preserve US-1's passing evidence and do not modify US-3-owned platform/visual scope.
+
+### Session 003 — Generator US-2
+
+- Date: 2026-08-15
+- Goal: Deliver the approved browse, search, and skin-tone variant slice over US-1's insertion path.
+- Completed: Added a deterministic app-bundled catalog for all nine approved categories; domain category/name/keyword search; localized picker state, category rail, adaptive grid, clearable empty states, and exact six-form skin-tone mapping; long-press variant selection keeps the picker open and emits the selected Unicode through US-1.
+- Verification run: focused catalog/mapper JVM command, full `NoteEditorEmojiPickerTest` (6/6 on `emulator-5554`, API 33), `koverLog` (82.5774% application line coverage), `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture checks, and slice-scoped platform evidence all passed.
+- Files or artifacts updated: catalog/data/domain/presentation source, localized resources, JVM/instrumented tests, `feature_list.json`, `summary_US-2.md`, `product.md`, and this progress log.
+- Known risk or unresolved issue: US-3 still owns persisted Recents, visual evidence, and the required real Android `Paint.hasGlyph` boundary test; US-2 intentionally does not claim those gates.
+- Next best step: Continue with US-3 through the harness-generator workflow; preserve US-1 and US-2 passing evidence and run the declared real boundary/visual checks.

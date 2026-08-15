@@ -9,17 +9,28 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.notesapp.R
+import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
+import com.example.notesapp.domain.emoji.EmojiCategory
+import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.EmojiPickerUiMapper
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +53,7 @@ class NoteEditorEmojiPickerTest {
         openEmojiPicker()
 
         composeRule.onNodeWithTag("emoji_picker_sheet").assertIsDisplayed()
-        composeRule.onNodeWithTag("emoji_category_recent").assertIsSelected()
+        composeRule.onNodeWithContentDescription(text(R.string.emoji_picker_recent_category)).assertIsSelected()
         assertEquals(title, screenState.value.title)
     }
 
@@ -73,6 +84,7 @@ class NoteEditorEmojiPickerTest {
         composeRule.setContent {
             EmojiPickerTestContent(
                 state = screenState,
+                emojiPickerState = pickerState(EmojiCategory.SMILEYS_EMOTION),
                 onEmojiSelected = { emoji ->
                     val selectedBlock = screenState.value.document.blocks.single() as EditorBlock.TextBlock
                     screenState.value = screenState.value.copy(
@@ -89,7 +101,7 @@ class NoteEditorEmojiPickerTest {
         }
 
         openEmojiPicker()
-        composeRule.onNodeWithTag("emoji_picker_item_grinning_face").performClick()
+        composeRule.onNodeWithContentDescription(text(R.string.emoji_name_grinning_face)).performClick()
         composeRule.waitForIdle()
 
         val updatedBlock = screenState.value.document.blocks.single() as EditorBlock.TextBlock
@@ -99,15 +111,164 @@ class NoteEditorEmojiPickerTest {
         composeRule.onNodeWithTag("emoji_picker_sheet").assertIsDisplayed()
     }
 
+    @Test
+    fun categoryRailShowsApprovedResultsAndEmptyRecent() {
+        val screenState = mutableStateOf(editableState(title = "Category note"))
+        val pickerState = mutableStateOf(EmojiPickerUiState.empty())
+        composeRule.setContent {
+            EmojiPickerTestContent(
+                state = screenState,
+                emojiPickerState = pickerState.value,
+                onCategorySelected = { category ->
+                    pickerState.value = pickerState(category = category)
+                }
+            )
+        }
+
+        openEmojiPicker()
+
+        composeRule.onNodeWithTag("emoji_picker_recent_empty").assertIsDisplayed()
+        listOf(
+            EmojiCategory.SMILEYS_EMOTION to R.string.emoji_name_grinning_face,
+            EmojiCategory.PEOPLE_BODY to R.string.emoji_name_thumbs_up,
+            EmojiCategory.ANIMALS_NATURE to R.string.emoji_name_dog,
+            EmojiCategory.FOOD_DRINK to R.string.emoji_name_pizza,
+            EmojiCategory.ACTIVITIES to R.string.emoji_name_soccer_ball,
+            EmojiCategory.TRAVEL_PLACES to R.string.emoji_name_rocket,
+            EmojiCategory.OBJECTS to R.string.emoji_name_light_bulb,
+            EmojiCategory.SYMBOLS to R.string.emoji_name_star,
+            EmojiCategory.FLAGS to R.string.emoji_name_flag_singapore
+        ).forEach { (category, itemNameRes) ->
+            composeRule.onNodeWithContentDescription(text(category.labelRes()))
+                .performScrollTo()
+                .performClick()
+            composeRule.waitForIdle()
+            val itemDescription = if (category == EmojiCategory.PEOPLE_BODY) {
+                text(
+                    R.string.emoji_picker_item_accessibility_description,
+                    text(itemNameRes),
+                    text(R.string.emoji_picker_item_skin_tone_hint)
+                )
+            } else {
+                text(itemNameRes)
+            }
+            composeRule.onNodeWithContentDescription(itemDescription).assertExists()
+        }
+    }
+
+    @Test
+    fun searchShowsMatchesAndClearableEmptyState() {
+        val screenState = mutableStateOf(editableState(title = "Search note"))
+        val pickerState = mutableStateOf(EmojiPickerUiState.empty())
+        composeRule.setContent {
+            EmojiPickerTestContent(
+                state = screenState,
+                emojiPickerState = pickerState.value,
+                onEmojiQueryChange = { query ->
+                    pickerState.value = pickerState(
+                        category = pickerState.value.selectedCategory,
+                        query = query
+                    )
+                },
+                onEmojiClearQuery = {
+                    pickerState.value = pickerState(category = pickerState.value.selectedCategory)
+                }
+            )
+        }
+
+        openEmojiPicker()
+        composeRule.onNodeWithTag("emoji_picker_search").performTextInput("launch")
+        composeRule.onNodeWithContentDescription(text(R.string.emoji_name_rocket)).assertIsDisplayed()
+
+        composeRule.onNodeWithTag("emoji_picker_clear_search").performClick()
+        composeRule.onNodeWithTag("emoji_picker_recent_empty").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("emoji_picker_search").performTextInput("no matching emoji")
+        composeRule.onNodeWithTag("emoji_picker_search_empty").assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_clear_search_empty").performClick()
+        composeRule.onNodeWithTag("emoji_picker_recent_empty").assertIsDisplayed()
+    }
+
+    @Test
+    fun skinToneChoiceInsertsExactVariantAndKeepsSheetOpen() {
+        val screenState = mutableStateOf(editableState(title = "Variant note"))
+        val pickerState = mutableStateOf(pickerState(EmojiCategory.PEOPLE_BODY))
+        var selectedEmoji = ""
+        composeRule.setContent {
+            EmojiPickerTestContent(
+                state = screenState,
+                emojiPickerState = pickerState.value,
+                onEmojiSelected = { selectedEmoji = it },
+                onSkinToneRequested = { itemId ->
+                    pickerState.value = pickerState.value.copy(activeSkinToneItemId = itemId)
+                },
+                onSkinToneDismissed = {
+                    pickerState.value = pickerState.value.copy(activeSkinToneItemId = null)
+                }
+            )
+        }
+
+        openEmojiPicker()
+        composeRule.onNodeWithContentDescription(
+            text(
+                R.string.emoji_picker_item_accessibility_description,
+                text(R.string.emoji_name_thumbs_up),
+                text(R.string.emoji_picker_item_skin_tone_hint)
+            )
+        ).performTouchInput { longClick() }
+        composeRule.onNodeWithContentDescription(
+            text(
+                R.string.emoji_picker_skin_tone_selector_description,
+                text(R.string.emoji_name_thumbs_up)
+            )
+        )
+            .assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(
+            text(
+                R.string.emoji_picker_skin_tone_option_description,
+                text(R.string.emoji_name_thumbs_up),
+                text(R.string.emoji_picker_skin_tone_medium)
+            )
+        ).performClick()
+
+        assertEquals("👍🏽", selectedEmoji)
+        composeRule.onNodeWithTag("emoji_picker_sheet").assertIsDisplayed()
+    }
+
     private fun openEmojiPicker() {
         composeRule.onNodeWithTag("editor_default_bottom_bar").performTouchInput { swipeLeft() }
         composeRule.onNodeWithTag("editor_insert_emoji").performClick()
         composeRule.waitForIdle()
     }
+
+    private fun text(resId: Int, vararg formatArgs: String): String =
+        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId, *formatArgs)
+}
+
+private fun EmojiCategory.labelRes(): Int = when (this) {
+    EmojiCategory.RECENT -> R.string.emoji_picker_recent_category
+    EmojiCategory.SMILEYS_EMOTION -> R.string.emoji_picker_category_smileys_emotion
+    EmojiCategory.PEOPLE_BODY -> R.string.emoji_picker_category_people_body
+    EmojiCategory.ANIMALS_NATURE -> R.string.emoji_picker_category_animals_nature
+    EmojiCategory.FOOD_DRINK -> R.string.emoji_picker_category_food_drink
+    EmojiCategory.ACTIVITIES -> R.string.emoji_picker_category_activities
+    EmojiCategory.TRAVEL_PLACES -> R.string.emoji_picker_category_travel_places
+    EmojiCategory.OBJECTS -> R.string.emoji_picker_category_objects
+    EmojiCategory.SYMBOLS -> R.string.emoji_picker_category_symbols
+    EmojiCategory.FLAGS -> R.string.emoji_picker_category_flags
 }
 
 @Composable
-private fun EmojiPickerTestContent(state: MutableState<NoteEditorUiState>, onEmojiSelected: (String) -> Unit) {
+private fun EmojiPickerTestContent(
+    state: MutableState<NoteEditorUiState>,
+    emojiPickerState: EmojiPickerUiState = EmojiPickerUiState.empty(),
+    onEmojiSelected: (String) -> Unit = {},
+    onEmojiQueryChange: (String) -> Unit = {},
+    onEmojiClearQuery: () -> Unit = {},
+    onCategorySelected: (EmojiCategory) -> Unit = {},
+    onSkinToneRequested: (String) -> Unit = {},
+    onSkinToneDismissed: () -> Unit = {}
+) {
     NoteEditorScreenContent(
         parentPadding = PaddingValues(0.dp),
         noteId = state.value.noteId,
@@ -128,6 +289,12 @@ private fun EmojiPickerTestContent(state: MutableState<NoteEditorUiState>, onEmo
         onAddParagraph = {},
         onAddImage = {},
         onEmojiSelected = onEmojiSelected,
+        emojiPickerState = emojiPickerState,
+        onEmojiQueryChange = onEmojiQueryChange,
+        onEmojiClearQuery = onEmojiClearQuery,
+        onEmojiCategorySelected = onCategorySelected,
+        onEmojiSkinToneRequested = onSkinToneRequested,
+        onEmojiSkinToneDismissed = onSkinToneDismissed,
         onImageChange = { _, _, _ -> },
         onAddTable = {},
         onTableCellChange = { _, _, _, _ -> },
@@ -138,6 +305,15 @@ private fun EmojiPickerTestContent(state: MutableState<NoteEditorUiState>, onEmo
         onDeleteBlock = {}
     )
 }
+
+private fun pickerState(category: EmojiCategory, query: String = ""): EmojiPickerUiState = EmojiPickerUiState(
+    selectedCategory = category,
+    query = query,
+    items = EmojiPickerUiMapper.mapItems(findEmojiCatalogForTests(category, query))
+)
+
+private fun findEmojiCatalogForTests(category: EmojiCategory, query: String) =
+    FindEmojiCatalogUseCase(BundledEmojiCatalogRepository())(category, query)
 
 private fun editableState(
     title: String,

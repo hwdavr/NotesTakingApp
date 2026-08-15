@@ -111,6 +111,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.notesapp.R
+import com.example.notesapp.domain.emoji.EmojiCategory
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
@@ -121,6 +122,8 @@ import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
+import com.example.notesapp.ui.editor.model.EmojiPickerUiState
+import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
@@ -140,9 +143,11 @@ fun NoteEditorScreen(
     onOpenVoiceRecorder: (String, String?) -> Unit,
     voiceNoteSaved: Boolean = false,
     onVoiceNoteSavedConsumed: () -> Unit = {},
-    viewModel: NoteEditorViewModel = hiltViewModel()
+    viewModel: NoteEditorViewModel = hiltViewModel(),
+    emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val emojiPickerState by emojiPickerViewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(noteId, folderId) { viewModel.load(noteId, folderId) }
     LaunchedEffect(voiceNoteSaved) {
         if (voiceNoteSaved) {
@@ -182,6 +187,12 @@ fun NoteEditorScreen(
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
         onEmojiSelected = viewModel::insertEmoji,
+        emojiPickerState = emojiPickerState,
+        onEmojiQueryChange = emojiPickerViewModel::onQueryChange,
+        onEmojiClearQuery = emojiPickerViewModel::onClearQuery,
+        onEmojiCategorySelected = emojiPickerViewModel::onCategorySelected,
+        onEmojiSkinToneRequested = emojiPickerViewModel::onSkinToneRequested,
+        onEmojiSkinToneDismissed = emojiPickerViewModel::onSkinToneDismissed,
         onTableCellChange = viewModel::updateTableCell,
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
@@ -219,6 +230,12 @@ fun NoteEditorScreenContent(
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onEmojiSelected: (String) -> Unit,
+    emojiPickerState: EmojiPickerUiState = EmojiPickerUiState.empty(),
+    onEmojiQueryChange: (String) -> Unit = {},
+    onEmojiClearQuery: () -> Unit = {},
+    onEmojiCategorySelected: (EmojiCategory) -> Unit = {},
+    onEmojiSkinToneRequested: (String) -> Unit = {},
+    onEmojiSkinToneDismissed: () -> Unit = {},
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -235,18 +252,7 @@ fun NoteEditorScreenContent(
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.surface)
-                .padding(top = parentPadding.calculateTopPadding()),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                color = colors.primary,
-                modifier = Modifier.testTag("editor_loading_indicator")
-            )
-        }
+        NoteEditorLoading(parentPadding = parentPadding)
         return
     }
     var folderMenuExpanded by remember { mutableStateOf(false) }
@@ -478,7 +484,13 @@ fun NoteEditorScreenContent(
         EmojiPickerOverlay(
             isVisible = showEmojiPicker,
             onDismiss = { showEmojiPicker = false },
-            onEmojiSelected = onEmojiSelected
+            onEmojiSelected = onEmojiSelected,
+            uiState = emojiPickerState,
+            onQueryChange = onEmojiQueryChange,
+            onClearQuery = onEmojiClearQuery,
+            onCategorySelected = onEmojiCategorySelected,
+            onSkinToneRequested = onEmojiSkinToneRequested,
+            onSkinToneDismissed = onEmojiSkinToneDismissed
         )
         if (showRenameDialog) {
             AlertDialog(
@@ -580,13 +592,49 @@ fun NoteEditorScreenContent(
     }
 }
 
+@Composable
+private fun NoteEditorLoading(parentPadding: PaddingValues) {
+    val colors = LocalAppColors.current
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.surface)
+            .padding(top = parentPadding.calculateTopPadding()),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            color = colors.primary,
+            modifier = Modifier.testTag("editor_loading_indicator")
+        )
+    }
+}
+
 private fun NoteEditorUiState.activeTextBlockId(): String? =
     focusedBlockId ?: document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
 
 @Composable
-private fun EmojiPickerOverlay(isVisible: Boolean, onDismiss: () -> Unit, onEmojiSelected: (String) -> Unit) {
+private fun EmojiPickerOverlay(
+    isVisible: Boolean,
+    onDismiss: () -> Unit,
+    onEmojiSelected: (String) -> Unit,
+    uiState: EmojiPickerUiState,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    onCategorySelected: (EmojiCategory) -> Unit,
+    onSkinToneRequested: (String) -> Unit,
+    onSkinToneDismissed: () -> Unit
+) {
     if (isVisible) {
-        EmojiPickerBottomSheet(onDismiss = onDismiss, onEmojiSelected = onEmojiSelected)
+        EmojiPickerBottomSheet(
+            uiState = uiState,
+            onDismiss = onDismiss,
+            onQueryChange = onQueryChange,
+            onClearQuery = onClearQuery,
+            onCategorySelected = onCategorySelected,
+            onEmojiSelected = onEmojiSelected,
+            onSkinToneRequested = onSkinToneRequested,
+            onSkinToneDismissed = onSkinToneDismissed
+        )
     }
 }
 
