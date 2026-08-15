@@ -176,7 +176,7 @@
       "user_visible_behavior": "After an emoji or skin-tone variant is inserted, it appears first in Recent after restarting the app. The complete picker is visually and accessibly verified on a real Android runtime.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-REAL-UNICODE",
@@ -192,7 +192,56 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
         "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-3-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed the production DataStore repository test for exact default and skin-tone Unicode MRU ordering across repository recreation."
+        },
+        {
+          "test_id": "TC-US-3-REAL-UNICODE",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed the real Android API 33 boundary test on emulator-5554; production picker sequences were validated with Android Paint.hasGlyph for default and medium-tone thumbs-up."
+        },
+        {
+          "test_id": "TC-US-3-VIS-001",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty content-state screenshot with Recent, category rail, grid, search, and skin-tone affordance."
+        },
+        {
+          "test_id": "TC-US-3-VIS-002",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_read_only_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\"",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_read_only_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\"",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty read-only screenshot showing the visible disabled emoji control."
+        },
+        {
+          "test_id": "TC-US-3-VIS-003",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed 1 production visual flow test on emulator-5554 and captured a non-empty empty-search screenshot with localized no-result copy and clear action."
+        },
+        {
+          "test_id": "platform-capability-contract-US-3",
+          "command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate",
+          "executed_command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed the final feature-wide platform capability check with loud unsupported-environment policy and successful real Android boundary evidence."
+        }
+      ],
       "notes": "Final user-reachable slice and sole visual-verification owner. It depends on US-1 and US-2. Missing/emulator-unavailable platform evidence is a loud failure or Blocked state, never a passing skip."
     }
   ]

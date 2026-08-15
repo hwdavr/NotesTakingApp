@@ -7,10 +7,9 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -121,10 +120,7 @@ class EmojiPickerVisualFlowTest {
     }
 
     @Composable
-    private fun editorContent(
-        state: NoteEditorUiState,
-        emojiPickerState: EmojiPickerUiState
-    ) {
+    private fun editorContent(state: NoteEditorUiState, emojiPickerState: EmojiPickerUiState) {
         NoteEditorScreenContent(
             parentPadding = PaddingValues(0.dp),
             noteId = state.noteId,

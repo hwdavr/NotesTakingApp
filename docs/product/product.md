@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | In Progress | 2026-08-15 | US-1 and US-2 are passing: editable Unicode insertion plus the app-bundled nine-category catalog, local search, empty states, and exact skin-tone selection. US-3 durable Recents, visual evidence, and real glyph boundary validation remain. |
+| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be reviewed | 2026-08-15 | US-1, US-2, and US-3 are passing: editable Unicode insertion, the app-bundled nine-category catalog with local search and exact skin-tone selection, bounded DataStore-backed Recent persistence, real Android `Paint.hasGlyph` evidence, and final content/read-only/empty-search screenshots. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 <!-- HARNESS_TRACKER_END -->
 
@@ -64,7 +64,8 @@ Lifecycle rules:
 | Note Actions Sheet | ✅ Done | Bottom sheet for quick actions: move to folder, export, delete, favorite. |
 | Document Block Structure | ✅ Done | Modular note document model for structured content blocks. |
 | Emoji insertion foundation (US-1) | ✅ Slice done | Existing editor control opens a localized picker for editable notes, inserts Unicode at the cursor/range or a new paragraph, and stays disabled for read-only notes. |
-| Emoji discovery catalog (US-2) | ✅ Slice done | App-bundled Unicode catalog covers nine approved categories with localized name/keyword search, clearable empty states, and exact default plus five skin-tone variants; selection reuses the editor insertion path and keeps the sheet open. Durable Recents, visual evidence, and final Android glyph verification remain in US-3. |
+| Emoji discovery catalog (US-2) | ✅ Slice done | App-bundled Unicode catalog covers nine approved categories with localized name/keyword search, clearable empty states, and exact default plus five skin-tone variants; selection reuses the editor insertion path and keeps the sheet open. |
+| Emoji Recent persistence and runtime validation (US-3) | ✅ Slice done | Exact inserted Unicode, including skin-tone variants, is stored as a bounded local MRU and restored after repository/app recreation with an empty fallback on read failure; the shipped picker has real Android glyph evidence and approved content, read-only, and empty-search visual captures. |
 
 ### ✅ Folder & Collection Management
 
@@ -130,7 +131,6 @@ Lifecycle rules:
 ### Group 1 — Rich Content & Attachments
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
-- **Emoji Picker Durability & Platform Verification**: Persist exact selected Unicode values in Recents and complete Android glyph/visual verification (US-3).
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -147,7 +147,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟡 In Progress | Text editing, document blocks, summary cards, action sheets, passing Unicode insertion, and the nine-category searchable emoji catalog with exact skin-tone variants; durable Recents/glyph verification remain |
+| **Note Editor** | ✅ Shipped | Text editing, document blocks, summary cards, action sheets, and the complete emoji path: Unicode insertion, nine-category searchable catalog, exact skin-tone variants, bounded durable Recents, real Android glyph validation, and final visual evidence |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |

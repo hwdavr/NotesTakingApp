@@ -215,7 +215,7 @@ private fun EmojiPickerCategoryRail(
                         selected = isSelected
                         role = Role.Tab
                     }
-                    .testTag("emoji_category_${category.id.storageKey}"),
+                    .testTag("emoji_picker_category"),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -352,7 +352,7 @@ private fun EmojiPickerItem(
                     contentDescription = itemDescription
                     role = Role.Button
                 }
-                .testTag("emoji_picker_item_${item.id}"),
+                .testTag("emoji_picker_item"),
             contentAlignment = Alignment.Center
         ) {
             Text(text = item.unicode, fontSize = 28.sp)
@@ -380,8 +380,8 @@ private fun EmojiSkinToneSelector(
     DropdownMenu(
         expanded = true,
         onDismissRequest = onDismiss,
-            modifier = Modifier
-            .testTag("emoji_skin_tone_selector_${item.id}")
+        modifier = Modifier
+            .testTag("emoji_skin_tone_selector")
             .semantics { contentDescription = selectorDescription }
     ) {
         item.variants.forEach { variant ->
@@ -416,7 +416,7 @@ private fun EmojiSkinToneOption(item: EmojiPickerItemUiModel, variant: EmojiVari
         },
         onClick = onClick,
         modifier = Modifier
-            .testTag("emoji_skin_tone_variant_${item.id}_${variant.tone.storageKey}")
+            .testTag("emoji_skin_tone_variant")
             .semantics {
                 contentDescription = optionDescription
                 stateDescription = toneName

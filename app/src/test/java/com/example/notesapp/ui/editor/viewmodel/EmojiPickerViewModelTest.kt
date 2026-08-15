@@ -4,20 +4,20 @@ import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCategory
+import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
 import com.example.notesapp.domain.emoji.usecase.ObserveRecentEmojiUseCase
 import com.example.notesapp.domain.emoji.usecase.RecordRecentEmojiUseCase
-import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EmojiPickerViewModelTest : BaseViewModelTest() {

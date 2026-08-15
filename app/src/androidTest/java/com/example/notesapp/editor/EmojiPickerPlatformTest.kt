@@ -1,16 +1,13 @@
 package com.example.notesapp.editor
 
 import android.graphics.Paint
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.mutableStateOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.R
@@ -57,10 +54,15 @@ class EmojiPickerPlatformTest {
 
         composeRule.waitForIdle()
 
-        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up", useUnmergedTree = true)
+        val thumbsUpDescription = text(
+            R.string.emoji_picker_item_accessibility_description,
+            text(R.string.emoji_name_thumbs_up),
+            text(R.string.emoji_picker_item_skin_tone_hint)
+        )
+        composeRule.onNodeWithContentDescription(thumbsUpDescription)
             .assertIsDisplayed()
             .performClick()
-        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up", useUnmergedTree = true)
+        composeRule.onNodeWithContentDescription(thumbsUpDescription)
             .performTouchInput { longClick() }
         composeRule.onNodeWithContentDescription(
             text(

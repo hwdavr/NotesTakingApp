@@ -2,8 +2,8 @@ package com.example.notesapp.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import com.example.notesapp.BuildConfig
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.auth.SessionInvalidator
@@ -174,11 +174,10 @@ abstract class AppModule {
         @Provides
         @Singleton
         @Named("emojiRecentDataStore")
-        fun provideEmojiRecentDataStore(
-            @ApplicationContext context: Context
-        ): DataStore<Preferences> = PreferenceDataStoreFactory.create {
-            context.filesDir.resolve("datastore/emoji_recent.preferences_pb")
-        }
+        fun provideEmojiRecentDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+            PreferenceDataStoreFactory.create {
+                context.filesDir.resolve("datastore/emoji_recent.preferences_pb")
+            }
 
         @Provides
         fun provideNoteDao(database: AppDatabase): NoteDao = database.noteDao()

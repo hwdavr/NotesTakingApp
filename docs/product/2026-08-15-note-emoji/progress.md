@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → editable note → existing Insert emoticon toolbar control.
 - Standard verification path: JVM unit/integration tests, focused Android Compose instrumented tests on `emulator-5554`, then the declared visual and platform evidence commands.
-- Current highest-priority unfinished feature: US-3 — Remember selected emoji and validate the completed picker.
-- Current blocker: None. US-1 and US-2 are passing; US-3 remains for durable Recents, visual evidence, and the real Android Unicode glyph boundary.
+- Current highest-priority unfinished feature: None within Note Emoji; US-1, US-2, and US-3 are passing and awaiting evaluator review.
+- Current blocker: None. The real Android Unicode boundary and all three required visual captures passed on emulator-5554/API 33.
 
 ## Planned Dependency Order
 
@@ -49,3 +49,14 @@
 - Files or artifacts updated: catalog/data/domain/presentation source, localized resources, JVM/instrumented tests, `feature_list.json`, `summary_US-2.md`, `product.md`, and this progress log.
 - Known risk or unresolved issue: US-3 still owns persisted Recents, visual evidence, and the required real Android `Paint.hasGlyph` boundary test; US-2 intentionally does not claim those gates.
 - Next best step: Continue with US-3 through the harness-generator workflow; preserve US-1 and US-2 passing evidence and run the declared real boundary/visual checks.
+
+### Session 004 — Generator US-3
+
+- Date: 2026-08-15
+- Goal: Persist exact selected emoji in Recent, validate the completed picker on a real Android runtime, and capture the approved content, read-only, and empty-search states.
+- Completed: Added the domain Recent repository contract, DataStore Preferences MRU implementation with bounded exact-Unicode ordering and recoverable read fallback, Hilt wiring, ViewModel observation/recording, success-gated editor selection tracking, duplicate-safe Recent grid keys, stable interactive test tags, the real `Paint.hasGlyph` boundary test, and three production visual-flow screenshot tests.
+- Verification run: all five US-3 acceptance commands, final feature-wide and slice-scoped platform evidence gates, `./gradlew testDebugUnitTest`, full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` (85/85), `koverLog` (82.5978% application line coverage; new ViewModel/use cases 100% line coverage), `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, and Compose/localization/architecture checks all passed.
+- Evidence captured: `visual_evidence/emoji_picker_content_light.png`, `visual_evidence/emoji_read_only_light.png`, `visual_evidence/emoji_empty_search_light.png`, and exit-0 acceptance records in `feature_list.json`.
+- Files or artifacts updated: Recent data/domain source, picker/editor ViewModel and UI wiring, mapper and JVM/instrumented tests, visual evidence, `summary_US-3.md`, `product.md`, and this progress log.
+- Known risk or unresolved issue: None for the approved US-3 scope. The callable Skill tool was unavailable, so the required procedures were applied from the repository skill files and documented in the slice summary.
+- Next best step: Evaluator review via `harness-evaluation`; do not transition the tracker to `To be human reviewed` from the Generator workflow.
