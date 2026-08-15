@@ -1,19 +1,28 @@
 package com.example.notesapp.editor
 
+import androidx.test.core.app.ApplicationProvider
 import com.example.notesapp.base.BaseViewModelIntegrationTest
 import com.example.notesapp.data.local.NoteEntity
+import com.example.notesapp.data.remote.ApiItem
+import com.example.notesapp.data.remote.toNoteEntity
+import com.example.notesapp.data.repository.toEntity
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.util.NoteExporter
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class NoteEmojiPersistenceIntegrationTest : BaseViewModelIntegrationTest() {
     @Test
     fun unicodeEmojiSurvivesSaveReloadSyncShareAndExport() = runTest {
@@ -68,5 +77,31 @@ class NoteEmojiPersistenceIntegrationTest : BaseViewModelIntegrationTest() {
         assertEquals("Launch $defaultEmoji with $skinToneEmoji", reloadedDocument.toPlainText())
         assertTrue(reloadedDocument.toMarkdown().contains(defaultEmoji))
         assertTrue(reloadedDocument.toMarkdown().contains(skinToneEmoji))
+
+        val persistedEntity = note.toEntity()
+        assertEquals(document.toJsonString(), persistedEntity.content)
+        val remoteItem = ApiItem(
+            id = note.id,
+            userId = "user-1",
+            type = "note",
+            parentId = note.folderId,
+            name = note.title,
+            content = document.toJsonString(),
+            sortKey = note.sortKey,
+            version = note.version,
+            deviceId = note.deviceId,
+            lastSyncedVersion = note.lastSyncedVersion,
+            deletedAt = null,
+            createdAt = "1970-01-01T00:00:01Z",
+            updatedAt = "1970-01-01T00:00:02Z"
+        )
+        assertEquals(document.toJsonString(), remoteItem.toNoteEntity().content)
+
+        val exporter = NoteExporter(ApplicationProvider.getApplicationContext())
+        val markdownOutput = ByteArrayOutputStream()
+        exporter.exportToMarkdown(note, markdownOutput)
+        val markdown = markdownOutput.toString()
+        assertTrue(markdown.contains(defaultEmoji))
+        assertTrue(markdown.contains(skinToneEmoji))
     }
 }

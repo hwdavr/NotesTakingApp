@@ -3,6 +3,9 @@ package com.example.notesapp.editor
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -13,6 +16,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -112,6 +117,31 @@ class EmojiPickerVisualFlowTest {
         captureVisualEvidence("notesapp_emoji_empty_search_light")
     }
 
+    @Test
+    fun pickerSupportsRtlTraversalAndLargeFontScale() {
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides LayoutDirection.Rtl,
+                    LocalDensity provides Density(density = 1f, fontScale = 1.5f)
+                ) {
+                    editorContent(
+                        state = editorState(),
+                        emojiPickerState = peopleBodyPickerState()
+                    )
+                }
+            }
+        }
+
+        openEmojiPicker()
+
+        composeRule.onNodeWithTag("emoji_picker_search", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_categories", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_category_people_body", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_grid", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up", useUnmergedTree = true).assertIsDisplayed()
+    }
+
     private fun openEmojiPicker() {
         composeRule.onNodeWithTag("editor_default_bottom_bar", useUnmergedTree = true)
             .performTouchInput { swipeLeft() }
@@ -142,6 +172,11 @@ class EmojiPickerVisualFlowTest {
             onAddImage = {},
             onEmojiSelected = {},
             emojiPickerState = emojiPickerState,
+            onEmojiQueryChange = {},
+            onEmojiClearQuery = {},
+            onEmojiCategorySelected = {},
+            onEmojiSkinToneRequested = {},
+            onEmojiSkinToneDismissed = {},
             onImageChange = { _, _, _ -> },
             onAddTable = {},
             onTableCellChange = { _, _, _, _ -> },
@@ -188,6 +223,15 @@ class EmojiPickerVisualFlowTest {
             recentEmoji = recent,
             items = mappedItems,
             activeSkinToneItemId = mappedItems.first { it.unicode == "👍🏽" }.id
+        )
+    }
+
+    private fun peopleBodyPickerState(): EmojiPickerUiState {
+        val catalog = BundledEmojiCatalogRepository()
+        val items = FindEmojiCatalogUseCase(catalog)(EmojiCategory.PEOPLE_BODY)
+        return EmojiPickerUiState(
+            selectedCategory = EmojiCategory.PEOPLE_BODY,
+            items = EmojiPickerUiMapper.mapItems(items)
         )
     }
 

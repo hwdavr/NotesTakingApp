@@ -62,6 +62,12 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 | Recent empty panel | Explains that selected emoji appear here | empty | `emoji_picker_recent_empty` |
 | Search empty panel | Reports no matching result and offers recovery | empty | `emoji_picker_search_empty` |
 
+Dynamic tag IDs use only immutable catalog identifiers: category tags use the
+`EmojiCategory.storageKey`, emoji cells use the bundled catalog item ID (with a
+Unicode-derived suffix when a Recent list contains the same catalog item more
+than once), and skin-tone options append the immutable tone storage key. They
+never use list indexes, timestamps, random IDs, or user-entered text.
+
 ### Visual States
 
 | State | User Sees | User Can Do |

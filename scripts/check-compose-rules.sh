@@ -249,18 +249,21 @@ _run_check \
 
 # ── 5. Unstable testTag Values ────────────────────────────────────────────────
 _header "5 · Unstable testTag Values"
-echo -e "  ${YELLOW}testTag must use stable, descriptive strings — not dynamic IDs or string interpolation.${RESET}"
+echo -e "  ${YELLOW}testTag values must be descriptive; dynamic values require immutable, documented IDs.${RESET}"
 
 # Key content containers use item-specific tags keyed by stable model IDs.
 # Exclude dynamic list item tags (e.g. note_item_*, folder_item_*) if required.
+# The emoji picker also uses immutable IDs from the bundled catalog. These
+# prefixes are intentionally explicit so transient indexes/random values do
+# not become an accidental test-tag convention.
 
 _run_check \
-    'testTag with string interpolation (unstable, ID-dependent)' \
-    'testTag\s*\(\s*"(?!note_item_|folder_item_|collection_item_)[^"]*\$\{?' \
+    'testTag with unapproved string interpolation (unstable, ID-dependent)' \
+    'testTag\s*\(\s*"(?!note_item_|folder_item_|collection_item_|emoji_category_|emoji_picker_item_|emoji_skin_tone_selector_|emoji_skin_tone_variant_)[^"]*\$\{?' \
     --type kotlin --pcre2 --exclude LayerManagerControl.kt
 
 _run_check \
-    'testTag with string concatenation or derived value (unstable, ID-dependent)' \
+    'testTag with unapproved string concatenation or derived value (unstable, ID-dependent)' \
     'testTag\s*\(\s*("[^"]*"\s*\+|[A-Za-z_][A-Za-z0-9_]*\s*\+|[^)]*(lowercase|replace)\s*\()' \
     --type kotlin --pcre2
 

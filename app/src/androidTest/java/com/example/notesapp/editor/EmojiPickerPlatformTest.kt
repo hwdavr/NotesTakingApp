@@ -14,10 +14,17 @@ import com.example.notesapp.R
 import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCategory
 import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
+import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
+import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.EmojiPickerUiMapper
+import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
+import com.example.notesapp.util.NoteExporter
+import java.io.ByteArrayOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -84,6 +91,54 @@ class EmojiPickerPlatformTest {
         selectedEmoji.forEach { emoji ->
             assertTrue("Android font does not support $emoji", paint.hasGlyph(emoji))
         }
+    }
+
+    @Test
+    fun missingGlyphPreservesOriginalUnicodeCodePoints() {
+        val missingGlyphSequence = "\uDBFF\uDFFF"
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 48f }
+
+        assertTrue("Test sequence unexpectedly has an Android glyph", !paint.hasGlyph(missingGlyphSequence))
+
+        val document = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(children = listOf(RichText(missingGlyphSequence)))
+            )
+        )
+
+        val reloadedDocument = NoteDocument.fromContent(document.toJsonString())
+        assertEquals(missingGlyphSequence, reloadedDocument.toPlainText())
+        assertEquals(missingGlyphSequence, (reloadedDocument.blocks.single() as EditorBlock.TextBlock).text())
+    }
+
+    @Test
+    fun unicodeEmojiExportsThroughMarkdownAndPdfOnAndroidRuntime() {
+        val defaultEmoji = "😀"
+        val skinToneEmoji = "👍🏽"
+        val note = Note(
+            id = "emoji-export",
+            title = "Emoji export",
+            content = NoteDocument(
+                blocks = listOf(
+                    EditorBlock.TextBlock(
+                        children = listOf(RichText("Export $defaultEmoji with $skinToneEmoji"))
+                    )
+                )
+            ).toJsonString(),
+            createdAt = 1L,
+            updatedAt = 2L
+        )
+        val exporter = NoteExporter(InstrumentationRegistry.getInstrumentation().targetContext)
+
+        val markdownOutput = ByteArrayOutputStream()
+        exporter.exportToMarkdown(note, markdownOutput)
+        val markdown = markdownOutput.toString()
+        assertTrue(markdown.contains(defaultEmoji))
+        assertTrue(markdown.contains(skinToneEmoji))
+
+        val pdfOutput = ByteArrayOutputStream()
+        exporter.exportToPdf(note, pdfOutput)
+        assertTrue(pdfOutput.size() > 0)
     }
 
     private fun peopleBodyPickerState(): EmojiPickerUiState {

@@ -85,6 +85,14 @@ Modifier.testTag("button_${note.id}")            // ❌ — unstable, ID-depende
 Modifier.testTag("btn")                          // ❌ — not descriptive
 ```
 
+Dynamic tags are allowed only when the interpolated value is an immutable,
+domain-owned identifier and the prefix is explicitly documented by the
+feature design. For example, the bundled emoji catalog uses
+`emoji_picker_item_<catalog-id>`, `emoji_category_<category-id>`, and
+`emoji_skin_tone_selector_<catalog-id>` so every rendered picker element can
+be targeted uniquely. Transient indexes, random IDs, timestamps, and
+user-generated text remain prohibited.
+
 ---
 
 ## String Resources

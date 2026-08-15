@@ -24,14 +24,33 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.R
 import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCategory
+import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
+import com.example.notesapp.domain.emoji.usecase.ObserveRecentEmojiUseCase
+import com.example.notesapp.domain.emoji.usecase.RecordRecentEmojiUseCase
+import com.example.notesapp.domain.folder.FolderRepository
+import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
+import com.example.notesapp.domain.note.Note
+import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.domain.summary.NoteSummaryResult
+import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
+import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.EmojiPickerUiMapper
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
+import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
+import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -157,6 +176,27 @@ class NoteEditorEmojiPickerTest {
     }
 
     @Test
+    fun catalogFailureShowsRecoverableStateAndStableElementTags() {
+        val screenState = mutableStateOf(editableState(title = "Catalog failure"))
+        val pickerState = mutableStateOf(EmojiPickerUiState(hasCatalogError = true))
+        composeRule.setContent {
+            EmojiPickerTestContent(
+                state = screenState,
+                emojiPickerState = pickerState.value,
+                onCategorySelected = { category ->
+                    pickerState.value = pickerState(category)
+                }
+            )
+        }
+
+        openEmojiPicker()
+
+        composeRule.onNodeWithTag("emoji_picker_catalog_error").assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_category_smileys_emotion").performClick()
+        composeRule.onNodeWithTag("emoji_picker_item_grinning_face").assertIsDisplayed()
+    }
+
+    @Test
     fun searchShowsMatchesAndClearableEmptyState() {
         val screenState = mutableStateOf(editableState(title = "Search note"))
         val pickerState = mutableStateOf(EmojiPickerUiState.empty())
@@ -223,6 +263,9 @@ class NoteEditorEmojiPickerTest {
             )
         )
             .assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up").assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_skin_tone_selector_thumbs_up").assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_skin_tone_variant_thumbs_up_medium").assertIsDisplayed()
         composeRule.onNodeWithContentDescription(
             text(
                 R.string.emoji_picker_skin_tone_option_description,
@@ -232,6 +275,71 @@ class NoteEditorEmojiPickerTest {
         ).performClick()
 
         assertEquals("👍🏽", selectedEmoji)
+        composeRule.onNodeWithTag("emoji_skin_tone_variant_thumbs_up_medium").assertDoesNotExist()
+        composeRule.onNodeWithTag("emoji_picker_sheet").assertIsDisplayed()
+    }
+
+    @Test
+    fun productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent() {
+        val body = EditorBlock.TextBlock(id = "body", children = listOf(RichText("Body")))
+        val note = Note(
+            id = "note-1",
+            title = "Production wiring",
+            content = NoteDocument(blocks = listOf(body)).toJsonString(),
+            createdAt = 1L,
+            updatedAt = 1L
+        )
+        val noteRepository = mockk<NoteRepository>(relaxed = true)
+        val folderRepository = mockk<FolderRepository>(relaxed = true)
+        val summarizeNoteUseCase = mockk<SummarizeNoteUseCase>()
+        val editorViewModel = NoteEditorViewModel(
+            noteRepository = noteRepository,
+            folderRepository = folderRepository,
+            summarizeNoteUseCase = summarizeNoteUseCase,
+            categorizeNoteUseCase = mockk<CategorizeNoteUseCase>(relaxed = true),
+            deleteVoiceNoteAudioUseCase = mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            deleteVoiceNoteBlockUseCase = mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        coEvery { noteRepository.getNoteById("note-1") } returns note
+        every { folderRepository.getFolders() } returns flowOf(emptyList())
+        coEvery { summarizeNoteUseCase(any(), any()) } returns NoteSummaryResult.Empty
+        val recentRepository = RecordingRecentEmojiRepository()
+        val emojiPickerViewModel = EmojiPickerViewModel(
+            findEmojiCatalogUseCase = FindEmojiCatalogUseCase(BundledEmojiCatalogRepository()),
+            observeRecentEmojiUseCase = ObserveRecentEmojiUseCase(recentRepository),
+            recordRecentEmojiUseCase = RecordRecentEmojiUseCase(recentRepository)
+        )
+
+        emojiPickerViewModel.onCategorySelected(EmojiCategory.PEOPLE_BODY)
+
+        composeRule.setContent {
+            NoteEditorScreen(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note-1",
+                onBack = {},
+                onShareNote = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
+                viewModel = editorViewModel,
+                emojiPickerViewModel = emojiPickerViewModel
+            )
+        }
+
+        composeRule.waitUntil { editorViewModel.uiState.value.isLoaded }
+        editorViewModel.setFocusedBlock("body")
+        editorViewModel.updateSelection(4, 4)
+        composeRule.waitForIdle()
+        openEmojiPicker()
+        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up").performClick()
+        composeRule.onNodeWithTag("emoji_picker_item_thumbs_up").performTouchInput { longClick() }
+        composeRule.onNodeWithTag("emoji_skin_tone_variant_thumbs_up_medium").performClick()
+        composeRule.waitUntil { recentRepository.recordedEmoji == listOf("👍", "👍🏽") }
+
+        val updatedText = (editorViewModel.uiState.value.document.blocks.single() as EditorBlock.TextBlock).text()
+        assertEquals("Body👍👍🏽", updatedText)
+        assertEquals("Production wiring", editorViewModel.uiState.value.title)
+        assertEquals(listOf("👍", "👍🏽"), recentRepository.recordedEmoji)
         composeRule.onNodeWithTag("emoji_picker_sheet").assertIsDisplayed()
     }
 
@@ -327,3 +435,15 @@ private fun editableState(
     selectionStart = block.text().length,
     selectionEnd = block.text().length
 )
+
+private class RecordingRecentEmojiRepository : RecentEmojiRepository {
+    private val recent = MutableStateFlow<List<String>>(emptyList())
+    val recordedEmoji = mutableListOf<String>()
+
+    override val recentEmoji: Flow<List<String>> = recent
+
+    override suspend fun recordSelectedEmoji(emoji: String) {
+        recordedEmoji += emoji
+        recent.value = listOf(emoji) + recent.value.filterNot { it == emoji }
+    }
+}

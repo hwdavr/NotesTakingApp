@@ -215,7 +215,7 @@ private fun EmojiPickerCategoryRail(
                         selected = isSelected
                         role = Role.Tab
                     }
-                    .testTag("emoji_picker_category"),
+                    .testTag("emoji_category_${category.id.storageKey}"),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -249,6 +249,12 @@ private fun EmojiPickerResults(
                 Text(stringResource(R.string.emoji_picker_loading), color = LocalAppColors.current.textSecondary)
             }
         }
+        uiState.hasCatalogError -> {
+            EmojiPickerEmptyState(
+                message = stringResource(R.string.emoji_picker_catalog_error),
+                testTag = "emoji_picker_catalog_error"
+            )
+        }
         uiState.isEmptyRecent -> {
             EmojiPickerEmptyState(
                 message = stringResource(R.string.emoji_picker_recent_empty),
@@ -267,6 +273,12 @@ private fun EmojiPickerResults(
                         Text(stringResource(R.string.emoji_picker_clear_search))
                     }
                 }
+            )
+        }
+        uiState.isEmptyCategory -> {
+            EmojiPickerEmptyState(
+                message = stringResource(R.string.emoji_picker_category_empty),
+                testTag = "emoji_picker_category_empty"
             )
         }
         else -> {
@@ -352,7 +364,7 @@ private fun EmojiPickerItem(
                     contentDescription = itemDescription
                     role = Role.Button
                 }
-                .testTag("emoji_picker_item"),
+                .testTag("emoji_picker_item_${item.id}"),
             contentAlignment = Alignment.Center
         ) {
             Text(text = item.unicode, fontSize = 28.sp)
@@ -381,7 +393,7 @@ private fun EmojiSkinToneSelector(
         expanded = true,
         onDismissRequest = onDismiss,
         modifier = Modifier
-            .testTag("emoji_skin_tone_selector")
+            .testTag("emoji_skin_tone_selector_${item.id}")
             .semantics { contentDescription = selectorDescription }
     ) {
         item.variants.forEach { variant ->
@@ -416,7 +428,7 @@ private fun EmojiSkinToneOption(item: EmojiPickerItemUiModel, variant: EmojiVari
         },
         onClick = onClick,
         modifier = Modifier
-            .testTag("emoji_skin_tone_variant")
+            .testTag("emoji_skin_tone_variant_${item.id}_${variant.tone.storageKey}")
             .semantics {
                 contentDescription = optionDescription
                 stateDescription = toneName

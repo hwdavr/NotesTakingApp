@@ -1,12 +1,21 @@
 package com.example.notesapp.data.emoji
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import java.io.File
+import java.io.IOException
 import java.nio.file.Files
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -20,6 +29,8 @@ class DataStoreRecentEmojiRepositoryTest {
 
     @Before
     fun setUp() {
+        mockkStatic(Log::class)
+        every { Log.w(any(), any<String>(), any()) } returns 0
         dataStoreFile = Files.createTempDirectory("notesapp-emoji").toFile()
             .resolve("emoji_recent.preferences_pb")
         dataStore = PreferenceDataStoreFactory.create { dataStoreFile }
@@ -27,6 +38,7 @@ class DataStoreRecentEmojiRepositoryTest {
 
     @After
     fun tearDown() {
+        unmockkStatic(Log::class)
         dataStoreFile.parentFile?.deleteRecursively()
     }
 
@@ -65,5 +77,33 @@ class DataStoreRecentEmojiRepositoryTest {
         repository.recordSelectedEmoji("")
 
         assertEquals(emptyList<String>(), repository.recentEmoji.first())
+    }
+
+    @Test
+    fun corruptPreferenceFallsBackToEmptyRecent() = runTest {
+        dataStore.edit { preferences ->
+            preferences[stringPreferencesKey("recent_emoji_json")] = "not-json"
+        }
+
+        val repository = DataStoreRecentEmojiRepository(dataStore)
+
+        assertEquals(emptyList<String>(), repository.recentEmoji.first())
+    }
+
+    @Test
+    fun readFailureFallsBackToEmptyRecent() = runTest {
+        val repository = DataStoreRecentEmojiRepository(FailingDataStore())
+
+        assertEquals(emptyList<String>(), repository.recentEmoji.first())
+    }
+
+    private class FailingDataStore : DataStore<Preferences> {
+        override val data: Flow<Preferences> = flow {
+            throw IOException("preferences unavailable")
+        }
+
+        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences {
+            throw IOException("preferences unavailable")
+        }
     }
 }

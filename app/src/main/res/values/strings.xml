@@ -166,6 +166,8 @@
     <string name="emoji_picker_recent_empty">Your recently used emoji will appear here.</string>
     <string name="emoji_picker_no_results">No emoji found</string>
     <string name="emoji_picker_loading">Loading emoji</string>
+    <string name="emoji_picker_catalog_error">Emoji are temporarily unavailable. Choose another category or try again.</string>
+    <string name="emoji_picker_category_empty">No emoji are available in this category.</string>
     <string name="emoji_picker_skin_tone_selector_description">Choose skin tone for %1$s</string>
     <string name="emoji_picker_skin_tone_option_description">%1$s: %2$s</string>
     <string name="emoji_picker_item_skin_tone_hint">Skin tone variants available</string>

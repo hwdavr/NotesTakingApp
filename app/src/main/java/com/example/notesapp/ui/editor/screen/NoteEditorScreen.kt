@@ -235,11 +235,11 @@ fun NoteEditorScreenContent(
     onAddImage: () -> Unit,
     onEmojiSelected: (String) -> Unit,
     emojiPickerState: EmojiPickerUiState = EmojiPickerUiState.empty(),
-    onEmojiQueryChange: (String) -> Unit = {},
-    onEmojiClearQuery: () -> Unit = {},
-    onEmojiCategorySelected: (EmojiCategory) -> Unit = {},
-    onEmojiSkinToneRequested: (String) -> Unit = {},
-    onEmojiSkinToneDismissed: () -> Unit = {},
+    onEmojiQueryChange: (String) -> Unit,
+    onEmojiClearQuery: () -> Unit,
+    onEmojiCategorySelected: (EmojiCategory) -> Unit,
+    onEmojiSkinToneRequested: (String) -> Unit,
+    onEmojiSkinToneDismissed: () -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -262,6 +262,7 @@ fun NoteEditorScreenContent(
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
     var showEmojiPicker by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = showEmojiPicker) { showEmojiPicker = false }
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameTextFieldValue by remember { mutableStateOf("") }
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }

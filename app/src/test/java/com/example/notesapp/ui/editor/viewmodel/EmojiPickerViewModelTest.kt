@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.editor.viewmodel
 
+import android.util.Log
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.domain.emoji.EmojiCatalogRepository
@@ -8,19 +9,37 @@ import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import com.example.notesapp.domain.emoji.usecase.FindEmojiCatalogUseCase
 import com.example.notesapp.domain.emoji.usecase.ObserveRecentEmojiUseCase
 import com.example.notesapp.domain.emoji.usecase.RecordRecentEmojiUseCase
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EmojiPickerViewModelTest : BaseViewModelTest() {
+    @Before
+    fun setUpLogging() {
+        mockkStatic(Log::class)
+        every { Log.w(any(), any<String>(), any()) } returns 0
+    }
+
+    @After
+    fun tearDownLogging() {
+        unmockkStatic(Log::class)
+    }
+
     @Test
     fun startsWithAnEmptyRecentState() {
         val viewModel = createViewModel()
@@ -95,6 +114,22 @@ class EmojiPickerViewModelTest : BaseViewModelTest() {
     }
 
     @Test
+    fun recentReadFailureLeavesCatalogAndInsertionUsable() = runTest {
+        val failingRepository = FailingRecentEmojiRepository()
+        val viewModel = createViewModel(recentRepository = failingRepository)
+
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.recentEmoji.isEmpty())
+
+        viewModel.onCategorySelected(EmojiCategory.PEOPLE_BODY)
+        assertEquals("thumbs_up", viewModel.uiState.value.items.first().id)
+
+        viewModel.onEmojiSelected("👍🏽")
+        advanceUntilIdle()
+        assertEquals(listOf("👍🏽"), failingRepository.recordedEmoji)
+    }
+
+    @Test
     fun loadsExactPersistedRecentUnicodeInMostRecentOrder() {
         val viewModel = createViewModel(recentEmoji = listOf("👍🏽", "🚀"))
 
@@ -116,7 +151,7 @@ class EmojiPickerViewModelTest : BaseViewModelTest() {
     private fun createViewModel(
         catalogRepository: EmojiCatalogRepository = BundledEmojiCatalogRepository(),
         recentEmoji: List<String> = emptyList(),
-        recentRepository: FakeRecentEmojiRepository = FakeRecentEmojiRepository(recentEmoji)
+        recentRepository: RecentEmojiRepository = FakeRecentEmojiRepository(recentEmoji)
     ): EmojiPickerViewModel = EmojiPickerViewModel(
         findEmojiCatalogUseCase = FindEmojiCatalogUseCase(catalogRepository),
         observeRecentEmojiUseCase = ObserveRecentEmojiUseCase(recentRepository),
@@ -131,6 +166,18 @@ class EmojiPickerViewModelTest : BaseViewModelTest() {
 
         override suspend fun recordSelectedEmoji(emoji: String) {
             recordedEmoji = emoji
+        }
+    }
+
+    private class FailingRecentEmojiRepository : RecentEmojiRepository {
+        val recordedEmoji = mutableListOf<String>()
+
+        override val recentEmoji: Flow<List<String>> = flow {
+            throw IOException("recent preferences unavailable")
+        }
+
+        override suspend fun recordSelectedEmoji(emoji: String) {
+            recordedEmoji += emoji
         }
     }
 }
