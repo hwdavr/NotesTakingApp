@@ -101,6 +101,9 @@ class RecordingTranscriptCoordinator @Inject constructor(
     private fun onRecognitionEvent(event: TranscriptRecognitionEvent) {
         if (event.sessionId != activeSessionId) return
         val current = mutableState.value
+        if (current.status == TranscriptSessionStatus.AudioOnly && event.isIgnoredInAudioOnly()) {
+            return
+        }
         mutableState.value = when (event) {
             is TranscriptRecognitionEvent.Partial -> current.copy(
                 committedText = concatenator.currentText().also {
@@ -130,20 +133,12 @@ class RecordingTranscriptCoordinator @Inject constructor(
             )
 
             is TranscriptRecognitionEvent.ChunkTimedOut -> current.copy(
-                committedText = concatenator.appendFinal(
-                    event.chunkIndex,
-                    FAILED_SEGMENT_MARKER
-                ),
                 partialText = "",
                 status = TranscriptSessionStatus.Recognizing,
                 warning = TranscriptWarning.ChunkTimedOut(event.chunkIndex)
             )
 
             is TranscriptRecognitionEvent.Failed -> current.copy(
-                committedText = concatenator.appendFinal(
-                    event.chunkIndex,
-                    FAILED_SEGMENT_MARKER
-                ),
                 partialText = "",
                 status = TranscriptSessionStatus.Recognizing,
                 warning = TranscriptWarning.RecognitionFailed(event.chunkIndex)
@@ -152,6 +147,8 @@ class RecordingTranscriptCoordinator @Inject constructor(
             is TranscriptRecognitionEvent.Cancelled -> TranscriptSessionState()
         }.also {
             when (event) {
+                is TranscriptRecognitionEvent.ModelUnavailable,
+                is TranscriptRecognitionEvent.AudioSourceUnavailable -> watchdogJob?.cancel()
                 is TranscriptRecognitionEvent.Final -> {
                     nextChunkIndex = maxOf(nextChunkIndex, event.chunkIndex + 1)
                     armChunkWatchdog(event.sessionId, nextChunkIndex)
@@ -164,12 +161,17 @@ class RecordingTranscriptCoordinator @Inject constructor(
                     nextChunkIndex = maxOf(nextChunkIndex, event.chunkIndex + 1)
                     armChunkWatchdog(event.sessionId, nextChunkIndex)
                 }
-                is TranscriptRecognitionEvent.ModelUnavailable,
-                is TranscriptRecognitionEvent.AudioSourceUnavailable,
                 is TranscriptRecognitionEvent.Cancelled,
                 is TranscriptRecognitionEvent.Partial -> Unit
             }
         }
+    }
+
+    private fun TranscriptRecognitionEvent.isIgnoredInAudioOnly(): Boolean = when (this) {
+        is TranscriptRecognitionEvent.ModelUnavailable,
+        is TranscriptRecognitionEvent.AudioSourceUnavailable,
+        is TranscriptRecognitionEvent.Cancelled -> false
+        else -> true
     }
 
     private fun armChunkWatchdog(sessionId: String, chunkIndex: Int) {
@@ -188,7 +190,6 @@ class RecordingTranscriptCoordinator @Inject constructor(
     }
 
     private companion object {
-        const val FAILED_SEGMENT_MARKER = "<transcription failed for this segment>"
         const val SILENT_CHUNK_TIMEOUT_MS = 65_000L
     }
 }

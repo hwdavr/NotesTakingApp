@@ -137,7 +137,7 @@ class VoiceRecorderTranscriptIntegrationTest : BaseViewModelTest() {
             )
         )
         advanceUntilIdle()
-        assertTrue(viewModel.uiState.value.transcript.contains("transcription failed for this segment"))
+        assertEquals("", viewModel.uiState.value.transcript)
 
         viewModel.onDiscard()
         advanceUntilIdle()

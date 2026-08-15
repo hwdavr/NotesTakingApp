@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -475,23 +476,30 @@ fun VoiceRecorderContent(
 @Composable
 private fun Waveform(amplitudes: List<Float>, paused: Boolean, modifier: Modifier = Modifier) {
     val colors = LocalAppColors.current
-    Row(
-        modifier = modifier.fillMaxWidth().height(128.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(128.dp),
+        contentAlignment = Alignment.Center
     ) {
-        List(64) { index ->
-            val amplitude = amplitudes.getOrNull(index) ?: 0.08f
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .height((12f + amplitude * 100f).coerceAtMost(100f).dp)
-                    .alpha(if (paused) 0.5f else 1f)
-                    .background(
-                        if (index % 3 == 0) colors.secondary else colors.primary,
-                        RoundedCornerShape(3.dp)
-                    )
-            )
+        Row(
+            modifier = Modifier.wrapContentWidth(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            List(64) { index ->
+                val amplitude = amplitudes.getOrNull(index) ?: 0.08f
+                Box(
+                    modifier = Modifier
+                        .width(3.dp)
+                        .height((12f + amplitude * 100f).coerceAtMost(100f).dp)
+                        .alpha(if (paused) 0.5f else 1f)
+                        .background(
+                            if (index % 3 == 0) colors.secondary else colors.primary,
+                            RoundedCornerShape(3.dp)
+                        )
+                )
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.example.notesapp.domain.voice.RecordingSessionMetadata
 import com.example.notesapp.domain.voice.TranscriptRecognitionEvent
 import com.example.notesapp.domain.voice.TranscriptSessionStatus
 import com.example.notesapp.domain.voice.TranscriptStartRequest
+import com.example.notesapp.domain.voice.TranscriptWarning
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -47,7 +48,8 @@ class RecordingTranscriptCoordinatorTest {
         recognizer.emit(TranscriptRecognitionEvent.Final("different-session", 0, "stale"))
         assertEquals("", coordinator.state.value.previewText)
 
-        coordinator.stop()
+        recognizer.emit(TranscriptRecognitionEvent.Cancelled("session"))
+        assertEquals(TranscriptSessionStatus.Idle, coordinator.state.value.status)
     }
 
     @Test
@@ -55,7 +57,8 @@ class RecordingTranscriptCoordinatorTest {
         coordinator.start(metadata)
         recognizer.emit(TranscriptRecognitionEvent.Failed("session", 0))
 
-        assertTrue(coordinator.state.value.previewText.contains("transcription failed for this segment"))
+        assertEquals("", coordinator.state.value.previewText)
+        assertTrue(coordinator.state.value.warning is TranscriptWarning.RecognitionFailed)
 
         coordinator.cancel()
 

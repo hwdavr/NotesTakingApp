@@ -10,16 +10,21 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.MediaRecorder
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import com.example.notesapp.R
 import com.example.notesapp.data.voice.AudioFileSystem
+import com.example.notesapp.data.voice.PcmAudioSource
 import com.example.notesapp.data.voice.RecordingStateStore
+import com.example.notesapp.data.voice.SpeechRecognizerFactory
+import com.example.notesapp.data.voice.TranscriptAudioSourceRegistry
+import com.example.notesapp.data.voice.VoiceAudioCapture
+import com.example.notesapp.data.voice.VoiceAudioEncoder
+import com.example.notesapp.data.voice.VoiceAudioFrame
+import com.example.notesapp.data.voice.voiceAudioCaptureConfigForFormat
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.domain.voice.RecordingSessionEvent
@@ -55,9 +60,20 @@ class VoiceNoteRecordingService : LifecycleService() {
     @Inject
     lateinit var transcriptSession: VoiceTranscriptSession
 
+    @Inject
+    lateinit var audioCapture: VoiceAudioCapture
+
+    @Inject
+    lateinit var audioEncoder: VoiceAudioEncoder
+
+    @Inject
+    lateinit var transcriptAudioSourceRegistry: TranscriptAudioSourceRegistry
+
+    @Inject
+    lateinit var speechRecognizerFactory: SpeechRecognizerFactory
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val reducer = RecordingSessionStateReducer()
-    private var recorder: MediaRecorder? = null
     private var metadata: RecordingSessionMetadata? = null
     private var activeJob: Job? = null
     private var recordingStartedAt = 0L
@@ -66,6 +82,11 @@ class VoiceNoteRecordingService : LifecycleService() {
     private var pausedForFocus = false
     private var audioFocusRequest: AudioFocusRequest? = null
     private var failureHandled = false
+    private var captureStarted = false
+    private var transcriptAudioSource: PcmAudioSource? = null
+
+    @Volatile
+    private var latestAmplitude = 0f
 
     private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
@@ -102,14 +123,14 @@ class VoiceNoteRecordingService : LifecycleService() {
     override fun onDestroy() {
         activeJob?.cancel()
         serviceScope.cancel()
-        if (recorder != null) {
+        if (captureStarted) {
             discard(metadata?.sessionId)
         }
         super.onDestroy()
     }
 
     private fun startRecording(intent: Intent) {
-        if (recorder != null) return
+        if (captureStarted) return
         val sessionId = intent.getStringExtra(EXTRA_SESSION_ID) ?: return
         val token = intent.getStringExtra(EXTRA_TOKEN) ?: return
         val noteId = intent.getStringExtra(EXTRA_NOTE_ID) ?: return
@@ -130,9 +151,9 @@ class VoiceNoteRecordingService : LifecycleService() {
         try {
             createNotificationChannel()
             startForegroundWithNotification(0L)
-            startRecorder(nextMetadata)
+            startCapture(nextMetadata)
         } catch (exception: Exception) {
-            releaseRecorder()
+            releaseAudioPipeline()
             if (nextMetadata.format == AudioFormat.OPUS) {
                 audioFileSystem.delete(path)
                 val fallbackMetadata = nextMetadata.copy(
@@ -144,7 +165,7 @@ class VoiceNoteRecordingService : LifecycleService() {
                     format = AudioFormat.AAC
                 )
                 metadata = fallbackMetadata
-                runCatching { startRecorder(fallbackMetadata) }
+                runCatching { startCapture(fallbackMetadata) }
                     .onSuccess { return }
                     .onFailure { fallbackException ->
                         publishStartFailure(fallbackException, fallbackMetadata, token)
@@ -155,29 +176,46 @@ class VoiceNoteRecordingService : LifecycleService() {
         }
     }
 
-    private fun startRecorder(metadata: RecordingSessionMetadata) {
+    private fun startCapture(metadata: RecordingSessionMetadata) {
         failureHandled = false
-        recorder = createRecorder(metadata).apply {
-            setOnErrorListener { _, what, extra ->
-                if (!failureHandled) {
-                    failRecording(
-                        IOException(
-                            "MediaRecorder I/O failure (what=$what, extra=$extra)"
-                        )
-                    )
-                }
+        val captureConfig = voiceAudioCaptureConfigForFormat(metadata.format)
+        audioEncoder.start(metadata.audioFilePath, metadata.format, captureConfig)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            speechRecognizerFactory.isOnDeviceRecognitionAvailable(this)
+        ) {
+            transcriptAudioSource = PcmAudioSource(
+                sampleRateHertz = captureConfig.sampleRateHertz,
+                channelCount = captureConfig.channelCount,
+                encoding = captureConfig.encoding
+            ).also { source ->
+                transcriptAudioSourceRegistry.register(metadata.sessionId, source)
             }
-            start()
         }
         recordingStartedAt = SystemClock.elapsedRealtime()
         pausedElapsedMs = 0L
+        latestAmplitude = 0f
         reduce(RecordingSessionEvent.Started(metadata))
         transcriptSession.start(metadata)
         if (!requestAudioFocus()) {
             failRecording(IOException("Audio focus unavailable"))
             return
         }
+        audioCapture.start(
+            config = captureConfig,
+            onFrame = ::onAudioFrame,
+            onError = ::failRecording
+        )
+        captureStarted = true
         startAmplitudeUpdates()
+    }
+
+    private fun onAudioFrame(frame: VoiceAudioFrame) {
+        runCatching {
+            audioEncoder.writePcm(frame.pcmBytes)
+            transcriptAudioSource?.write(frame.pcmBytes)
+            latestAmplitude = frame.amplitude
+        }.onFailure(::failRecording)
     }
 
     private fun publishStartFailure(exception: Throwable, failedMetadata: RecordingSessionMetadata, token: String) {
@@ -188,21 +226,13 @@ class VoiceNoteRecordingService : LifecycleService() {
                 metadata = failedMetadata
             )
         )
-        releaseRecorder()
+        releaseAudioPipeline()
         audioFileSystem.delete(failedMetadata.audioFilePath)
         sessionManager.current()?.takeIf { it.token.value == token }?.let {
             sessionManager.clear(it.token)
         }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
-    }
-
-    private fun createRecorder(metadata: RecordingSessionMetadata): MediaRecorder {
-        return if (metadata.format == AudioFormat.OPUS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            createOpusRecorder(metadata)
-        } else {
-            createAacRecorder(metadata)
-        }
     }
 
     private fun normalizeFormat(
@@ -218,55 +248,13 @@ class VoiceNoteRecordingService : LifecycleService() {
         return audioFileSystem.createRecordingFile(noteId, blockId, AudioFormat.AAC).absolutePath to AudioFormat.AAC
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun createOpusRecorder(metadata: RecordingSessionMetadata): MediaRecorder = configureRecorder(
-        metadata = metadata,
-        outputFormat = MediaRecorder.OutputFormat.OGG,
-        audioEncoder = MediaRecorder.AudioEncoder.OPUS,
-        bitRate = 32_000,
-        sampleRateHertz = 16_000
-    )
-
-    private fun createAacRecorder(metadata: RecordingSessionMetadata): MediaRecorder = configureRecorder(
-        metadata = metadata,
-        outputFormat = MediaRecorder.OutputFormat.MPEG_4,
-        audioEncoder = MediaRecorder.AudioEncoder.AAC,
-        bitRate = 128_000,
-        sampleRateHertz = 44_100
-    )
-
-    private fun configureRecorder(
-        metadata: RecordingSessionMetadata,
-        outputFormat: Int,
-        audioEncoder: Int,
-        bitRate: Int,
-        sampleRateHertz: Int
-    ): MediaRecorder = newMediaRecorder().apply {
-        setAudioSource(MediaRecorder.AudioSource.MIC)
-        setOutputFormat(outputFormat)
-        setAudioEncoder(audioEncoder)
-        setAudioEncodingBitRate(bitRate)
-        setAudioSamplingRate(sampleRateHertz)
-        setOutputFile(metadata.audioFilePath)
-        prepare()
-    }
-
-    private fun newMediaRecorder(): MediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        MediaRecorder(this)
-    } else {
-        MediaRecorder::class.java.getDeclaredConstructor().newInstance()
-    }
-
     private fun startAmplitudeUpdates() {
         activeJob?.cancel()
         activeJob = serviceScope.launch {
-            while (isActive && recorder != null) {
+            while (isActive && captureStarted) {
                 if (currentState is RecordingSessionState.Recording) {
                     val elapsed = pausedElapsedMs + (SystemClock.elapsedRealtime() - recordingStartedAt)
-                    val amplitude = runCatching {
-                        (recorder?.maxAmplitude ?: 0) / MAX_AMPLITUDE.toFloat()
-                    }.getOrDefault(0f)
-                    reduce(RecordingSessionEvent.Tick(elapsed, amplitude))
+                    reduce(RecordingSessionEvent.Tick(elapsed, latestAmplitude))
                     updateNotification(elapsed)
                 }
                 delay(250L)
@@ -277,8 +265,7 @@ class VoiceNoteRecordingService : LifecycleService() {
     private fun togglePauseResume() {
         when (currentState) {
             is RecordingSessionState.Recording -> {
-                val recorder = recorder ?: return
-                runCatching { recorder.pause() }.onSuccess {
+                runCatching { audioCapture.pause() }.onSuccess {
                     pausedElapsedMs += SystemClock.elapsedRealtime() - recordingStartedAt
                     reduce(RecordingSessionEvent.PauseRequested)
                     transcriptSession.pause()
@@ -287,8 +274,7 @@ class VoiceNoteRecordingService : LifecycleService() {
             }
 
             is RecordingSessionState.Paused -> {
-                val recorder = recorder ?: return
-                runCatching { recorder.resume() }.onSuccess {
+                runCatching { audioCapture.resume() }.onSuccess {
                     recordingStartedAt = SystemClock.elapsedRealtime()
                     reduce(RecordingSessionEvent.ResumeRequested)
                     transcriptSession.resume()
@@ -310,17 +296,16 @@ class VoiceNoteRecordingService : LifecycleService() {
         reduce(RecordingSessionEvent.StopRequested)
         activeJob?.cancel()
         val transcript = transcriptSession.stop()
-        runCatching { recorder?.stop() }
+        runCatching { stopAudioPipeline() }
             .onFailure { error ->
-                releaseRecorder()
                 publishPartialOrError(
                     metadata = currentMetadata,
                     elapsedMs = currentElapsed,
+                    transcript = transcript,
                     message = error.message ?: getString(R.string.voice_recording_save_error)
                 )
             }
             .onSuccess {
-                releaseRecorder()
                 val fileSize = audioFileSystem.fileSize(currentMetadata.audioFilePath)
                 recordingStateStore.update(
                     RecordingSessionState.Saved(
@@ -341,7 +326,7 @@ class VoiceNoteRecordingService : LifecycleService() {
         if (requestedSessionId != null && currentMetadata?.sessionId != requestedSessionId) return
         activeJob?.cancel()
         transcriptSession.cancel()
-        releaseRecorder()
+        releaseAudioPipeline()
         currentMetadata?.audioFilePath?.let(audioFileSystem::delete)
         clearActiveSession()
         val currentStateSessionId = recordingStateStore.state.value.sessionIdOrNull()
@@ -363,7 +348,7 @@ class VoiceNoteRecordingService : LifecycleService() {
             else -> 0L
         }
         val transcript = transcriptSession.stop()
-        releaseRecorder()
+        releaseAudioPipeline()
         if (currentMetadata != null) {
             publishPartialOrError(
                 metadata = currentMetadata,
@@ -386,7 +371,7 @@ class VoiceNoteRecordingService : LifecycleService() {
     private fun publishPartialOrError(
         metadata: RecordingSessionMetadata,
         elapsedMs: Long,
-        transcript: String = transcriptSession.stop(),
+        transcript: String,
         message: String
     ) {
         val fileSize = audioFileSystem.fileSize(metadata.audioFilePath)
@@ -420,10 +405,23 @@ class VoiceNoteRecordingService : LifecycleService() {
         recordingStateStore.update(currentState)
     }
 
-    private fun releaseRecorder() {
-        recorder?.runCatching { reset() }
-        recorder?.release()
-        recorder = null
+    private fun stopAudioPipeline() {
+        audioCapture.stop()
+        audioEncoder.stop()
+        releaseAudioPipelineState()
+    }
+
+    private fun releaseAudioPipeline() {
+        audioCapture.stop()
+        runCatching { audioEncoder.stop() }
+        releaseAudioPipelineState()
+    }
+
+    private fun releaseAudioPipelineState() {
+        metadata?.sessionId?.let(transcriptAudioSourceRegistry::remove)
+        transcriptAudioSource?.close()
+        transcriptAudioSource = null
+        captureStarted = false
         releaseAudioFocus()
     }
 
@@ -572,7 +570,6 @@ class VoiceNoteRecordingService : LifecycleService() {
         private const val NOTIFICATION_ID = 4101
         private const val REQUEST_TOGGLE = 4102
         private const val REQUEST_STOP = 4103
-        private const val MAX_AMPLITUDE = 32_767
         private const val TAG = "NotesApp/VoiceNoteRecordingService"
 
         fun startIntent(context: Context, token: String, metadata: RecordingSessionMetadata): Intent =

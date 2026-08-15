@@ -28,12 +28,16 @@ import com.example.notesapp.data.summary.MediaPipeTextFolderCategorizer
 import com.example.notesapp.data.voice.AndroidMicrophoneAvailability
 import com.example.notesapp.data.voice.AndroidSpeechRecognizerFactory
 import com.example.notesapp.data.voice.AndroidStorageInfoProvider
+import com.example.notesapp.data.voice.AndroidVoiceAudioCapture
+import com.example.notesapp.data.voice.AndroidVoiceAudioEncoder
 import com.example.notesapp.data.voice.AndroidVoiceRecordingController
 import com.example.notesapp.data.voice.AndroidVoiceTranscriptRecognizer
 import com.example.notesapp.data.voice.AudioFileSystem
 import com.example.notesapp.data.voice.PrivateAudioFileSystem
 import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
 import com.example.notesapp.data.voice.SpeechRecognizerFactory
+import com.example.notesapp.data.voice.VoiceAudioCapture
+import com.example.notesapp.data.voice.VoiceAudioEncoder
 import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
@@ -110,6 +114,14 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindVoiceRecordingController(impl: AndroidVoiceRecordingController): VoiceRecordingController
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceAudioCapture(impl: AndroidVoiceAudioCapture): VoiceAudioCapture
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceAudioEncoder(impl: AndroidVoiceAudioEncoder): VoiceAudioEncoder
 
     @Binds
     @Singleton

@@ -19,7 +19,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class RecordingTranscriptWatchdogTest {
     @Test
-    fun silentChunkTimesOutAfter65SecondsAndContinuesWithFailureMarker() {
+    fun silentChunkTimesOutAfter65SecondsWithoutAddingFailureMarker() {
         val recognizer = RecordingRecognizer()
         val watchdogScope = TestScope(StandardTestDispatcher())
         val coordinator = RecordingTranscriptCoordinator(recognizer)
@@ -39,7 +39,7 @@ class RecordingTranscriptWatchdogTest {
         watchdogScope.runCurrent()
 
         assertEquals(
-            "<transcription failed for this segment>",
+            "",
             coordinator.state.value.committedText
         )
         assertTrue(coordinator.state.value.warning is TranscriptWarning.ChunkTimedOut)

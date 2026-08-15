@@ -9,6 +9,7 @@ import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import androidx.annotation.RequiresApi
 import com.example.notesapp.domain.voice.TranscriptRecognitionEvent
 import com.example.notesapp.domain.voice.TranscriptStartRequest
 import com.example.notesapp.domain.voice.VoiceTranscriptRecognizer
@@ -20,7 +21,8 @@ import javax.inject.Singleton
 @Singleton
 class AndroidVoiceTranscriptRecognizer @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val factory: SpeechRecognizerFactory = AndroidSpeechRecognizerFactory()
+    private val factory: SpeechRecognizerFactory,
+    private val audioSourceRegistry: TranscriptAudioSourceRegistry
 ) : VoiceTranscriptRecognizer {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var recognizer: SpeechRecognizer? = null
@@ -30,6 +32,7 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
     private var paused = false
     private var chunkIndex = 0
     private var listening = false
+    private var sourceFed = false
 
     override fun start(request: TranscriptStartRequest, onEvent: (TranscriptRecognitionEvent) -> Unit) {
         stopRecognizer()
@@ -38,24 +41,31 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
         callback = onEvent
         paused = false
         chunkIndex = 0
-        if (!isRecognitionModelAvailable()) {
-            emitUnavailable(request.sessionId)
-            return
+        sourceFed = false
+        val source = if (canStartSourceFedRecognition()) {
+            audioSourceRegistry.find(request.sessionId)
+        } else {
+            null
         }
-        mainHandler.post {
-            if (sessionId != request.sessionId) return@post
-            runCatching {
-                recognizer = createRecognizer()
-                recognizer?.setRecognitionListener(listener)
-                startListening(request.languageTag)
-            }.onFailure {
-                emit(
-                    TranscriptRecognitionEvent.Failed(
-                        sessionId = request.sessionId,
-                        chunkIndex = chunkIndex
+        if (source == null) {
+            emitUnavailable(request.sessionId)
+        } else {
+            mainHandler.post {
+                if (sessionId != request.sessionId) return@post
+                runCatching {
+                    recognizer = createRecognizer()
+                    recognizer?.setRecognitionListener(listener)
+                    startListeningIfSupported(request.languageTag, source)
+                }.onFailure {
+                    source.disable()
+                    emit(
+                        TranscriptRecognitionEvent.Failed(
+                            sessionId = request.sessionId,
+                            chunkIndex = chunkIndex
+                        )
                     )
-                )
-                stopRecognizer()
+                    stopRecognizer()
+                }
             }
         }
     }
@@ -71,7 +81,10 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
         if (sessionId != null && paused) {
             paused = false
             mainHandler.post {
-                if (sessionId != null) startListening(languageTag)
+                if (sessionId != null && !sourceFed) {
+                    val source = sessionId?.let(audioSourceRegistry::find)
+                    if (source != null) startListeningIfSupported(languageTag, source)
+                }
             }
         }
     }
@@ -82,6 +95,7 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
         sessionId = null
         paused = false
         chunkIndex = 0
+        sourceFed = false
     }
 
     override fun cancel() {
@@ -92,19 +106,37 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
         stop()
     }
 
-    private fun startListening(language: String) {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun startListening(language: String, source: PcmAudioSource) {
         val speechRecognizer = recognizer ?: return
         if (paused || sessionId == null || listening) return
+        val audioSource = source.attachForRecognizer() ?: run {
+            emitUnavailable(sessionId ?: return)
+            return
+        }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1_500L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1_500L)
+            putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE, audioSource)
+            putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, source.channelCount)
+            putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING, source.encoding)
+            putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, source.sampleRateHertz)
+            putExtra(RecognizerIntent.EXTRA_SEGMENTED_SESSION, RecognizerIntent.EXTRA_AUDIO_SOURCE)
         }
         listening = true
+        sourceFed = true
         speechRecognizer.startListening(intent)
+    }
+
+    private fun startListeningIfSupported(language: String, source: PcmAudioSource) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            startListening(language, source)
+        } else {
+            source.disable()
+            sessionId?.let(::emitUnavailable)
+        }
     }
 
     private fun createRecognizer(): SpeechRecognizer = factory.create(context)
@@ -120,9 +152,7 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
 
     private fun emitUnavailable(currentSessionId: String) {
         emit(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                !factory.isOnDeviceRecognitionAvailable(context)
-            ) {
+            if (!factory.isRecognitionAvailable(context)) {
                 TranscriptRecognitionEvent.ModelUnavailable(currentSessionId, languageTag)
             } else {
                 TranscriptRecognitionEvent.AudioSourceUnavailable(currentSessionId, languageTag)
@@ -151,6 +181,9 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
             listening = false
             val currentSessionId = sessionId ?: return
             if (paused) return
+            if (sourceFed) {
+                audioSourceRegistry.find(currentSessionId)?.disable()
+            }
             emit(
                 TranscriptRecognitionEvent.Failed(
                     sessionId = currentSessionId,
@@ -158,9 +191,14 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
                 )
             )
             chunkIndex += 1
-            mainHandler.postDelayed({
-                if (sessionId == currentSessionId && !paused) startListening(languageTag)
-            }, RESTART_DELAY_MS)
+            if (!sourceFed) {
+                mainHandler.postDelayed({
+                    if (sessionId == currentSessionId && !paused) {
+                        val source = audioSourceRegistry.find(currentSessionId)
+                        if (source != null) startListeningIfSupported(languageTag, source)
+                    }
+                }, RESTART_DELAY_MS)
+            }
         }
 
         override fun onResults(results: Bundle?) {
@@ -181,8 +219,22 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
             }
             chunkIndex += 1
             if (!paused) {
-                mainHandler.post { startListening(languageTag) }
+                if (!sourceFed) {
+                    mainHandler.post {
+                        val source = sessionId?.let(audioSourceRegistry::find)
+                        if (source != null) startListeningIfSupported(languageTag, source)
+                    }
+                }
             }
+        }
+
+        override fun onSegmentResults(segmentResults: Bundle) {
+            onResults(segmentResults)
+        }
+
+        override fun onEndOfSegmentedSession() {
+            listening = false
+            sessionId?.let { audioSourceRegistry.find(it)?.disable() }
         }
 
         override fun onPartialResults(partialResults: Bundle?) {
@@ -205,7 +257,9 @@ class AndroidVoiceTranscriptRecognizer @Inject constructor(
         override fun onEvent(eventType: Int, params: Bundle?) = Unit
     }
 
-    private fun isRecognitionModelAvailable(): Boolean = factory.isRecognitionAvailable(context)
+    private fun canStartSourceFedRecognition(): Boolean = factory.isRecognitionAvailable(context) &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+        factory.isOnDeviceRecognitionAvailable(context)
 
     private companion object {
         const val RESTART_DELAY_MS = 250L

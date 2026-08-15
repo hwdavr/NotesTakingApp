@@ -2,15 +2,20 @@ package com.example.notesapp.voice
 
 import android.app.Notification
 import android.content.Context
+import android.os.Bundle
+import android.speech.RecognitionListener
 import android.speech.SpeechRecognizer
 import androidx.test.core.app.ApplicationProvider
 import com.example.notesapp.R
 import com.example.notesapp.data.voice.AndroidMicrophoneAvailability
+import com.example.notesapp.data.voice.AndroidSpeechRecognizerFactory
 import com.example.notesapp.data.voice.AndroidStorageInfoProvider
 import com.example.notesapp.data.voice.AndroidVoiceTranscriptRecognizer
+import com.example.notesapp.data.voice.PcmAudioSource
 import com.example.notesapp.data.voice.PrivateAudioFileSystem
 import com.example.notesapp.data.voice.RecordingStateStore
 import com.example.notesapp.data.voice.SpeechRecognizerFactory
+import com.example.notesapp.data.voice.TranscriptAudioSourceRegistry
 import com.example.notesapp.domain.voice.AudioFilenameGenerator
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.RecordingSessionMetadata
@@ -21,6 +26,7 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -84,7 +90,11 @@ class VoicePlatformComponentsTest {
     @Test
     fun `android transcript adapter reports safe availability fallback`() {
         val events = mutableListOf<TranscriptRecognitionEvent>()
-        val adapter = AndroidVoiceTranscriptRecognizer(context)
+        val adapter = AndroidVoiceTranscriptRecognizer(
+            context,
+            AndroidSpeechRecognizerFactory(),
+            TranscriptAudioSourceRegistry()
+        )
 
         adapter.start(
             request = TranscriptStartRequest(
@@ -108,23 +118,155 @@ class VoicePlatformComponentsTest {
     fun `android transcript adapter starts recognizer and forwards partial and final results`() {
         val speechRecognizer = mockk<SpeechRecognizer>(relaxed = true)
         val factory = mockk<SpeechRecognizerFactory>()
+        val listenerSlot = slot<RecognitionListener>()
+        val events = mutableListOf<TranscriptRecognitionEvent>()
         every { factory.isRecognitionAvailable(context) } returns true
         every { factory.isOnDeviceRecognitionAvailable(context) } returns true
         every { factory.create(context) } returns speechRecognizer
-        every { speechRecognizer.setRecognitionListener(any()) } just Runs
-        val adapter = AndroidVoiceTranscriptRecognizer(context, factory)
+        every { speechRecognizer.setRecognitionListener(capture(listenerSlot)) } just Runs
+        val registry = TranscriptAudioSourceRegistry()
+        registry.register("session", PcmAudioSource(sampleRateHertz = 44_100))
+        val adapter = AndroidVoiceTranscriptRecognizer(context, factory, registry)
 
         adapter.start(
             request = TranscriptStartRequest(
                 sessionId = "session",
                 audioFilePath = "/tmp/voice.m4a"
             ),
-            onEvent = {}
+            onEvent = events::add
         )
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
         verify { speechRecognizer.startListening(any()) }
+        listenerSlot.captured.onPartialResults(resultsBundle("draft"))
+        listenerSlot.captured.onResults(resultsBundle("final"))
+        listenerSlot.captured.onSegmentResults(resultsBundle("segmented"))
+        listenerSlot.captured.onEndOfSegmentedSession()
+
+        assertTrue(events[0] is TranscriptRecognitionEvent.Partial)
+        assertTrue(events[1] is TranscriptRecognitionEvent.Final)
+        assertTrue(events[2] is TranscriptRecognitionEvent.Final)
         adapter.stop()
+        registry.remove("session")
+    }
+
+    @Test
+    fun `android transcript adapter forwards source-fed errors without microphone retry`() {
+        val speechRecognizer = mockk<SpeechRecognizer>(relaxed = true)
+        val factory = mockk<SpeechRecognizerFactory>()
+        val listenerSlot = slot<RecognitionListener>()
+        val events = mutableListOf<TranscriptRecognitionEvent>()
+        every { factory.isRecognitionAvailable(context) } returns true
+        every { factory.isOnDeviceRecognitionAvailable(context) } returns true
+        every { factory.create(context) } returns speechRecognizer
+        every { speechRecognizer.setRecognitionListener(capture(listenerSlot)) } just Runs
+        val registry = TranscriptAudioSourceRegistry()
+        registry.register("session", PcmAudioSource(sampleRateHertz = 44_100))
+        val adapter = AndroidVoiceTranscriptRecognizer(context, factory, registry)
+
+        adapter.start(
+            request = TranscriptStartRequest(
+                sessionId = "session",
+                audioFilePath = "/tmp/voice.m4a"
+            ),
+            onEvent = events::add
+        )
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        listenerSlot.captured.onError(SpeechRecognizer.ERROR_NO_MATCH)
+
+        assertTrue(events.single() is TranscriptRecognitionEvent.Failed)
+        verify(exactly = 1) { speechRecognizer.startListening(any()) }
+        adapter.stop()
+        registry.remove("session")
+    }
+
+    @Test
+    fun `android transcript adapter reports rejected source startup`() {
+        val speechRecognizer = mockk<SpeechRecognizer>(relaxed = true)
+        val factory = mockk<SpeechRecognizerFactory>()
+        val registry = TranscriptAudioSourceRegistry()
+        registry.register("session", PcmAudioSource(sampleRateHertz = 44_100))
+        val events = mutableListOf<TranscriptRecognitionEvent>()
+        every { factory.isRecognitionAvailable(context) } returns true
+        every { factory.isOnDeviceRecognitionAvailable(context) } returns true
+        every { factory.create(context) } returns speechRecognizer
+        every { speechRecognizer.setRecognitionListener(any()) } just Runs
+        every { speechRecognizer.startListening(any()) } throws IllegalStateException("rejected")
+        val adapter = AndroidVoiceTranscriptRecognizer(context, factory, registry)
+
+        adapter.start(
+            request = TranscriptStartRequest(
+                sessionId = "session",
+                audioFilePath = "/tmp/voice.m4a"
+            ),
+            onEvent = events::add
+        )
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        assertTrue(events.single() is TranscriptRecognitionEvent.Failed)
+        adapter.stop()
+        registry.remove("session")
+    }
+
+    @Test
+    fun `android transcript adapter handles empty result pause resume and cancellation`() {
+        val speechRecognizer = mockk<SpeechRecognizer>(relaxed = true)
+        val factory = mockk<SpeechRecognizerFactory>()
+        val listenerSlot = slot<RecognitionListener>()
+        val events = mutableListOf<TranscriptRecognitionEvent>()
+        every { factory.isRecognitionAvailable(context) } returns true
+        every { factory.isOnDeviceRecognitionAvailable(context) } returns true
+        every { factory.create(context) } returns speechRecognizer
+        every { speechRecognizer.setRecognitionListener(capture(listenerSlot)) } just Runs
+        val registry = TranscriptAudioSourceRegistry()
+        registry.register("session", PcmAudioSource(sampleRateHertz = 44_100))
+        val adapter = AndroidVoiceTranscriptRecognizer(context, factory, registry)
+
+        adapter.start(
+            request = TranscriptStartRequest(
+                sessionId = "session",
+                audioFilePath = "/tmp/voice.m4a"
+            ),
+            onEvent = events::add
+        )
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        listenerSlot.captured.onEndOfSpeech()
+        listenerSlot.captured.onResults(Bundle())
+        adapter.pause()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        adapter.resume()
+        adapter.cancel()
+
+        assertTrue(events.single() is TranscriptRecognitionEvent.Cancelled)
+        verify { speechRecognizer.stopListening() }
+        adapter.stop()
+        registry.remove("session")
+    }
+
+    @Test
+    fun `android transcript adapter does not feed a source to a cloud-only recognizer`() {
+        val factory = mockk<SpeechRecognizerFactory>()
+        every { factory.isRecognitionAvailable(context) } returns true
+        every { factory.isOnDeviceRecognitionAvailable(context) } returns false
+        val registry = TranscriptAudioSourceRegistry()
+        registry.register("session", PcmAudioSource(sampleRateHertz = 44_100))
+        val events = mutableListOf<TranscriptRecognitionEvent>()
+        val adapter = AndroidVoiceTranscriptRecognizer(context, factory, registry)
+
+        adapter.start(
+            request = TranscriptStartRequest(
+                sessionId = "session",
+                audioFilePath = "/tmp/voice.m4a"
+            ),
+            onEvent = events::add
+        )
+
+        assertTrue(events.single() is TranscriptRecognitionEvent.AudioSourceUnavailable)
+        verify(exactly = 0) { factory.create(context) }
+        adapter.stop()
+        registry.remove("session")
     }
 
     @Test
@@ -168,5 +310,9 @@ class VoicePlatformComponentsTest {
             pausedNotification.actions[0].title
         )
         controller.destroy()
+    }
+
+    private fun resultsBundle(text: String): Bundle = Bundle().apply {
+        putStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION, arrayListOf(text))
     }
 }
