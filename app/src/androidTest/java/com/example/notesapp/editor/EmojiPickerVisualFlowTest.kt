@@ -1,9 +1,15 @@
 package com.example.notesapp.editor
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -12,14 +18,17 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.R
@@ -37,6 +46,8 @@ import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +56,11 @@ import org.junit.runner.RunWith
 class EmojiPickerVisualFlowTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Before
+    fun dismissKeyboardBeforeVisualScenario() {
+        closeSoftKeyboard()
+    }
 
     @Test
     fun emojiPickerContentLightTheme() {
@@ -81,6 +97,69 @@ class EmojiPickerVisualFlowTest {
         ).fetchSemanticsNode().boundsInRoot.height
         assertEquals(rootHeight * 2f / 5f, sheetHeight, 12f)
         captureVisualEvidence("notesapp_emoji_picker_content_light")
+    }
+
+    @Test
+    @OptIn(ExperimentalLayoutApi::class)
+    fun emojiPickerExpandsToAvailableHeightWhenKeyboardIsVisible() {
+        var imeVisible = false
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                val isImeVisible = WindowInsets.isImeVisible
+                val pickerState = remember {
+                    mutableStateOf(recentPickerState().copy(activeSkinToneItemId = null))
+                }
+                SideEffect {
+                    imeVisible = isImeVisible
+                }
+                editorContent(
+                    state = editorState(),
+                    emojiPickerState = pickerState.value,
+                    onEmojiQueryChange = { query ->
+                        val current = pickerState.value
+                        val items = FindEmojiCatalogUseCase(BundledEmojiCatalogRepository())(
+                            category = current.selectedCategory,
+                            query = query,
+                            recentEmoji = current.recentEmoji
+                        )
+                        pickerState.value = current.copy(
+                            query = query,
+                            items = EmojiPickerUiMapper.mapItems(items)
+                        )
+                    }
+                )
+            }
+        }
+
+        openEmojiPicker()
+        composeRule.onNodeWithTag("emoji_picker_search", useUnmergedTree = true)
+            .performTextInput("launch")
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            val rootHeight = composeRule.onAllNodes(isRoot(), useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .maxOfOrNull { node -> node.boundsInRoot.height }
+            val sheetHeight = composeRule.onAllNodesWithTag(
+                "emoji_picker_sheet",
+                useUnmergedTree = true
+            ).fetchSemanticsNodes().firstOrNull()?.boundsInRoot?.height
+            imeVisible && rootHeight != null && sheetHeight != null &&
+                sheetHeight > rootHeight * 2f / 5f
+        }
+
+        val rootHeight = composeRule.onAllNodes(isRoot(), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .maxOf { node -> node.boundsInRoot.height }
+        val sheet = composeRule.onNodeWithTag(
+            "emoji_picker_sheet",
+            useUnmergedTree = true
+        ).fetchSemanticsNode()
+        assertTrue(sheet.boundsInRoot.height > rootHeight * 2f / 5f)
+        assertTrue(sheet.boundsInRoot.top <= 12f)
+        composeRule.onNodeWithTag("emoji_picker_item_rocket", useUnmergedTree = true)
+            .assertIsDisplayed()
+        composeRule.onNodeWithTag("emoji_picker_grid", useUnmergedTree = true).assertIsDisplayed()
+        captureVisualEvidence("notesapp_emoji_picker_keyboard_light")
+        closeSoftKeyboard()
     }
 
     @Test
@@ -160,7 +239,11 @@ class EmojiPickerVisualFlowTest {
     }
 
     @Composable
-    private fun editorContent(state: NoteEditorUiState, emojiPickerState: EmojiPickerUiState) {
+    private fun editorContent(
+        state: NoteEditorUiState,
+        emojiPickerState: EmojiPickerUiState,
+        onEmojiQueryChange: (String) -> Unit = {}
+    ) {
         NoteEditorScreenContent(
             parentPadding = PaddingValues(0.dp),
             noteId = state.noteId,
@@ -182,7 +265,7 @@ class EmojiPickerVisualFlowTest {
             onAddImage = {},
             onEmojiSelected = {},
             emojiPickerState = emojiPickerState,
-            onEmojiQueryChange = {},
+            onEmojiQueryChange = onEmojiQueryChange,
             onEmojiClearQuery = {},
             onEmojiCategorySelected = {},
             onEmojiSkinToneRequested = {},

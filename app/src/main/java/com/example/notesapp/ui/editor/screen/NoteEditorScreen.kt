@@ -17,6 +17,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -618,6 +620,7 @@ private fun NoteEditorUiState.activeTextBlockId(): String? =
     focusedBlockId ?: document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun EmojiPickerOverlay(
     isVisible: Boolean,
     onDismiss: () -> Unit,
@@ -629,9 +632,11 @@ private fun EmojiPickerOverlay(
     onSkinToneRequested: (String) -> Unit,
     onSkinToneDismissed: () -> Unit
 ) {
+    val isImeVisible = WindowInsets.isImeVisible
     if (isVisible) {
         EmojiPickerBottomSheet(
             uiState = uiState,
+            isImeVisible = isImeVisible,
             onDismiss = onDismiss,
             onQueryChange = onQueryChange,
             onClearQuery = onClearQuery,

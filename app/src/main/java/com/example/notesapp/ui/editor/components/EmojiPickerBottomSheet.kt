@@ -39,9 +39,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -65,6 +68,7 @@ import com.example.notesapp.ui.theme.LocalAppColors
 @Composable
 fun EmojiPickerBottomSheet(
     uiState: EmojiPickerUiState,
+    isImeVisible: Boolean,
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
@@ -74,10 +78,11 @@ fun EmojiPickerBottomSheet(
     onSkinToneDismissed: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val isSearchFocused = remember { mutableStateOf(false) }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         modifier = Modifier
-            .fillMaxHeight(2f / 5f)
+            .fillMaxHeight(if (isImeVisible && isSearchFocused.value) 1f else 2f / 5f)
             .testTag("emoji_picker_sheet"),
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
@@ -94,7 +99,8 @@ fun EmojiPickerBottomSheet(
             EmojiPickerSearchField(
                 query = uiState.query,
                 onQueryChange = onQueryChange,
-                onClearQuery = onClearQuery
+                onClearQuery = onClearQuery,
+                onFocusChanged = { isSearchFocused.value = it }
             )
             EmojiPickerCategoryRail(
                 categories = uiState.categories,
@@ -114,13 +120,19 @@ fun EmojiPickerBottomSheet(
 }
 
 @Composable
-private fun EmojiPickerSearchField(query: String, onQueryChange: (String) -> Unit, onClearQuery: () -> Unit) {
+private fun EmojiPickerSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    onFocusChanged: (Boolean) -> Unit
+) {
     val colors = LocalAppColors.current
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = Modifier
             .fillMaxWidth()
+            .onFocusChanged { onFocusChanged(it.isFocused) }
             .testTag("emoji_picker_search"),
         singleLine = true,
         placeholder = { Text(stringResource(R.string.emoji_picker_search_placeholder)) },

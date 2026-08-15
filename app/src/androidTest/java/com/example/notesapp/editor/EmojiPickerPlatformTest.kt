@@ -44,6 +44,7 @@ class EmojiPickerPlatformTest {
             NotesTakingAppTheme {
                 EmojiPickerBottomSheet(
                     uiState = pickerState.value,
+                    isImeVisible = false,
                     onDismiss = {},
                     onQueryChange = {},
                     onClearQuery = {},

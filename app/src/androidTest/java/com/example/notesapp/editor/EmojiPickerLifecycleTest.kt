@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -28,6 +29,7 @@ import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.screen.NoteEditorScreenContent
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +38,11 @@ import org.junit.runner.RunWith
 class EmojiPickerLifecycleTest {
     @get:Rule
     val activityRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Before
+    fun dismissKeyboardBeforeLifecycleScenario() {
+        closeSoftKeyboard()
+    }
 
     @Test
     fun pickerOmitsTitleAndHeaderCloseButton() {
