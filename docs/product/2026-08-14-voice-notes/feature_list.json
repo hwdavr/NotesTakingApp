@@ -67,7 +67,15 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecordingServiceIntegrationTest --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Fix pass 2026-08-15, attempt 1: foreground service produced one non-empty private AAC file on API 33."
+          "result": "Fix pass 2026-08-15, attempt 1: foreground service used the PCM capture/MediaCodec pipeline and produced one non-empty private AAC file on API 33."
+        },
+        {
+          "test_id": "TC-US-1-01-waveform-centered",
+          "command": "./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderBugReproductionTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceRecorderBugReproductionTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Fix pass 2026-08-15, attempt 1: centered waveform regression passed on API 33; colored-bar edge gaps differ by no more than 12 px."
         }
       ],
       "notes": "Risk-first slice passed all listed verification commands. The source-compatible capture spike and API-33 runtime evidence are documented in spike-us1-capture.md; API-24/API-31/API-34 runtime certification remains pending because those emulator images were unavailable. This slice owns recorder lifecycle and audio persistence, not transcript concatenation or editor block rendering."
@@ -107,7 +115,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceRecorderTranscriptIntegrationTest\" --console=plain",
           "exit_status": 0,
           "attempts": 1,
-          "result": "Fix pass 2026-08-15, attempt 1: passed 2 production-boundary integration tests covering transcript fallback, timeout marker, saved transcript, and cancellation cleanup."
+          "result": "Fix pass 2026-08-15, attempt 1: passed 2 production-boundary integration tests covering transcript fallback, timeout handling without a literal failure marker, saved transcript, and cancellation cleanup."
         },
         {
           "test_id": "TC-US-2-02-ui",
@@ -116,9 +124,17 @@
           "exit_status": 0,
           "attempts": 1,
           "result": "Fix pass 2026-08-15, attempt 1: passed 1 Compose runtime fallback test on emulator-5554 (API 33), preserving recorder controls and showing unavailable-transcription warning."
+        },
+        {
+          "test_id": "TC-US-2-02-source-contract",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceTranscriptionFailureReproductionTest\" --tests \"com.example.notesapp.voice.VoicePlatformComponentsTest\"",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.voice.VoiceTranscriptionFailureReproductionTest\" --tests \"com.example.notesapp.voice.VoicePlatformComponentsTest\" --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Fix pass 2026-08-15, attempt 1: source-fed recognizer intent, cloud-only audio-only fallback, partial/final/error listener forwarding, and rejected-start handling passed."
         }
       ],
-      "notes": "US-2 is passing. The injectable recognizer/session boundary consumes service-owned recording state, concatenates partial/final overlapping chunks, applies a 65-second watchdog and failure marker, preserves audio-only fallback copy, and cancels cleanly on discard. Android platform recognition availability is checked without opening a second microphone client; the existing US-1 MediaRecorder ownership boundary remains intact. Because the current US-1 capture path produces a compressed MediaRecorder file and no approved single-mic PCM tee exists yet, the production Android adapter safely reports source-unavailable instead of opening a concurrent SpeechRecognizer microphone client; the injectable boundary and deterministic fallback are ready for a future verified PCM bridge."
+      "notes": "US-2 is passing. The injectable recognizer/session boundary consumes service-owned PCM frames where API-33+ on-device source-fed recognition is available, concatenates partial/final overlapping chunks, applies a 65-second watchdog without inserting a literal failure marker, preserves audio-only fallback copy, and cancels cleanly on discard. API 24–32 and cloud-only recognizers remain explicit audio-only fallbacks; API-24/API-31/API-34 runtime certification and OEM recognition output remain human-review residuals."
     },
     {
       "id": "US-3",

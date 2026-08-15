@@ -10,10 +10,10 @@
 
 - `./gradlew assembleDebug --console=plain` — exit 0.
 - `./gradlew testDebugUnitTest --console=plain` — exit 0.
-- `./gradlew koverLog --rerun-tasks --console=plain` — exit 0; 81.8898% aggregate application line coverage.
+- `./gradlew koverLog --rerun-tasks --console=plain` — exit 0; 80.1764% aggregate application line coverage.
 - `./gradlew ktlintCheck --console=plain`, `./gradlew detekt --console=plain`, and `./gradlew lint --console=plain` — exit 0.
 - `bash scripts/check-compose-rules.sh`, `bash scripts/check-localization-rules.sh --all`, and `bash scripts/check-architecture-rules.sh --all` — exit 0.
-- `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` — exit 0; 74/74 on API 33.
+- `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` — exit 0; 75/75 on API 33, 0 skipped and 0 failed.
 - All sprint-contract acceptance commands exited 0; four target-state PNGs were exported and are non-empty under `visual_evidence/`.
 
 ## Changed This Session
@@ -41,3 +41,12 @@
 - Startup/install: `./gradlew installDebug` on connected `emulator-5554`.
 - Verification: the commands listed above and in `clean-state-checklist.md`.
 - Focused visual review: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.voice.VoiceNotesVisualFlowTest#allTargetStatesAreReachableAndAsserted`.
+
+## Latest Fix Refresh — 2026-08-15
+
+- Implementation/test commit: `f0d28d0` (`fix(voice): feed transcription from recorded audio`).
+- Transcription: the service now owns one PCM capture/encoder pipeline; API-33+ on-device recognition receives the captured PCM source through `EXTRA_AUDIO_SOURCE`; API 24–32 and cloud-only paths remain audio-only without opening a second microphone client.
+- Recorder UI: the waveform bars are centered in their full-width region; `VoiceRecorderBugReproductionTest` verifies left/right edge symmetry within 12 px.
+- Failure copy: timeout/recognition failure no longer injects the literal `<transcription failed for this segment>` marker; audio and warning state remain available for manual editing.
+- Latest gates: full JVM, Kover 80.1764%, Ktlint, Detekt, lint, custom rule scripts, build, and 75/75 API-33 connected tests pass.
+- Final install/lifecycle evidence: `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug --console=plain` exited 0 and reported `Installed on 1 device.` on API 33; `bash scripts/check-feature-lifecycle.sh` then exited 0 with `1 feature(s), 0 in progress`.

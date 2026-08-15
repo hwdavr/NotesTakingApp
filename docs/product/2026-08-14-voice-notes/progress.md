@@ -92,3 +92,15 @@
 - Commits: `e0e468e` — evaluator fixes; `8c45b8b` — global quality gate fixes; final documentation commit is recorded in the handoff after Stage 6.
 - Residual risk: Production-route visual navigation, API-24/API-31/API-34 runtime certification, source-fed single-microphone STT, and system fault-injection tests remain explicitly unresolved for human review.
 - Next best step: Human review of the fix-pass reports; do not transition the tracker again in this session.
+
+### Session 008 — Fix Mode transcription and waveform refresh
+
+- Date: 2026-08-15
+- Goal: Resolve the reported recorder transcription failure and waveform alignment defect within the active fix pass.
+- Completed: Replaced the microphone-competing recognizer path with one PCM `AudioRecord` capture owner, `MediaCodec` AAC/OPUS encoding, and an API-33+ on-device `RecognizerIntent.EXTRA_AUDIO_SOURCE` bridge. API 24–32 and cloud-only recognition use explicit audio-only fallback. Removed the literal `<transcription failed for this segment>` marker, centered the fixed waveform bar group, and added JVM/instrumented regressions for the source intent and symmetric waveform gaps. Added permission/API guards and boundary tests required by lint, Detekt, and Kover.
+- Verification run: `assembleDebug`, full `testDebugUnitTest`, `koverLog` (80.1764% overall line coverage), `ktlintCheck`, `detekt`, `lint`, Compose/localization/architecture scripts, `git diff --check`, and full API-33 connected suite (75/75) all passed. `VoiceTranscriptionFailureReproductionTest` and `VoiceRecorderBugReproductionTest` are green after the RED baseline.
+- Evidence captured: updated fix summary, code/test review statuses, `feature_list.json` source-contract and waveform evidence, and the new boundary tests in `app/src/test/java/com/example/notesapp/voice/`.
+- Commits: `f0d28d0` — `fix(voice): feed transcription from recorded audio`; documentation refresh follows in the next commit.
+- Known risk or unresolved issue: API-24/API-31/API-34 runtime certification and OEM/on-device recognition output remain unavailable in the connected environment; production-route visual navigation and system fault-injection rows remain explicitly surfaced for human review.
+- Final handoff gate: `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug --console=plain` exited 0 and installed on 1 device; the post-tracker `bash scripts/check-feature-lifecycle.sh` exited 0.
+- Next best step: Human review of the refreshed reports and explicitly documented runtime/production-route residuals.

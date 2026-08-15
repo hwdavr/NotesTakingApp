@@ -23,7 +23,8 @@ Date: 2026-08-15
 ## Runtime & Stability
 
 - [x] `./gradlew testDebugUnitTest --console=plain` — exit 0.
-- [x] `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` — exit 0; 74/74 on API 33.
+- [x] `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` — exit 0; 75/75 on API 33, 0 skipped and 0 failed.
+- [x] `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug --console=plain` — exit 0; `app-debug.apk` installed on 1 API-33 device.
 - [x] Room/file persistence and cleanup — repository/use-case integration tests pass, including rollback and direct Voice-block deletion.
 - [x] Resource management — service smoke and full connected suite pass; recorder, transcript, focus, and notification listeners are released through service teardown paths.
 - [x] Navigation integrity — focused Home/editor/settings/visual instrumented tests pass; full production-route visual navigation remains a documented residual.
@@ -31,7 +32,7 @@ Date: 2026-08-15
 
 ## Testing & Quality
 
-- [x] `./gradlew koverLog --rerun-tasks --console=plain` — exit 0; 81.8898% aggregate application line coverage.
+- [x] `./gradlew koverLog --rerun-tasks --console=plain` — exit 0; 80.1764% aggregate application line coverage.
 - [x] Per-class Kover HTML — new voice use cases are 100% line-covered; `VoiceRecorderViewModel` is 93.4% line-covered.
 - [x] Mock-data discipline — no new shared API scenario is required; feature uses repository/platform seams already defined by the project.
 - [x] No temporary `@Ignore`/`@Disabled` annotations were introduced.

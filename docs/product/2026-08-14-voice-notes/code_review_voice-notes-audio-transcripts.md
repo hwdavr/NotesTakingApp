@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Feature | `voice-notes-audio-transcripts` |
-| Current commit | `8c45b8b` |
+| Current commit | `f0d28d0` |
 | Reviewed range | `3fb6066^..HEAD` |
 | Baselines | `spec.md`, `sprint-contract.md`, `feature_list.json`, `design.md`, `design_system.md`, `test_review_voice-notes-audio-transcripts.md`, rules and review gate files |
 | Skill invocation | The callable Skill tool was unavailable; checked-in `android-code-review`, `code-review-and-quality`, and `android-code-quality-checks` instructions were applied manually. This limitation is recorded, not treated as a pass. |
@@ -15,7 +15,7 @@
 
 ## Fresh Static Quality Evidence
 
-Rows below combine the baseline and fix-pass executions. The fix-pass rows were executed on 2026-08-15 at commit `e0e468e`.
+Rows below combine the baseline and fix-pass executions. The latest fix-pass rows were executed on 2026-08-15 at source/test commit `f0d28d0`.
 
 | Command | Exit code | Result |
 |---|---:|---|
@@ -28,16 +28,16 @@ Rows below combine the baseline and fix-pass executions. The fix-pass rows were 
 | `bash scripts/check-architecture-rules.sh --all` | 0 | 0 global architecture violations after moving existing misplaced use cases. |
 | `git diff --check HEAD` | 0 | No whitespace errors in the fix-pass documentation changes. |
 
-### Fix-pass fresh execution (2026-08-15, commit `e0e468e`)
+### Fix-pass fresh execution (2026-08-15, source/test commit `f0d28d0`)
 
 | Command | Exit code | Result |
 |---|---:|---|
 | `./gradlew testDebugUnitTest --console=plain` | 0 | BUILD SUCCESSFUL; full JVM suite passed. |
-| `./gradlew koverLog --rerun-tasks --console=plain` | 0 | BUILD SUCCESSFUL; 81.8898% aggregate application line coverage. |
-| `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` | 0 | 74/74 API-33 instrumented tests passed. |
+| `./gradlew koverLog --rerun-tasks --console=plain` | 0 | BUILD SUCCESSFUL; 80.1764% aggregate application line coverage. |
+| `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` | 0 | 75/75 API-33 instrumented tests passed. |
 | Four declared `VoiceNotesVisualFlowTest` screenshot commands | 0 each | Each test asserted its target state, exported the in-test PNG to device Download, and produced a non-empty host PNG under `visual_evidence/`. |
 
-The fix-pass runtime confirms implementation and test stability. Production-route visual navigation, API-24/API-31/API-34 runtime certification, and a source-fed single-microphone bridge remain explicitly surfaced residuals.
+The latest fix-pass runtime confirms implementation and test stability. The service now owns one PCM capture/encoder pipeline and supplies an opened PCM source only to API-33+ on-device recognition; API 24–32 and cloud-only recognizers remain explicit audio-only fallbacks. Production-route visual navigation and API-24/API-31/API-34 runtime certification remain explicitly surfaced residuals.
 
 ## Findings
 
@@ -47,13 +47,13 @@ The fix-pass runtime confirms implementation and test stability. Production-rout
 
 This violates FR-006, AC-005, the US-1 hard gate, and implementation-rules §1.5. The feature’s defining progressive transcript behavior is absent on every production device, even when an on-device model is available. The current fallback is safe, but it is not a complete implementation of Voice Notes & Audio Transcripts.
 
-> **Fix Status:** Fixed ✅ — Added an injectable Android `SpeechRecognizer` factory/listener path with partial/final/error forwarding and chunk-session restart behavior; the platform adapter start path is covered by `VoicePlatformComponentsTest` (commit `e0e468e`; verified: `./gradlew testDebugUnitTest --tests com.example.notesapp.voice.VoicePlatformComponentsTest --console=plain` exit 0; 2026-08-15). API-24/API-31/API-34 runtime certification and a source-fed single-microphone bridge remain explicitly unverified.
+> **Fix Status:** Fixed ✅ — Replaced the microphone-only recognizer path with a single PCM capture/encoder pipeline and an API-33+ on-device `EXTRA_AUDIO_SOURCE` bridge; cloud-only/API-24–32 paths emit an explicit audio-only fallback. Covered by `VoiceTranscriptionFailureReproductionTest`, `VoicePlatformComponentsTest`, and the API-33 service smoke (commit `f0d28d0`; verified: `./gradlew testDebugUnitTest --tests "com.example.notesapp.voice.VoiceTranscriptionFailureReproductionTest" --tests "com.example.notesapp.voice.VoicePlatformComponentsTest" --console=plain` exit 0; 2026-08-15). OEM/runtime recognition certification remains a human-review residual.
 
 ### Critical — disk-full/MediaRecorder I/O behavior deletes the partial recording
 
 `VoiceNoteRecordingService.failRecording()` records an error and deletes `currentMetadata.audioFilePath` at lines 302-319. The service never installs a `MediaRecorder.OnErrorListener` for `MEDIA_RECORDER_ERROR_IO`/write failure, and it does not save the partial file or surface saved-duration feedback. This directly contradicts the sprint edge case requiring auto-stop with preserved partial audio and the specified snackbar. No test covers it.
 
-> **Fix Status:** Fixed ✅ — Added `MediaRecorder.OnErrorListener`, partial-file preservation, partial `Saved` state, transcript preservation, and UI feedback; service smoke and the full connected suite pass (commit `e0e468e`; verified: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` exit 0; 2026-08-15).
+> **Fix Status:** Fixed ✅ — AudioRecord/MediaCodec failures now release the one capture pipeline, preserve any non-empty encoded file as a partial `Saved` state, and retain the transcript; the API-33 service smoke and full connected suite pass (commit `f0d28d0`; verified: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` exit 0; 2026-08-15).
 
 ### Critical — deleting the Voice block itself leaks its audio file
 
@@ -243,7 +243,7 @@ The new private audio is stored in `files/voice-notes`, while the manifest retai
 | One-off navigation/event handling | PASS with route test gap |
 | New use case/ViewModel/mapper tests | PASS partially; per-class coverage not proven |
 | Shared JSON scenarios/API tests | N/A |
-| Aggregate coverage ≥80% | PASS | Fresh Kover application line coverage is 81.8898%. |
+| Aggregate coverage ≥80% | PASS | Fresh Kover application line coverage is 80.1764%. |
 | New classes ≥90% | PASS on line coverage | Fresh Kover HTML reports new use cases at 100% line and `VoiceRecorderViewModel` at 93.4% line. |
 | Scope discipline | PASS for feature implementation; 126-path feature range is large and cross-cutting |
 | No new suppressions | PASS |
@@ -259,6 +259,6 @@ The new private audio is stored in `files/voice-notes`, while the manifest retai
 
 ## Verdict
 
-> **Fix Pass:** 9/10 findings fixed; 1 unresolved (2026-08-15).
+> **Fix Pass:** 9/10 code-review findings fixed; 1 unresolved (2026-08-15, latest source/test commit `f0d28d0`).
 
 **Fix pass outcome:** Critical/High implementation findings are addressed and the repository gates pass. The remaining documented risk is that the visual evidence tests export asserted target states but do not yet drive the full production navigation graph; API-24/API-31/API-34 runtime certification and the source-fed single-microphone bridge are also unverified because those runtimes/bridge are unavailable. The feature is routed to human review with these residual risks explicitly surfaced.

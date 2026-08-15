@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Feature / slice | `voice-notes-audio-transcripts` / US-1 through US-5 |
-| Current commit | `8c45b8b` (`fix(quality): clear global architecture and localization gates`) |
+| Current commit | `f0d28d0` (`fix(voice): feed transcription from recorded audio`) |
 | Reviewed implementation range | `3fb6066^..HEAD` (feature implementation plus harness records) |
 | Baselines reviewed | `AGENTS.md`, `harness-evaluation.md`, `sprint-contract.md`, `feature_list.json`, `spec.md`, `progress.md`, `session-handoff.md`, `design.md`, `design_system.md`, `spike-us1-capture.md` |
 | Changed production/test scope | 126 paths across recording, transcription, navigation, editor persistence/playback, Settings, tests, resources, and harness docs |
@@ -29,6 +29,22 @@ The following results are recorded implementation-stage evidence, not independen
 | `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --rerun-tasks --console=plain` | 0 | 2026-08-15 (evaluator Stage 4) | `6864e13` | Fresh API-33 emulator execution | 74/74 instrumented tests passed; API 24/31/34 remain unverified. |
 | Four declared `VoiceNotesVisualFlowTest` screenshot commands | 0 each | 2026-08-15 (fix pass) | `e0e468e` | Fresh API-33 emulator execution | Each one-test command passed, exported its in-test target-state capture, and produced a non-empty host PNG; production route reachability remains a separate residual risk. |
 
+### Latest fix-pass refresh — 2026-08-15 (`f0d28d0`)
+
+| Command | Exit code | Result |
+|---|---:|---|
+| `./gradlew assembleDebug --console=plain` | 0 | BUILD SUCCESSFUL. |
+| `./gradlew testDebugUnitTest --console=plain` | 0 | Full JVM/unit/integration suite passed. |
+| `./gradlew koverLog --rerun-tasks --console=plain` | 0 | Aggregate application line coverage 80.1764%. |
+| `./gradlew ktlintCheck --console=plain` | 0 | BUILD SUCCESSFUL. |
+| `./gradlew detekt --console=plain` | 0 | BUILD SUCCESSFUL. |
+| `./gradlew lint --console=plain` | 0 | BUILD SUCCESSFUL; no new lint errors. |
+| `bash scripts/check-compose-rules.sh` | 0 | 0 Compose-rule violations. |
+| `bash scripts/check-localization-rules.sh --all` | 0 | 0 localization-rule violations. |
+| `bash scripts/check-architecture-rules.sh --all` | 0 | 0 architecture-rule violations. |
+| `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain` | 0 | 75/75 API-33 instrumented tests passed, including the service recording smoke and centered-waveform regression. |
+| `./gradlew testDebugUnitTest --tests "com.example.notesapp.voice.VoiceTranscriptionFailureReproductionTest" --tests "com.example.notesapp.voice.VoicePlatformComponentsTest" --console=plain` | 0 | PCM source intent, cloud-only fallback, listener callbacks, and failure/retry boundaries passed. |
+
 ## Requirement-to-Test Traceability
 
 `PASS` below means the mapped test proves the required observable behavior at the appropriate boundary. A test that only renders a stateless Composable or manually emits a callback is marked `REVISION REQUIRED` when the requirement is production wiring or lifecycle behavior.
@@ -40,8 +56,8 @@ The following results are recorded implementation-stage evidence, not independen
 | FR-003 | Rationale, permission request, permanent-denial recovery, and Settings deep link. | No mapped test. | None. | None. | Missing evidence | REVISION REQUIRED |
 | FR-004 | Foreground service and persistent Stop/Pause/Resume notification across background. | `VoiceRecordingServiceIntegrationTest#foregroundServiceOwnsOnePrivateContiguousFile` | Starts real service and MediaRecorder. | File exists and is non-empty. Notification actions, elapsed copy, background survival, and stop cleanup are not asserted. | Recorded API-33 test | REVISION REQUIRED |
 | FR-005 | Selected AAC/OPUS format, private path, and filename contract. | `AudioFilenameGeneratorTest`; `VoicePlatformComponentsTest#private file system creates measures and deletes recording files`; service smoke | Unit/file-system and AAC service seams. | Filename/path and AAC file are checked; no production OPUS selection-to-file assertion. | Recorded | REVISION REQUIRED |
-| FR-006 | 60-second overlapping on-device STT and live append. | `VoiceRecorderTranscriptIntegrationTest#appendsOverlappingChunksThroughProductionViewModel`; `ChunkedTranscriptConcatenatorTest` | ViewModel uses injectable fake recognizer; Android production recognizer emits no transcript. | Fake overlap result is deduplicated. | Recorded | REVISION REQUIRED — production adapter explicitly returns `AudioSourceUnavailable` and never starts SpeechRecognizer. |
-| FR-007 | Waveform, timer, transcript preview, and controls. | `VoiceRecorderLifecycleTest#startsRecordingThroughProductionEntryPoint`; visual recorder test | Direct `VoiceRecorderContent` with preloaded `UiState`. | Tags are displayed; no ticking service/ViewModel boundary. | Recorded | REVISION REQUIRED |
+| FR-006 | 60-second overlapping on-device STT and live append. | `VoiceRecorderTranscriptIntegrationTest#appendsOverlappingChunksThroughProductionViewModel`; `ChunkedTranscriptConcatenatorTest`; `VoiceTranscriptionFailureReproductionTest`; `VoicePlatformComponentsTest` | Production adapter now starts a source-fed request only for API-33+ on-device recognition and uses an explicit audio-only fallback otherwise; service owns the PCM source. | Intent source contract, partial/final/error listener forwarding, overlap deduplication, and fallback are asserted. | Fresh `f0d28d0` JVM + API-33 service evidence | REVISION REQUIRED — OEM/on-device recognition output and API-24/31/34 runtime matrix remain unverified. |
+| FR-007 | Waveform, timer, transcript preview, and controls. | `VoiceRecorderLifecycleTest#startsRecordingThroughProductionEntryPoint`; `VoiceRecorderBugReproductionTest#givenRecorderWaveform_whenRendered_thenBarsAreCenteredWithinContent`; visual recorder test | Direct Content plus the centered waveform regression; full service state boundary remains separate. | Stable tags, controls, and symmetric waveform edge gaps are asserted. | Fresh `f0d28d0` API-33 evidence | REVISION REQUIRED — production ticking service/ViewModel boundary remains unverified. |
 | FR-008 | Pause/resume from Recorder and notification preserves elapsed/waveform state. | `VoiceRecordingSessionStateReducerTest` methods; `VoiceRecorderLifecycleTest` | Reducer and direct Content callback; notification action not exercised. | Reducer state values pass; no notification or real service pause/resume assertion. | Recorded | REVISION REQUIRED |
 | FR-009 | Discard has explicit confirmation and deterministic audio/transcript/placeholder cleanup. | No complete mapped test. | Direct dialog rendering exists; no production start→discard UI flow. | Dialog tags are present in source; cleanup outcome is not asserted through UI. | Missing/partial | REVISION REQUIRED |
 | FR-010 | Editor Stop inserts Voice metadata and following editable TextBlock at focus. | `EditorVoiceNoteInsertionTest#savesEditorRecordingAtFocusedPositionWithEditableTranscript` | Direct `SaveVoiceNoteRecordingUseCase` invocation. | Document order and persisted metadata are asserted. | Recorded | REVISION REQUIRED — contract names `savesBothEntryContextsThroughProductionUseCase`; actual editor stop/navigation trigger is absent. |
@@ -64,7 +80,7 @@ The following results are recorded implementation-stage evidence, not independen
 | AC-010 | 50 MB storage blocks start with exact copy and no service. | `RecordingStoragePreflighterTest`. | Preflighter only. | Generic threshold behavior. | Recorded | REVISION REQUIRED |
 | Edge: chunk boundary | Overlap deduplication prevents repeated/split fragments. | `ChunkedTranscriptConcatenatorTest`; transcript integration test. | Concatenator and fake recognizer. | Ordered deduplicated text. | Recorded | PASS for domain concatenator; real Android recognition remains unproven. |
 | Edge: model unavailable | Warn and continue audio-only. | `VoiceRecorderTranscriptIntegrationTest#fallsBackAndCancelsCleanly`; fallback UI test. | Fake recognizer/direct Content. | Warning/status and controls. | Recorded | PASS for fallback boundary; production model availability is only a source-unavailable signal. |
-| Edge: silent callback | 65-second watchdog marks failed segment and continues. | No real-clock/watchdog test; integration manually emits `ChunkTimedOut`. | Manual event injection. | Marker is asserted. | Partial | REVISION REQUIRED — watchdog scheduling and continuation are not independently exercised. |
+| Edge: silent callback | 65-second watchdog marks failed segment and continues. | `RecordingTranscriptWatchdogTest#silentChunkTimesOutAfter65SecondsWithoutAddingFailureMarker`; integration fallback test. | Injected test scope advances the real coordinator watchdog by 65 seconds without waiting. | Warning is raised, transcript remains free of a literal failure marker, and the next-chunk path remains armed. | Fresh JVM evidence | PASS for deterministic watchdog behavior; wall-clock/OEM callback behavior remains a runtime residual. |
 | Edge: disk fills | Auto-stop, preserve partial audio, and show saved-duration feedback. | No mapped test. | `VoiceNoteRecordingService.failRecording` deletes the current file. | No preserved partial file/snackbar evidence. | Missing | REVISION REQUIRED |
 | Edge: app data clear/uninstall | Private audio is removed by Android app-data cleanup. | No mapped test. | None. | None. | Missing | REVISION REQUIRED or document as platform-only N/A with evidence. |
 | Edge: audio focus loss | Auto-pause on focus loss and resume on regain. | No mapped test and no `AudioManager` production path found. | None. | None. | Missing | REVISION REQUIRED |
@@ -148,7 +164,7 @@ The following fix-pass column applies to the traceability rows above. `Fixed ✅
 
 | Scope / class | Coverage | Branches or requirements not proven | Result |
 |---|---:|---|---|
-| Overall project | 81.8898% fresh | Meets 80% aggregate threshold; this does not compensate for missing production boundary tests. | PASS on aggregate threshold |
+| Overall project | 80.1764% fresh | Meets 80% aggregate threshold; this does not compensate for missing production boundary tests. | PASS on aggregate threshold |
 | New ViewModels / use cases | Fresh Kover HTML published for each class | ViewModel/use-case line coverage is independently verifiable and meets the 90% target for the new use cases and recorder ViewModel. | PASS on line-coverage target |
 | `VoiceRecorderViewModel` | Fresh Kover HTML: 93.4% line, 77.8% branch, 100% method | Branch-level gaps remain in platform/error paths; line target is met. | PASS on line target; residual branch evidence |
 | `VoiceEntryViewModel` / `SettingsViewModel` | Fresh Kover HTML: 100% line each | Narrow classes are covered, but this does not cover the missing integration paths. | PASS for measured line coverage |
@@ -159,16 +175,16 @@ The following fix-pass column applies to the traceability rows above. `Fixed ✅
 
 | Item | Evidence | Result |
 |---|---|---|
-| Reproduction test red before fix (bug fixes only) | Not a bug-fix task. | N/A |
-| Reproduction test green after fix | Not a bug-fix task. | N/A |
+| Reproduction test red before fix (bug fixes only) | `VoiceTranscriptionFailureReproductionTest` failed on the microphone-only intent; `VoiceRecorderBugReproductionTest` failed with `leftGap=0`, `rightGap=169`. | PASS — RED evidence recorded in `docs/current/summary_v3.md`. |
+| Reproduction test green after fix | The source-intent and centered-waveform tests pass on JVM/API 33. | Fixed ✅ — `f0d28d0`; focused commands exited 0. |
 | No uncontrolled timing or threading | `RecordingTranscriptWatchdogTest` injects a test scope and advances virtual time through the 65-second watchdog. | Fixed ✅ |
 
 ## Fix Pass Summary
 
-- Fixed: 9 traceability rows, including notification-state coverage, direct Voice-block cleanup, format fallback policy, production adapter start seam, watchdog virtual-time scheduling, and per-class Kover evidence.
-- Passed unchanged: 3 rows (`FR-015`, chunk-boundary, and private-local-storage behavior).
-- Unresolved: 28 rows. Residuals are production `AppNavigationHost` route coverage, system permission/background/screen-off/focus/disk-full runtime tests, API-24/API-31/API-34 runtime certification, the source-fed single-microphone bridge, and full production visual navigation.
-- Fix-pass evidence: `e0e468e`; `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lint`, and full API-33 connected tests all exited 0 on 2026-08-15.
+- Fixed in the latest refresh: the production source-fed recognizer start contract, explicit cloud-only/API-24–32 audio-only fallback, listener boundary tests, deterministic watchdog behavior without a literal failure marker, and centered waveform layout regression coverage.
+- Passed unchanged: existing repository, settings, chunk-boundary, and private-local-storage rows remain green.
+- Unresolved: production `AppNavigationHost` route coverage, API-24/API-31/API-34 runtime certification, OEM/on-device recognition output, and system permission/background/screen-off/focus/disk-full runtime injection remain explicitly surfaced for human review.
+- Latest fix-pass evidence: `f0d28d0`; `./gradlew testDebugUnitTest`, `./gradlew koverLog` (80.1764%), `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lint`, all custom rule checks, and full API-33 connected tests (75/75) exited 0 on 2026-08-15.
 
 ## Verdict
 
