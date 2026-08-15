@@ -184,7 +184,8 @@
         "TC-US-3-REAL-UNICODE",
         "TC-US-3-VIS-001",
         "TC-US-3-VIS-002",
-        "TC-US-3-VIS-003"
+        "TC-US-3-VIS-003",
+        "TC-US-3-VIS-004"
       ],
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
@@ -221,7 +222,15 @@
           "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
           "exit_status": 0,
           "attempts": 2,
-          "result": "Final replay passed the content screenshot, the two-fifths-height sheet geometry assertion, the keyboard-visible full-height-above-IME assertion, and the visual class's RTL/1.5x font-scale traversal; typing `launch` displayed the filtered rocket result while the keyboard remained open, and the content/keyboard-open states were captured."
+          "result": "Final replay passed the content screenshot and two-fifths-height sheet geometry assertion; the title/header-free Recent, category rail, expanded grid, and skin-tone affordance were captured in a non-empty content state."
+        },
+        {
+          "test_id": "TC-US-3-VIS-004",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerExpandsToAvailableHeightWhenKeyboardIsVisible && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_keyboard_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_keyboard_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_keyboard_light.png\"",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerExpandsToAvailableHeightWhenKeyboardIsVisible && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_keyboard_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_keyboard_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_keyboard_light.png\"",
+          "exit_status": 0,
+          "attempts": 2,
+          "result": "Final replay passed the keyboard-visible geometry assertion, kept the filtered rocket result displayed after typing `launch`, and captured the non-empty full-height-above-IME state."
         },
         {
           "test_id": "TC-US-3-VIS-002",

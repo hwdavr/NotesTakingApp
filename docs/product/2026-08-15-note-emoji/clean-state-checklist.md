@@ -44,6 +44,7 @@ Date: 2026-08-15
 - [x] `EmojiPickerPlatformTest` — 3/3: supported glyph boundary, missing-glyph code-point preservation, Markdown/PDF export.
 - [x] `EmojiPickerVisualFlowTest` — 5/5: content/read-only/empty-search screenshots, keyboard-visible full-height-above-IME geometry/results, plus RTL and 1.5x font-scale traversal.
 - [x] `bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate` — exit 0.
+- [x] `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-15-note-emoji` — exit 0; `scripts/tests/visual-evidence-contract-test.sh` passes its expected negative cases.
 - [x] Full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` — 95/95, 0 skipped, 0 failed.
 - [x] Visual artifacts are non-empty and recorded: content 138252 bytes, read-only 44621 bytes, empty-search 74696 bytes, keyboard-open 106789 bytes with the filtered rocket result; v2 and keyboard design mockups are recorded, and the supplied short-sheet image is labeled defect evidence.
 

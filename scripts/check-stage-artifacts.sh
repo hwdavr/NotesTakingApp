@@ -205,6 +205,7 @@ case "$WORKFLOW/$STAGE" in
     done <<EOF
 $(jq -r '.features[] | "\(.id)|\(.requires_visual_verification)"' "$DOCS_DIR/feature_list.json")
 EOF
+    bash scripts/check-visual-evidence-contract.sh "$DOCS_DIR"
     ;;
   create-ui-and-verify/*)
     echo "SKIP: create-ui-and-verify has no doc-artifact gates."

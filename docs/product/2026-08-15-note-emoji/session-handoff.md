@@ -6,6 +6,7 @@
 - Code review: 4/4 required findings are marked `Fixed ✅` in [code_review_note-emoji.md](code_review_note-emoji.md).
 - Test review: 15/15 rows that were originally revision-required or missing evidence are marked `Fixed ✅` in [test_review_note-emoji.md](test_review_note-emoji.md); unresolved rows: 0.
 - The production path inserts exact default and skin-tone Unicode through the shipped screen/ViewModel chain and records Recent. Catalog-error, empty-category, read-failure, lifecycle, missing-glyph, downstream Markdown/PDF, RTL/1.5x font-scale, two-fifths-height, keyboard-visible full-height-above-IME, header-omission, and expanded-catalog boundaries are covered.
+- Harness retrospective: the visual traceability escape is classified `WORKFLOW_GAP` and recorded in [docs/changes/harness-retro-2026-08-15-note-emoji-ime/retrospective.md](../../changes/harness-retro-2026-08-15-note-emoji-ime/retrospective.md); the new validator and negative fixture now require every final visual method to have a sprint-contract row, acceptance ID, and successful connected evidence.
 
 ## Verification Evidence
 

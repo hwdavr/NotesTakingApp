@@ -74,6 +74,12 @@ bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
 ```
 **Must pass.** A non-owning slice validates the declared contract without waiting for a later slice's boundary test. The boundary-owning slice and final feature evaluation reject missing capability matrices, pending/unavailable/skipped runtime evidence, and fake-only platform-boundary tests.
 
+### 9. Visual Evidence Contract (when visual verification is required)
+```bash
+bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"
+```
+**Must pass.** Every visual verification method in the final owner's `feature_list.json` must have a matching `TC-*-VIS-*` row in `sprint-contract.md`, an acceptance-test ID, and successful connected-test evidence.
+
 ---
 
 ## Conditional Checks

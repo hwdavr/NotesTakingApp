@@ -103,3 +103,14 @@
 - Commit: `809a838` (`fix(note-emoji): expand picker above keyboard`); documentation/evidence changes are included in the final follow-up commit.
 - Known risk or unresolved issue: None identified; final documentation commit and human review remain as delivery steps.
 - Next best step: Human review; do not select a new slice or change any slice status.
+
+### Session 009 — Harness retrospective for keyboard-visible picker evidence
+
+- Date: 2026-08-15
+- Goal: Review why the keyboard-visible picker bug escaped the original visual acceptance gates and harden the harness without changing application behavior.
+- Classification: `WORKFLOW_GAP` — the sprint-contract template required one visual row per distinct state, but no validator aligned `feature_list.json` visual methods/evidence with sprint-contract rows.
+- Completed: Added `scripts/check-visual-evidence-contract.sh` and `scripts/tests/visual-evidence-contract-test.sh`, attached the validator to stage artifacts/CI/evaluation/fix workflows, and synchronized the approved keyboard state as `TC-US-3-VIS-004`.
+- Verification: visual validator, stage-artifact gate, visual negative-case fixture, platform contract fixture, lifecycle contract fixture, lifecycle check, JSON validation, and `git diff --check` all passed. No application source or Android test source changed, so app build gates were not rerun.
+- Evidence: `docs/changes/harness-retro-2026-08-15-note-emoji-ime/retrospective.md` records the false-pass reproduction, invariant, exact commands, and routed risks.
+- Known risk or unresolved issue: The validator cannot infer a state omitted from both `feature_list.json` and `sprint-contract.md`; product/design review must still identify new states.
+- Next best step: Human review of the application fix and harness alignment; do not select a new slice or change any slice status.
