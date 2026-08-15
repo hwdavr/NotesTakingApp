@@ -1,0 +1,109 @@
+{
+  "project": "Note Emoji",
+  "last_updated": "2026-08-15",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The first authorized implementation slice to execute after approval.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "platform_validation": {
+    "required": true,
+    "capability_matrix": "platform-capability-matrix.md",
+    "unsupported_environment_policy": "fail_loudly",
+    "real_boundary_test_required": true,
+    "real_boundary_test_ids": [
+      "TC-US-3-REAL-UNICODE"
+    ],
+    "real_boundary_test_files": [
+      "app/src/androidTest/java/com/example/notesapp/editor/EmojiPickerPlatformTest.kt"
+    ],
+    "real_boundary_test_signal": "Paint.hasGlyph"
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "note-editor",
+      "title": "Insert emoji from the existing toolbar",
+      "description": "Add the presentation action that opens the existing editor toolbar’s emoji picker only for editable notes. Add a typed ViewModel insertion method that uses the current focused TextBlock and selection offsets, replaces a valid selection or inserts at its cursor, advances selection after the Unicode sequence, and schedules the existing autosave. If no editable TextBlock is focused, append/focus a paragraph before insertion. Reuse the existing NoteDocument/RichText JSON serialization so Unicode flows through save, reload, sync, sharing, and exporters without a Room/API contract change. Compose owns sheet visibility and TextField focus; it passes events to the ViewModel and never accesses repositories directly. Add the shell bottom sheet, disabled read-only semantics, stable tags, localized resources, and a minimal deterministic catalog dependency seam needed to exercise insertion.",
+      "ui_design": "docs/product/2026-08-15-note-emoji/design.md#screen-1--note-editor--emoji-picker-bottom-sheet",
+      "user_visible_behavior": "An editable note exposes the existing emoji control; it opens a picker and inserts a selected Unicode emoji at the body cursor or into a newly appended paragraph. The same control stays visible but disabled in a read-only note.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "in_progress",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03",
+        "TC-US-1-04",
+        "TC-US-1-05"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest"
+      ],
+      "evidence": [],
+      "notes": "Foundational vertical slice. It deliberately uses only existing note content serialization—no DTO, Room, remote API, or permission work is allowed."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "emoji-catalog",
+      "title": "Browse, search, and choose skin-tone variants",
+      "description": "Add a deterministic bundled Unicode emoji catalog behind a domain repository contract and search/category use cases. The data implementation supplies each approved category, localized display name/keywords, Unicode string, stable ID, and optional default plus five skin-tone variants; no network or third-party emoji SDK is introduced. Wire catalog state into the Note Editor picker with a 48dp adaptive lazy grid, localized search/clear controls, selected-category semantics, empty Recent/search surfaces, and a long-press compact skin-tone selector. Normal tap inserts the default form; a variant selection routes through the US-1 insertion path and keeps the sheet open. Keep filtering/business decisions outside Composables and map domain catalog models into UI models in presentation.",
+      "ui_design": "docs/product/2026-08-15-note-emoji/design.md#screen-1--note-editor--emoji-picker-bottom-sheet",
+      "user_visible_behavior": "Users browse the nine approved categories, search by name/keyword, see a recoverable empty-search state, and choose the exact skin-tone variant they want without closing the picker.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02",
+        "TC-US-2-03"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.domain.emoji.FindEmojiCatalogUseCaseTest\" --tests \"com.example.notesapp.ui.editor.mapper.EmojiPickerUiMapperTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest"
+      ],
+      "evidence": [],
+      "notes": "Depends on US-1’s insertion event. It is still a shippable path: all required discovery and skin-tone behavior works, while persisted recents are introduced in US-3."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "emoji-recents-and-platform",
+      "title": "Remember selected emoji and validate the completed picker",
+      "description": "Add a domain RecentEmojiRepository contract and DataStore Preferences implementation that records an exact selected Unicode sequence as a bounded MRU list and restores it across app recreation. Inject it through Hilt, connect successful default/variant selections to its update path, and render Recent with the specified empty/fallback state. Complete UI/accessibility/configuration behavior, visual evidence capture, and real Android Unicode-font boundary validation. The instrumented boundary test must run against the shipped picker/text rendering path on an emulator and call Android Paint.hasGlyph for selected catalog sequences; it must fail rather than skip when the expected device/runtime is unavailable. Do not sync, share, export, or add recents to note data unless an emoji was inserted into note content.",
+      "ui_design": "docs/product/2026-08-15-note-emoji/design.md#screen-1--note-editor--emoji-picker-bottom-sheet",
+      "user_visible_behavior": "After an emoji or skin-tone variant is inserted, it appears first in Recent after restarting the app. The complete picker is visually and accessibly verified on a real Android runtime.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-REAL-UNICODE",
+        "TC-US-3-VIS-001",
+        "TC-US-3-VIS-002",
+        "TC-US-3-VIS-003"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.data.emoji.DataStoreRecentEmojiRepositoryTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_picker_content_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_picker_content_light.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_read_only_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_read_only_light.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme && mkdir -p \"docs/product/2026-08-15-note-emoji/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_emoji_empty_search_light.png \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\" && test -s \"docs/product/2026-08-15-note-emoji/visual_evidence/emoji_empty_search_light.png\"",
+        "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate"
+      ],
+      "evidence": [],
+      "notes": "Final user-reachable slice and sole visual-verification owner. It depends on US-1 and US-2. Missing/emulator-unavailable platform evidence is a loud failure or Blocked state, never a passing skip."
+    }
+  ]
+}
