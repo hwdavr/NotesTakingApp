@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → editable note → existing Insert emoticon toolbar control.
 - Standard verification path: JVM unit/integration tests, focused Android Compose instrumented tests on `emulator-5554`, then the declared visual and platform evidence commands.
-- Current highest-priority unfinished feature: None within Note Emoji; the evaluator fix pass is complete and all three slices remain `passing`.
-- Current blocker: None. All required code/test findings and the user-approved UI/catalog refinement are fixed; the feature is routed to human review after 94/94 connected tests, full JVM gates, quality checks, 83.4701% coverage, platform evidence, lifecycle, and visual captures passed.
+- Current highest-priority unfinished feature: None within Note Emoji; the keyboard-visible picker follow-up is complete and all three slices remain `passing`.
+- Current blocker: None. The host expands the picker above the visible IME, and the complete JVM, connected, quality, coverage, platform, lifecycle, installation, and tracker gates pass; the feature is routed to human review.
 
 ## Planned Dependency Order
 
@@ -88,7 +88,18 @@
 - Date: 2026-08-15
 - Goal: Increase the picker to two-fifths of the available height and remove the `Emoji` title and header cross button.
 - Completed: Updated the production `ModalBottomSheet` and geometry assertion to `2f / 5f`, removed the header/title/close semantics while retaining search-clear and scrim/system-back dismissal, refreshed the design contract and feature evidence, and generated `design/mockup_note_editor_emoji_picker_v2.png`.
-- Verification run: Pending final build and connected UI replay after the source change.
+- Verification run: Historical final build and connected UI replay passed after the source change; the subsequent keyboard-aware follow-up is recorded in Session 008.
 - Evidence and report updates: `design.md`, `feature_list.json`, `clean-state-checklist.md`, this progress log, and the session handoff will record the revised layout.
 - Known risk or unresolved issue: None identified; the final quality and runtime gates remain to be rerun for this revision.
 - Next best step: Run the focused picker tests, full quality gates, lifecycle check, and route the updated feature to human review.
+
+### Session 008 — Keyboard-visible picker layout follow-up
+
+- Date: 2026-08-15
+- Goal: Give the emoji picker a larger design when the keyboard is shown so search results remain visible.
+- Completed: The editor host observes `WindowInsets.isImeVisible`; the picker remains two-fifths height with the IME hidden and expands to the full available height above the keyboard when focused search opens the IME. Added an instrumented keyboard geometry/results assertion, captured `visual_evidence/emoji_picker_keyboard_light.png`, generated `design/mockup_note_editor_emoji_picker_keyboard.png`, and retained the supplied short-sheet image as defect evidence only.
+- Verification run: `./gradlew assembleDebug testDebugUnitTest koverLog ktlintCheck detekt lintDebug` passed; application line coverage is 83.4701%; full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` passed 95/95; `EmojiPickerLifecycleTest` passed 4/4; `EmojiPickerVisualFlowTest` passed 5/5; Compose/localization/architecture/platform/lifecycle gates passed; and `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` installed on 1 device.
+- Evidence and report updates: `design.md`, `feature_list.json`, both evaluator reports, this progress log, and the session handoff now describe the IME-visible variant.
+- Commit: `809a838` (`fix(note-emoji): expand picker above keyboard`); documentation/evidence changes are included in the final follow-up commit.
+- Known risk or unresolved issue: None identified; final documentation commit and human review remain as delivery steps.
+- Next best step: Human review; do not select a new slice or change any slice status.

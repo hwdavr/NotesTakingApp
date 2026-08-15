@@ -5,7 +5,7 @@
 | Item | Value |
 |---|---|
 | Feature / slice | `note-emoji` / US-1, US-2, and US-3; final submitted feature state |
-| Current fix commit | `246805c` (`fix(note-emoji): compact picker and expand catalog`) |
+| Current fix commit | `809a838` (`fix(note-emoji): expand picker above keyboard`) |
 | Baselines reviewed | `docs/product/2026-08-15-note-emoji/spec.md`, `sprint-contract.md`, `feature_list.json`, `platform-capability-matrix.md`, `progress.md`, `session-handoff.md`, `summary_US-1.md`, `summary_US-2.md`, `summary_US-3.md`, `.agents/rules/testing-strategy.md`, `docs/templates/test-review-template.md` |
 | Changed production files reviewed | `EmojiCatalog.kt`, `BundledEmojiCatalogRepository.kt`, `DataStoreRecentEmojiRepository.kt`, three emoji use cases, `EmojiPickerUiModel.kt`, `EmojiPickerUiMapper.kt`, `EmojiPickerViewModel.kt`, `EmojiPickerBottomSheet.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `AppModule.kt` |
 | Changed test files reviewed | `NoteEditorEmojiPickerTest.kt`, `EmojiPickerPlatformTest.kt`, `EmojiPickerVisualFlowTest.kt`, `NoteEditorViewModelEmojiTest.kt`, `NoteEmojiPersistenceIntegrationTest.kt`, `FindEmojiCatalogUseCaseTest.kt`, `EmojiPickerUiMapperTest.kt`, `DataStoreRecentEmojiRepositoryTest.kt`, `RecentEmojiUseCaseTest.kt`, `EmojiPickerViewModelTest.kt` |
@@ -27,15 +27,15 @@ The generator's earlier evidence is retained for provenance. The fix-pass result
 
 ### Stage 4 Independent Replay
 
-The final fix-pass commands were executed on `246805c` using `emulator-5554` (`sdk_gphone64_arm64`, API 33).
+The final fix-pass commands were executed on `809a838` using `emulator-5554` (`sdk_gphone64_arm64`, API 33).
 
 | Command | Exit code | Result |
 |---|---:|---|
 | `./gradlew testDebugUnitTest --rerun-tasks` | 0 | Fresh JVM/unit + integration suite passed; 36 Gradle tasks executed; `BUILD SUCCESSFUL`. |
 | `./gradlew koverLog` | 0 | Application line coverage `83.4701%`; `BUILD SUCCESSFUL`. |
-| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` | 0 | 94/94 connected tests passed, 0 skipped/failed; `BUILD SUCCESSFUL`. |
+| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` | 0 | 95/95 connected tests passed, 0 skipped/failed; `BUILD SUCCESSFUL`. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest` | 0 | 8/8 production picker tests passed, including compact search recovery after closing the test IME. |
-| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest` | 0 | 4/4 visual/runtime tests passed; content test asserts the sheet is two-fifths of the Compose root height. |
+| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest` | 0 | 5/5 visual/runtime tests passed; hidden-IME content asserts two-fifths height and focused-search content asserts full height above the IME. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime` | 0 | Declared real Android glyph boundary test passed; 1/1 test completed. |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` plus pull/size check | 0 | Revised screenshot pulled to `visual_evidence/emoji_picker_content_light.png` (138252 bytes). |
 | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.editor.EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` plus pull/size check | 0 | Revised screenshot pulled to `visual_evidence/emoji_read_only_light.png` (44621 bytes). |
@@ -49,9 +49,13 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 |---|---:|---|
 | `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | Updated geometry assertion passed for two-fifths of the Compose root height. |
 | `EmojiPickerLifecycleTest#pickerOmitsTitleAndHeaderCloseButton` | 0 | Picker title and `emoji_picker_close` are absent; scrim/system-back dismissal coverage remains green. |
-| Full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` | 0 | 94/94 tests passed, 0 skipped/failed after the two-fifths/no-header revision. |
+| Full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` | 0 | 95/95 tests passed, 0 skipped/failed after the two-fifths/no-header and keyboard-visible revision. |
 
 > **Fix Status:** Fixed ✅ — The requested height and header removal are covered by updated instrumented assertions, runtime screenshots, and the full connected replay (2026-08-15).
+
+### Post-review keyboard-visible UI revision
+
+> **Fix Status:** Fixed ✅ — Added a real IME-visible Compose boundary test that types `launch` into the production search field, asserts the filtered rocket result plus the picker’s growth beyond the keyboard-hidden two-fifths geometry and reach to the top of the available window, and captures the corrected runtime state as `visual_evidence/emoji_picker_keyboard_light.png`. The focused-search/full-height switch and body-IME teardown boundary are included in the 95/95 connected replay; the design mockup and user-provided defect evidence are recorded in `design.md` (fix `809a838`, 2026-08-15).
 
 ## Requirement-to-Test Traceability
 
@@ -59,7 +63,7 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 
 | Source ID | Required behavior | Test file + method | Production trigger exercised | Observable assertion | Evidence status | Result | Fix Status |
 |---|---|---|---|---|---|---|---|
-| FR-001 | Editable toolbar control opens the picker. | `NoteEditorEmojiPickerTest#editableToolbarOpensPickerWithRecentSelected` | Production `editor_insert_emoji` control. | Sheet displayed, Recent selected, title unchanged. | Full connected suite, 94/94. | PASS | PASS unchanged |
+| FR-001 | Editable toolbar control opens the picker. | `NoteEditorEmojiPickerTest#editableToolbarOpensPickerWithRecentSelected` | Production `editor_insert_emoji` control. | Sheet displayed, Recent selected, title unchanged. | Full connected suite, 95/95. | PASS | PASS unchanged |
 | FR-002 | Read-only control remains visible, disabled, and cannot open. | `NoteEditorEmojiPickerTest#readOnlyToolbarIsDisabledAndDoesNotOpenPicker` | Production read-only bottom bar. | Disabled semantics and no sheet. | Full connected suite. | PASS | PASS unchanged |
 | FR-003 | Categories, search, empty Recent, and clear action exist. | Catalog use-case tests plus `NoteEditorEmojiPickerTest#categoryRailShowsApprovedResultsAndEmptyRecent`, `#searchShowsMatchesAndClearableEmptyState`. | Domain query and production picker interactions. | Category IDs, search result, empty/recovery panels. | JVM + connected suites. | PASS | PASS unchanged |
 | FR-004 | Eligible emoji expose exact skin-tone variants. | Mapper test; `NoteEditorEmojiPickerTest#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent`; platform test. | Production picker long-click, variant click, and screen wrapper. | Six variants, exact `👍🏽`, document and Recent values, sheet remains. | Full connected suite; focused production test exit 0. | PASS | Fixed ✅ |
@@ -87,7 +91,7 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 | AC-US-2-03 | Default and five skin-tone variants select exactly. | Mapper and `#productionScreenWiringInsertsDefaultAndSkinToneAndRecordsRecent`. | Production cell and variant route. | Six exact values, medium variant, open sheet. | Focused connected test exit 0. | PASS | Fixed ✅ |
 | AC-US-3-01 | Recent is exact, durable, ordered, and read-failure recoverable. | Repository `#readFailureFallsBackToEmptyRecent`; VM `#recentReadFailureLeavesCatalogAndInsertionUsable`; recreation test. | Real failure injection and production use cases. | Empty fallback, catalog availability, exact insertion/MRU. | Full JVM suite. | PASS | Fixed ✅ |
 | AC-US-3-02 | Shipped picker emits exact sequences and real Android glyph boundary passes. | `EmojiPickerPlatformTest#unicodeEmojiHasGlyphOnAndroidRuntime`. | Production picker on emulator plus `Paint.hasGlyph`. | Exact values and real glyph result. | Platform class 3/3. | PASS | PASS unchanged |
-| AC-US-3-03 | Content, read-only, empty-search states are asserted/captured. | Three visual-flow tests plus `#pickerSupportsRtlTraversalAndLargeFontScale`. | Production content and screenshot capture. | Tags/semantics, non-empty PNGs, RTL/1.5x traversal. | Visual class 4/4; screenshot pulls. | PASS | PASS unchanged |
+| AC-US-3-03 | Content, read-only, empty-search states are asserted/captured. | Four visual-flow states plus `#pickerSupportsRtlTraversalAndLargeFontScale`. | Production content and screenshot capture. | Tags/semantics, non-empty PNGs, keyboard-visible geometry, RTL/1.5x traversal. | Visual class 5/5; screenshot pulls. | PASS | PASS unchanged |
 | Edge: no focused body block | Append/focus paragraph before insertion. | `NoteEditorViewModelEmojiTest#insertsIntoNewFocusedParagraphWhenNoBodyBlockIsFocused`. | Production VM. | Focus and exact Unicode. | Full JVM suite. | PASS | PASS unchanged |
 | Edge: selected cursor range | Replace selected range, not end. | `NoteEditorViewModelEmojiTest#insertsUnicodeAtCursorAndReplacesSelection`. | Production VM. | Exact replacement and collapsed selection. | Full JVM suite. | PASS | PASS unchanged |
 | Edge: empty Recent | Empty Recent remains usable. | `#categoryRailShowsApprovedResultsAndEmptyRecent`; VM initial-state test. | Production empty panel and VM. | Empty panel and category interaction. | JVM + connected suites. | PASS | PASS unchanged |
@@ -106,7 +110,7 @@ The fix-pass replay closes the previously identified Recent-read failure, produc
 - Fixed evidence groups: Recent read failure, production default/variant insertion chain, share/sync/Markdown/PDF mapping, close/scrim/back/recreation, missing-glyph preservation, immutable dynamic tags, and RTL/font-scale traversal.
 - User-approved UI refinement: the later picker revision removes the title/header close action, constrains the sheet to two-fifths of the root height, keeps the results region scrollable, and preserves the expanded catalog.
 - Unresolved rows: 0.
-- Verification: `assembleDebug`, `testDebugUnitTest`, `koverLog` (83.4701%), `ktlintCheck`, `detekt`, `lint`, all rule scripts, platform-evidence evaluation, and full `connectedDebugAndroidTest` (94/94) exited 0.
+- Verification: `assembleDebug`, `testDebugUnitTest`, `koverLog` (83.4701%), `ktlintCheck`, `detekt`, `lint`, all rule scripts, platform-evidence evaluation, and full `connectedDebugAndroidTest` (95/95) exited 0.
 
 ## Test Quality Findings
 

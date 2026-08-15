@@ -8,7 +8,7 @@
 
 | Item | Value |
 |---|---|
-| Current fix commit | `246805c` (`fix(note-emoji): compact picker and expand catalog`) |
+| Current fix commit | `809a838` (`fix(note-emoji): expand picker above keyboard`) |
 | Merge base / prior reviewed commit | `6723a7cc5c18275fc22219dc832cf2f32a5866f5` (before US-1 implementation) |
 | Baselines reviewed | `spec.md`, `sprint-contract.md`, `feature_list.json`, `platform-capability-matrix.md`, `design.md`, `test_review_note-emoji.md`, all three slice summaries and the active design system |
 | Changed production files reviewed | Emoji catalog/data/domain/recent files; `EmojiPickerBottomSheet.kt`, `EmojiPickerUiMapper.kt`, `EmojiPickerUiModel.kt`, `EmojiPickerViewModel.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `AppModule.kt`, and the existing note document/save/export surfaces they depend on |
@@ -37,6 +37,10 @@
 ### Post-review user-requested UI revision
 
 > **Fix Status:** Fixed ✅ — The later approved revision changes the picker surface to two-fifths of the available root height and removes the `Emoji` title plus header cross button while retaining the search-clear action and scrim/system-back dismissal. `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` and `EmojiPickerLifecycleTest#pickerOmitsTitleAndHeaderCloseButton` pass in the 94/94 connected suite; refreshed runtime evidence and `design/mockup_note_editor_emoji_picker_v2.png` are recorded (2026-08-15).
+
+### Post-review keyboard-visible UI revision
+
+> **Fix Status:** Fixed ✅ — The editor host observes `WindowInsets.isImeVisible`, and the picker requires focused search plus a visible IME before switching from two-fifths height to the full available height above the keyboard; body-IME teardown stays compact. The title/header-free search, category rail, and results grid remain intact. `EmojiPickerVisualFlowTest#emojiPickerExpandsToAvailableHeightWhenKeyboardIsVisible` types `launch`, asserts the filtered `emoji_picker_item_rocket`, and passes in the 95/95 emulator replay; it records `visual_evidence/emoji_picker_keyboard_light.png`. The generated design state is `design/mockup_note_editor_emoji_picker_keyboard.png` and the supplied short-sheet screenshot is retained as defect evidence only (fix `809a838`, 2026-08-15).
 
 ## Requirement-to-Production Traceability
 
@@ -79,33 +83,33 @@
 
 | Check | Exit code | Timestamp / commit | Provenance | Result | Failure detail / scope |
 |---|---:|---|---|---|---|
-| `assembleDebug` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Build successful. |
-| `testDebugUnitTest` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Full JVM/unit + integration suite green. |
-| `koverLog` overall | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ 83.4701% ≥ 80% | Aggregate threshold passes. |
-| `koverLog` new classes | 0 | 2026-08-15 / `246805c` | HTML class report | ✅ ViewModel/use-case/repository line coverage ≥90% | Existing fix-pass class evidence remains green; catalog additions are covered by the expanded category-count test. |
-| `connectedDebugAndroidTest` | 0 | 2026-08-15 / `246805c` | Fix-pass verification on emulator-5554 | ✅ 94/94 | 0 skipped/failed; `BUILD SUCCESSFUL`. |
-| `ktlintCheck` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | No style violations. |
-| `detekt` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | No active findings. |
-| `lint` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Android Lint green. |
-| `bash scripts/check-compose-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations; approved immutable-ID dynamic tags are enforced. |
-| `bash scripts/check-localization-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations. |
-| `bash scripts/check-architecture-rules.sh` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | 0 violations and no new suppressions. |
-| `bash scripts/check-platform-evidence.sh ... --evaluate` | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | Matrix and real platform boundary evidence present. |
-| Suppression/diff audit | 0 | 2026-08-15 / `246805c` | Fix-pass verification | ✅ PASS | `git diff --check` and source scan found no new suppression/ignore/baseline directives. |
+| `assembleDebug` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | Build successful. |
+| `testDebugUnitTest` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | Full JVM/unit + integration suite green. |
+| `koverLog` overall | 0 | 2026-08-15 / `809a838` | Final verification | ✅ 83.4701% ≥ 80% | Aggregate threshold passes. |
+| `koverLog` new classes | 0 | 2026-08-15 / `809a838` | HTML class report | ✅ ViewModel/use-case/repository line coverage ≥90% | Existing fix-pass class evidence remains green; catalog additions are covered by the expanded category-count test. |
+| `connectedDebugAndroidTest` | 0 | 2026-08-15 / `809a838` | Final verification on emulator-5554 | ✅ 95/95 | 0 skipped/failed; `BUILD SUCCESSFUL`. |
+| `ktlintCheck` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | No style violations. |
+| `detekt` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | No active findings. |
+| `lint` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | Android Lint green. |
+| `bash scripts/check-compose-rules.sh` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | 0 violations; approved immutable-ID dynamic tags are enforced. |
+| `bash scripts/check-localization-rules.sh` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | 0 violations. |
+| `bash scripts/check-architecture-rules.sh` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | 0 violations and no new suppressions. |
+| `bash scripts/check-platform-evidence.sh ... --evaluate` | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | Matrix and real platform boundary evidence present. |
+| Suppression/diff audit | 0 | 2026-08-15 / `809a838` | Final verification | ✅ PASS | `git diff --check` and source scan found no new suppression/ignore/baseline directives. |
 
-### Final Runtime Replay — `246805c`
+### Final Runtime Replay — `809a838`
 
 | Boundary | Exit code | Fresh evidence |
 |---|---:|---|
 | `EmojiPickerPlatformTest` full class on `emulator-5554` / API 33 | 0 | 3/3 real Android platform tests passed, including missing-glyph and Markdown/PDF boundaries. |
 | `EmojiPickerLifecycleTest` full class | 0 | 4/4 real Android header-absence, scrim, back, and saved-state tests passed. |
-| `EmojiPickerVisualFlowTest` full class | 0 | 4/4 tests passed, including RTL and 1.5x font scale. |
+| `EmojiPickerVisualFlowTest` full class | 0 | 5/5 tests passed, including keyboard-visible full-height geometry, filtered `launch` → rocket results, RTL, and 1.5x font scale. |
 | `NoteEditorEmojiPickerTest` full class | 0 | 8/8 production picker tests passed; compact search validation closes the IME before scrolling the two-fifths-height results region. |
 | `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme` | 0 | `visual_evidence/emoji_picker_content_light.png`, 138252 bytes; the test also asserts the sheet is two-fifths of the Compose root height. |
 | `EmojiPickerVisualFlowTest#readOnlyEmojiControlLightTheme` | 0 | `visual_evidence/emoji_read_only_light.png`, 44621 bytes. |
 | `EmojiPickerVisualFlowTest#emptySearchEmojiPickerLightTheme` | 0 | `visual_evidence/emoji_empty_search_light.png`, 74696 bytes. |
 
-The full connected suite passed 94/94 with no skips or failures. These final results close the required code/test findings and the user-approved UI/catalog refinement.
+The full connected suite passed 95/95 with no skips or failures. These final results close the required code/test findings and the user-approved UI/catalog/keyboard-layout refinement.
 
 ## Compose Rules Enforcement
 
@@ -229,7 +233,7 @@ The full connected suite passed 94/94 with no skips or failures. These final res
 
 ## Verdict
 
-> **Fix Pass:** 4/4 required findings fixed; 0 unresolved. Final UI/catalog refinement verified in `246805c` (2026-08-15).
+> **Fix Pass:** 4/4 required findings fixed; 0 unresolved. Final UI/catalog refinement is in `246805c`; the keyboard-visible picker follow-up is verified in `809a838` (2026-08-15).
 
 **APPROVED FOR HUMAN REVIEW** — The implementation and verification evidence now satisfy the sprint-contract acceptance gates, including the real Android platform boundary and full connected suite.
 

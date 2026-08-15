@@ -7,7 +7,9 @@
 **Project design system**: `docs/product/design_system.md`  
 **Approved design-system exceptions**: The user-approved picker refinement makes the sheet occupy
 two-fifths of the available height, removes the picker title and header close action, and preserves
-the existing component tokens, drag-handle dismissal, search clear action, and 48dp targets.
+the existing component tokens, drag-handle dismissal, search clear action, and 48dp targets. When
+the IME is visible, the picker expands to the full available height above the keyboard so search
+results remain visible while typing.
 
 ---
 
@@ -40,7 +42,7 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 ### Information Architecture
 
 1. **Existing bottom tool rail**: Retains the outlined `InsertEmoticon` icon. Enabled state uses `textPrimary`; disabled uses 38% alpha and disabled semantics. It gains `editor_insert_emoji` as its stable test tag.
-2. **Emoji picker sheet surface**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners, the default drag handle, and two-fifths of the available height. There is no picker title or header close action; the search field is the first content row.
+2. **Emoji picker sheet surface**: Standard M3 `ModalBottomSheet` surface (`surface` #FFFFFF in light mode) with 16dp rounded top corners, the default drag handle, and two-fifths of the available height when the IME is hidden. When the IME is visible, it expands to the full available height above the keyboard. There is no picker title or header close action; the search field is the first content row in both variants.
 3. **Search**: Full-width search field using `searchBackground` #EEEFF1 and 12dp corners, a search icon with `searchIcon` #8E959B, localized placeholder “Search emoji”, and a 48dp clear action when text is present. The clear action remains available because it is part of query editing, not sheet dismissal.
 4. **Category rail**: Horizontally scrollable M3 tab/chip rail in the approved category order: Recent, Smileys & Emotion, People & Body, Animals & Nature, Food & Drink, Activities, Travel & Places, Objects, Symbols, and Flags. The selected category uses `primary` #7C6CF2 plus an explicit selected indicator/semantics.
 5. **Emoji results grid**: A virtualized adaptive grid of 48dp minimum emoji cells using the expanded bundled catalog (at least three additional entries in every browse category). The grid scrolls within the compact sheet’s remaining results region. Each cell shows one Unicode emoji and a localized accessible name; eligible items expose a visible/semantically announced skin-tone affordance. A long press opens the compact skin-tone selector; ordinary tap inserts the default variant. The selected variant is inserted exactly as shown.
@@ -81,6 +83,7 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 | Empty Search | “No emoji found” and “Clear search” action; category rail remains visible. | Clear query, edit query, change category, dismiss. |
 | Skin-tone selector | Compact surface adjacent to the selected eligible cell, with named variants. | Choose a variant or dismiss the selector. |
 | Recents fallback | Same as Empty Recent, with catalog fully usable. | Browse, search, insert, and dismiss. |
+| Keyboard-visible content | Full available picker height above the IME; search, categories, and a larger results region remain visible while the keyboard stays open. | Type to filter, scroll results, select an emoji, or dismiss. |
 
 ### Interaction Rules
 
@@ -91,6 +94,7 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 - **Skin tone**: Long-pressing an eligible cell opens its selector. Choosing a variant inserts the exact selected sequence, keeps the picker open, and records that exact sequence in Recent. A normal tap still inserts the default emoji.
 - **Recent**: Each successful selection moves the exact Unicode sequence to the front of Recent and saves it locally. Recent is never written to note content unless the emoji is actually inserted.
 - **Dismissal**: Scrim or system Back dismisses the sheet without content change. There is no header close button, no destructive action, and no confirmation dialog.
+- **Keyboard-visible layout**: Focusing the search field keeps the IME open and switches the sheet to the full available height above it. The results grid uses the remaining weighted region and stays scrollable; hiding the IME returns the sheet to two-fifths height.
 
 ### Copy Requirements
 
@@ -114,7 +118,7 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 
 ### Responsive And Configuration Behavior
 
-- On phones in portrait, the sheet occupies two-fifths of the available screen height, respects `WindowInsets.safeDrawing`/gesture insets, and leaves the editor context visible above it. The results grid scrolls when the expanded catalog exceeds the available results region.
+- On phones in portrait, the IME-hidden sheet occupies two-fifths of the available screen height. When the IME is visible, the sheet occupies the full available height above the keyboard, respects `WindowInsets.safeDrawing`/gesture insets, and keeps the search/category/results sequence visible. The results grid scrolls when the expanded catalog exceeds the available results region.
 - In landscape and on tablets, the sheet remains width-constrained and the adaptive grid increases columns rather than shrinking below 48dp targets. The horizontally scrollable category rail retains all categories.
 - The current query, selected category, sheet visibility, and active skin-tone selector survive configuration changes through screen/presentation state. Persisted Recent reloads after process recreation; no note document mutation occurs until a selection.
 
@@ -122,6 +126,12 @@ never use list indexes, timestamps, random IDs, or user-entered text.
 
 - **Generated mockup**: `design/mockup_note_editor_emoji_picker.png` — AI-generated visual mockup reflecting the existing editor with the new picker open.
 - **Generated mockup v2**: `design/mockup_note_editor_emoji_picker_v2.png` — AI-generated visual mockup of the two-fifths-height picker with the title and header close action removed.
+- **Generated keyboard mockup**: `design/mockup_note_editor_emoji_picker_keyboard.png` — AI-generated visual mockup of the title/header-free picker expanded above the visible keyboard, with search, categories, and results retained.
+
+### Defect Evidence
+
+- **User-provided defect screenshot**: `visual_evidence/emoji_picker_keyboard_defect.jpg` — evidence of the short picker while the keyboard is visible; it is not a design reference.
+- **Runtime verification**: `visual_evidence/emoji_picker_keyboard_light.png` — emulator capture of the corrected full-height-above-IME state.
 
 ### Out Of Scope For This Design
 

@@ -12,11 +12,11 @@
 | Fix-Stage 1 — Orient | ✅ | 2026-08-15 19:26 +0800 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “No slice is being selected or transitioned; `US-1`, `US-2`, and `US-3` remain `passing`.” |
 | Fix-Stage 2 — Setup | ✅ | 2026-08-15 19:27 +0800 | `docs/product/2026-08-15-note-emoji/platform-capability-matrix.md` plus `adb devices -l` — “`emulator-5554` is connected.” |
 | Fix-Stage 3 — Verify Baseline | ✅ | 2026-08-15 19:28 +0800 | `docs/product/2026-08-15-note-emoji/summary_note-emoji.md` — “`./gradlew assembleDebug` exit 0; `./gradlew testDebugUnitTest` exit 0.” |
-| Fix-Stage 4 — Fix Findings & Update Report Status | ✅ | 2026-08-15 | `code_review_note-emoji.md` — “**Fix Status:** Fixed ✅”; `test_review_note-emoji.md` — “15/15 `Fixed ✅`”; user-approved two-fifths/no-header UI revision is recorded in the post-review addendum. |
-| Fix-Stage 5 — Re-verify | ✅ | 2026-08-15 | `feature_list.json` — “94/94 connected tests passed”; coverage is 83.4701%; platform/visual evidence exit 0; two-fifths-height geometry and header-absence assertions passed. |
-| Fix-Stage 6 — Update State | ✅ | 2026-08-15 | `docs/product/product.md` — “To be human reviewed … two-fifths-height picker without title or header cross applied”; lifecycle check exit 0. |
+| Fix-Stage 4 — Fix Findings & Update Report Status | ✅ | 2026-08-15 | `code_review_note-emoji.md` — “**Fix Status:** Fixed ✅”; `test_review_note-emoji.md` — “15/15 `Fixed ✅`”; the keyboard-visible search-result revision is recorded in the post-review addendum. |
+| Fix-Stage 5 — Re-verify | ✅ | 2026-08-15 | `feature_list.json` — “95/95 connected tests passed”; coverage is 83.4701%; platform/visual evidence exit 0; IME-hidden two-fifths geometry, keyboard-visible full-height-above-IME geometry, and header-absence assertions passed. |
+| Fix-Stage 6 — Update State | ✅ | 2026-08-15 | `docs/product/product.md` — “To be human reviewed … keyboard-aware full-height-above-IME picker applied”; lifecycle check exit 0 after the tracker update. |
 | Fix-Stage 7 — Clean Exit | ✅ | 2026-08-15 | `clean-state-checklist.md` — “all required evaluator findings and user-approved UI refinement are fixed”; `git status --short` is clean; lifecycle check reports 0 in progress. |
-| Fix-Stage 8 — Install App To Device | ✅ | 2026-08-15 | `summary_note-emoji.md` — “`env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` exit 0; revised two-fifths-height picker APK installed on 1 device.” |
+| Fix-Stage 8 — Install App To Device | ✅ | 2026-08-15 | `summary_note-emoji.md` — “`env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` exit 0; keyboard-aware picker APK installed on 1 device.” |
 
 ## Fix Pass
 
@@ -36,7 +36,8 @@ Each item is deduplicated across `code_review_note-emoji.md` and `test_review_no
 | F-10 | Reconcile all harness artifacts and evidence claims with the fixed behavior, including feature evidence, progress, handoff, and clean-state checklist. | This summary, `feature_list.json`, `progress.md`, `session-handoff.md`, `clean-state-checklist.md`. | Fixed ✅ — artifacts updated and final lifecycle check recorded in Stage 6. |
 | F-11 | Reduce the Emoji title top inset and constrain the picker to one-third screen height while keeping the results region usable. | User follow-up; `design.md`; `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme`. | Fixed ✅ — historical fix-pass behavior superseded by the later two-fifths-height refinement. |
 | F-12 | Add more Unicode emoji to every browse category without changing persistence or insertion contracts. | User follow-up; `FindEmojiCatalogUseCaseTest#returnsEveryApprovedCategory`; `feature_list.json`. | Fixed ✅ — `246805c`; every category has the expanded expected count and full JVM/connected suites pass. |
-| F-13 | Increase the sheet to two-fifths of available height and remove the picker title and header cross button while retaining query clearing and scrim/back dismissal. | User follow-up; `design.md`; `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme`; `EmojiPickerLifecycleTest#pickerOmitsTitleAndHeaderCloseButton`. | Fixed ✅ — production layout, geometry/header assertions, refreshed screenshots, full 94/94 connected suite, quality gates, and lifecycle gate pass. |
+| F-13 | Increase the sheet to two-fifths of available height and remove the picker title and header cross button while retaining query clearing and scrim/back dismissal. | User follow-up; `design.md`; `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme`; `EmojiPickerLifecycleTest#pickerOmitsTitleAndHeaderCloseButton`. | Fixed ✅ — production layout, geometry/header assertions, refreshed screenshots, full 95/95 connected suite, quality gates, and lifecycle gate pass. |
+| F-14 | Use a larger picker design while the keyboard is visible so search results are not trapped in the short two-fifths sheet. | User-provided defect evidence; `design.md`; `EmojiPickerVisualFlowTest#emojiPickerExpandsToAvailableHeightWhenKeyboardIsVisible`. | Fixed ✅ — editor-host IME detection expands the sheet to the full available height above the keyboard; typing `launch` displays the filtered rocket result, the real emulator test passes, and `visual_evidence/emoji_picker_keyboard_light.png` records the corrected state (`809a838`). |
 
 ## Knowledge Artifacts
 
@@ -53,4 +54,4 @@ Each item is deduplicated across `code_review_note-emoji.md` and `test_review_no
 ## Open Items
 
 - No code or test findings remain unresolved. The user-approved UI/catalog refinement is also verified. Human review is the next required gate.
-- The callable Skill tool was not exposed in this session; the relevant repository skill procedures will be followed from their source files and this limitation will remain documented in the final handoff.
+- The callable Skill tool was not exposed in this session; the relevant repository skill procedures were followed from their source files and this limitation remains documented in the final handoff.

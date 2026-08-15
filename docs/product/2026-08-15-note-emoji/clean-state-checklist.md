@@ -8,7 +8,7 @@ Date: 2026-08-15
 - [x] `code_review_note-emoji.md` records 4/4 required findings as `Fixed ✅`.
 - [x] `test_review_note-emoji.md` records 15/15 originally revision-required/missing rows as `Fixed ✅`; unresolved rows: 0.
 - [x] No implementation plan was regenerated and no lifecycle transition logic was rerun.
-- [x] Original evaluator fix is in `54e0749`; final compact-picker/catalog refinement is in `246805c`; final evidence/docs are in the follow-up documentation commit.
+- [x] Original evaluator fix is in `54e0749`; final compact-picker/catalog refinement is in `246805c`; keyboard-visible picker follow-up is in `809a838`; final evidence/docs are in the follow-up documentation commit.
 
 ## Build and quality gates
 
@@ -31,7 +31,7 @@ Date: 2026-08-15
 - [x] Catalog-error and empty-category states render localized recovery copy.
 - [x] All five picker callbacks are required parameters with explicit behavior at every call site.
 - [x] Interactive elements retain stable `testTag`s; category/item/skin-tone tags use immutable IDs.
-- [x] The picker title and header close action are removed; the picker surface is exactly two-fifths of the Compose root height and its results region remains scrollable.
+- [x] The picker title and header close action are removed; the IME-hidden picker surface is exactly two-fifths of the Compose root height, while the IME-visible variant expands above the keyboard and keeps its results region scrollable.
 - [x] Every browse category has three additional localized Unicode emoji entries, covered by the expanded category-count regression test.
 
 ## Functional and boundary evidence
@@ -42,10 +42,10 @@ Date: 2026-08-15
 - [x] Existing save/reload/sync/share/Markdown mapping retains exact Unicode; Android PDF output is asserted by the real platform test.
 - [x] `EmojiPickerLifecycleTest` — 4/4: header omission, scrim, system back, and saved-state recreation.
 - [x] `EmojiPickerPlatformTest` — 3/3: supported glyph boundary, missing-glyph code-point preservation, Markdown/PDF export.
-- [x] `EmojiPickerVisualFlowTest` — 4/4: content/read-only/empty-search screenshots plus RTL and 1.5x font-scale traversal.
+- [x] `EmojiPickerVisualFlowTest` — 5/5: content/read-only/empty-search screenshots, keyboard-visible full-height-above-IME geometry/results, plus RTL and 1.5x font-scale traversal.
 - [x] `bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate` — exit 0.
-- [x] Full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` — 94/94, 0 skipped, 0 failed.
-- [x] Visual artifacts are non-empty and recorded: content 138252 bytes, read-only 44621 bytes, empty-search 74696 bytes; v2 design mockup is 1103095 bytes.
+- [x] Full `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` — 95/95, 0 skipped, 0 failed.
+- [x] Visual artifacts are non-empty and recorded: content 138252 bytes, read-only 44621 bytes, empty-search 74696 bytes, keyboard-open 106789 bytes with the filtered rocket result; v2 and keyboard design mockups are recorded, and the supplied short-sheet image is labeled defect evidence.
 
 ## Lifecycle and delivery
 
