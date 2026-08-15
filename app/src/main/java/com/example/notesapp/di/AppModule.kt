@@ -1,10 +1,14 @@
 package com.example.notesapp.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.example.notesapp.BuildConfig
 import com.example.notesapp.auth.AuthManager
 import com.example.notesapp.auth.SessionInvalidator
 import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
+import com.example.notesapp.data.emoji.DataStoreRecentEmojiRepository
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
 import com.example.notesapp.data.local.NoteDao
@@ -40,6 +44,7 @@ import com.example.notesapp.data.voice.SpeechRecognizerFactory
 import com.example.notesapp.data.voice.VoiceAudioCapture
 import com.example.notesapp.data.voice.VoiceAudioEncoder
 import com.example.notesapp.domain.emoji.EmojiCatalogRepository
+import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import com.example.notesapp.domain.folder.FolderCategorizer
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.note.NoteRepository
@@ -62,6 +67,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -78,6 +84,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindEmojiCatalogRepository(impl: BundledEmojiCatalogRepository): EmojiCatalogRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecentEmojiRepository(impl: DataStoreRecentEmojiRepository): RecentEmojiRepository
 
     @Binds
     @Singleton
@@ -160,6 +170,15 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideDatabase(@ApplicationContext context: Context): AppDatabase = AppDatabase.getInstance(context)
+
+        @Provides
+        @Singleton
+        @Named("emojiRecentDataStore")
+        fun provideEmojiRecentDataStore(
+            @ApplicationContext context: Context
+        ): DataStore<Preferences> = PreferenceDataStoreFactory.create {
+            context.filesDir.resolve("datastore/emoji_recent.preferences_pb")
+        }
 
         @Provides
         fun provideNoteDao(database: AppDatabase): NoteDao = database.noteDao()
