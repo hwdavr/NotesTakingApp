@@ -50,4 +50,19 @@ class EmojiPickerUiMapperTest {
 
         assertEquals("🚀", mapped.unicode)
     }
+
+    @Test
+    fun mapsRecentDefaultAndSkinToneVariantsToUniqueStableIds() {
+        val thumbsUp = catalog.first { it.id == "thumbs_up" }
+        val recentItems = listOf(
+            thumbsUp.copy(unicode = "👍🏽"),
+            thumbsUp
+        )
+
+        val mapped = EmojiPickerUiMapper.mapItems(recentItems)
+
+        assertEquals(2, mapped.map { it.id }.toSet().size)
+        assertEquals("👍🏽", mapped.first().unicode)
+        assertEquals("👍", mapped.last().unicode)
+    }
 }

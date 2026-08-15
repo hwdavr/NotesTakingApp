@@ -14,19 +14,23 @@ object EmojiPickerUiMapper {
         (listOf(EmojiCategory.RECENT) + EmojiCategory.approvedBrowseCategories)
             .map { category -> EmojiCategoryUiModel(category, category.toLabelRes()) }
 
-    fun mapItems(items: List<EmojiCatalogItem>): List<EmojiPickerItemUiModel> = items.map { item ->
-        EmojiPickerItemUiModel(
-            id = item.id,
-            unicode = item.unicode,
-            nameRes = item.nameKey.toNameRes(),
-            variants = item.variants.map { variant ->
-                EmojiVariantUiModel(
-                    tone = variant.tone,
-                    unicode = variant.unicode,
-                    labelRes = variant.tone.toLabelRes()
-                )
-            }
-        )
+    fun mapItems(items: List<EmojiCatalogItem>): List<EmojiPickerItemUiModel> {
+        val duplicateIds = items.groupingBy { it.id }.eachCount()
+        return items.map { item ->
+            EmojiPickerItemUiModel(
+                id = item.id.takeUnless { duplicateIds[it] ?: 0 > 1 }
+                    ?: "${item.id}_${item.unicode.toStableKey()}",
+                unicode = item.unicode,
+                nameRes = item.nameKey.toNameRes(),
+                variants = item.variants.map { variant ->
+                    EmojiVariantUiModel(
+                        tone = variant.tone,
+                        unicode = variant.unicode,
+                        labelRes = variant.tone.toLabelRes()
+                    )
+                }
+            )
+        }
     }
 
     private fun EmojiCategory.toLabelRes(): Int = when (this) {
@@ -43,6 +47,9 @@ object EmojiPickerUiMapper {
     }
 
     private fun EmojiNameKey.toNameRes(): Int = nameResourceByKey.getValue(this)
+
+    private fun String.toStableKey(): String =
+        asSequence().joinToString(separator = "") { character -> character.code.toString(16) }
 
     private val nameResourceByKey = mapOf(
         EmojiNameKey.GRINNING_FACE to R.string.emoji_name_grinning_face,
