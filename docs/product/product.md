@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | Awaiting implementation approval | 2026-08-15 | Approved specification/design; three-slice sprint contract and fail-loudly Android Unicode platform-validation plan are ready for implementation approval. |
+| note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | In Progress | 2026-08-15 | US-1 is passing: editable toolbar picker shell, Unicode cursor/range insertion, autosave, persistence/export proof, and read-only semantics. US-2/US-3 remain. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 <!-- HARNESS_TRACKER_END -->
 
@@ -63,6 +63,7 @@ Lifecycle rules:
 | Note Operations | ✅ Done | Create, update, view, delete, favorite, and pin/unpin notes. |
 | Note Actions Sheet | ✅ Done | Bottom sheet for quick actions: move to folder, export, delete, favorite. |
 | Document Block Structure | ✅ Done | Modular note document model for structured content blocks. |
+| Emoji insertion foundation (US-1) | ✅ Slice done | Existing editor control opens a localized Recent picker for editable notes, inserts Unicode at the cursor/range or a new paragraph, and stays disabled for read-only notes. Catalog browsing, durable Recents, and final Android glyph verification remain in US-2/US-3. |
 
 ### ✅ Folder & Collection Management
 
@@ -128,6 +129,7 @@ Lifecycle rules:
 ### Group 1 — Rich Content & Attachments
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
+- **Emoji Picker Completion**: Browse/search an app-bundled catalog, select skin-tone variants, persist Recents, and complete Android glyph/visual verification (US-2/US-3).
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -144,7 +146,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | ✅ Shipped | Text editing, document blocks, summary cards, action sheets |
+| **Note Editor** | 🟡 In Progress | Text editing, document blocks, summary cards, action sheets, and passing Unicode emoji insertion foundation; catalog/Recents/glyph verification remain |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |

@@ -37,7 +37,7 @@
       "user_visible_behavior": "An editable note exposes the existing emoji control; it opens a picker and inserts a selected Unicode emoji at the body cursor or into a newly appended paragraph. The same control stays visible but disabled in a read-only note.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "in_progress",
+  "status": "passing",
       "acceptance_test_ids": [
         "TC-US-1-01",
         "TC-US-1-02",
@@ -50,7 +50,64 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest"
       ],
-      "evidence": [],
+  "evidence": [
+    {
+      "test_id": "TC-US-1-01",
+      "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#editableToolbarOpensPickerWithRecentSelected",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#editableToolbarOpensPickerWithRecentSelected",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed 1 production editor-content Compose test on emulator-5554 (API 33): the editable emoji control opened the sheet with Recent selected and preserved the title."
+    },
+    {
+      "test_id": "TC-US-1-02",
+      "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#readOnlyToolbarIsDisabledAndDoesNotOpenPicker",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#readOnlyToolbarIsDisabledAndDoesNotOpenPicker",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed 1 production editor-content Compose test on emulator-5554 (API 33): the read-only control was visible, disabled, localized, and did not open a sheet."
+    },
+    {
+      "test_id": "TC-US-1-03",
+      "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
+      "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed focused ViewModel tests for cursor and range replacement, Unicode selection advancement, and autosave."
+    },
+    {
+      "test_id": "TC-US-1-03-ui",
+      "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#selectionInsertsEmojiAndKeepsPickerOpen",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorEmojiPickerTest#selectionInsertsEmojiAndKeepsPickerOpen",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed 1 Compose test on emulator-5554 (API 33): selection replacement preserved the title and left the picker visible."
+    },
+    {
+      "test_id": "TC-US-1-04",
+      "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
+      "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelEmojiTest\"",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed focused ViewModel fallback test: no focused body block appends and focuses a Unicode paragraph without changing the title."
+    },
+    {
+      "test_id": "TC-US-1-05",
+      "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
+      "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.editor.NoteEmojiPersistenceIntegrationTest\"",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed production serialization/repository/export integration test: default and skin-tone Unicode survived JSON, local reload, sync/share mapping, and export sources."
+    },
+    {
+      "test_id": "platform-capability-contract-US-1",
+      "command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate --slice US-1",
+      "executed_command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-15-note-emoji --evaluate --slice US-1",
+      "exit_status": 0,
+      "attempts": 1,
+      "result": "Passed: US-1 does not own the declared real Android Unicode boundary; final feature evidence remains correctly deferred to US-3."
+    }
+  ],
       "notes": "Foundational vertical slice. It deliberately uses only existing note content serialization—no DTO, Room, remote API, or permission work is allowed."
     },
     {

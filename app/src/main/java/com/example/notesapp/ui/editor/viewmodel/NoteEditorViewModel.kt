@@ -93,6 +93,50 @@ open class NoteEditorViewModel @Inject constructor(
             selectionEnd = end
         )
     }
+
+    fun insertEmoji(emoji: String) {
+        if (!canEdit() || emoji.isEmpty()) return
+
+        val current = uiStateInternal.value
+        val focusedTextBlock = current.focusedBlockId
+            ?.let { focusedBlockId ->
+                current.document.blocks.find { block -> block.id == focusedBlockId } as? EditorBlock.TextBlock
+            }
+
+        if (focusedTextBlock == null) {
+            val newBlock = EditorBlock.TextBlock(children = listOf(RichText(emoji)))
+            uiStateInternal.value = current.copy(
+                document = current.document.copy(blocks = current.document.blocks + newBlock),
+                focusedBlockId = newBlock.id,
+                selectionStart = emoji.length,
+                selectionEnd = emoji.length
+            )
+            scheduleAutoSave()
+            return
+        }
+
+        val textLength = focusedTextBlock.text().length
+        val (selectionStart, selectionEnd) = current.selectionRangeWithin(textLength)
+        val nextSelection = selectionStart + emoji.length
+        val updatedBlock = focusedTextBlock.copy(
+            children = focusedTextBlock.children.replaceRangeWithEmoji(
+                start = selectionStart,
+                end = selectionEnd,
+                emoji = emoji
+            )
+        )
+        uiStateInternal.value = current.copy(
+            document = current.document.copy(
+                blocks = current.document.blocks.map { block ->
+                    if (block.id == updatedBlock.id) updatedBlock else block
+                }
+            ),
+            selectionStart = nextSelection,
+            selectionEnd = nextSelection
+        )
+        scheduleAutoSave()
+    }
+
     private var autoSaveJob: Job? = null
     private val autoSaveJobs = mutableSetOf<Job>()
     private var summaryJob: Job? = null
@@ -609,4 +653,59 @@ private suspend fun MutableSet<Job>.cancelAndJoinAll() {
     toList().forEach { job ->
         job.cancelAndJoin()
     }
+}
+
+private fun NoteEditorUiState.selectionRangeWithin(textLength: Int): Pair<Int, Int> {
+    val start = selectionStart
+    val end = selectionEnd
+    return if (start in 0..textLength && end in 0..textLength) {
+        minOf(start, end) to maxOf(start, end)
+    } else {
+        textLength to textLength
+    }
+}
+
+private fun List<RichText>.replaceRangeWithEmoji(start: Int, end: Int, emoji: String): List<RichText> {
+    if (isEmpty()) return listOf(RichText(emoji))
+
+    val updatedChildren = mutableListOf<RichText>()
+    var currentOffset = 0
+    var emojiInserted = false
+
+    forEach { child ->
+        val childStart = currentOffset
+        val childEnd = childStart + child.text.length
+        currentOffset = childEnd
+
+        when {
+            childEnd <= start -> updatedChildren += child
+            childStart >= end -> {
+                if (!emojiInserted) {
+                    updatedChildren += RichText(emoji)
+                    emojiInserted = true
+                }
+                updatedChildren += child
+            }
+
+            else -> {
+                val startOffset = (start - childStart).coerceIn(0, child.text.length)
+                val endOffset = (end - childStart).coerceIn(0, child.text.length)
+                if (startOffset > 0) {
+                    updatedChildren += RichText(child.text.substring(0, startOffset), child.marks)
+                }
+                if (!emojiInserted) {
+                    updatedChildren += RichText(emoji)
+                    emojiInserted = true
+                }
+                if (endOffset < child.text.length) {
+                    updatedChildren += RichText(child.text.substring(endOffset), child.marks)
+                }
+            }
+        }
+    }
+
+    if (!emojiInserted) {
+        updatedChildren += RichText(emoji)
+    }
+    return updatedChildren.mergeAdjacentWithSameMarks()
 }

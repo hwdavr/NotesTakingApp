@@ -77,6 +77,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -102,6 +103,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -113,6 +115,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
+import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
 import com.example.notesapp.ui.editor.components.VoiceNotePlayer
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
@@ -178,6 +181,7 @@ fun NoteEditorScreen(
         onAddImage = viewModel::addImageBlock,
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
+        onEmojiSelected = viewModel::insertEmoji,
         onTableCellChange = viewModel::updateTableCell,
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
@@ -214,6 +218,7 @@ fun NoteEditorScreenContent(
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
+    onEmojiSelected: (String) -> Unit = {},
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -246,6 +251,7 @@ fun NoteEditorScreenContent(
     }
     var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
+    var showEmojiPicker by rememberSaveable { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameTextFieldValue by remember { mutableStateOf("") }
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
@@ -255,13 +261,7 @@ fun NoteEditorScreenContent(
             selectedFolder = selectedFolder,
             title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
         )
-    val activeTextBlockId =
-        state.focusedBlockId
-            ?: state.document
-                .blocks
-                .filterIsInstance<EditorBlock.TextBlock>()
-                .firstOrNull()
-                ?.id
+    val activeTextBlockId = state.activeTextBlockId()
     val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
     val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
     var focusLastBlockTrigger by remember { mutableIntStateOf(0) }
@@ -410,6 +410,8 @@ fun NoteEditorScreenContent(
                             onDeleteBlock = onDeleteBlock,
                             onDeleteVoiceAudio = onDeleteVoiceAudio,
                             focusedBlockId = state.focusedBlockId,
+                            selectionStart = state.selectionStart,
+                            selectionEnd = state.selectionEnd,
                             focusLastBlockTrigger = focusLastBlockTrigger
                         )
                     }
@@ -425,6 +427,7 @@ fun NoteEditorScreenContent(
                 onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
+                onOpenEmojiPicker = { showEmojiPicker = true },
                 onOpenVoiceRecorder = {
                     onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
                 },
@@ -472,6 +475,11 @@ fun NoteEditorScreenContent(
                 }
             )
         }
+        EmojiPickerOverlay(
+            isVisible = showEmojiPicker,
+            onDismiss = { showEmojiPicker = false },
+            onEmojiSelected = onEmojiSelected
+        )
         if (showRenameDialog) {
             AlertDialog(
                 onDismissRequest = { showRenameDialog = false },
@@ -572,6 +580,16 @@ fun NoteEditorScreenContent(
     }
 }
 
+private fun NoteEditorUiState.activeTextBlockId(): String? =
+    focusedBlockId ?: document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
+
+@Composable
+private fun EmojiPickerOverlay(isVisible: Boolean, onDismiss: () -> Unit, onEmojiSelected: (String) -> Unit) {
+    if (isVisible) {
+        EmojiPickerBottomSheet(onDismiss = onDismiss, onEmojiSelected = onEmojiSelected)
+    }
+}
+
 @Composable
 private fun SmartCategorizationNoMatchDialog(onConfirmManualMove: () -> Unit, onCancelManualMove: () -> Unit) {
     AlertDialog(
@@ -659,6 +677,8 @@ private fun DocumentBlockList(
     onDeleteBlock: (String) -> Unit,
     onDeleteVoiceAudio: ((String) -> Unit)? = null,
     focusedBlockId: String?,
+    selectionStart: Int,
+    selectionEnd: Int,
     focusLastBlockTrigger: Int = 0
 ) {
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
@@ -690,6 +710,9 @@ private fun DocumentBlockList(
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
                         focusRequester = focusRequester,
+                        selectionStart = selectionStart,
+                        selectionEnd = selectionEnd,
+                        isFocused = block.id == focusedBlockId,
                         focusTrigger = if (block.id == lastTextBlockId) focusLastBlockTrigger else 0
                     )
                 is EditorBlock.ImageBlock ->
@@ -730,6 +753,9 @@ private fun TextDocumentBlock(
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
     focusRequester: FocusRequester,
+    selectionStart: Int,
+    selectionEnd: Int,
+    isFocused: Boolean,
     focusTrigger: Int = 0
 ) {
     val colors = LocalAppColors.current
@@ -753,11 +779,13 @@ private fun TextDocumentBlock(
     }
 
     // Keep textFieldValue in sync with external changes (e.g. note load, folder sync, markdown stripping)
-    LaunchedEffect(block.id, block.children, block.type, block.checked) {
+    LaunchedEffect(block.id, block.children, block.type, block.checked, selectionStart, selectionEnd, isFocused) {
         val vmText = block.text()
         if (vmText != textFieldValue.text) {
             val currentSelection = textFieldValue.selection
-            val newSelection = if (currentSelection.start <= vmText.length && currentSelection.end <= vmText.length) {
+            val newSelection = if (isFocused && selectionStart <= vmText.length && selectionEnd <= vmText.length) {
+                TextRange(selectionStart, selectionEnd)
+            } else if (currentSelection.start <= vmText.length && currentSelection.end <= vmText.length) {
                 currentSelection
             } else {
                 TextRange(vmText.length)
@@ -1144,11 +1172,15 @@ private fun EditorBottomBar(
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
+    onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit,
     onToggleFormattingToolbar: () -> Unit
 ) {
-    if (!state.isEditable) return
-    if (state.isFormattingToolbarVisible) {
+    if (!state.isEditable) {
+        ReadOnlyEmojiBottomBar()
+        return
+    }
+    if (state.isFormattingToolbarVisible && state.isEditable) {
         FormattingBottomBar(
             state = state,
             activeTextBlockId = activeTextBlockId,
@@ -1164,6 +1196,7 @@ private fun EditorBottomBar(
             onAddParagraph = onAddParagraph,
             onAddImage = onAddImage,
             onAddTable = onAddTable,
+            onOpenEmojiPicker = onOpenEmojiPicker,
             onOpenVoiceRecorder = onOpenVoiceRecorder
         )
     }
@@ -1178,6 +1211,7 @@ private fun DefaultBottomBar(
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
+    onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit
 ) {
     val colors = LocalAppColors.current
@@ -1251,13 +1285,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
-                Icon(
-                    Icons.Outlined.InsertEmoticon,
-                    contentDescription = stringResource(R.string.editor_emoticon_description),
-                    tint = colors.textSecondary
-                )
-            }
+            EmojiInsertionControl(onOpenEmojiPicker = onOpenEmojiPicker, isEditable = true)
         }
         item {
             EditorBarButton(onClick = {}) {
@@ -1322,6 +1350,41 @@ private fun DefaultBottomBar(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ReadOnlyEmojiBottomBar() {
+    val colors = LocalAppColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(colors.surface)
+            .padding(horizontal = 4.dp)
+            .testTag("editor_read_only_bottom_bar"),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        EmojiInsertionControl(onOpenEmojiPicker = {}, isEditable = false)
+    }
+}
+
+@Composable
+private fun EmojiInsertionControl(onOpenEmojiPicker: () -> Unit, isEditable: Boolean) {
+    val colors = LocalAppColors.current
+    EditorBarButton(
+        onClick = onOpenEmojiPicker,
+        enabled = isEditable,
+        width = 48.dp,
+        modifier = Modifier.testTag("editor_insert_emoji")
+    ) {
+        Icon(
+            Icons.Outlined.InsertEmoticon,
+            contentDescription = stringResource(
+                if (isEditable) R.string.editor_emoticon_description else R.string.emoji_picker_read_only_description
+            ),
+            tint = if (isEditable) colors.textPrimary else colors.textSecondary.copy(alpha = 0.38f)
+        )
     }
 }
 
@@ -1480,9 +1543,15 @@ private fun isMarkActive(state: NoteEditorUiState, mark: String): Boolean {
 }
 
 @Composable
-private fun EditorBarButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+private fun EditorBarButton(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    width: Dp = 40.dp,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     Box(
-        modifier = modifier.size(width = 40.dp, height = 48.dp).clickable(onClick = onClick),
+        modifier = modifier.size(width = width, height = 48.dp).clickable(enabled = enabled, onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
 }
