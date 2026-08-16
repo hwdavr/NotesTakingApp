@@ -4,19 +4,19 @@
 
 | Item | Value |
 |---|---|
-| Feature / slice | `basic-blocks-sheet` (All slices: US-1, US-2, US-3) |
-| Current commit | `28382f0` |
-| Baselines reviewed | `spec.md`, `sprint-contract.md`, `feature_list.json`, `progress.md`, `session-handoff.md` |
+| Feature / slice | `basic-blocks-sheet` (All slices: US-1, US-2, US-3, US-4) |
+| Current commit | `de17f8b` |
+| Baselines reviewed | `spec.md`, `spec_amendment_v1.md`, `sprint-contract.md`, `feature_list.json`, `progress.md`, `session-handoff.md` |
 | Changed production files reviewed | `BasicBlocksPanel.kt`, `BasicBlockType.kt`, `NoteDocument.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `NoteEditorViewModelFocus.kt`, `NoteExporter.kt`, `strings.xml` |
-| Changed test files reviewed | `BasicBlocksPanelTest.kt`, `NoteDocumentTest.kt`, `NoteEditorViewModelTest.kt`, `NoteEditorViewModelIntegrationTest.kt`, `NoteExporterTest.kt`, `NoteEditorBasicBlocksSheetTest.kt`, `BasicBlocksPanelScreenTest.kt` |
+| Changed test files reviewed | `BasicBlocksPanelTest.kt`, `NoteDocumentTest.kt`, `NoteEditorViewModelTest.kt`, `NoteEditorViewModelIntegrationTest.kt`, `NoteExporterTest.kt`, `NoteEditorBasicBlocksSheetTest.kt`, `BasicBlocksPanelScreenTest.kt`, `BasicBlocksPanelAutoCollapseTest.kt` |
 
 ### Command Evidence
 
 | Command | Exit code | Timestamp | Commit | Provenance | Result / failure detail |
 |---|---:|---|---|---|---|
-| `./gradlew testDebugUnitTest` | 0 | 2026-08-16T20:56:21+08:00 | `28382f0` | Independently executed | Passed all 368 JVM unit & integration tests cleanly. |
-| `./gradlew koverLog` | 0 | 2026-08-16T20:56:24+08:00 | `28382f0` | Independently executed | Application line coverage: 83.8649% (>= 80% threshold). |
-| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest,com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest` | 0 | 2026-08-16T20:56:55+08:00 | `28382f0` | Independently executed | Passed all 12 connected instrumented UI tests on emulator-5554. |
+| `./gradlew testDebugUnitTest` | 0 | 2026-08-16T23:26:52+08:00 | `de17f8b` | Independently executed | Passed all 368 JVM unit & integration tests cleanly. |
+| `./gradlew koverLog` | 0 | 2026-08-16T23:27:19+08:00 | `de17f8b` | Independently executed | Application line coverage: 83.8649% (>= 80% threshold). |
+| `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest,com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest,com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest` | 0 | 2026-08-16T23:28:02+08:00 | `de17f8b` | Independently executed | Passed all 15 connected instrumented UI tests on emulator-5554. |
 
 ---
 
@@ -43,6 +43,7 @@
 | FR-017 | Font scaling and device constraints scroll rather than clip | `BasicBlocksPanelScreenTest.kt#basicBlocksPanelSupportsLargeFontAndConstrainedViewport` | `CompositionLocalProvider` with `fontScale = 1.5f` | Panel renders and grid scrolls to Quote without clipping | Independently executed | PASS |
 | FR-018 | Existing documents load, edit, export, and persist without data loss | `NoteDocumentTest.kt#legacyAndUnknownBlocksKeepReadableContent` & `NoteExporterTest.kt#legacyDocumentExportsAfterBasicBlockExtension` | JSON decode of legacy heading & future-text | Legacy heading maps to `heading_1`, unknown types fallback to `paragraph` | Independently executed | PASS |
 | FR-019 | Panel has no typing, search, or filtering control | `NoteEditorBasicBlocksSheetTest.kt#triggerButton_togglesBasicBlocksPanelVisibility` | Panel node inspection | No text input node or search control in panel | Independently executed | PASS |
+| FR-020 | Outside interaction while panel open collapses panel without mutation | `BasicBlocksPanelAutoCollapseTest.kt#editorContentTapCollapsesPanelWithoutMutation` & `BasicBlocksPanelAutoCollapseTest.kt#nonTriggerToolbarControlCollapsesPanelWithoutMutation` | Editor content tap / non-trigger toolbar action click while open | Panel closes, document count/order/text unchanged, no block inserted | Independently executed | PASS |
 | AC-001 | Plus expands inline panel directly beneath toolbar without scrim | `BasicBlocksPanelScreenTest.kt#basicBlocksPanelMatchesCompactGeometry` | Plus trigger click | Panel expands below divider with no modal scrim | Independently executed | PASS |
 | AC-002 | Grid contains exact 11 labels, full-width Quote, no Page | `BasicBlocksPanelTest.kt#approvedTilesContainsExactlyElevenBasicBlockTypesInReadingOrder` | Catalog inspection | 11 tiles present, Quote full-width, Page absent | Independently executed | PASS |
 | AC-003 | Accessibility traversal exposes localized action semantics | `BasicBlocksPanelScreenTest.kt#basicBlocksPanelExposesAccessibleLabeledTilesAndTargetBounds` | Semantics node inspection | Accessible label, button role, >= 48dp target bounds | Independently executed | PASS |
@@ -57,6 +58,7 @@
 | AC-012 | Read-only trigger is visible/disabled & cannot open/mutate | `BasicBlocksPanelScreenTest.kt#readOnlyBasicBlocksTriggerIsVisibleDisabledAndSafe` | Read-only trigger tap | Trigger disabled, panel never expands | Independently executed | PASS |
 | AC-013 | Larger fonts, narrow phones, landscape, tablets remain reachable | `BasicBlocksPanelScreenTest.kt#basicBlocksPanelSupportsLargeFontAndConstrainedViewport` | 1.5f fontScale density override | Grid scrolls to Quote without clipping | Independently executed | PASS |
 | AC-014 | Existing documents retain content after load/edit/save/export | `NoteExporterTest.kt#legacyDocumentExportsAfterBasicBlockExtension` | Export legacy document to Markdown | All content retained in markdown output | Independently executed | PASS |
+| AC-015 | Outside interaction while panel open collapses panel with no mutation | `BasicBlocksPanelAutoCollapseTest.kt#editorContentTapCollapsesPanelWithoutMutation` & `BasicBlocksPanelAutoCollapseTest.kt#nonTriggerToolbarControlCollapsesPanelWithoutMutation` & `BasicBlocksPanelAutoCollapseTest.kt#triggerToggleAndTileInsertionStillWorkAfterAutoCollapse` | Editor content tap / non-trigger toolbar action click while open | Panel collapses, no block inserted, document unchanged; trigger toggle & tile insertion contract preserved | Independently executed | PASS |
 | Edge: no focused body block | Append at document end and focus new block | `NoteEditorViewModelTest.kt#insertBasicBlock appends new block to end when no block is focused` | `insertBasicBlock` with `focusedBlockId = null` | Appends at end, sets focus | Independently executed | PASS |
 | Edge: focused non-text block | Insert after focused image, table, or voice | `NoteEditorViewModelTest.kt#insertBasicBlock inserts new block after focused block` | `insertBasicBlock` with focused block | Inserts after focused block | Independently executed | PASS |
 | Edge: empty new note | Append selected block | `NoteEditorViewModelTest.kt#insertBasicBlock appends new block to end when no block is focused` | `insertBasicBlock` on empty note | Appends block to empty note | Independently executed | PASS |
@@ -67,6 +69,7 @@
 | Edge: rapid tile taps | Commit only first accepted selection | `NoteEditorScreen.kt` `selectionInFlight` state guard | Rapid tile clicks | Single insertion committed, panel collapses | Independently executed | PASS |
 | Edge: unknown stored block type | Safe compatibility fallback | `NoteDocumentTest.kt#legacyAndUnknownBlocksKeepReadableContent` | Decode JSON with `"future-text"` type | Falls back to `paragraph`, keeps text & marks | Independently executed | PASS |
 | Edge: toggle state | Preserve expanded/collapsed state through auto-save | `NoteEditorViewModelTest.kt#toggleExpandedStatePersistsAcrossDocumentRoundTrip` | Toggle state round-trip | `isExpanded` state preserved | Independently executed | PASS |
+| Edge: outside interaction while panel open | Collapse panel without mutation | `BasicBlocksPanelAutoCollapseTest.kt#editorContentTapCollapsesPanelWithoutMutation` | Content / toolbar tap | Panel collapses without inserting block or mutating document | Independently executed | PASS |
 
 ---
 
@@ -114,4 +117,4 @@
 
 ## Verdict
 
-**APPROVED** — All 19 Functional Requirements (FR-001..FR-019), 14 Acceptance Criteria (AC-001..AC-014), and documented edge cases are fully mapped to passing tests with observable production assertions. Overall project line coverage is 83.8649%, static analysis and quality scripts pass cleanly, and instrumented UI tests pass on `emulator-5554`.
+**APPROVED** — All 20 Functional Requirements (FR-001..FR-020), 15 Acceptance Criteria (AC-001..AC-015), and documented edge cases are fully mapped to passing tests with observable production assertions. Overall project line coverage is 83.8649%, static analysis and quality scripts pass cleanly, and 15 instrumented UI tests pass on `emulator-5554`.

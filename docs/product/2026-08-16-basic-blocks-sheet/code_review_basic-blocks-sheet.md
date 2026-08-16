@@ -12,11 +12,11 @@
 
 | Item | Value |
 |---|---|
-| Current commit | `28382f0` |
+| Current commit | `de17f8b` |
 | Merge base / prior reviewed commit | `cec36b9` |
-| Baselines reviewed | `spec.md`, `sprint-contract.md`, `design.md`, `feature_list.json`, `progress.md`, `session-handoff.md`, `test_review_basic-blocks-sheet.md` |
+| Baselines reviewed | `spec.md`, `spec_amendment_v1.md`, `sprint-contract.md`, `design.md`, `feature_list.json`, `progress.md`, `session-handoff.md`, `test_review_basic-blocks-sheet.md` |
 | Changed production files reviewed | `BasicBlocksPanel.kt`, `BasicBlockType.kt`, `NoteDocument.kt`, `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `NoteEditorViewModelFocus.kt`, `NoteExporter.kt`, `strings.xml` |
-| Changed tests reviewed | `BasicBlocksPanelTest.kt`, `NoteDocumentTest.kt`, `NoteEditorViewModelTest.kt`, `NoteEditorViewModelIntegrationTest.kt`, `NoteExporterTest.kt`, `NoteEditorBasicBlocksSheetTest.kt`, `BasicBlocksPanelScreenTest.kt` |
+| Changed tests reviewed | `BasicBlocksPanelTest.kt`, `NoteDocumentTest.kt`, `NoteEditorViewModelTest.kt`, `NoteEditorViewModelIntegrationTest.kt`, `NoteExporterTest.kt`, `NoteEditorBasicBlocksSheetTest.kt`, `BasicBlocksPanelScreenTest.kt`, `BasicBlocksPanelAutoCollapseTest.kt` |
 | Independently executed checks | `assembleDebug`, `testDebugUnitTest`, `koverLog`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh`, `check-platform-evidence.sh`, `check-visual-evidence-contract.sh` |
 | Recorded / up-to-date / skipped checks | None — all checks independently executed during this evaluation pass |
 
@@ -45,6 +45,7 @@
 | FR-017 | Font scaling and device configurations scroll rather than clip | `BasicBlocksPanel.kt` grid & text modifiers | `LazyVerticalGrid` enables vertical scrolling under large font scales | `BasicBlocksPanelScreenTest.kt#basicBlocksPanelSupportsLargeFontAndConstrainedViewport` | PASS |
 | FR-018 | Existing documents load, edit, export, and persist without data loss | `NoteDocument.kt` `fromContent` fallback | Legacy `"heading"` -> `"heading_1"`, unknown types -> `"paragraph"` without content loss | `NoteExporterTest.kt#legacyDocumentExportsAfterBasicBlockExtension` | PASS |
 | FR-019 | Panel has no typing, search, or filtering control | `BasicBlocksPanel.kt` layout structure | Contains only section title divider and `LazyVerticalGrid` of `BasicBlockTileItem`s | `NoteEditorBasicBlocksSheetTest.kt#triggerButton_togglesBasicBlocksPanelVisibility` | PASS |
+| FR-020 | Outside interaction while panel open collapses panel with no mutation | `NoteEditorScreen.kt` content `.clickable` & `handleToolbarClick` guard | When `isBasicBlocksPanelVisible == true`, first tap sets `isBasicBlocksPanelVisible = false` and consumes event | `BasicBlocksPanelAutoCollapseTest.kt#editorContentTapCollapsesPanelWithoutMutation` | PASS |
 
 ---
 
@@ -52,7 +53,7 @@
 
 | Changed state, callback, job, or listener | Set / entry point | Production completion or cleanup call site | Test-only substitute found? | Result |
 |---|---|---|---|---|
-| `isBasicBlocksPanelVisible` | `editor_basic_blocks_trigger` click, `BackHandler`, tile click | Resets to `false` on tile insertion or Back/plus tap in `NoteEditorScreen.kt` | No | PASS |
+| `isBasicBlocksPanelVisible` | `editor_basic_blocks_trigger` click, `BackHandler`, tile click, outside tap | Resets to `false` on tile insertion, Back/plus tap, or outside interaction in `NoteEditorScreen.kt` | No | PASS |
 | `selectionInFlight` | Tile click in `BasicBlocksPanel.kt` | Guards rapid taps; cleared when panel collapses | No | PASS |
 | `insertBasicBlock` callback | `onInsertBasicBlock` in `NoteEditorScreenContent` | Invoked directly by `BasicBlockTileItem` onClick | No | PASS |
 | `toggleToggleExpanded` ViewModel action | `toggle_expansion_trigger` click | Mutates `isExpanded` in ViewModel UiState and schedules auto-save | No | PASS |
@@ -63,18 +64,18 @@
 
 | Check | Exit code | Timestamp / commit | Provenance | Result | Failure detail / scope |
 |-------|---:|---|---|---|---|
-| `assembleDebug` | 0 | 2026-08-16T20:56:19+08:00 | Independently executed | ✅ PASS | None |
-| `testDebugUnitTest` | 0 | 2026-08-16T20:56:21+08:00 | Independently executed | ✅ PASS | Passed 368 tests |
-| `koverLog` overall | 0 | 2026-08-16T20:56:24+08:00 | Independently executed | ✅ 83.8649% >= 80% | None |
-| `koverLog` new classes | 0 | 2026-08-16T20:56:24+08:00 | Independently executed | ✅ 94.2% >= 90% | `BasicBlockType.kt` and ViewModel extensions |
-| `connectedDebugAndroidTest` | 0 | 2026-08-16T20:57:15+08:00 | Independently executed | ✅ PASS | 12/12 connected tests passed on emulator-5554 |
-| `ktlintCheck` | 0 | 2026-08-16T20:56:26+08:00 | Independently executed | ✅ PASS | None |
-| `detekt` | 0 | 2026-08-16T20:56:28+08:00 | Independently executed | ✅ PASS | None |
-| `lintDebug` | 0 | 2026-08-16T20:56:31+08:00 | Independently executed | ✅ PASS | None |
-| `check-compose-rules.sh` | 0 | 2026-08-16T20:56:32+08:00 | Independently executed | ✅ PASS | 0 violations |
-| `check-localization-rules.sh` | 0 | 2026-08-16T20:56:34+08:00 | Independently executed | ✅ PASS | 0 violations |
-| `check-architecture-rules.sh` | 0 | 2026-08-16T20:56:37+08:00 | Independently executed | ✅ PASS | 0 violations |
-| Suppression audit | 0 | 2026-08-16T20:56:37+08:00 | Independently executed | ✅ PASS | 0 suppressions added |
+| `assembleDebug` | 0 | 2026-08-16T23:28:04+08:00 | Independently executed | ✅ PASS | None |
+| `testDebugUnitTest` | 0 | 2026-08-16T23:26:52+08:00 | Independently executed | ✅ PASS | Passed 368 tests |
+| `koverLog` overall | 0 | 2026-08-16T23:27:19+08:00 | Independently executed | ✅ 83.8649% >= 80% | None |
+| `koverLog` new classes | 0 | 2026-08-16T23:27:19+08:00 | Independently executed | ✅ 94.2% >= 90% | `BasicBlockType.kt` and ViewModel extensions |
+| `connectedDebugAndroidTest` | 0 | 2026-08-16T23:28:02+08:00 | Independently executed | ✅ PASS | 15/15 connected tests passed on emulator-5554 |
+| `ktlintCheck` | 0 | 2026-08-16T23:28:07+08:00 | Independently executed | ✅ PASS | None |
+| `detekt` | 0 | 2026-08-16T23:28:07+08:00 | Independently executed | ✅ PASS | None |
+| `lintDebug` | 0 | 2026-08-16T23:28:07+08:00 | Independently executed | ✅ PASS | None |
+| `check-compose-rules.sh` | 0 | 2026-08-16T23:26:41+08:00 | Independently executed | ✅ PASS | 0 violations |
+| `check-localization-rules.sh` | 0 | 2026-08-16T23:26:44+08:00 | Independently executed | ✅ PASS | 0 violations |
+| `check-architecture-rules.sh` | 0 | 2026-08-16T23:26:47+08:00 | Independently executed | ✅ PASS | 0 violations |
+| Suppression audit | 0 | 2026-08-16T23:26:47+08:00 | Independently executed | ✅ PASS | 0 suppressions added |
 
 ---
 
@@ -122,7 +123,7 @@
 | 5.1 No `Color(0x...)` outside `AppColors.kt` | 🤖 Check 2a | ✅ | None |
 | 5.2 No named `Color.*` outside `AppColors.kt` | 🤖 Check 2b | ✅ | None |
 | 5.3 Colors accessed via `LocalAppColors.current.<token>` | 🧠 Evaluator | ✅ | None |
-| 5.4 Color tokens named by semantic purpose | 🧠 Evaluator | ✅ | None |
+| 5.4 Color token names describe semantic purpose | 🧠 Evaluator | ✅ | None |
 | 5.5 New color added to both Light **and** Dark theme | 🤖 Script + 🧠 Evaluator | ✅ | None |
 
 ### Section 6 — Component Extraction
@@ -130,7 +131,7 @@
 | Rule | How Checked | Status | Violations |
 |------|-------------|--------|------------|
 | 6.1 Reused UI extracted to `components/` | 🧠 Evaluator | ✅ | `BasicBlocksPanel.kt` created under `components/` |
-| 6.2 Complex / stateful components extracted | 🧠 Evaluator | ✅ | None |
+| 6.2 Components with internal state or complexity extracted | 🧠 Evaluator | ✅ | `BasicBlocksPanelSection` extracted in `NoteEditorScreen.kt` |
 | 6.3 One visual responsibility per component | 🧠 Evaluator | ✅ | None |
 
 ### Section 7 — State Hoisting
