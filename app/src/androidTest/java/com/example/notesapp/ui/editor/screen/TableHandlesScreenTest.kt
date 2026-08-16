@@ -7,10 +7,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
@@ -35,7 +37,7 @@ class TableHandlesScreenTest {
         composeRule.onNodeWithTag("table_column_handle").assertIsDisplayed()
         composeRule.onNodeWithTag("table_row_handle").assertIsDisplayed()
         composeRule.onNodeWithTag("table_options_handle").assertIsDisplayed()
-        composeRule.onNodeWithText("Focused table cell").assertExists()
+        composeRule.onNodeWithContentDescription("Focused table cell").assertExists()
     }
 
     @Test
@@ -115,6 +117,8 @@ class TableHandlesScreenTest {
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
+        pressBack()
+        composeRule.waitForIdle()
     }
 
     private fun assertHandlesAbsent() {
@@ -143,10 +147,7 @@ class TableHandlesScreenTest {
         )
     }
 
-    private fun setEditorContent(
-        isEditable: Boolean,
-        blocks: List<EditorBlock> = listOf(tableBlock())
-    ) {
+    private fun setEditorContent(isEditable: Boolean, blocks: List<EditorBlock> = listOf(tableBlock())) {
         composeRule.setContent {
             NoteEditorScreenContent(
                 parentPadding = PaddingValues(0.dp),
@@ -192,12 +193,11 @@ class TableHandlesScreenTest {
         composeRule.waitForIdle()
     }
 
-    private fun tableBlock(): EditorBlock.TableBlock =
-        EditorBlock.TableBlock(
-            id = "table_1",
-            rows = listOf(
-                listOf(listOf(RichText("A1")), listOf(RichText("B1"))),
-                listOf(listOf(RichText("A2")), listOf(RichText("B2")))
-            )
+    private fun tableBlock(): EditorBlock.TableBlock = EditorBlock.TableBlock(
+        id = "table_1",
+        rows = listOf(
+            listOf(listOf(RichText("A1")), listOf(RichText("B1"))),
+            listOf(listOf(RichText("A2")), listOf(RichText("B2")))
         )
+    )
 }

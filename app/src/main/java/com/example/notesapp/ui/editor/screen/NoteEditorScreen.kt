@@ -16,14 +16,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +37,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -98,9 +99,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
@@ -130,6 +129,7 @@ import com.example.notesapp.ui.editor.components.TableOptionsSheet
 import com.example.notesapp.ui.editor.components.TableRowOptionsSheet
 import com.example.notesapp.ui.editor.components.VoiceNotePlayer
 import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
@@ -1207,6 +1207,8 @@ private fun TableDocumentBlock(
     }
     val handlesVisible = isEditable && targetCell != null &&
         (tableHasFocus || activeSheet != null)
+    val focusedColumnIndex = targetCell?.takeIf { handlesVisible }?.columnIndex
+    val focusedRowIndex = targetCell?.takeIf { handlesVisible }?.rowIndex
 
     LaunchedEffect(clearFocusTrigger) {
         if (clearFocusTrigger > 0) {
@@ -1223,6 +1225,51 @@ private fun TableDocumentBlock(
         }
     }
 
+    TableDocumentBlockContent(
+        block = block,
+        isEditable = isEditable,
+        targetCell = targetCell,
+        focusedColumnIndex = focusedColumnIndex,
+        focusedRowIndex = focusedRowIndex,
+        onCellChange = onCellChange,
+        onCellFocusChanged = { cell, hasFocus ->
+            if (hasFocus && isEditable) {
+                focusedCell = cell
+                tableHasFocus = true
+            } else if (!hasFocus && focusedCell == cell) {
+                tableHasFocus = false
+                if (activeSheet == null) {
+                    focusedCell = null
+                }
+            }
+        },
+        onColumnHandleClick = { activeSheet = TableHandleSheet.Column },
+        onRowHandleClick = { activeSheet = TableHandleSheet.Row },
+        onTableHandleClick = { activeSheet = TableHandleSheet.Table }
+    )
+    TableHandleSheets(
+        activeSheet = activeSheet,
+        targetCell = targetCell,
+        blockId = block.id,
+        onDismiss = { activeSheet = null },
+        onAction = onAction
+    )
+}
+
+@Composable
+private fun TableDocumentBlockContent(
+    block: EditorBlock.TableBlock,
+    isEditable: Boolean,
+    targetCell: FocusedTableCell?,
+    focusedColumnIndex: Int?,
+    focusedRowIndex: Int?,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onColumnHandleClick: () -> Unit,
+    onRowHandleClick: () -> Unit,
+    onTableHandleClick: () -> Unit
+) {
+    val handlesVisible = targetCell != null
     Column(
         modifier = Modifier.fillMaxWidth().testTag("editor_table_block"),
         verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -1234,153 +1281,219 @@ private fun TableDocumentBlock(
             fontSize = 13.sp
         )
         Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = if (handlesVisible) 48.dp else 0.dp,
-                        top = if (handlesVisible) 48.dp else 0.dp
-                    )
-                    .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
-                    .clip(RoundedCornerShape(4.dp))
-                    .testTag("editor_table_grid")
-            ) {
-                block.rows.forEachIndexed { rowIndex, row ->
-                    if (rowIndex > 0) {
-                        HorizontalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
-                    }
-                    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-                        row.forEachIndexed { cellIndex, cell ->
-                            if (cellIndex > 0) {
-                                VerticalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
-                            }
-                            val isFocusedCell =
-                                handlesVisible &&
-                                    targetCell?.rowIndex == rowIndex &&
-                                    targetCell.columnIndex == cellIndex
-                            val focusedCellDescription =
-                                stringResource(R.string.table_focused_cell_description)
-                            BasicTextField(
-                                value = cell.joinToString("") { it.text },
-                                readOnly = !isEditable,
-                                onValueChange = { onCellChange(rowIndex, cellIndex, it) },
-                                modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .background(
-                                        color = if (isFocusedCell) {
-                                            LocalAppColors.current.primary.copy(alpha = 0.08f)
-                                        } else {
-                                            LocalAppColors.current.transparent
-                                        }
-                                    )
-                                    .onFocusChanged { focusState ->
-                                        if (focusState.isFocused && isEditable) {
-                                            focusedCell = FocusedTableCell(rowIndex, cellIndex)
-                                            tableHasFocus = true
-                                        } else if (!focusState.hasFocus &&
-                                            focusedCell == FocusedTableCell(rowIndex, cellIndex)
-                                        ) {
-                                            tableHasFocus = false
-                                            if (activeSheet == null) {
-                                                focusedCell = null
-                                            }
-                                        }
-                                    }
-                                    .semantics {
-                                        if (isFocusedCell) {
-                                            contentDescription = focusedCellDescription
-                                        }
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 6.dp)
-                                    .testTag("editor_table_cell"),
-                                textStyle =
-                                MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                                cursorBrush = SolidColor(LocalAppColors.current.primary),
-                                singleLine = true
-                            )
-                        }
-                    }
-                }
-            }
-            targetCell?.takeIf { handlesVisible }?.let { activeTarget ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(start = 48.dp, end = 48.dp)
-                ) {
-                    repeat(columnCount) { columnIndex ->
-                        if (columnIndex == activeTarget.columnIndex) {
-                            TableColumnHandle(
-                                modifier = Modifier.weight(1f),
-                                onClick = { activeSheet = TableHandleSheet.Column }
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-                Column(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .fillMaxHeight()
-                        .padding(top = 48.dp)
-                ) {
-                    block.rows.forEachIndexed { rowIndex, _ ->
-                        if (rowIndex == activeTarget.rowIndex) {
-                            TableRowHandle(
-                                modifier = Modifier.weight(1f),
-                                onClick = { activeSheet = TableHandleSheet.Row }
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-                IconButton(
-                    onClick = { activeSheet = TableHandleSheet.Table },
-                    enabled = isEditable,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(48.dp)
-                        .background(
-                            color = LocalAppColors.current.primary.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .testTag("table_options_handle")
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.MoreHoriz,
-                        contentDescription = stringResource(R.string.table_options_handle_description),
-                        tint = LocalAppColors.current.primary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
+            TableGrid(
+                block = block,
+                isEditable = isEditable,
+                targetCell = targetCell,
+                focusedRowIndex = focusedRowIndex,
+                handlesVisible = handlesVisible,
+                onCellChange = onCellChange,
+                onCellFocusChanged = onCellFocusChanged,
+                onRowHandleClick = onRowHandleClick
+            )
+            if (focusedColumnIndex != null) {
+                TableColumnHandleRow(
+                    columnCount = block.rows.maxOfOrNull { it.size } ?: 0,
+                    focusedColumnIndex = focusedColumnIndex,
+                    onColumnHandleClick = onColumnHandleClick,
+                    onTableHandleClick = onTableHandleClick
+                )
             }
         }
     }
+}
 
-    targetCell?.takeIf { handlesVisible }?.let { activeTarget ->
+@Composable
+private fun TableGrid(
+    block: EditorBlock.TableBlock,
+    isEditable: Boolean,
+    targetCell: FocusedTableCell?,
+    focusedRowIndex: Int?,
+    handlesVisible: Boolean,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onRowHandleClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = if (handlesVisible) 48.dp else 0.dp)
+            .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(4.dp))
+            .testTag("editor_table_grid")
+    ) {
+        block.rows.forEachIndexed { rowIndex, row ->
+            if (rowIndex > 0) {
+                HorizontalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
+            }
+            TableGridRow(
+                rowIndex = rowIndex,
+                row = row,
+                isEditable = isEditable,
+                targetCell = targetCell,
+                focusedRowIndex = focusedRowIndex,
+                onCellChange = onCellChange,
+                onCellFocusChanged = onCellFocusChanged,
+                onRowHandleClick = onRowHandleClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun TableGridRow(
+    rowIndex: Int,
+    row: List<List<RichText>>,
+    isEditable: Boolean,
+    targetCell: FocusedTableCell?,
+    focusedRowIndex: Int?,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onRowHandleClick: () -> Unit
+) {
+    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        if (focusedRowIndex != null) {
+            if (rowIndex == focusedRowIndex) {
+                TableRowHandle(
+                    modifier = Modifier.width(48.dp).fillMaxHeight(),
+                    onClick = onRowHandleClick
+                )
+            } else {
+                Spacer(modifier = Modifier.width(48.dp).fillMaxHeight())
+            }
+        }
+        row.forEachIndexed { cellIndex, cell ->
+            if (cellIndex > 0) {
+                VerticalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
+            }
+            TableGridCell(
+                rowIndex = rowIndex,
+                cellIndex = cellIndex,
+                cell = cell,
+                isEditable = isEditable,
+                isFocusedCell = targetCell == FocusedTableCell(rowIndex, cellIndex),
+                onCellChange = onCellChange,
+                onCellFocusChanged = onCellFocusChanged
+            )
+        }
+    }
+}
+
+@Composable
+private fun RowScope.TableGridCell(
+    rowIndex: Int,
+    cellIndex: Int,
+    cell: List<RichText>,
+    isEditable: Boolean,
+    isFocusedCell: Boolean,
+    onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit
+) {
+    val focusedCellDescription = stringResource(R.string.table_focused_cell_description)
+    BasicTextField(
+        value = cell.joinToString("") { it.text },
+        readOnly = !isEditable,
+        onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+        modifier = Modifier
+            .weight(1f)
+            .background(
+                color = if (isFocusedCell) {
+                    LocalAppColors.current.primary.copy(alpha = 0.08f)
+                } else {
+                    LocalAppColors.current.transparent
+                }
+            )
+            .onFocusChanged { focusState ->
+                onCellFocusChanged(
+                    FocusedTableCell(rowIndex, cellIndex),
+                    focusState.isFocused
+                )
+            }
+            .semantics {
+                if (isFocusedCell) {
+                    contentDescription = focusedCellDescription
+                }
+            }
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .testTag("editor_table_cell"),
+        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+        cursorBrush = SolidColor(LocalAppColors.current.primary),
+        singleLine = true
+    )
+}
+
+@Composable
+private fun BoxScope.TableColumnHandleRow(
+    columnCount: Int,
+    focusedColumnIndex: Int,
+    onColumnHandleClick: () -> Unit,
+    onTableHandleClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .padding(start = 48.dp, end = 48.dp)
+    ) {
+        repeat(columnCount) { columnIndex ->
+            if (columnIndex == focusedColumnIndex) {
+                TableColumnHandle(
+                    modifier = Modifier.weight(1f),
+                    onClick = onColumnHandleClick
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+    }
+    IconButton(
+        onClick = onTableHandleClick,
+        modifier = Modifier
+            .align(Alignment.TopEnd)
+            .size(48.dp)
+            .background(
+                color = LocalAppColors.current.primary.copy(alpha = 0.15f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .testTag("table_options_handle")
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.MoreHoriz,
+            contentDescription = stringResource(R.string.table_options_handle_description),
+            tint = LocalAppColors.current.primary,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+@Composable
+private fun TableHandleSheets(
+    activeSheet: TableHandleSheet?,
+    targetCell: FocusedTableCell?,
+    blockId: String,
+    onDismiss: () -> Unit,
+    onAction: (TableHandleAction) -> Unit
+) {
+    targetCell?.let { cell ->
         when (activeSheet) {
             TableHandleSheet.Column ->
                 TableColumnOptionsSheet(
-                    blockId = block.id,
-                    columnIndex = activeTarget.columnIndex,
-                    onDismiss = { activeSheet = null },
+                    blockId = blockId,
+                    columnIndex = cell.columnIndex,
+                    onDismiss = onDismiss,
                     onAction = onAction
                 )
             TableHandleSheet.Row ->
                 TableRowOptionsSheet(
-                    blockId = block.id,
-                    rowIndex = activeTarget.rowIndex,
-                    onDismiss = { activeSheet = null },
+                    blockId = blockId,
+                    rowIndex = cell.rowIndex,
+                    onDismiss = onDismiss,
                     onAction = onAction
                 )
             TableHandleSheet.Table ->
                 TableOptionsSheet(
-                    blockId = block.id,
-                    onDismiss = { activeSheet = null },
+                    blockId = blockId,
+                    onDismiss = onDismiss,
                     onAction = onAction
                 )
             null -> Unit
@@ -1397,80 +1510,6 @@ private enum class TableHandleSheet {
     Column,
     Row,
     Table
-}
-
-@Composable
-private fun TableColumnHandle(
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    TableHandleStrip(
-        modifier = modifier,
-        tag = "table_column_handle",
-        description = stringResource(R.string.table_column_handle_description),
-        isHorizontal = true,
-        onClick = onClick
-    )
-}
-
-@Composable
-private fun TableRowHandle(
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    TableHandleStrip(
-        modifier = modifier,
-        tag = "table_row_handle",
-        description = stringResource(R.string.table_row_handle_description),
-        isHorizontal = false,
-        onClick = onClick
-    )
-}
-
-@Composable
-private fun TableHandleStrip(
-    modifier: Modifier,
-    tag: String,
-    description: String,
-    isHorizontal: Boolean,
-    onClick: () -> Unit
-) {
-    val colors = LocalAppColors.current
-    Box(
-        modifier = modifier
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics {
-                contentDescription = description
-                role = Role.Button
-            }
-            .testTag(tag),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = if (isHorizontal) {
-                Modifier
-                    .fillMaxWidth()
-                    .height(12.dp)
-                    .background(
-                        colors.primary.copy(alpha = 0.15f),
-                        RoundedCornerShape(4.dp)
-                    )
-            } else {
-                Modifier
-                    .fillMaxHeight()
-                    .width(12.dp)
-                    .background(
-                        colors.primary.copy(alpha = 0.15f),
-                        RoundedCornerShape(4.dp)
-                    )
-            }
-        )
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .background(colors.primary, CircleShape)
-        )
-    }
 }
 
 @Composable

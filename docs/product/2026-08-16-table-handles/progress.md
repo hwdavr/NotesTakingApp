@@ -6,7 +6,7 @@
 - Standard startup path: existing Note Editor with an editable note containing a `TableBlock`.
 - Standard verification path: `./gradlew testDebugUnitTest` and `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
 - Current active feature: `table-handles`; `US-1` — Apply table structure and persistence operations — is passing.
-- Current remaining work: `US-2` is now marked `in_progress` by a concurrent generator process and `US-3` remains not started; the overall tracker remains `In Progress`.
+- Current verified state: `US-1` and `US-2` are passing; `US-3` remains not started, so the overall tracker remains `In Progress`.
 
 ## Session Log
 
@@ -33,3 +33,15 @@
 - Commits: Implementation `aa95f95`; clean-exit documentation commit is pending.
 - Known risk or unresolved issue: The configured session exposed no Skill tool endpoint, so the required skill invocations were followed manually from repository skill instructions and recorded in the summary; a concurrent generator owns the US-2 lifecycle edit and US-2/US-3 still require the Android runtime and visual gates.
 - Next best step: Complete clean-exit/install gates for US-1, then leave the feature tracker `In Progress` for the next selected slice.
+
+### Session 003
+
+- Date: 2026-08-16
+- Goal: Implement the approved `US-2` slice through the harness-generator workflow.
+- Completed: Added focus-driven editable table column, row, and table-options handles; retained focused targets while sheets are open; added localized accessible Material 3 sheets with stable tags and Delete-last ordering; connected the production editor to the existing US-1 ViewModel table commands; added four production-entry-point instrumented tests.
+- Verification run: The exact US-2 acceptance command passed all 4 `TableHandlesScreenTest` tests on `Medium_Phone(AVD) - 13`; full JVM tests passed with 355 tests; Kover reported 83.3009% application line coverage; assemble, ktlint, detekt, lint, Compose, localization, architecture, and platform evidence checks passed.
+- State update: US-2 is now `passing` with evidence for TC-US-2-01 through TC-US-2-04; the tracker remains `In Progress` because US-3 owns production action-flow and visual verification.
+- Install evidence: Pending Stage 9 `./gradlew installDebug` after clean-exit verification.
+- Commits: Prior implementation commits `a3ee82b` and `7472906`; final US-2 source, test, and product-state commit is pending.
+- Known risk or unresolved issue: The configured session exposed no callable Skill tool endpoint, so required stage skills were followed from their repository instructions as a documented fallback; US-3 still owns immediate action-flow and screenshot verification.
+- Next best step: Complete the clean-state checklist, write the session handoff, and install the final debug build to every connected runtime.

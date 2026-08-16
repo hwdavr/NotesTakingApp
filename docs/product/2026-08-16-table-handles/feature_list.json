@@ -108,7 +108,7 @@
       "user_visible_behavior": "Tapping an editable cell reveals three handles; each handle opens its corresponding options sheet in the approved order, and tapping away dismisses the handles.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -118,8 +118,41 @@
       "verification": [
         "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest"
       ],
-      "evidence": [],
-      "notes": "Intermediate UI slice; final visual verification is owned by US-3."
+      "evidence": [
+        {
+          "test_id": "TC-US-2-01",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed on Medium_Phone(AVD) - 13; focused editable table cell exposes the column, row, and table-options handles with focused-cell semantics."
+        },
+        {
+          "test_id": "TC-US-2-02",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed on Medium_Phone(AVD) - 13; moving focus to the outside text block removes all table handles."
+        },
+        {
+          "test_id": "TC-US-2-03",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed on Medium_Phone(AVD) - 13; column, row, and table handles open their ordered localized sheets, with Delete last and separated by a divider."
+        },
+        {
+          "test_id": "TC-US-2-04",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed on Medium_Phone(AVD) - 13; read-only table focus does not render any editable table handles."
+        }
+      ],
+      "notes": "Intermediate UI slice; final visual verification and production action-flow coverage are owned by US-3."
     },
     {
       "id": "US-3",

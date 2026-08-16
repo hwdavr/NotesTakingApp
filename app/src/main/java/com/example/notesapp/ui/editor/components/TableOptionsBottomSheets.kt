@@ -49,6 +49,8 @@ fun TableColumnOptionsSheet(
     TableOptionsBottomSheet(
         titleRes = R.string.table_column_options_title,
         sheetTag = "table_column_options_sheet",
+        titleTag = "table_column_options_sheet_title",
+        deleteDividerTag = "table_column_options_sheet_delete_divider",
         onDismiss = onDismiss,
         actions = listOf(
             TableSheetAction(
@@ -93,15 +95,12 @@ fun TableColumnOptionsSheet(
 }
 
 @Composable
-fun TableRowOptionsSheet(
-    blockId: String,
-    rowIndex: Int,
-    onDismiss: () -> Unit,
-    onAction: (TableHandleAction) -> Unit
-) {
+fun TableRowOptionsSheet(blockId: String, rowIndex: Int, onDismiss: () -> Unit, onAction: (TableHandleAction) -> Unit) {
     TableOptionsBottomSheet(
         titleRes = R.string.table_row_options_title,
         sheetTag = "table_row_options_sheet",
+        titleTag = "table_row_options_sheet_title",
+        deleteDividerTag = "table_row_options_sheet_delete_divider",
         onDismiss = onDismiss,
         actions = listOf(
             TableSheetAction(
@@ -146,14 +145,12 @@ fun TableRowOptionsSheet(
 }
 
 @Composable
-fun TableOptionsSheet(
-    blockId: String,
-    onDismiss: () -> Unit,
-    onAction: (TableHandleAction) -> Unit
-) {
+fun TableOptionsSheet(blockId: String, onDismiss: () -> Unit, onAction: (TableHandleAction) -> Unit) {
     TableOptionsBottomSheet(
         titleRes = R.string.table_options_title,
         sheetTag = "table_options_sheet",
+        titleTag = "table_options_sheet_title",
+        deleteDividerTag = "table_options_sheet_delete_divider",
         onDismiss = onDismiss,
         actions = listOf(
             TableSheetAction(
@@ -210,6 +207,8 @@ private data class TableSheetAction(
 private fun TableOptionsBottomSheet(
     titleRes: Int,
     sheetTag: String,
+    titleTag: String,
+    deleteDividerTag: String,
     onDismiss: () -> Unit,
     actions: List<TableSheetAction>
 ) {
@@ -232,7 +231,7 @@ private fun TableOptionsBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 8.dp)
-                    .testTag(sheetTag + "_title"),
+                    .testTag(titleTag),
                 color = colors.textPrimary,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontSize = 18.sp,
@@ -244,7 +243,7 @@ private fun TableOptionsBottomSheet(
                     HorizontalDivider(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .testTag(sheetTag + "_delete_divider"),
+                            .testTag(deleteDividerTag),
                         color = colors.divider,
                         thickness = 1.dp
                     )
