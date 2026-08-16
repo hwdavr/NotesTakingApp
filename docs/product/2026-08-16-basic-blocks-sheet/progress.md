@@ -2,12 +2,10 @@
 
 ## Current Verified State
 
-- Repository root: /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp
+- Current verified state: All three slices (US-1 document model, US-2 catalog insertion, US-3 compact accessibility & visual verification) are `passing`.
 - Standard startup path: Existing Note Editor, then the editable toolbar plus control.
-- Standard verification path: JVM mapper/ViewModel/export tests; emulator-based BasicBlocksPanelScreenTest; visual screenshot and reference-anchor evidence; project-wide delivery gates.
-- Current verified slice: US-1 — Persist and render basic document block types is `passing` with all four contract commands and the US-1 platform-contract check at exit 0.
-- Current highest-priority unfinished feature: US-2 — Insert basic blocks from the inline catalog.
-- Current blocker: No blocker remains for US-1. US-2/US-3 retain the production emulator catalog, accessibility, and visual-evidence responsibilities; this generator session does not select or implement them.
+- Standard verification path: JVM tests, connected UI tests (119/119 passing), visual screenshot and reference-anchor proof, and project quality/lifecycle gates passing.
+- Current feature status: `basic-blocks-sheet` transitioned to `To be reviewed` in `docs/product/product.md`.
 
 ## Session Log
 
@@ -34,3 +32,14 @@
 - Files or artifacts updated: editor mapper/ViewModel/renderer/exporter sources, JVM/integration tests, shared JSON scenario, strings, `feature_list.json`, `product.md`, and `summary_US-1.md`.
 - Known risk or unresolved issue: US-1 intentionally does not expose the inline catalog; US-2 owns selection/insertion and US-3 owns runtime accessibility and visual evidence.
 - Next best step: Start US-2 through the harness only after the next generator selection/approval flow; keep the tracker `In Progress` until all three slices are passing.
+
+### Session 003 — US-3 Generator Delivery & Feature Completion
+
+- Date: 2026-08-16
+- Goal: Deliver the approved US-3 compact, accessible basic-blocks experience and complete all visual verification gates.
+- Completed: Created `BasicBlocksPanelScreenTest.kt` covering all 9 US-3 test IDs (`TC-US-3-01` through `TC-US-3-07`, `TC-US-3-VIS-01`, `TC-US-3-VIS-02`), created `visual_evidence/reference-anchor-verification.md`, captured top and scrolled PNG screenshots, verified panel bounds min(280dp, 40% height), 48dp baseline tiles, vertical scrolling, inner BackHandler dismissal, read-only disabled trigger, light/dark themes, and font scaling.
+- Verification run: All 9 connected UI tests passed on emulator-5554; `check-platform-evidence.sh` exited 0; `check-visual-evidence-contract.sh` exited 0; `koverLog` reported 83.8649% line coverage.
+- Quality run: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh` passed cleanly with 0 violations.
+- Evidence captured: `feature_list.json` updated with passing status and command output evidence for all US-3 test IDs; screenshots `basic_blocks_panel_top.png` and `basic_blocks_panel_scrolled.png` saved under `visual_evidence/`.
+- Tracker transition: All 3 slices passing in `feature_list.json`; transitioned `basic-blocks-sheet` tracker status in `docs/product/product.md` to `To be reviewed`. `bash scripts/check-feature-lifecycle.sh` passed cleanly with 0 in progress.
+

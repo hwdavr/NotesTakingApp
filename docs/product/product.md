@@ -47,7 +47,7 @@ Lifecycle rules:
 <!-- HARNESS_TRACKER_START -->
 | ID | Feature | Workspace | Status | Updated | Notes |
 |---|---|---|---|---|---|
-| basic-blocks-sheet | Basic Blocks Panel | [docs/product/2026-08-16-basic-blocks-sheet/](2026-08-16-basic-blocks-sheet/) | In Progress | 2026-08-16 | US-1 compatibility, persistence, export, and renderer foundation is passing; US-2 inline catalog and US-3 accessibility/visual verification remain. The approved selector remains Page-free and non-modal. |
+| basic-blocks-sheet | Basic Blocks Panel | [docs/product/2026-08-16-basic-blocks-sheet/](2026-08-16-basic-blocks-sheet/) | To be reviewed | 2026-08-16 | All three slices (US-1 document model, US-2 inline catalog insertion, US-3 compact accessibility & visual verification) are passing with full JVM, 119 connected UI tests, coverage (83.8649%), and visual evidence contract passing. |
 | note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass plus UI revisions applied: two-fifths-height picker when the IME is hidden, full available height above the keyboard while search is focused, no `Emoji` title or header cross button, search-clear retained, and three additional emojis per category. v2/keyboard mockups and runtime screenshots are recorded; 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows remain fixed, with full JVM, 95/95 connected, 83.4701% coverage, quality, platform, lifecycle, and visual gates passing. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
@@ -66,6 +66,8 @@ Lifecycle rules:
 | Note Actions Sheet | ✅ Done | Bottom sheet for quick actions: move to folder, export, delete, favorite. |
 | Document Block Structure | ✅ Done | Modular note document model for structured content blocks. |
 | Basic document block compatibility (US-1) | ✅ Slice done | Stable paragraph, H1–H4, bulleted, numbered, to-do, Toggle, Callout, and Quote mappings preserve legacy/unknown readable content, Toggle state, auto-save/reload, and Markdown/PDF treatment. |
+| Basic blocks catalog insertion (US-2) | ✅ Slice done | Inline attached 2-column Basic blocks panel under unchanged 56 dp toolbar with 11 block actions (excluding Page), focus-aware insertion after focused block and append when no focus, empty defaults, auto-save, and single-tap collapse. |
+| Basic blocks compact & accessible experience (US-3) | ✅ Slice done | Capped panel height min(280 dp, 40% usable height), 48 dp baseline tile targets, vertical scrolling through Quote, inner BackHandler dismissal, read-only trigger visibility/disabled state, light/dark theme support, accessibility semantics, and verified top/scrolled visual anchor proof. |
 | Table structure operations (US-1) | ✅ Slice done | Backward-compatible `fitToWidth` JSON, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, read-only guards, and existing auto-save persistence. |
 | Focused table handles and option sheets (US-2) | ✅ Slice done | Editable table focus reveals localized column, row, and table-options handles; accessible Material 3 sheets retain the focused target, keep Delete last, and hide safely for read-only or outside focus. |
 | Complete table-handle editing flow (US-3) | ✅ Slice done | Production table actions update and dismiss sheets immediately, preserve targets across focus changes, isolate multiple tables, persist after reload, and include approved focused/editor, column-sheet, row-sheet, and table-sheet runtime captures. |
@@ -137,7 +139,7 @@ Lifecycle rules:
 ### Group 1 — Rich Content & Attachments
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
-- **Basic Blocks Panel**: 🟡 In progress — the document compatibility, persistence, and renderer foundation is complete; inline catalog insertion plus final accessibility and visual verification remain in US-2 and US-3.
+- **Basic Blocks Panel**: ✅ Implemented (awaiting evaluation review) — document block compatibility, inline catalog insertion, compact scrollable panel geometry, accessibility, and visual reference proof delivered.
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -154,7 +156,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟡 In progress | Text editing, basic-block persistence/rendering foundation (with inline catalog and final accessibility/visual work remaining), document blocks, summary cards, action sheets, the complete emoji path, and the complete table structure, handle, production editing, persistence, and visual-verification path |
+| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, the complete emoji path, and the complete table structure, handle, production editing, persistence, and visual-verification path |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
