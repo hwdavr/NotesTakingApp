@@ -299,12 +299,35 @@ open class NoteEditorViewModel @Inject constructor(
             )
         }
     }
-    fun addParagraphBlock() {
-        if (!uiStateInternal.value.isEditable) return
-        appendBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
-    }
 
     fun createBasicBlock(type: BasicBlockType): EditorBlock.TextBlock = type.createEmptyTextBlock()
+
+    fun insertBasicBlock(type: BasicBlockType): Boolean {
+        if (!uiStateInternal.value.isEditable) return false
+
+        val current = uiStateInternal.value
+        val newBlock = type.createEmptyTextBlock()
+        val focusedIndex = current.focusedBlockId?.let { focusedId ->
+            current.document.blocks.indexOfFirst { it.id == focusedId }.takeIf { it >= 0 }
+        }
+
+        val updatedBlocks = current.document.blocks.toMutableList().apply {
+            if (focusedIndex != null) {
+                add(focusedIndex + 1, newBlock)
+            } else {
+                add(newBlock)
+            }
+        }
+
+        uiStateInternal.value = current.copy(
+            document = current.document.copy(blocks = updatedBlocks),
+            focusedBlockId = newBlock.id,
+            selectionStart = 0,
+            selectionEnd = 0
+        )
+        scheduleAutoSave()
+        return true
+    }
 
     fun toggleToggleExpanded(blockId: String): Boolean {
         if (!uiStateInternal.value.isEditable) return false

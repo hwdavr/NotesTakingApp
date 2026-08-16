@@ -647,7 +647,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     @Test
     fun `deleteBlock removes block and updates focus`() = runTest {
         viewModel.load("n1")
-        viewModel.addParagraphBlock() // Now we have 2 blocks
+        viewModel.insertBasicBlock(BasicBlockType.PARAGRAPH) // Now we have 2 blocks
         val blocks = viewModel.uiState.value.document.blocks
         assertEquals(2, blocks.size)
 
@@ -712,7 +712,7 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.onContentChange("Changed content")
         viewModel.onFolderSelected("f2")
         viewModel.toggleFavorite()
-        viewModel.addParagraphBlock()
+        viewModel.insertBasicBlock(BasicBlockType.PARAGRAPH)
         viewModel.addImageBlock()
         viewModel.addTableBlock()
         val blockId = viewModel.uiState.value.document.blocks.first().id
@@ -971,6 +971,51 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals(listOf("toggle", "toggle"), blocks.map(EditorBlock.TextBlock::type))
         assertTrue(!blocks.first().isExpanded)
         assertTrue(blocks.last().isExpanded)
+    }
+
+    @Test
+    fun `insertBasicBlock inserts new block after focused block`() = runTest {
+        viewModel.load("n1")
+        val initialBlocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(1, initialBlocks.size)
+        val firstBlockId = initialBlocks.first().id
+        viewModel.setFocusedBlock(firstBlockId)
+
+        val inserted = viewModel.insertBasicBlock(BasicBlockType.HEADING_1)
+
+        assertTrue(inserted)
+        val updatedBlocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, updatedBlocks.size)
+        assertEquals(firstBlockId, updatedBlocks[0].id)
+        assertEquals("heading_1", updatedBlocks[1].type)
+        assertEquals(updatedBlocks[1].id, viewModel.uiState.value.focusedBlockId)
+        assertEquals(0, viewModel.uiState.value.selectionStart)
+        assertEquals(0, viewModel.uiState.value.selectionEnd)
+    }
+
+    @Test
+    fun `insertBasicBlock appends new block to end when no block is focused`() = runTest {
+        viewModel.load("n1")
+        viewModel.setFocusedBlock(null)
+
+        val inserted = viewModel.insertBasicBlock(BasicBlockType.QUOTE)
+
+        assertTrue(inserted)
+        val updatedBlocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, updatedBlocks.size)
+        assertEquals("quote", updatedBlocks.last().type)
+        assertEquals(updatedBlocks.last().id, viewModel.uiState.value.focusedBlockId)
+    }
+
+    @Test
+    fun `insertBasicBlock on read only note returns false and mutates nothing`() = runTest {
+        viewModel.load("readonly")
+        val initialBlocksCount = viewModel.uiState.value.document.blocks.size
+
+        val inserted = viewModel.insertBasicBlock(BasicBlockType.CALLOUT)
+
+        assertTrue(!inserted)
+        assertEquals(initialBlocksCount, viewModel.uiState.value.document.blocks.size)
     }
 
     private fun setEditorDocument(vararg blocks: EditorBlock, editable: Boolean = true) {

@@ -101,7 +101,7 @@
       "user_visible_behavior": "An editable-note user taps the toolbar plus, chooses any of the 11 Basic blocks, and immediately gets the chosen empty block after the current focus or at the end of the note; the inline catalog then closes.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -111,9 +111,58 @@
         "TC-US-2-06"
       ],
       "verification": [
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest"
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-2-01",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.components.BasicBlocksPanelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.components.BasicBlocksPanelTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed unit test verifying exactly 11 basic block tiles in reading order and exclusion of UNKNOWN/Page types."
+        },
+        {
+          "test_id": "TC-US-2-02",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed unit test verifying insertBasicBlock inserts after focused block, appends to document when no block is focused, sets selection 0, and auto-saves."
+        },
+        {
+          "test_id": "TC-US-2-03",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed instrumented UI test verifying toolbar trigger toggles BasicBlocksPanel visibility on emulator-5554."
+        },
+        {
+          "test_id": "TC-US-2-04",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed instrumented UI test verifying selecting a block tile inserts the new block into the document and collapses the panel."
+        },
+        {
+          "test_id": "TC-US-2-05",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorBasicBlocksSheetTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed instrumented UI test verifying read-only note shows disabled trigger button and rejects panel opening."
+        },
+        {
+          "test_id": "TC-US-2-06",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed all 119 connected instrumented UI tests on emulator-5554 including NoteEditorBasicBlocksSheetTest."
+        }
+      ],
       "notes": "The selector is an inline layout region, never a ModalBottomSheet or overlay. The screen-local selection-in-flight guard prevents rapid taps from committing duplicate blocks before the panel collapses."
     },
     {

@@ -719,7 +719,7 @@ class TableHandlesScreenTest {
                 onToggleCheckbox = viewModel::toggleCheckbox,
                 onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
                 onToggleMark = viewModel::toggleBlockMark,
-                onAddParagraph = viewModel::addParagraphBlock,
+                onAddParagraph = {},
                 onAddImage = viewModel::addImageBlock,
                 onEmojiSelected = {},
                 onEmojiQueryChange = {},

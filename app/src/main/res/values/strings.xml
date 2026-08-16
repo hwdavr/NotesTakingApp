@@ -399,4 +399,31 @@
         <item quantity="one">%d recording</item>
         <item quantity="other">%d recordings</item>
     </plurals>
+    <!-- Basic Blocks Panel -->
+    <string name="editor_basic_blocks_trigger_description">Show basic blocks</string>
+    <string name="editor_basic_blocks_trigger_hide_description">Hide basic blocks</string>
+    <string name="editor_basic_blocks_trigger_disabled_description">Basic blocks are unavailable in a read-only note.</string>
+    <string name="basic_blocks_panel_title">Basic blocks</string>
+    <string name="basic_blocks_text_label">Text</string>
+    <string name="basic_blocks_text_description">Insert Text</string>
+    <string name="basic_blocks_heading_1_label">Heading 1</string>
+    <string name="basic_blocks_heading_1_description">Insert Heading 1</string>
+    <string name="basic_blocks_heading_2_label">Heading 2</string>
+    <string name="basic_blocks_heading_2_description">Insert Heading 2</string>
+    <string name="basic_blocks_heading_3_label">Heading 3</string>
+    <string name="basic_blocks_heading_3_description">Insert Heading 3</string>
+    <string name="basic_blocks_heading_4_label">Heading 4</string>
+    <string name="basic_blocks_heading_4_description">Insert Heading 4</string>
+    <string name="basic_blocks_bulleted_list_label">Bulleted list</string>
+    <string name="basic_blocks_bulleted_list_description">Insert Bulleted list</string>
+    <string name="basic_blocks_numbered_list_label">Numbered list</string>
+    <string name="basic_blocks_numbered_list_description">Insert Numbered list</string>
+    <string name="basic_blocks_todo_list_label">To-do list</string>
+    <string name="basic_blocks_todo_list_description">Insert To-do list</string>
+    <string name="basic_blocks_toggle_list_label">Toggle list</string>
+    <string name="basic_blocks_toggle_list_description">Insert Toggle list</string>
+    <string name="basic_blocks_callout_label">Callout</string>
+    <string name="basic_blocks_callout_description">Insert Callout</string>
+    <string name="basic_blocks_quote_label">Quote</string>
+    <string name="basic_blocks_quote_description">Insert Quote</string>
 </resources>

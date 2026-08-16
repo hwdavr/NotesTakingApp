@@ -128,6 +128,7 @@ import com.example.notesapp.domain.emoji.EmojiCategory
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
+import com.example.notesapp.ui.editor.components.BasicBlocksPanel
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
 import com.example.notesapp.ui.editor.components.TableColumnOptionsSheet
@@ -206,7 +207,7 @@ fun NoteEditorScreen(
         onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
         onToggleToggleExpanded = { blockId -> viewModel.toggleToggleExpanded(blockId) },
         onToggleMark = viewModel::toggleBlockMark,
-        onAddParagraph = viewModel::addParagraphBlock,
+        onInsertBasicBlock = viewModel::insertBasicBlock,
         onAddImage = viewModel::addImageBlock,
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
@@ -236,7 +237,7 @@ fun NoteEditorScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Suppress("LongParameterList")
 @Composable
 fun NoteEditorScreenContent(
@@ -259,7 +260,8 @@ fun NoteEditorScreenContent(
         error("NoteEditorScreenContent requires an onToggleToggleExpanded callback for $blockId")
     },
     onToggleMark: (String, String) -> Unit,
-    onAddParagraph: () -> Unit,
+    onInsertBasicBlock: (BasicBlockType) -> Boolean = { false },
+    onAddParagraph: () -> Unit = {},
     onAddImage: () -> Unit,
     onEmojiSelected: (String) -> Unit,
     emojiPickerState: EmojiPickerUiState = EmojiPickerUiState.empty(),
@@ -297,6 +299,9 @@ fun NoteEditorScreenContent(
     var showNoteActionsSheet by remember { mutableStateOf(false) }
     var showEmojiPicker by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = showEmojiPicker) { showEmojiPicker = false }
+    var showBasicBlocksPanel by rememberSaveable { mutableStateOf(false) }
+    var isSelectionInFlight by remember { mutableStateOf(false) }
+    BackHandler(enabled = showBasicBlocksPanel) { showBasicBlocksPanel = false }
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameTextFieldValue by remember { mutableStateOf("") }
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
@@ -475,15 +480,42 @@ fun NoteEditorScreenContent(
                 isCheckboxActive = isCheckboxActive,
                 onToggleCheckbox = onToggleCheckbox,
                 onToggleMark = onToggleMark,
-                onAddParagraph = onAddParagraph,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
                 onOpenEmojiPicker = { showEmojiPicker = true },
                 onOpenVoiceRecorder = {
                     onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
                 },
-                onToggleFormattingToolbar = onToggleFormattingToolbar
+                onToggleFormattingToolbar = onToggleFormattingToolbar,
+                isBasicBlocksPanelOpen = showBasicBlocksPanel,
+                onToggleBasicBlocksPanel = {
+                    if (state.isEditable) {
+                        showBasicBlocksPanel = !showBasicBlocksPanel
+                    }
+                }
             )
+            if (showBasicBlocksPanel && state.isEditable) {
+                HorizontalDivider(
+                    modifier = Modifier.testTag("basic_blocks_panel_divider"),
+                    color = colors.border,
+                    thickness = 1.dp
+                )
+                BasicBlocksPanel(
+                    onTileSelected = { type ->
+                        if (!isSelectionInFlight) {
+                            isSelectionInFlight = true
+                            val success = onInsertBasicBlock(type)
+                            if (!success && type == BasicBlockType.PARAGRAPH) {
+                                onAddParagraph()
+                            }
+                            if (success) {
+                                showBasicBlocksPanel = false
+                            }
+                            isSelectionInFlight = false
+                        }
+                    }
+                )
+            }
         }
         if (showNoteActionsSheet) {
             val currentNote =
@@ -526,17 +558,19 @@ fun NoteEditorScreenContent(
                 }
             )
         }
-        EmojiPickerOverlay(
-            isVisible = showEmojiPicker,
-            onDismiss = { showEmojiPicker = false },
-            onEmojiSelected = onEmojiSelected,
-            uiState = emojiPickerState,
-            onQueryChange = onEmojiQueryChange,
-            onClearQuery = onEmojiClearQuery,
-            onCategorySelected = onEmojiCategorySelected,
-            onSkinToneRequested = onEmojiSkinToneRequested,
-            onSkinToneDismissed = onEmojiSkinToneDismissed
-        )
+        if (showEmojiPicker) {
+            EmojiPickerBottomSheet(
+                uiState = emojiPickerState,
+                isImeVisible = WindowInsets.isImeVisible,
+                onDismiss = { showEmojiPicker = false },
+                onQueryChange = onEmojiQueryChange,
+                onClearQuery = onEmojiClearQuery,
+                onCategorySelected = onEmojiCategorySelected,
+                onEmojiSelected = onEmojiSelected,
+                onSkinToneRequested = onEmojiSkinToneRequested,
+                onSkinToneDismissed = onEmojiSkinToneDismissed
+            )
+        }
         if (showRenameDialog) {
             AlertDialog(
                 onDismissRequest = { showRenameDialog = false },
@@ -565,73 +599,109 @@ fun NoteEditorScreenContent(
                 }
             )
         }
-        if (state.showCategorizationDialog) {
-            AlertDialog(
-                onDismissRequest = onCancelCategorization,
-                modifier = Modifier.testTag("smart_categorization_dialog"),
-                title = { Text(stringResource(R.string.smart_categorization_dialog_title)) },
-                text = {
-                    Text(
-                        text = stringResource(R.string.smart_categorization_dialog_text) + "\n\n" +
-                            (state.recommendedFolder?.name ?: "")
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = onConfirmCategorization,
-                        modifier = Modifier.testTag("smart_categorization_ok")
-                    ) {
-                        Text(stringResource(R.string.smart_categorization_ok_button))
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = onCancelCategorization,
-                        modifier = Modifier.testTag("smart_categorization_cancel")
-                    ) {
-                        Text(stringResource(R.string.smart_categorization_cancel_button))
-                    }
-                }
-            )
-        }
-        if (state.showCategorizationNoMatchDialog) {
-            SmartCategorizationNoMatchDialog(
-                onConfirmManualMove = onConfirmManualMove,
-                onCancelManualMove = onCancelManualMove
-            )
-        }
-        if (state.isCategorizing || state.isBackSyncing) {
-            val progressTag =
-                if (state.isBackSyncing) "editor_back_sync_progress" else "smart_categorization_progress"
-            val progressText =
-                if (state.isBackSyncing) {
-                    stringResource(R.string.editor_syncing_before_back)
-                } else {
-                    stringResource(R.string.smart_categorization_analyzing)
-                }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colors.surface.copy(alpha = 0.7f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {},
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+        NoteEditorCategorizationOverlay(
+            state = state,
+            onConfirmCategorization = onConfirmCategorization,
+            onCancelCategorization = onCancelCategorization,
+            onConfirmManualMove = onConfirmManualMove,
+            onCancelManualMove = onCancelManualMove
+        )
+    }
+}
+
+@Composable
+private fun NoteEditorCategorizationOverlay(
+    state: NoteEditorUiState,
+    onConfirmCategorization: () -> Unit,
+    onCancelCategorization: () -> Unit,
+    onConfirmManualMove: () -> Unit,
+    onCancelManualMove: () -> Unit
+) {
+    val colors = LocalAppColors.current
+    if (state.showCategorizationDialog) {
+        AlertDialog(
+            onDismissRequest = onCancelCategorization,
+            modifier = Modifier.testTag("smart_categorization_dialog"),
+            title = { Text(stringResource(R.string.smart_categorization_dialog_title)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.smart_categorization_dialog_text) + "\n\n" +
+                        (state.recommendedFolder?.name ?: "")
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = onConfirmCategorization,
+                    modifier = Modifier.testTag("smart_categorization_ok")
                 ) {
-                    CircularProgressIndicator(
-                        color = colors.primary,
-                        modifier = Modifier.testTag(progressTag)
-                    )
-                    Text(
-                        text = progressText,
-                        color = colors.textPrimary
-                    )
+                    Text(stringResource(R.string.smart_categorization_ok_button))
                 }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onCancelCategorization,
+                    modifier = Modifier.testTag("smart_categorization_cancel")
+                ) {
+                    Text(stringResource(R.string.smart_categorization_cancel_button))
+                }
+            }
+        )
+    }
+    if (state.showCategorizationNoMatchDialog) {
+        AlertDialog(
+            onDismissRequest = onCancelManualMove,
+            modifier = Modifier.testTag("smart_categorization_no_match_dialog"),
+            title = { Text(stringResource(R.string.smart_categorization_no_match_title)) },
+            text = { Text(stringResource(R.string.smart_categorization_no_match_text)) },
+            confirmButton = {
+                Button(
+                    onClick = onConfirmManualMove,
+                    modifier = Modifier.testTag("smart_categorization_no_match_yes")
+                ) {
+                    Text(stringResource(R.string.smart_categorization_no_match_yes_button))
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onCancelManualMove,
+                    modifier = Modifier.testTag("smart_categorization_no_match_no")
+                ) {
+                    Text(stringResource(R.string.smart_categorization_no_match_no_button))
+                }
+            }
+        )
+    }
+    if (state.isCategorizing || state.isBackSyncing) {
+        val progressTag =
+            if (state.isBackSyncing) "editor_back_sync_progress" else "smart_categorization_progress"
+        val progressText =
+            if (state.isBackSyncing) {
+                stringResource(R.string.editor_syncing_before_back)
+            } else {
+                stringResource(R.string.smart_categorization_analyzing)
+            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.surface.copy(alpha = 0.7f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {},
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CircularProgressIndicator(
+                    color = colors.primary,
+                    modifier = Modifier.testTag(progressTag)
+                )
+                Text(
+                    text = progressText,
+                    color = colors.textPrimary
+                )
             }
         }
     }
@@ -656,61 +726,6 @@ private fun NoteEditorLoading(parentPadding: PaddingValues) {
 
 private fun NoteEditorUiState.activeTextBlockId(): String? =
     focusedBlockId ?: document.blocks.filterIsInstance<EditorBlock.TextBlock>().firstOrNull()?.id
-
-@Composable
-@OptIn(ExperimentalLayoutApi::class)
-private fun EmojiPickerOverlay(
-    isVisible: Boolean,
-    onDismiss: () -> Unit,
-    onEmojiSelected: (String) -> Unit,
-    uiState: EmojiPickerUiState,
-    onQueryChange: (String) -> Unit,
-    onClearQuery: () -> Unit,
-    onCategorySelected: (EmojiCategory) -> Unit,
-    onSkinToneRequested: (String) -> Unit,
-    onSkinToneDismissed: () -> Unit
-) {
-    val isImeVisible = WindowInsets.isImeVisible
-    if (isVisible) {
-        EmojiPickerBottomSheet(
-            uiState = uiState,
-            isImeVisible = isImeVisible,
-            onDismiss = onDismiss,
-            onQueryChange = onQueryChange,
-            onClearQuery = onClearQuery,
-            onCategorySelected = onCategorySelected,
-            onEmojiSelected = onEmojiSelected,
-            onSkinToneRequested = onSkinToneRequested,
-            onSkinToneDismissed = onSkinToneDismissed
-        )
-    }
-}
-
-@Composable
-private fun SmartCategorizationNoMatchDialog(onConfirmManualMove: () -> Unit, onCancelManualMove: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onCancelManualMove,
-        modifier = Modifier.testTag("smart_categorization_no_match_dialog"),
-        title = { Text(stringResource(R.string.smart_categorization_no_match_title)) },
-        text = { Text(stringResource(R.string.smart_categorization_no_match_text)) },
-        confirmButton = {
-            Button(
-                onClick = onConfirmManualMove,
-                modifier = Modifier.testTag("smart_categorization_no_match_yes")
-            ) {
-                Text(stringResource(R.string.smart_categorization_no_match_yes_button))
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = onCancelManualMove,
-                modifier = Modifier.testTag("smart_categorization_no_match_no")
-            ) {
-                Text(stringResource(R.string.smart_categorization_no_match_no_button))
-            }
-        }
-    )
-}
 
 @Composable
 private fun NoteSummaryPanel(summaryState: NoteSummaryUiState) {
@@ -1736,12 +1751,13 @@ private fun EditorBottomBar(
     isCheckboxActive: Boolean,
     onToggleCheckbox: (String) -> Unit,
     onToggleMark: (String, String) -> Unit,
-    onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
     onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit,
-    onToggleFormattingToolbar: () -> Unit
+    onToggleFormattingToolbar: () -> Unit,
+    isBasicBlocksPanelOpen: Boolean,
+    onToggleBasicBlocksPanel: () -> Unit
 ) {
     if (!state.isEditable) {
         ReadOnlyEmojiBottomBar()
@@ -1760,11 +1776,12 @@ private fun EditorBottomBar(
             isCheckboxActive = isCheckboxActive,
             onToggleCheckbox = onToggleCheckbox,
             onToggleFormattingToolbar = onToggleFormattingToolbar,
-            onAddParagraph = onAddParagraph,
             onAddImage = onAddImage,
             onAddTable = onAddTable,
             onOpenEmojiPicker = onOpenEmojiPicker,
-            onOpenVoiceRecorder = onOpenVoiceRecorder
+            onOpenVoiceRecorder = onOpenVoiceRecorder,
+            isBasicBlocksPanelOpen = isBasicBlocksPanelOpen,
+            onToggleBasicBlocksPanel = onToggleBasicBlocksPanel
         )
     }
 }
@@ -1775,11 +1792,12 @@ private fun DefaultBottomBar(
     isCheckboxActive: Boolean,
     onToggleCheckbox: (String) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
-    onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
     onOpenEmojiPicker: () -> Unit,
-    onOpenVoiceRecorder: () -> Unit
+    onOpenVoiceRecorder: () -> Unit,
+    isBasicBlocksPanelOpen: Boolean,
+    onToggleBasicBlocksPanel: () -> Unit
 ) {
     val colors = LocalAppColors.current
     LazyRow(
@@ -1794,12 +1812,18 @@ private fun DefaultBottomBar(
     ) {
         item {
             EditorBarButton(
-                onClick = onAddParagraph,
-                modifier = Modifier.testTag("editor_add_paragraph")
+                onClick = onToggleBasicBlocksPanel,
+                modifier = Modifier.testTag("editor_basic_blocks_trigger")
             ) {
                 Icon(
                     Icons.Outlined.AddCircle,
-                    contentDescription = stringResource(R.string.editor_add_paragraph_description),
+                    contentDescription = stringResource(
+                        if (isBasicBlocksPanelOpen) {
+                            R.string.editor_basic_blocks_trigger_hide_description
+                        } else {
+                            R.string.editor_basic_blocks_trigger_description
+                        }
+                    ),
                     tint = colors.primary
                 )
             }
@@ -1932,6 +1956,17 @@ private fun ReadOnlyEmojiBottomBar() {
             .testTag("editor_read_only_bottom_bar"),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        EditorBarButton(
+            onClick = {},
+            enabled = false,
+            modifier = Modifier.testTag("editor_basic_blocks_trigger")
+        ) {
+            Icon(
+                Icons.Outlined.AddCircle,
+                contentDescription = stringResource(R.string.editor_basic_blocks_trigger_disabled_description),
+                tint = colors.textSecondary.copy(alpha = 0.38f)
+            )
+        }
         EmojiInsertionControl(onOpenEmojiPicker = null, isEditable = false)
     }
 }
