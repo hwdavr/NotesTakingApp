@@ -159,6 +159,12 @@
     <string name="editor_checkbox_checked_description">Checked</string>
     <string name="editor_checkbox_unchecked_description">Unchecked</string>
     <string name="editor_checkbox_action_description">Toggle Checkbox</string>
+    <string name="editor_bulleted_list_marker">•</string>
+    <string name="editor_numbered_list_marker">1.</string>
+    <string name="editor_toggle_expand_description">Expand toggle list</string>
+    <string name="editor_toggle_collapse_description">Collapse toggle list</string>
+    <string name="editor_toggle_expanded_state">Expanded</string>
+    <string name="editor_toggle_collapsed_state">Collapsed</string>
     <string name="editor_share_description">Share note</string>
     <string name="editor_more_description">More options</string>
     <string name="editor_back_description">Back</string>

@@ -10,6 +10,11 @@ import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
+import com.example.notesapp.ui.editor.mapper.BasicBlockType
+import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.createEmptyTextBlock
 import io.mockk.mockk
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -151,6 +156,115 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         // Verify DAO was updated
         val noteInDao = fakeNoteDao.getNoteById("note_001")
         assertEquals(newContent, noteInDao?.content)
+    }
+
+    @Test
+    fun basicBlockAutoSaveAndReloadPreservesDocument() = runTest {
+        val noteId = "basic-blocks-note"
+        val toggleId = "toggle-block"
+        val calloutId = "callout-block"
+        val scenario = JSONObject(
+            File("../sharedContracts/test-scenarios/basic_blocks_autosave_001.json").readText()
+        )
+        val apiMocks = scenario.getJSONArray("apiMocks")
+        val expectedUi = scenario.getJSONObject("expected").getJSONObject("ui")
+        val initialDocument = NoteDocument(
+            blocks = listOf(
+                BasicBlockType.HEADING_2.createEmptyTextBlock("heading-block").copy(
+                    children = listOf(RichText("Section"))
+                ),
+                BasicBlockType.NUMBERED_LIST.createEmptyTextBlock("numbered-block").copy(
+                    children = listOf(RichText("First"))
+                ),
+                BasicBlockType.TODO_LIST.createEmptyTextBlock("todo-block").copy(
+                    children = listOf(RichText("Task")),
+                    checked = true
+                ),
+                BasicBlockType.TOGGLE_LIST.createEmptyTextBlock(toggleId).copy(
+                    children = listOf(RichText("Toggle content"))
+                ),
+                BasicBlockType.CALLOUT.createEmptyTextBlock(calloutId),
+                BasicBlockType.QUOTE.createEmptyTextBlock("quote-block").copy(
+                    children = listOf(RichText("Quoted text"))
+                )
+            )
+        )
+        fakeNoteDao.insert(
+            NoteEntity(
+                id = noteId,
+                folderId = null,
+                title = "Basic blocks",
+                content = initialDocument.toJsonString(),
+                sortKey = "b0",
+                version = 1,
+                deviceId = "test_device",
+                lastSyncedVersion = 1,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+        (0 until apiMocks.length()).forEach { index ->
+            val apiMock = apiMocks.getJSONObject(index)
+            mockWebServer.enqueue(
+                MockResponse()
+                    .setResponseCode(apiMock.getInt("status"))
+                    .setBody(apiMock.get("response").toString())
+            )
+        }
+
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        viewModel.load(noteId)
+        advanceUntilIdle()
+        waitUntil { viewModel.uiState.value.isLoaded }
+
+        assertTrue(viewModel.toggleToggleExpanded(toggleId))
+        viewModel.onTextBlockChange(calloutId, "Callout body")
+        advanceTimeBy(2_001)
+        advanceUntilIdle()
+        waitUntil {
+            fakeNoteDao.getNoteById(noteId)?.content?.contains("\"expanded\":false") == true
+        }
+
+        val savedContent = fakeNoteDao.getNoteById(noteId)?.content
+        assertTrue(!savedContent.isNullOrBlank())
+        assertTrue(savedContent!!.contains("\"expanded\":false"))
+
+        val reloadedViewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        reloadedViewModel.load(noteId)
+        advanceUntilIdle()
+        waitUntil { reloadedViewModel.uiState.value.isLoaded }
+
+        val reloadedBlocks = reloadedViewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        val expectedTypes = expectedUi.getJSONArray("textBlockTypes").let { types ->
+            (0 until types.length()).map(types::getString)
+        }
+        assertEquals(
+            expectedTypes,
+            reloadedBlocks.map(EditorBlock.TextBlock::type)
+        )
+        assertEquals(expectedUi.getBoolean("todoChecked"), reloadedBlocks.single { it.id == "todo-block" }.checked)
+        assertEquals(
+            expectedUi.getBoolean("toggleExpanded"),
+            reloadedBlocks.single { it.id == toggleId }.isExpanded
+        )
+        assertEquals(
+            expectedUi.getString("calloutText"),
+            reloadedBlocks.single { it.id == calloutId }.children.single().text
+        )
     }
 
     private fun testSummaryUseCase(): SummarizeNoteUseCase = SummarizeNoteUseCase(

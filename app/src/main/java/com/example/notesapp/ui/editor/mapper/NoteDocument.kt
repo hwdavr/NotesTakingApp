@@ -42,10 +42,17 @@ data class NoteDocument(
     fun toMarkdown(): String = blocks.joinToString("\n\n") { block ->
         when (block) {
             is EditorBlock.TextBlock -> {
-                val prefix = when (block.type) {
-                    "heading" -> "# "
-                    "bulleted" -> "- "
-                    "checkbox" -> if (block.checked) "- [x] " else "- [ ] "
+                val blockType = block.basicBlockType()
+                val prefix = when (blockType) {
+                    BasicBlockType.HEADING_1 -> "# "
+                    BasicBlockType.HEADING_2 -> "## "
+                    BasicBlockType.HEADING_3 -> "### "
+                    BasicBlockType.HEADING_4 -> "#### "
+                    BasicBlockType.BULLETED_LIST -> "- "
+                    BasicBlockType.NUMBERED_LIST -> "1. "
+                    BasicBlockType.TODO_LIST -> if (block.checked) "- [x] " else "- [ ] "
+                    BasicBlockType.CALLOUT -> "> [!NOTE] "
+                    BasicBlockType.QUOTE -> "> "
                     else -> ""
                 }
                 val content = block.children.joinToString("") { richText ->
@@ -55,7 +62,12 @@ data class NoteDocument(
                     if ("code" in richText.marks) text = "`$text`"
                     text
                 }
-                "$prefix$content"
+                if (blockType == BasicBlockType.TOGGLE_LIST) {
+                    val openAttribute = if (block.isExpanded) " open" else ""
+                    "<details$openAttribute>\n<summary>$content</summary>\n</details>"
+                } else {
+                    "$prefix$content"
+                }
             }
             is EditorBlock.ImageBlock -> {
                 "![${block.caption}](${block.url})"
@@ -110,7 +122,8 @@ sealed class EditorBlock {
         override val id: String = newBlockId(),
         val type: String = "paragraph",
         val children: List<RichText> = listOf(RichText("")),
-        val checked: Boolean = false
+        val checked: Boolean = false,
+        val isExpanded: Boolean = true
     ) : EditorBlock()
     data class ImageBlock(
         override val id: String = newBlockId(),
@@ -146,15 +159,21 @@ fun newBlockId(): String = "b_${UUID.randomUUID()}"
 fun parseMarkdownTextBlock(id: String = newBlockId(), text: String): EditorBlock.TextBlock {
     val trimmed = text.trimStart()
     val (type, checked, body) = when {
-        trimmed.startsWith("- [ ] ") -> Triple("checkbox", false, trimmed.removePrefix("- [ ] "))
-        trimmed.startsWith("- [x] ") -> Triple("checkbox", true, trimmed.removePrefix("- [x] "))
-        trimmed.startsWith("# ") -> Triple("heading", false, trimmed.removePrefix("# "))
-        trimmed.startsWith("- ") -> Triple("bulleted", false, trimmed.removePrefix("- "))
-        else -> Triple("paragraph", false, text)
+        trimmed.startsWith("- [ ] ") -> Triple(BasicBlockType.TODO_LIST, false, trimmed.removePrefix("- [ ] "))
+        trimmed.startsWith("- [x] ") -> Triple(BasicBlockType.TODO_LIST, true, trimmed.removePrefix("- [x] "))
+        trimmed.startsWith("#### ") -> Triple(BasicBlockType.HEADING_4, false, trimmed.removePrefix("#### "))
+        trimmed.startsWith("### ") -> Triple(BasicBlockType.HEADING_3, false, trimmed.removePrefix("### "))
+        trimmed.startsWith("## ") -> Triple(BasicBlockType.HEADING_2, false, trimmed.removePrefix("## "))
+        trimmed.startsWith("# ") -> Triple(BasicBlockType.HEADING_1, false, trimmed.removePrefix("# "))
+        trimmed.startsWith("1. ") -> Triple(BasicBlockType.NUMBERED_LIST, false, trimmed.removePrefix("1. "))
+        trimmed.startsWith("> [!NOTE] ") -> Triple(BasicBlockType.CALLOUT, false, trimmed.removePrefix("> [!NOTE] "))
+        trimmed.startsWith("> ") -> Triple(BasicBlockType.QUOTE, false, trimmed.removePrefix("> "))
+        trimmed.startsWith("- ") -> Triple(BasicBlockType.BULLETED_LIST, false, trimmed.removePrefix("- "))
+        else -> Triple(BasicBlockType.PARAGRAPH, false, text)
     }
     return EditorBlock.TextBlock(
         id = id,
-        type = type,
+        type = type.storageValue,
         children = parseInlineMarkdown(body),
         checked = checked
     )
@@ -236,9 +255,14 @@ internal fun EditorBlock.TextBlock.toAnnotatedString(
 private fun EditorBlock.toJson(): JSONObject = when (this) {
     is EditorBlock.TextBlock -> JSONObject()
         .put("id", id)
-        .put("type", type)
+        .put("type", canonicalStorageType())
         .put("children", children.toRichTextJson())
         .put("checked", checked)
+        .also { json ->
+            if (basicBlockType() == BasicBlockType.TOGGLE_LIST) {
+                json.put("expanded", isExpanded)
+            }
+        }
     is EditorBlock.ImageBlock -> JSONObject()
         .put("id", id)
         .put("type", "image")
@@ -264,13 +288,7 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
 }
 private fun JSONObject.toEditorBlock(): EditorBlock? {
     val id = optString("id").ifBlank { newBlockId() }
-    return when (val type = optString("type", "paragraph")) {
-        "paragraph", "heading", "bulleted", "checkbox" -> EditorBlock.TextBlock(
-            id = id,
-            type = type,
-            children = optJSONArray("children").toRichTextList(),
-            checked = optBoolean("checked", false)
-        )
+    return when (optString("type", BasicBlockType.PARAGRAPH.storageValue)) {
         "image" -> EditorBlock.ImageBlock(
             id = id,
             url = optString("url"),
@@ -292,8 +310,36 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
             createdAt = optLong("createdAt", 0L),
             updatedAt = optLong("updatedAt", 0L)
         )
-        else -> null
+        else -> toTextBlockOrFallback(id)
     }
+}
+
+private fun JSONObject.toTextBlockOrFallback(id: String): EditorBlock.TextBlock? {
+    val blockType = BasicBlockType.fromStorageValue(optString("type", BasicBlockType.PARAGRAPH.storageValue))
+    return if (blockType != BasicBlockType.UNKNOWN) {
+        EditorBlock.TextBlock(
+            id = id,
+            type = blockType.storageValue,
+            children = optJSONArray("children").toRichTextList(),
+            checked = optBoolean("checked", false),
+            isExpanded = if (blockType == BasicBlockType.TOGGLE_LIST) optBoolean("expanded", true) else true
+        )
+    } else {
+        unknownTextBlock(id)
+    }
+}
+
+private fun JSONObject.unknownTextBlock(id: String): EditorBlock.TextBlock? {
+    val children = when {
+        has("children") -> optJSONArray("children").toRichTextList()
+        has("text") -> listOf(RichText(optString("text")))
+        else -> return null
+    }
+    return EditorBlock.TextBlock(
+        id = id,
+        type = BasicBlockType.PARAGRAPH.storageValue,
+        children = children
+    )
 }
 private fun List<RichText>.toRichTextJson(): JSONArray = JSONArray().also { array ->
     forEach { richText ->

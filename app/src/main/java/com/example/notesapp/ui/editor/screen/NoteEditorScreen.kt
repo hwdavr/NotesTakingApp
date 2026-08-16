@@ -55,7 +55,9 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.InsertEmoticon
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Mic
@@ -103,6 +105,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -113,6 +116,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -130,8 +134,10 @@ import com.example.notesapp.ui.editor.components.TableColumnOptionsSheet
 import com.example.notesapp.ui.editor.components.TableOptionsSheet
 import com.example.notesapp.ui.editor.components.TableRowOptionsSheet
 import com.example.notesapp.ui.editor.components.VoiceNotePlayer
+import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.basicBlockType
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
@@ -144,6 +150,7 @@ import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
+import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,6 +204,7 @@ fun NoteEditorScreen(
         onTextBlockChange = viewModel::onTextBlockChange,
         onToggleCheckbox = viewModel::toggleCheckbox,
         onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
+        onToggleToggleExpanded = { blockId -> viewModel.toggleToggleExpanded(blockId) },
         onToggleMark = viewModel::toggleBlockMark,
         onAddParagraph = viewModel::addParagraphBlock,
         onAddImage = viewModel::addImageBlock,
@@ -247,6 +255,9 @@ fun NoteEditorScreenContent(
     onTextBlockChange: (String, String) -> Unit,
     onToggleCheckbox: (String) -> Unit,
     onToggleCheckboxChecked: (String) -> Unit,
+    onToggleToggleExpanded: (String) -> Unit = { blockId ->
+        error("NoteEditorScreenContent requires an onToggleToggleExpanded callback for $blockId")
+    },
     onToggleMark: (String, String) -> Unit,
     onAddParagraph: () -> Unit,
     onAddImage: () -> Unit,
@@ -439,6 +450,7 @@ fun NoteEditorScreenContent(
                             isEditable = state.isEditable,
                             onTextBlockChange = onTextBlockChange,
                             onToggleCheckboxChecked = onToggleCheckboxChecked,
+                            onToggleToggleExpanded = onToggleToggleExpanded,
                             onImageChange = onImageChange,
                             onTableCellChange = onTableCellChange,
                             focusedTableCells = state.focusedTableCells,
@@ -754,6 +766,7 @@ private fun DocumentBlockList(
     isEditable: Boolean,
     onTextBlockChange: (String, String) -> Unit,
     onToggleCheckboxChecked: (String) -> Unit,
+    onToggleToggleExpanded: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     focusedTableCells: Map<String, TableFocusTarget>,
@@ -793,6 +806,7 @@ private fun DocumentBlockList(
                         isEditable = isEditable,
                         onChange = { onTextBlockChange(block.id, it) },
                         onToggleCheckboxChecked = { onToggleCheckboxChecked(block.id) },
+                        onToggleExpanded = { onToggleToggleExpanded(block.id) },
                         onFocus = { onBlockFocused(block.id) },
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
@@ -839,6 +853,7 @@ private fun TextDocumentBlock(
     isEditable: Boolean,
     onChange: (String) -> Unit,
     onToggleCheckboxChecked: () -> Unit,
+    onToggleExpanded: () -> Unit,
     onFocus: () -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
@@ -869,7 +884,16 @@ private fun TextDocumentBlock(
     }
 
     // Keep textFieldValue in sync with external changes (e.g. note load, folder sync, markdown stripping)
-    LaunchedEffect(block.id, block.children, block.type, block.checked, selectionStart, selectionEnd, isFocused) {
+    LaunchedEffect(
+        block.id,
+        block.children,
+        block.type,
+        block.checked,
+        block.isExpanded,
+        selectionStart,
+        selectionEnd,
+        isFocused
+    ) {
         val vmText = block.text()
         if (vmText != textFieldValue.text) {
             val currentSelection = textFieldValue.selection
@@ -901,65 +925,199 @@ private fun TextDocumentBlock(
         }
     }
 
+    val blockType = block.basicBlockType()
+    val toggleContentDescription = stringResource(
+        if (block.isExpanded) {
+            R.string.editor_toggle_collapse_description
+        } else {
+            R.string.editor_toggle_expand_description
+        }
+    )
+    val toggleStateDescription = stringResource(
+        if (block.isExpanded) {
+            R.string.editor_toggle_expanded_state
+        } else {
+            R.string.editor_toggle_collapsed_state
+        }
+    )
+    val presentationModifier = when (blockType) {
+        BasicBlockType.CALLOUT ->
+            Modifier
+                .background(colors.highlight, RoundedCornerShape(8.dp))
+                .border(1.dp, colors.border, RoundedCornerShape(8.dp))
+                .padding(8.dp)
+                .testTag("editor_callout_block")
+        BasicBlockType.QUOTE ->
+            Modifier
+                .height(IntrinsicSize.Min)
+                .testTag("editor_quote_block")
+        BasicBlockType.TOGGLE_LIST -> Modifier.testTag("editor_toggle_list_block")
+        else -> Modifier
+    }
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().then(presentationModifier),
         verticalAlignment = Alignment.Top
     ) {
-        if (block.type == "checkbox") {
-            Icon(
-                imageVector = if (block.checked) {
-                    Icons.Filled.CheckBox
-                } else {
-                    Icons.Outlined.CheckBoxOutlineBlank
-                },
-                contentDescription = stringResource(
-                    if (block.checked) {
-                        R.string.editor_checkbox_checked_description
-                    } else {
-                        R.string.editor_checkbox_unchecked_description
-                    }
-                ),
-                tint = if (block.checked) colors.primary else colors.textSecondary,
-                modifier = Modifier
-                    .clickable(enabled = isEditable) {
-                        onToggleCheckboxChecked()
-                    }
-                    .testTag("editor_checkbox_icon")
-                    .size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-        } else if (block.type == "bulleted") {
-            Box(
-                modifier = Modifier.size(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "•",
-                    color = colors.textSecondary,
-                    fontSize = 20.sp
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-        }
+        BasicBlockRenderer.LeadingControl(
+            block = block,
+            blockType = blockType,
+            isEditable = isEditable,
+            onToggleCheckboxChecked = onToggleCheckboxChecked,
+            onToggleExpanded = onToggleExpanded,
+            toggleContentDescription = toggleContentDescription,
+            toggleStateDescription = toggleStateDescription
+        )
 
+        if (blockType != BasicBlockType.TOGGLE_LIST || block.isExpanded) {
+            BasicBlockRenderer.TextField(
+                textFieldValue = textFieldValue,
+                isEditable = isEditable,
+                onTextFieldValueChange = { textFieldValue = it },
+                onTextChange = onChange,
+                onSelectionChange = onSelectionChange,
+                visualTransformation = visualTransformation,
+                focusRequester = focusRequester,
+                onFocus = onFocus,
+                onDelete = onDelete,
+                blockType = blockType,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+private object BasicBlockRenderer {
+    @Composable
+    fun LeadingControl(
+        block: EditorBlock.TextBlock,
+        blockType: BasicBlockType,
+        isEditable: Boolean,
+        onToggleCheckboxChecked: () -> Unit,
+        onToggleExpanded: () -> Unit,
+        toggleContentDescription: String,
+        toggleStateDescription: String
+    ) {
+        val colors = LocalAppColors.current
+        when (blockType) {
+            BasicBlockType.TODO_LIST -> {
+                IconButton(
+                    onClick = onToggleCheckboxChecked,
+                    enabled = isEditable,
+                    modifier = Modifier.testTag("editor_checkbox_icon")
+                ) {
+                    Icon(
+                        imageVector = if (block.checked) {
+                            Icons.Filled.CheckBox
+                        } else {
+                            Icons.Outlined.CheckBoxOutlineBlank
+                        },
+                        contentDescription = stringResource(
+                            if (block.checked) {
+                                R.string.editor_checkbox_checked_description
+                            } else {
+                                R.string.editor_checkbox_unchecked_description
+                            }
+                        ),
+                        tint = if (block.checked) colors.primary else colors.textSecondary
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            BasicBlockType.BULLETED_LIST,
+            BasicBlockType.NUMBERED_LIST -> {
+                val isBulleted = blockType == BasicBlockType.BULLETED_LIST
+                Box(
+                    modifier = Modifier.size(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (isBulleted) {
+                                R.string.editor_bulleted_list_marker
+                            } else {
+                                R.string.editor_numbered_list_marker
+                            }
+                        ),
+                        color = colors.textSecondary,
+                        fontSize = if (isBulleted) 20.sp else 14.sp
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            BasicBlockType.TOGGLE_LIST -> {
+                IconButton(
+                    onClick = onToggleExpanded,
+                    enabled = isEditable,
+                    modifier = Modifier
+                        .semantics { stateDescription = toggleStateDescription }
+                        .testTag("editor_toggle_list_control")
+                ) {
+                    Icon(
+                        imageVector = if (block.isExpanded) {
+                            Icons.Outlined.KeyboardArrowDown
+                        } else {
+                            Icons.AutoMirrored.Outlined.KeyboardArrowRight
+                        },
+                        contentDescription = toggleContentDescription,
+                        tint = colors.textSecondary
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            BasicBlockType.CALLOUT -> {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            BasicBlockType.QUOTE -> {
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight().width(3.dp),
+                    color = colors.textSecondary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            else -> Unit
+        }
+    }
+
+    @Composable
+    fun TextField(
+        textFieldValue: TextFieldValue,
+        isEditable: Boolean,
+        onTextFieldValueChange: (TextFieldValue) -> Unit,
+        onTextChange: (String) -> Unit,
+        onSelectionChange: (Int, Int) -> Unit,
+        visualTransformation: VisualTransformation,
+        focusRequester: FocusRequester,
+        onFocus: () -> Unit,
+        onDelete: () -> Unit,
+        blockType: BasicBlockType,
+        modifier: Modifier
+    ) {
+        val colors = LocalAppColors.current
+        val typography = editorTypography(blockType)
         BasicTextField(
             value = textFieldValue,
             readOnly = !isEditable,
-            onValueChange = {
-                val selectionChanged = textFieldValue.selection != it.selection
-                val textChanged = textFieldValue.text != it.text
+            onValueChange = { nextValue ->
+                val selectionChanged = textFieldValue.selection != nextValue.selection
+                val textChanged = textFieldValue.text != nextValue.text
 
-                textFieldValue = it
+                onTextFieldValueChange(nextValue)
 
                 if (textChanged) {
-                    onChange(it.text)
+                    onTextChange(nextValue.text)
                 }
                 if (selectionChanged) {
-                    onSelectionChange(it.selection.start, it.selection.end)
+                    onSelectionChange(nextValue.selection.start, nextValue.selection.end)
                 }
             },
-            modifier = Modifier
-                .weight(1f)
+            modifier = modifier
                 .focusRequester(focusRequester)
                 .onFocusChanged { if (it.isFocused) onFocus() }
                 .onPreviewKeyEvent { event ->
@@ -972,14 +1130,10 @@ private fun TextDocumentBlock(
                 }
                 .testTag("editor_text_block"),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = if (block.type == "heading") 22.sp else 14.sp,
+                fontSize = typography.fontSize,
                 color = colors.textPrimary,
-                lineHeight = if (block.type == "heading") 28.sp else 20.sp,
-                fontWeight = if (block.type == "heading") {
-                    FontWeight.Bold
-                } else {
-                    FontWeight.Normal
-                }
+                lineHeight = typography.lineHeight,
+                fontWeight = typography.fontWeight
             ),
             cursorBrush = SolidColor(colors.primary),
             decorationBox = { innerTextField ->
@@ -1006,6 +1160,20 @@ private fun TextDocumentBlock(
                 )
             }
         )
+    }
+
+    private data class BasicBlockTypography(
+        val fontSize: TextUnit,
+        val lineHeight: TextUnit,
+        val fontWeight: FontWeight
+    )
+
+    private fun editorTypography(blockType: BasicBlockType): BasicBlockTypography = when (blockType) {
+        BasicBlockType.HEADING_1 -> BasicBlockTypography(26.sp, 32.sp, FontWeight.Bold)
+        BasicBlockType.HEADING_2 -> BasicBlockTypography(22.sp, 28.sp, FontWeight.Bold)
+        BasicBlockType.HEADING_3 -> BasicBlockTypography(18.sp, 24.sp, FontWeight.Bold)
+        BasicBlockType.HEADING_4 -> BasicBlockTypography(16.sp, 22.sp, FontWeight.Bold)
+        else -> BasicBlockTypography(14.sp, 20.sp, FontWeight.Normal)
     }
 }
 

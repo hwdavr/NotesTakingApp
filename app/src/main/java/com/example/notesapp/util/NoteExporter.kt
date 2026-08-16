@@ -13,8 +13,11 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.basicBlockType
+import com.example.notesapp.ui.editor.mapper.headingLevel
 import java.io.OutputStream
 
 class NoteExporter(private val context: Context) {
@@ -58,32 +61,7 @@ class NoteExporter(private val context: Context) {
         // Blocks
         for (block in document.blocks) {
             when (block) {
-                is EditorBlock.TextBlock -> {
-                    val text = block.children.joinToString("") { it.text }
-                    if (text.isBlank()) {
-                        renderer.currentY += 10f
-                        continue
-                    }
-                    textPaint.isFakeBoldText = block.type == "heading"
-                    textPaint.textSize = if (block.type == "heading") 18f else 12f
-                    val prefix = if (block.type == "bulleted") "• " else ""
-                    val fullText = prefix + text
-                    val layout = StaticLayout.Builder.obtain(
-                        fullText,
-                        0,
-                        fullText.length,
-                        textPaint,
-                        contentWidth.toInt()
-                    )
-                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                        .build()
-                    renderer.ensureSpace(layout.height.toFloat())
-                    renderer.canvas.save()
-                    renderer.canvas.translate(margin, renderer.currentY)
-                    layout.draw(renderer.canvas)
-                    renderer.canvas.restore()
-                    renderer.currentY += layout.height + 10f
-                }
+                is EditorBlock.TextBlock -> renderTextBlock(block, renderer, textPaint)
                 is EditorBlock.ImageBlock -> {
                     val bitmap = try {
                         loadBitmap(block.url)
@@ -165,6 +143,52 @@ class NoteExporter(private val context: Context) {
             outputStream.close()
         }
     }
+
+    private fun renderTextBlock(block: EditorBlock.TextBlock, renderer: PdfRenderer, textPaint: TextPaint) {
+        val text = block.children.joinToString("") { it.text }
+        if (text.isBlank()) {
+            renderer.currentY += 10f
+            return
+        }
+        val blockType = block.basicBlockType()
+        textPaint.isFakeBoldText = blockType.headingLevel() != null
+        textPaint.textSize = blockType.pdfTextSize()
+        val fullText = block.pdfPrefix(blockType) + text
+        val layout = StaticLayout.Builder.obtain(
+            fullText,
+            0,
+            fullText.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(layout.height.toFloat())
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        layout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += layout.height + 10f
+    }
+
+    private fun BasicBlockType.pdfTextSize(): Float = when (this) {
+        BasicBlockType.HEADING_1 -> 24f
+        BasicBlockType.HEADING_2 -> 20f
+        BasicBlockType.HEADING_3 -> 18f
+        BasicBlockType.HEADING_4 -> 16f
+        else -> 12f
+    }
+
+    private fun EditorBlock.TextBlock.pdfPrefix(blockType: BasicBlockType): String = when (blockType) {
+        BasicBlockType.BULLETED_LIST -> "• "
+        BasicBlockType.NUMBERED_LIST -> "1. "
+        BasicBlockType.TODO_LIST -> if (checked) "[x] " else "[ ] "
+        BasicBlockType.TOGGLE_LIST -> if (isExpanded) "▼ " else "▶ "
+        BasicBlockType.CALLOUT -> "! "
+        BasicBlockType.QUOTE -> "| "
+        else -> ""
+    }
+
     private fun loadBitmap(url: String): Bitmap? {
         if (url.isBlank()) return null
         val uri = Uri.parse(url)

@@ -112,6 +112,40 @@ class NoteExporterTest {
     }
 
     @Test
+    fun legacyDocumentExportsAfterBasicBlockExtension() {
+        val note = Note(
+            id = "n1",
+            title = "Extended blocks",
+            content = """
+                {
+                  "blocks": [
+                    {"type":"heading","children":[{"text":"Legacy heading"}]},
+                    {"type":"numbered","children":[{"text":"First item"}]},
+                    {"type":"toggle","expanded":false,"children":[{"text":"Collapsed item"}]},
+                    {"type":"callout","children":[{"text":"Important"}]},
+                    {"type":"quote","children":[{"text":"Quoted"}]},
+                    {"type":"future-text","children":[{"text":"Still readable"}]}
+                  ]
+                }
+            """.trimIndent(),
+            folderId = "f1",
+            createdAt = 0L,
+            updatedAt = 0L
+        )
+
+        val outputStream = ByteArrayOutputStream()
+        exporter.exportToMarkdown(note, outputStream)
+
+        val markdown = outputStream.toString()
+        assertTrue(markdown.contains("# Legacy heading"))
+        assertTrue(markdown.contains("1. First item"))
+        assertTrue(markdown.contains("<details>"))
+        assertTrue(markdown.contains("> [!NOTE] Important"))
+        assertTrue(markdown.contains("> Quoted"))
+        assertTrue(markdown.contains("Still readable"))
+    }
+
+    @Test
     fun `loadBitmap returns null for blank URL`() {
         // loadBitmap is private, but we can trigger it via exportToPdf if we mock PdfDocument
         // or just accept that we can't easily test private methods without reflection or making them internal.

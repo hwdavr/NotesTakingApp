@@ -13,6 +13,7 @@ import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.AudioFormat
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
+import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
@@ -244,6 +245,44 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
                 }
             )
         }
+    }
+
+    @Test
+    fun basicBlockFactoryCreatesExpectedDefaults() {
+        val supportedTypes = BasicBlockType.entries.filter { it != BasicBlockType.UNKNOWN }
+        val blocks = supportedTypes.map(viewModel::createBasicBlock)
+
+        assertEquals(supportedTypes.map(BasicBlockType::storageValue), blocks.map(EditorBlock.TextBlock::type))
+        assertEquals(blocks.size, blocks.map(EditorBlock.TextBlock::id).toSet().size)
+        assertTrue(blocks.all { it.children == listOf(RichText("")) })
+        assertTrue(!blocks.single { it.type == "checkbox" }.checked)
+        assertTrue(blocks.single { it.type == "toggle" }.isExpanded)
+    }
+
+    @Test
+    fun toggleExpandedStatePersistsAcrossDocumentRoundTrip() {
+        val toggleBlock = viewModel.createBasicBlock(BasicBlockType.TOGGLE_LIST)
+        setEditorDocument(toggleBlock)
+
+        assertTrue(toggleBlock.isExpanded)
+        assertTrue(viewModel.toggleToggleExpanded(toggleBlock.id))
+
+        val collapsedBlock = viewModel.uiState.value.document.blocks.single() as EditorBlock.TextBlock
+        val restoredBlock = NoteDocument.fromContent(viewModel.uiState.value.document.toJsonString())
+            .blocks
+            .single() as EditorBlock.TextBlock
+
+        assertTrue(!collapsedBlock.isExpanded)
+        assertTrue(!restoredBlock.isExpanded)
+    }
+
+    @Test
+    fun `read only toggle expansion is ignored`() {
+        val toggleBlock = viewModel.createBasicBlock(BasicBlockType.TOGGLE_LIST)
+        setEditorDocument(toggleBlock, editable = false)
+
+        assertTrue(!viewModel.toggleToggleExpanded(toggleBlock.id))
+        assertTrue((viewModel.uiState.value.document.blocks.single() as EditorBlock.TextBlock).isExpanded)
     }
 
     @Test
@@ -916,6 +955,22 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         val updatedBlock = viewModel.uiState.value.document.blocks.first() as EditorBlock.TextBlock
         assertEquals("checkbox", updatedBlock.type)
         assertEquals("Buy milk", updatedBlock.text())
+    }
+
+    @Test
+    fun `splitTextBlock preserves toggle type and state`() = runTest {
+        val toggleBlock = viewModel.createBasicBlock(BasicBlockType.TOGGLE_LIST).copy(
+            children = listOf(RichText("First")),
+            isExpanded = false
+        )
+        setEditorDocument(toggleBlock)
+
+        viewModel.onTextBlockChange(toggleBlock.id, "First\nSecond")
+
+        val blocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(listOf("toggle", "toggle"), blocks.map(EditorBlock.TextBlock::type))
+        assertTrue(!blocks.first().isExpanded)
+        assertTrue(blocks.last().isExpanded)
     }
 
     private fun setEditorDocument(vararg blocks: EditorBlock, editable: Boolean = true) {

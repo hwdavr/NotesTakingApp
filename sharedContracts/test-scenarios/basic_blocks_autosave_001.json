@@ -1,0 +1,45 @@
+{
+  "id": "basic_blocks_autosave_001",
+  "description": "A locally persisted basic-block document retains its type-specific state through the existing editor auto-save and reload path.",
+  "apiMocks": [
+    {
+      "method": "GET",
+      "path": "/v1/items?includeDeleted=true",
+      "status": 200,
+      "response": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notes/basic-blocks-note/content",
+      "status": 500,
+      "response": {}
+    },
+    {
+      "method": "GET",
+      "path": "/v1/items?includeDeleted=true",
+      "status": 200,
+      "response": []
+    }
+  ],
+  "expected": {
+    "ui": {
+      "textBlockTypes": [
+        "heading_2",
+        "numbered",
+        "checkbox",
+        "toggle",
+        "callout",
+        "quote"
+      ],
+      "todoChecked": true,
+      "toggleExpanded": false,
+      "calloutText": "Callout body"
+    }
+  },
+  "tags": [
+    "editor",
+    "basic-blocks",
+    "autosave",
+    "compatibility"
+  ]
+}

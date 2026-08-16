@@ -80,7 +80,7 @@ class NoteDocumentTest {
         assertEquals(1, doc.version)
         assertEquals(1, doc.blocks.size)
         val block = doc.blocks[0] as EditorBlock.TextBlock
-        assertEquals("heading", block.type)
+        assertEquals("heading_1", block.type)
         assertEquals("Hello", block.children[0].text)
     }
 
@@ -151,7 +151,7 @@ class NoteDocumentTest {
     @Test
     fun `parseMarkdownTextBlock identifies types correctly`() {
         val h = parseMarkdownTextBlock(text = "# Heading")
-        assertEquals("heading", h.type)
+        assertEquals("heading_1", h.type)
         assertEquals("Heading", h.children[0].text)
 
         val b = parseMarkdownTextBlock(text = "- Item")
@@ -167,7 +167,7 @@ class NoteDocumentTest {
     fun `toJsonString and fromContent are symmetric`() {
         val original = NoteDocument(
             blocks = listOf(
-                EditorBlock.TextBlock(type = "heading", children = listOf(RichText("Hello"))),
+                EditorBlock.TextBlock(type = "heading_1", children = listOf(RichText("Hello"))),
                 EditorBlock.ImageBlock(url = "url", caption = "cap"),
                 EditorBlock.TableBlock()
             )
@@ -266,5 +266,66 @@ class NoteDocumentTest {
         assertEquals("checkbox", checkedBlock.type)
         assertTrue(checkedBlock.checked)
         assertEquals("Done shopping", checkedBlock.children[0].text)
+    }
+
+    @Test
+    fun basicBlockTypesRoundTripWithDefaults() {
+        val supportedTypes = BasicBlockType.entries.filter { it != BasicBlockType.UNKNOWN }
+        val originalBlocks = supportedTypes.map { type -> type.createEmptyTextBlock() }
+
+        val restoredBlocks = NoteDocument(blocks = originalBlocks)
+            .toJsonString()
+            .let(NoteDocument::fromContent)
+            .blocks
+            .filterIsInstance<EditorBlock.TextBlock>()
+
+        assertEquals(supportedTypes.map(BasicBlockType::storageValue), restoredBlocks.map(EditorBlock.TextBlock::type))
+        assertEquals(originalBlocks.map(EditorBlock.TextBlock::id).toSet().size, originalBlocks.size)
+        assertTrue(restoredBlocks.all { it.children == listOf(RichText("")) })
+        assertTrue(!restoredBlocks.single { it.type == "checkbox" }.checked)
+        assertTrue(restoredBlocks.single { it.type == "toggle" }.isExpanded)
+    }
+
+    @Test
+    fun legacyAndUnknownBlocksKeepReadableContent() {
+        val document = NoteDocument.fromContent(
+            """
+                {
+                  "blocks": [
+                    {"id":"legacy-heading","type":"heading","children":[{"text":"Legacy heading"}]},
+                    {"id":"unknown","type":"future-text","children":[{"text":"Still readable","marks":["bold"]}]}
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        val legacyHeading = document.blocks[0] as EditorBlock.TextBlock
+        val unknownTextBlock = document.blocks[1] as EditorBlock.TextBlock
+        val reloaded = NoteDocument.fromContent(document.toJsonString())
+
+        assertEquals("heading_1", legacyHeading.type)
+        assertEquals("Legacy heading", legacyHeading.text())
+        assertEquals("paragraph", unknownTextBlock.type)
+        assertEquals("Still readable", unknownTextBlock.text())
+        assertEquals(listOf("bold"), unknownTextBlock.children.single().marks)
+        assertEquals("Still readable", (reloaded.blocks[1] as EditorBlock.TextBlock).text())
+    }
+
+    @Test
+    fun legacyToggleWithoutExpandedStateDefaultsToExpanded() {
+        val document = NoteDocument.fromContent(
+            """
+                {
+                  "blocks": [
+                    {"id":"legacy-toggle","type":"toggle","children":[{"text":"Legacy toggle"}]}
+                  ]
+                }
+            """.trimIndent()
+        )
+
+        val toggle = document.blocks.single() as EditorBlock.TextBlock
+
+        assertEquals("toggle", toggle.type)
+        assertTrue(toggle.isExpanded)
     }
 }

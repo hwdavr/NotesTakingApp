@@ -13,9 +13,12 @@ import com.example.notesapp.domain.summary.NoteSummaryResult
 import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
+import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.basicBlockType
+import com.example.notesapp.ui.editor.mapper.createEmptyTextBlock
 import com.example.notesapp.ui.editor.mapper.mergeAdjacentWithSameMarks
 import com.example.notesapp.ui.editor.mapper.newBlockId
 import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
@@ -81,14 +84,10 @@ open class NoteEditorViewModel @Inject constructor(
 ) : ViewModel() {
     internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
-    private fun canEdit(): Boolean = uiStateInternal.value.isEditable
     fun toggleFormattingToolbar() {
         uiStateInternal.value = uiStateInternal.value.copy(
             isFormattingToolbarVisible = !uiStateInternal.value.isFormattingToolbarVisible
         )
-    }
-    fun setFocusedBlock(blockId: String?) {
-        uiStateInternal.value = uiStateInternal.value.copy(focusedBlockId = blockId)
     }
     fun updateSelection(start: Int, end: Int) {
         uiStateInternal.value = uiStateInternal.value.copy(
@@ -98,7 +97,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
 
     fun insertEmoji(emoji: String): Boolean {
-        if (!canEdit() || emoji.isEmpty()) return false
+        if (!uiStateInternal.value.isEditable || emoji.isEmpty()) return false
 
         val current = uiStateInternal.value
         val focusedTextBlock = current.focusedBlockId
@@ -187,19 +186,19 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onTitleChange(value: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         uiStateInternal.value = uiStateInternal.value.copy(title = value)
         scheduleAutoSave()
     }
     fun rename(newName: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         uiStateInternal.value = uiStateInternal.value.copy(title = newName)
         viewModelScope.launch {
             saveInternally()
         }
     }
     fun toggleFavorite() {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         val current = uiStateInternal.value
         val newFavorite = !current.isFavorite
         uiStateInternal.value = current.copy(isFavorite = newFavorite)
@@ -209,7 +208,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun onTextBlockChange(blockId: String, value: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         if (value.contains('\n')) {
             splitTextBlock(blockId, value)
             return
@@ -234,7 +233,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleCheckbox(blockId: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block is EditorBlock.TextBlock) {
                 if (block.type == "checkbox") {
@@ -248,7 +247,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleCheckboxChecked(blockId: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block is EditorBlock.TextBlock && block.type == "checkbox") {
                 block.copy(checked = !block.checked)
@@ -258,7 +257,7 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleBlockMark(blockId: String, mark: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         val state = uiStateInternal.value
         val start = state.selectionStart
         val end = state.selectionEnd
@@ -301,15 +300,35 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun addParagraphBlock() {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         appendBlock(EditorBlock.TextBlock(children = listOf(RichText(""))))
     }
+
+    fun createBasicBlock(type: BasicBlockType): EditorBlock.TextBlock = type.createEmptyTextBlock()
+
+    fun toggleToggleExpanded(blockId: String): Boolean {
+        if (!uiStateInternal.value.isEditable) return false
+
+        val current = uiStateInternal.value
+        val blockIndex = current.document.blocks.indexOfFirst { it.id == blockId }
+        val toggleBlock = current.document.blocks.getOrNull(blockIndex) as? EditorBlock.TextBlock
+            ?: return false
+        if (toggleBlock.basicBlockType() != BasicBlockType.TOGGLE_LIST) return false
+
+        val updatedBlocks = current.document.blocks.toMutableList().apply {
+            this[blockIndex] = toggleBlock.copy(isExpanded = !toggleBlock.isExpanded)
+        }
+        uiStateInternal.value = current.copy(document = current.document.copy(blocks = updatedBlocks))
+        scheduleAutoSave()
+        return true
+    }
+
     fun addImageBlock() {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         appendBlock(EditorBlock.ImageBlock())
     }
     fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block is EditorBlock.ImageBlock) {
                 block.copy(
@@ -322,11 +341,11 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun addTableBlock() {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         appendBlock(EditorBlock.TableBlock())
     }
     fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TableBlock) return@updateBlock block
             block.copy(
@@ -344,7 +363,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
 
     fun onFolderSelected(folderId: String?) {
-        if (!canEdit()) return
+        if (!uiStateInternal.value.isEditable) return
         uiStateInternal.value = uiStateInternal.value.copy(folderId = folderId)
         scheduleAutoSave()
     }
@@ -877,14 +896,15 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
     var nextFocusId: String? = null
     val updatedBlocks = current.document.blocks.flatMap { block ->
         if (block.id == blockId && block is EditorBlock.TextBlock) {
-            val isCheckbox = block.type == "checkbox"
+            val blockType = block.basicBlockType()
+            val isCheckbox = blockType == BasicBlockType.TODO_LIST
             val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
             val newBlocks = lines.mapIndexed { index, line ->
                 val id = if (index == 0) block.id else newBlockId()
                 val type = if (isCheckbox) {
-                    if (isEmptyCheckbox) "paragraph" else "checkbox"
+                    if (isEmptyCheckbox) BasicBlockType.PARAGRAPH else BasicBlockType.TODO_LIST
                 } else {
-                    "paragraph"
+                    blockType.takeUnless { it == BasicBlockType.UNKNOWN } ?: BasicBlockType.PARAGRAPH
                 }
                 val checked = if (isCheckbox && !isEmptyCheckbox) {
                     if (index == 0) block.checked else false
@@ -893,9 +913,14 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
                 }
                 EditorBlock.TextBlock(
                     id = id,
-                    type = type,
+                    type = type.storageValue,
                     children = parseInlineMarkdown(line),
-                    checked = checked
+                    checked = checked,
+                    isExpanded = if (blockType == BasicBlockType.TOGGLE_LIST && index == 0) {
+                        block.isExpanded
+                    } else {
+                        true
+                    }
                 )
             }
             nextFocusId = newBlocks.lastOrNull()?.id

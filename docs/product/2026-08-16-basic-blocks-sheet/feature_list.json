@@ -1,0 +1,150 @@
+{
+  "project": "NotesTakingApp",
+  "last_updated": "2026-08-16",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current planned implementation slice.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "platform_validation": {
+    "required": false,
+    "reason": "The feature uses existing Compose, Android Back, and local JSON document state but introduces no hardware, permission, OS service, model, locale, or platform adapter boundary. Instrumented Compose verification remains mandatory and must fail loudly if the emulator is unavailable.",
+    "capability_matrix": "platform-capability-matrix.md",
+    "unsupported_environment_policy": "fail_loudly",
+    "real_boundary_test_required": false,
+    "real_boundary_test_ids": [],
+    "real_boundary_test_files": [],
+    "real_boundary_test_signal": "N/A; standard Compose editor rendering and Android Back behavior are verified by instrumented UI tests."
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "editor-document-model",
+      "title": "Persist and render basic document block types",
+      "description": "Extend the existing JSON-backed EditorBlock.TextBlock and NoteDocument mapping with stable storage values for paragraph, heading_1 through heading_4, bulleted, numbered, checkbox, toggle, callout, and quote. Persist toggle expanded state with an explicit safe default; decode legacy heading as heading_1 and unknown text-like values as a readable fallback without dropping children. Preserve current paragraph, heading, bulleted, checkbox, image, table, and voice content. Update the ViewModel's type factory, editing/splitting paths, toggle expansion mutation, Markdown/PDF presentation, and editor block renderer so every approved type has the required initial state and survives save/reload. Add focused JVM and repository-backed persistence tests before the selector exposes the types.",
+      "ui_design": "docs/product/2026-08-16-basic-blocks-sheet/design.md",
+      "user_visible_behavior": "Notes containing the approved basic block types display their distinct heading, list, to-do, toggle, callout, and quote treatments and retain those meanings after editing, auto-save, reload, and export.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "passing",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03",
+        "TC-US-1-04"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+        "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.util.NoteExporterTest'",
+        "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+        "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest'"
+      ],
+      "evidence": [
+        {
+          "test_id": "TC-US-1-01",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run passed the production mapper and ViewModel factory tests: every supported type has deterministic storage/defaults, including H1-H4, unchecked to-do, and expanded Toggle."
+        },
+        {
+          "test_id": "TC-US-1-02",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.util.NoteExporterTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.util.NoteExporterTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run passed legacy/unknown block compatibility and Markdown/PDF exporter coverage without dropping readable content."
+        },
+        {
+          "test_id": "TC-US-1-03",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run passed Toggle expanded/collapsed mutation, read-only rejection, split preservation, and JSON round-trip assertions."
+        },
+        {
+          "test_id": "TC-US-1-04",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest' --console=plain",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run passed the repository-backed auto-save/reload flow, preserving block order, types, to-do state, Toggle state, and Callout text."
+        },
+        {
+          "test_id": "platform-capability-contract-US-1",
+          "command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate --slice US-1",
+          "executed_command": "bash scripts/check-platform-evidence.sh \"docs/product/2026-08-16-basic-blocks-sheet\" --evaluate --slice \"US-1\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: US-1 owns no declared hardware, permission, service, model, locale, or platform-adapter boundary; required catalog runtime evidence remains explicitly owned by US-2/US-3."
+        }
+      ],
+      "notes": "This is the highest-risk slice because the current editor has only paragraph, generic heading, bulleted, and checkbox text types. It intentionally reuses Note.content and the existing auto-save path; no Room schema, API contract, or migration is introduced. Verification commands now exactly mirror the approved sprint-contract Test IDs."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "editor-basic-blocks-panel",
+      "title": "Insert basic blocks from the inline catalog",
+      "description": "Replace the editable default toolbar plus action's direct paragraph insertion with an embedded Basic blocks panel immediately after the unchanged 56 dp toolbar. Compose a two-column LazyVerticalGrid containing exactly Text, Heading 1, Heading 2, Heading 3, Heading 4, Bulleted list, Numbered list, To-do list, Toggle list, Callout, and full-width Quote; exclude Page. Keep panel visibility as screen-local transient state. Route each tile through one production ViewModel insertBasicBlock command that inserts after any focused block or appends when no block is focused, focuses the new empty block at selection 0, schedules existing auto-save, and reports success so the panel can collapse exactly once. Localize every label/description and update all NoteEditorScreenContent test call sites with the real insertion callback rather than adding a no-op production default.",
+      "ui_design": "docs/product/2026-08-16-basic-blocks-sheet/design/mockup_basic_blocks_panel_compact.png",
+      "user_visible_behavior": "An editable-note user taps the toolbar plus, chooses any of the 11 Basic blocks, and immediately gets the chosen empty block after the current focus or at the end of the note; the inline catalog then closes.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02",
+        "TC-US-2-03",
+        "TC-US-2-04",
+        "TC-US-2-05",
+        "TC-US-2-06"
+      ],
+      "verification": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest"
+      ],
+      "evidence": [],
+      "notes": "The selector is an inline layout region, never a ModalBottomSheet or overlay. The screen-local selection-in-flight guard prevents rapid taps from committing duplicate blocks before the panel collapses."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "editor-basic-blocks-experience",
+      "title": "Complete the compact, accessible basic-blocks experience",
+      "description": "Complete the inline panel's final behavior and visual contract: give the open panel an inner BackHandler, retain an enabled 56 dp toolbar trigger, show that trigger as visible-but-disabled in the read-only bottom rail, and ensure no read-only action mutates content. Bound the panel to min(280 dp, 40% of usable editor height), use 48 dp baseline tile targets with 8 dp grid spacing, and make the grid vertically scrollable through Quote without clipping at font scale, narrow width, landscape, dark theme, or tablet layouts. Add the required panel, divider, grid, title, trigger, and tile test tags plus roles/state descriptions. Verify production ViewModel wiring, geometry, scrolling, Android Back, read-only safety, and capture the top and scrolled states against the approved compact mockup.",
+      "ui_design": "docs/product/2026-08-16-basic-blocks-sheet/design/mockup_basic_blocks_panel_compact.png",
+      "user_visible_behavior": "The compact panel remains reachable, readable, and scrollable on supported devices; Back or a second plus tap closes it safely, and read-only users see an unavailable trigger without being able to open or change the note.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-02",
+        "TC-US-3-03",
+        "TC-US-3-04",
+        "TC-US-3-05",
+        "TC-US-3-06",
+        "TC-US-3-07",
+        "TC-US-3-VIS-01",
+        "TC-US-3-VIS-02"
+      ],
+      "verification": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest#captureBasicBlocksPanelTopState && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_basic_blocks_panel_top.png \"$FEATURE_DIR/visual_evidence/basic_blocks_panel_top.png\" && test -s \"$FEATURE_DIR/visual_evidence/basic_blocks_panel_top.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest#captureBasicBlocksPanelScrolledState && mkdir -p \"$FEATURE_DIR/visual_evidence\" && adb -s emulator-5554 pull /sdcard/Download/notesapp_basic_blocks_panel_scrolled.png \"$FEATURE_DIR/visual_evidence/basic_blocks_panel_scrolled.png\" && test -s \"$FEATURE_DIR/visual_evidence/basic_blocks_panel_scrolled.png\""
+      ],
+      "evidence": [],
+      "notes": "Final user-reachable slice and sole visual-verification owner. Before it may pass, create visual_evidence/reference-anchor-verification.md with one concrete bounds row for each visual test and run the visual-evidence contract gate."
+    }
+  ]
+}
