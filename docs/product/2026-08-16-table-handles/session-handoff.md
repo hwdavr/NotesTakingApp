@@ -2,29 +2,29 @@
 
 ## Verified Now
 
-- What is currently working: US-1 table model and persistence operations are implemented and marked `passing`: backward-compatible `fitToWidth`, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, fit toggle, read-only guards, and existing auto-save.
-- What verification actually ran: all six exact US-1 acceptance commands; `./gradlew testDebugUnitTest` (355 tests); `./gradlew koverLog` (83.8224%); `assembleDebug`; `ktlintCheck`; `detekt`; `lintDebug`; Compose, localization, architecture, duplicate-class, platform-evidence, and lifecycle checks. `./gradlew installDebug` exited 0 and installed on `Pixel 9 Pro - 17` and `Medium_Phone(AVD) - 13`.
+- What is currently working: US-1 and US-2 are marked `passing`. US-2 reveals accessible column, row, and table-options handles for focused editable table cells, hides them for read-only/outside focus, retains the target while a sheet is open, and renders localized ordered option sheets with Delete last.
+- What verification actually ran: the exact US-2 instrumented command passed 4/4 tests on `Medium_Phone(AVD) - 13`; `./gradlew testDebugUnitTest` passed 355 tests; `./gradlew koverLog` reported 83.3009%; assemble, compile warning, duplicate-class, ktlint, detekt, lint, Compose, localization, architecture, suppression, secret-scope, platform-evidence, lifecycle, and clean-state checks passed.
 
 ## Changed This Session
 
-- Code or behavior added: `TableBlock.fitToWidth` JSON compatibility and production ViewModel receiver operations with focused unit coverage for structure, persistence, duplication, and read-only behavior.
-- Infrastructure or harness changes: Updated the stable feature tracker evidence, progress log, product capabilities/roadmap, change summary, and clean-state checklist. No harness scripts or project rules were changed.
+- Code or behavior added: typed table-handle actions, production editor dispatch to existing US-1 ViewModel operations, focus-driven handle visuals, focused-cell semantics, table/row/column Material 3 option sheets, stable accessibility/test tags, and four production-entry-point instrumented tests.
+- Infrastructure or harness changes: Updated `feature_list.json`, `progress.md`, `product.md`, `summary_US-2.md`, and the US-2 clean-state checklist. No harness scripts or project rules changed. The configured session exposed no callable Skill tool endpoint, so the repository skill procedures were followed manually and recorded in the summary.
 
 ## Broken Or Unverified
 
-- Known defect: None found in the US-1 scope.
-- Unverified path: US-2/US-3 focus-driven handles, option sheets, production UI wiring, instrumented Compose behavior, and approved visual captures are outside this US-1 handoff and are not claimed as verified here. A concurrent harness-generator process has now marked US-2 `in_progress` in `feature_list.json`.
-- Risk for the next session: Future UI work must import/use the production table receiver operations, preserve the stored table target while sheets are open, and run the required emulator and visual gates. The configured session did not expose a Skill tool endpoint, so the repository skill procedures were followed manually and recorded in `summary_US-1.md`. Do not revert the concurrent US-2 lifecycle edit.
+- Known defect: None found in the US-2 acceptance scope.
+- Unverified path: US-3 still owns immediate production action-flow assertions, multi-table focus boundaries, and approved visual screenshot captures; those paths are not claimed as passing.
+- Risk for the next session: Preserve the `TableBlock` JSON/default behavior and existing ViewModel receiver operations while completing US-3. Keep the tracker `In Progress` until every slice passes and the Evaluator performs review; do not transition directly to human review.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: `US-2` — Reveal focused table handles and option sheets (currently marked `in_progress` by the concurrent generator).
-- Why it is next: US-1 provides the deterministic operation and persistence foundation; US-2 owns focus-scoped handles, sheet layout, accessibility, and test-tag contracts.
-- What counts as passing: Execute the US-2 acceptance command on the configured emulator, prove editable/read-only/focus boundaries and sheet ordering, and record exit-0 evidence in its slice summary and `feature_list.json`.
-- What must not change during that step: Keep US-1 passing, preserve the `TableBlock` JSON default, use localized strings and stable `testTag`s, and do not transition the overall tracker to human review without evaluator scoring.
+- Highest-priority unfinished feature: `US-3` — Complete table-handle editing flow.
+- Why it is next: US-1 and US-2 provide the table operation foundation and focus/sheet UI; US-3 must prove action outcomes and visual parity against the approved mockups.
+- What counts as passing: Execute every US-3 acceptance and visual-evidence command on the emulator, record objective evidence, and pass the evaluator workflow.
+- What must not change during that step: Keep US-1 and US-2 passing, use localized strings/stable test tags, preserve target retention and read-only behavior, and follow `docs/product/design_system.md`.
 
 ## Commands
 
 - Startup: `cd /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Verification: `./gradlew testDebugUnitTest && ./gradlew assembleDebug`
-- Focused debug command: `./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'`
+- Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest`
