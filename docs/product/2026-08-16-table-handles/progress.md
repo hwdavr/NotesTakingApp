@@ -6,7 +6,7 @@
 - Standard startup path: existing Note Editor with an editable note containing a `TableBlock`.
 - Standard verification path: `./gradlew testDebugUnitTest` and `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
 - Current active feature: `table-handles`; `US-1` — Apply table structure and persistence operations — is passing.
-- Current remaining work: `US-2` and `US-3` are not started; the overall tracker remains `In Progress`.
+- Current remaining work: `US-2` is now marked `in_progress` by a concurrent generator process and `US-3` remains not started; the overall tracker remains `In Progress`.
 
 ## Session Log
 
@@ -30,5 +30,5 @@
 - Verification run: All six acceptance commands passed; full debug unit tests passed with 355 tests; Kover reported 83.8224% application line coverage; `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, and Compose/localization/architecture checks passed; platform evidence check passed with validation explicitly not required for this local transformation slice.
 - Evidence captured: `summary_US-1.md`, six US-1 entries in `feature_list.json`, and current product capability/roadmap updates in `product.md`.
 - Commits: Implementation `aa95f95`; clean-exit documentation commit is pending.
-- Known risk or unresolved issue: The configured session exposed no Skill tool endpoint, so the required skill invocations were followed manually from repository skill instructions and recorded in the summary; US-2/US-3 still require the Android runtime and visual gates.
+- Known risk or unresolved issue: The configured session exposed no Skill tool endpoint, so the required skill invocations were followed manually from repository skill instructions and recorded in the summary; a concurrent generator owns the US-2 lifecycle edit and US-2/US-3 still require the Android runtime and visual gates.
 - Next best step: Complete clean-exit/install gates for US-1, then leave the feature tracker `In Progress` for the next selected slice.

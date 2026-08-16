@@ -49,7 +49,7 @@
 
 - [x] Reset execution — not applicable; US-1 does not add a reset operation.
 - [x] Idempotence — not applicable; no database reset behavior changed.
-- [x] Artifact cleanup — final repository status is checked after documentation and handoff updates; generated Gradle reports remain ignored build outputs.
+- [⚠️] Artifact cleanup — generated Gradle reports remain ignored build outputs, but a concurrent harness-generator process has intentionally changed `feature_list.json` to mark US-2 `in_progress` after the US-1 handoff. This user-owned lifecycle edit is preserved and not committed or reverted by this task.
 
 ## 7. Documentation & Handoff
 
@@ -60,4 +60,4 @@
 
 ## Final result
 
-All applicable checks pass. US-1 is ready for handoff; US-2 and US-3 remain the next implementation slices and are not represented as completed evidence here.
+All applicable checks pass. US-1 is ready for handoff. The only remaining clean-state exception is the preserved concurrent US-2 lifecycle edit described above; no US-2 implementation or evidence is claimed by this handoff.

@@ -13,12 +13,12 @@
 ## Broken Or Unverified
 
 - Known defect: None found in the US-1 scope.
-- Unverified path: US-2/US-3 focus-driven handles, option sheets, production UI wiring, instrumented Compose behavior, and approved visual captures remain unimplemented and therefore unverified.
-- Risk for the next session: Future UI work must import/use the production table receiver operations, preserve the stored table target while sheets are open, and run the required emulator and visual gates. The configured session did not expose a Skill tool endpoint, so the repository skill procedures were followed manually and recorded in `summary_US-1.md`.
+- Unverified path: US-2/US-3 focus-driven handles, option sheets, production UI wiring, instrumented Compose behavior, and approved visual captures are outside this US-1 handoff and are not claimed as verified here. A concurrent harness-generator process has now marked US-2 `in_progress` in `feature_list.json`.
+- Risk for the next session: Future UI work must import/use the production table receiver operations, preserve the stored table target while sheets are open, and run the required emulator and visual gates. The configured session did not expose a Skill tool endpoint, so the repository skill procedures were followed manually and recorded in `summary_US-1.md`. Do not revert the concurrent US-2 lifecycle edit.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: `US-2` — Reveal focused table handles and option sheets.
+- Highest-priority unfinished feature: `US-2` — Reveal focused table handles and option sheets (currently marked `in_progress` by the concurrent generator).
 - Why it is next: US-1 provides the deterministic operation and persistence foundation; US-2 owns focus-scoped handles, sheet layout, accessibility, and test-tag contracts.
 - What counts as passing: Execute the US-2 acceptance command on the configured emulator, prove editable/read-only/focus boundaries and sheet ordering, and record exit-0 evidence in its slice summary and `feature_list.json`.
 - What must not change during that step: Keep US-1 passing, preserve the `TableBlock` JSON default, use localized strings and stable `testTag`s, and do not transition the overall tracker to human review without evaluator scoring.

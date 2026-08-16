@@ -17,7 +17,7 @@
 | Test | ✅ Complete | 2026-08-16 09:51 | All US-1 acceptance commands pass; coverage is above the project threshold and table operation code is above the 90% targeted ViewModel threshold. |
 | Code Quality Fix | ✅ Complete | 2026-08-16 09:52 | Build, formatting, static analysis, Android lint, and all repository architecture/Compose/localization checks pass with no suppressions. |
 | Update State | ✅ Complete | 2026-08-16 09:55 | US-1 marked `passing` with six acceptance evidence records; tracker remains `In Progress` because US-2 and US-3 are not started. Commit `aa95f95`. |
-| Clean Exit | ✅ Complete | 2026-08-16 10:02 | Clean-state checklist and session handoff completed; final JVM verification is green and no unresolved US-1 gate remains. |
+| Clean Exit | ⚠️ Complete with documented concurrent edit | 2026-08-16 10:02 | Clean-state checklist and session handoff completed; final JVM verification is green. A concurrent US-2 generator edit to `feature_list.json` is preserved and excluded from this task. |
 | Install App To Device | ⏳ Pending | | |
 
 ## Baseline Goals and Scope
@@ -106,7 +106,7 @@
 
 ### Clean Exit
 
-- `docs/product/2026-08-16-table-handles/clean-state-checklist.md` — all applicable checklist items processed and marked pass or not applicable with scope rationale.
+- `docs/product/2026-08-16-table-handles/clean-state-checklist.md` — all applicable checklist items processed; the only warning records the concurrent US-2 lifecycle edit that must not be reverted.
 - `docs/product/2026-08-16-table-handles/session-handoff.md` — verified state, changed behavior, unverified next-slice paths, and next-step commands recorded using the required template.
 - Final pre-install verification: `./gradlew testDebugUnitTest` — exit 0; evidence excerpt: `BUILD SUCCESSFUL`.
-- Final repository gate: implementation commit `aa95f95` is present; documentation handoff commit follows this stage. The overall tracker remains `In Progress` and was not moved to human review.
+- Final repository gate: implementation commit `aa95f95` and clean-exit documentation commit `99ec90d` are present. The overall tracker remains `In Progress` and was not moved to human review; a concurrent generator has since marked US-2 `in_progress`.
