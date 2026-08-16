@@ -67,8 +67,9 @@ CODEX_INTERACTIVE_CMD="codex --yolo"
 CODEX_HEADLESS_CMD="codex exec --yolo"
 CODEX_BG_CMD="codex --yolo"
 
-# Patterns that indicate token/quota exhaustion (checked against agy stderr).
-QUOTA_ERROR_PATTERN='Individual.quota|quota.reached|rate.limit|429|RESOURCE_EXHAUSTED|token.*(exhaust|exceed|run.out|depleted)|insufficient.*(quota|credit|balance)|usage.*limit|daily.*limit'
+# Patterns that indicate token/quota exhaustion (checked against agent stdout/stderr).
+QUOTA_ERROR_PATTERN='Individual.quota|quota.reached|rate.limit|429|RESOURCE_EXHAUSTED|token.*(exhaust|exceed|run.out|depleted)|insufficient.*(quota|credit|balance)|usage.*limit|daily.*limit|hit.*limit|Upgrade to Pro|purchase.*credits|out of credits|exceeded.*quota'
+
 
 # --- helpers -----------------------------------------------------------------
 
@@ -278,10 +279,55 @@ if [ "$IS_CHECK" -eq 0 ]; then
   acquire_lock
 fi
 
+check_agent_quota() {
+  local agent="$1"
+  if [ "$agent" != "codex" ]; then
+    return 0
+  fi
+  local probe_out
+  probe_out=$(python3 -c "
+import subprocess, sys
+try:
+    p = subprocess.run(
+        ['codex', 'exec', '--yolo', 'ping'],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        timeout=8
+    )
+    print(p.stdout)
+    sys.exit(p.returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+except Exception:
+    sys.exit(1)
+" 2>&1 || true)
+
+  if echo "$probe_out" | grep -qiE "$QUOTA_ERROR_PATTERN"; then
+    QUOTA_PROBE_ERROR=$(echo "$probe_out" | grep -iE "$QUOTA_ERROR_PATTERN" | head -1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    return 1 # quota exhausted
+  fi
+  return 0
+}
+
 # --- step 2: set config and prepare task -------------------------------------
-# Prefer codex for the common file config; fall back to agy if codex not installed.
-# The common file uses AGENT_BIN for its binary check (skipped in --check mode),
-# so we must set it to whatever is actually available.
+# Prefer codex for the common file config; fall back to agy if codex is not
+# installed or its quota/token limit is exhausted.
+
+QUOTA_PROBE_ERROR=""
+if [ "$CODEX_AVAILABLE" -eq 1 ] && [ "$AGY_AVAILABLE" -eq 1 ]; then
+  info "--> Checking codex quota..."
+  if ! check_agent_quota "codex"; then
+    info ">>> codex token/quota exhausted. Falling back to agy..."
+    if [ -n "$QUOTA_PROBE_ERROR" ]; then
+      info "    Reason: $QUOTA_PROBE_ERROR"
+    fi
+    CODEX_AVAILABLE=0
+  else
+    info "OK  codex quota available."
+  fi
+fi
 
 if [ "$CODEX_AVAILABLE" -eq 1 ]; then
   AGENT_NAME="$CODEX_NAME"
@@ -292,7 +338,7 @@ if [ "$CODEX_AVAILABLE" -eq 1 ]; then
   AGENT_HEADLESS_CMD="$CODEX_HEADLESS_CMD"
   AGENT_BG_CMD="$CODEX_BG_CMD"
 else
-  # codex not installed — use agy config so common's binary check passes.
+  # codex not installed or quota exhausted — use agy.
   AGENT_NAME="$AGY_NAME"
   AGENT_BIN="$AGY_BIN"
   AGENT_INSTALL_CMD="$AGY_INSTALL_CMD"
@@ -303,6 +349,7 @@ else
 fi
 
 SKIP_LAUNCH=1
+
 
 # --- step 3: launch with fallback --------------------------------------------
 
@@ -319,20 +366,20 @@ launch_agent() {
 
   if [ "$HEADLESS" -eq 1 ]; then
     info "--> Launching ${agent_name} in headless mode. Output streams to this terminal."
-    local stderr_file
-    stderr_file=$(mktemp -t harness-agent-stderr.XXXXXX)
+    local output_file
+    output_file=$(mktemp -t harness-agent-output.XXXXXX)
     local exit_code=0
-    $headless_cmd "$PROMPT" 2>"$stderr_file" || exit_code=$?
-    cat "$stderr_file" >&2
+    $headless_cmd "$PROMPT" >"$output_file" 2>&1 || exit_code=$?
+    cat "$output_file"
 
     if [ "$exit_code" -ne 0 ] && [ "$can_fallback" -eq 1 ]; then
       local err_text
-      err_text=$(cat "$stderr_file" 2>/dev/null || true)
-      rm -f "$stderr_file"
+      err_text=$(cat "$output_file" 2>/dev/null || true)
+      rm -f "$output_file"
       if echo "$err_text" | grep -qiE "$QUOTA_ERROR_PATTERN"; then
         info ""
         info ">>> ${agent_name} token/quota exhausted. Switching to ${fallback_name}..."
-        info "    Error: $(echo "$err_text" | head -1)"
+        info "    Error: $(echo "$err_text" | grep -iE "$QUOTA_ERROR_PATTERN" | head -1)"
         local fallback_exit_code=0
         $fallback_headless "$PROMPT" || fallback_exit_code=$?
         return "$fallback_exit_code"
@@ -340,7 +387,7 @@ launch_agent() {
         fail "${agent_name} failed (exit $exit_code): $err_text"
       fi
     fi
-    rm -f "$stderr_file"
+    rm -f "$output_file"
     return "$exit_code"
   fi
 
@@ -367,20 +414,24 @@ launch_agent() {
   # Interactive TUI mode.
   if [ -t 1 ]; then
     info "--> Launching ${agent_name} interactive TUI. Press Ctrl+C to exit."
-    local stderr_file2
-    stderr_file2=$(mktemp -t harness-agent-stderr.XXXXXX)
+    local output_file2
+    output_file2=$(mktemp -t harness-agent-output.XXXXXX)
     local exit_code2=0
-    $interactive_cmd "$PROMPT" 2>"$stderr_file2" || exit_code2=$?
-    cat "$stderr_file2" >&2
+    if command -v script >/dev/null 2>&1; then
+      script -q "$output_file2" bash -c "$interactive_cmd \"\$1\"" -- "$PROMPT" || exit_code2=$?
+    else
+      $interactive_cmd "$PROMPT" >"$output_file2" 2>&1 || exit_code2=$?
+      cat "$output_file2" >&2
+    fi
 
     if [ "$exit_code2" -ne 0 ] && [ "$can_fallback" -eq 1 ]; then
       local err_text2
-      err_text2=$(cat "$stderr_file2" 2>/dev/null || true)
-      rm -f "$stderr_file2"
+      err_text2=$(cat "$output_file2" 2>/dev/null || true)
+      rm -f "$output_file2"
       if echo "$err_text2" | grep -qiE "$QUOTA_ERROR_PATTERN"; then
         info ""
         info ">>> ${agent_name} token/quota exhausted. Switching to ${fallback_name}..."
-        info "    Error: $(echo "$err_text2" | head -1)"
+        info "    Error: $(echo "$err_text2" | grep -iE "$QUOTA_ERROR_PATTERN" | head -1)"
         info "--> Launching ${fallback_name} interactive TUI."
         local fallback_exit_code2=0
         $fallback_interactive "$PROMPT" || fallback_exit_code2=$?
@@ -389,7 +440,7 @@ launch_agent() {
         fail "${agent_name} failed (exit $exit_code2): $err_text2"
       fi
     fi
-    rm -f "$stderr_file2"
+    rm -f "$output_file2"
     return "$exit_code2"
   fi
   return 0
@@ -399,7 +450,7 @@ launch_agent() {
 
 PREVIOUS_TASK_KEY=""
 while true; do
-  if ! lock_owned_by_current_process; then
+  if [ "$IS_CHECK" -eq 0 ] && ! lock_owned_by_current_process; then
     info "OK  Harness lock was handed off to a newer session; stopping this process."
     exit 0
   fi
@@ -407,7 +458,7 @@ while true; do
   # shellcheck source=harness-generator-common.sh
   source "$SCRIPT_DIR/harness-generator-common.sh"
 
-  if ! lock_owned_by_current_process; then
+  if [ "$IS_CHECK" -eq 0 ] && ! lock_owned_by_current_process; then
     info "OK  Harness lock was handed off to a newer session; stopping this process."
     exit 0
   fi

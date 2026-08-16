@@ -88,6 +88,18 @@ printf '%s\n' \
 printf 'status mockup' > "$not_applicable/design/mockup_status.png"
 (cd "$REPO_ROOT" && bash "$VALIDATOR" "$not_applicable")
 
+explicit_no_input="$fixture_root/explicit-no-input"
+mkdir -p "$explicit_no_input/design"
+printf '%s\n' \
+  '# Design' \
+  '' \
+  'The bottom sheet contains only tappable tile actions and has no text field.' \
+  '' \
+  '- Mockup image: `design/mockup_actions.png`' \
+  > "$explicit_no_input/design.md"
+printf 'actions mockup' > "$explicit_no_input/design/mockup_actions.png"
+(cd "$REPO_ROOT" && bash "$VALIDATOR" "$explicit_no_input")
+
 missing_keyboard_asset="$fixture_root/missing-keyboard-asset"
 write_design "$missing_keyboard_asset" '' 'Keyboard-visible state: the search results remain visible while typing.'
 expect_failure "requires a distinct keyboard-visible mockup asset" "$missing_keyboard_asset"

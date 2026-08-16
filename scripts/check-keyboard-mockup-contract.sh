@@ -24,7 +24,13 @@ if ! grep -Eiq 'bottom[[:space:]-]*sheet|modal[[:space:]-]*bottom[[:space:]-]*sh
   exit 0
 fi
 
-if ! grep -Eiq 'text[[:space:]-]*(box|field|input)|textfield|input[[:space:]-]*field|search[[:space:]-]*field' "$DESIGN"; then
+TEXT_INPUT_LINES=$(
+  grep -Ei 'text[[:space:]-]*(box|field|input)|textfield|input[[:space:]-]*field|search[[:space:]-]*field' "$DESIGN" |
+    grep -Eiv '(^|[[:space:][:punct:]])(no|without|does[[:space:]]+not|do[[:space:]]+not|not[[:space:]]+applicable|none|has[[:space:]]+no|contains[[:space:]]+no|includes[[:space:]]+no|presents[[:space:]]+no|uses[[:space:]]+no|provides[[:space:]]+no)([[:space:][:punct:]]|$)' ||
+    true
+)
+
+if [ -z "$TEXT_INPUT_LINES" ]; then
   echo "PASS: bottom-sheet design has no text-input control."
   exit 0
 fi
