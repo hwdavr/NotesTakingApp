@@ -29,6 +29,6 @@
 - Completed: Added backward-compatible `TableBlock.fitToWidth` serialization; implemented production ViewModel receiver operations for table insert, clear, delete, duplicate, fit-to-width, final-row/column block removal, read-only protection, and auto-save; added mapper and ViewModel tests.
 - Verification run: All six acceptance commands passed; full debug unit tests passed with 355 tests; Kover reported 83.8224% application line coverage; `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, and Compose/localization/architecture checks passed; platform evidence check passed with validation explicitly not required for this local transformation slice.
 - Evidence captured: `summary_US-1.md`, six US-1 entries in `feature_list.json`, and current product capability/roadmap updates in `product.md`.
-- Commits: Pending Stage 7 commit.
+- Commits: Implementation `aa95f95`; clean-exit documentation commit is pending.
 - Known risk or unresolved issue: The configured session exposed no Skill tool endpoint, so the required skill invocations were followed manually from repository skill instructions and recorded in the summary; US-2/US-3 still require the Android runtime and visual gates.
 - Next best step: Complete clean-exit/install gates for US-1, then leave the feature tracker `In Progress` for the next selected slice.

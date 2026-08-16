@@ -2,7 +2,7 @@
 
 **Type**: feature
 **Started**: 2026-08-16 09:30
-**Status**: In Progress
+**Status**: Complete (US-1 slice; feature remains In Progress)
 **Feature ID**: US-1
 **Workspace**: `docs/product/2026-08-16-table-handles/`
 
@@ -16,8 +16,8 @@
 | Implement | ✅ Complete | 2026-08-16 09:50 | Added backward-compatible table sizing state and all US-1 ViewModel transformations with read-only guards, deep-copy duplication, final-row/column block removal, and auto-save scheduling; extracted the command surface as production ViewModel receiver operations to satisfy static-analysis limits. |
 | Test | ✅ Complete | 2026-08-16 09:51 | All US-1 acceptance commands pass; coverage is above the project threshold and table operation code is above the 90% targeted ViewModel threshold. |
 | Code Quality Fix | ✅ Complete | 2026-08-16 09:52 | Build, formatting, static analysis, Android lint, and all repository architecture/Compose/localization checks pass with no suppressions. |
-| Update State | ⏳ Pending | | |
-| Clean Exit | ⏳ Pending | | |
+| Update State | ✅ Complete | 2026-08-16 09:55 | US-1 marked `passing` with six acceptance evidence records; tracker remains `In Progress` because US-2 and US-3 are not started. Commit `aa95f95`. |
+| Clean Exit | ✅ Complete | 2026-08-16 10:02 | Clean-state checklist and session handoff completed; final JVM verification is green and no unresolved US-1 gate remains. |
 | Install App To Device | ⏳ Pending | | |
 
 ## Baseline Goals and Scope
@@ -96,3 +96,17 @@
 - `bash scripts/check-localization-rules.sh` — exit 0; evidence excerpt: `All localization rules passed — 0 violations`.
 - `bash scripts/check-architecture-rules.sh` — exit 0; evidence excerpt: `All architecture rules passed — 0 violations`.
 - No new suppression, baseline, or ignore directive was added.
+
+### Update State
+
+- `docs/product/2026-08-16-table-handles/feature_list.json` — US-1 transitioned from `in_progress` to `passing` with evidence for TC-US-1-01 through TC-US-1-06; US-2 and US-3 remain `not_started`.
+- `docs/product/product.md` — tracker notes, current capabilities, portfolio status, roadmap, and document date updated; overall tracker correctly remains `In Progress`.
+- `bash scripts/check-feature-lifecycle.sh` — exit 0; evidence excerpt: `Feature lifecycle tracker valid: 3 feature(s), 1 in progress.`
+- Commit: `aa95f95` — `feat: add table structure operations`.
+
+### Clean Exit
+
+- `docs/product/2026-08-16-table-handles/clean-state-checklist.md` — all applicable checklist items processed and marked pass or not applicable with scope rationale.
+- `docs/product/2026-08-16-table-handles/session-handoff.md` — verified state, changed behavior, unverified next-slice paths, and next-step commands recorded using the required template.
+- Final pre-install verification: `./gradlew testDebugUnitTest` — exit 0; evidence excerpt: `BUILD SUCCESSFUL`.
+- Final repository gate: implementation commit `aa95f95` is present; documentation handoff commit follows this stage. The overall tracker remains `In Progress` and was not moved to human review.
