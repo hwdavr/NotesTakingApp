@@ -60,4 +60,4 @@
 
 ## Final result
 
-All applicable US-2 clean-state checks pass. The slice is ready for final debug installation. US-3 production action-flow and visual verification remain intentionally unverified and are the next feature slice.
+All applicable US-2 clean-state checks pass, and `./gradlew installDebug` installed the debug build on both connected runtimes. US-3 production action-flow and visual verification remain intentionally unverified and are the next feature slice.

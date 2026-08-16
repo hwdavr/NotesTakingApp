@@ -3,7 +3,7 @@
 ## Verified Now
 
 - What is currently working: US-1 and US-2 are marked `passing`. US-2 reveals accessible column, row, and table-options handles for focused editable table cells, hides them for read-only/outside focus, retains the target while a sheet is open, and renders localized ordered option sheets with Delete last.
-- What verification actually ran: the exact US-2 instrumented command passed 4/4 tests on `Medium_Phone(AVD) - 13`; `./gradlew testDebugUnitTest` passed 355 tests; `./gradlew koverLog` reported 83.3009%; assemble, compile warning, duplicate-class, ktlint, detekt, lint, Compose, localization, architecture, suppression, secret-scope, platform-evidence, lifecycle, and clean-state checks passed.
+- What verification actually ran: the exact US-2 instrumented command passed 4/4 tests on `Medium_Phone(AVD) - 13`; `./gradlew testDebugUnitTest` passed 355 tests; `./gradlew koverLog` reported 83.3009%; assemble, compile warning, duplicate-class, ktlint, detekt, lint, Compose, localization, architecture, suppression, secret-scope, platform-evidence, lifecycle, and clean-state checks passed. `./gradlew installDebug` exited 0 and installed on `Medium_Phone(AVD) - 13` and `Pixel 9 Pro - 17`.
 
 ## Changed This Session
 

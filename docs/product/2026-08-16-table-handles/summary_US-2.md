@@ -18,7 +18,7 @@
 | Code Quality Fix | ✅ Complete | 2026-08-16 10:33 +08 | Assemble, formatting, static analysis, Android lint, Compose rules, localization rules, and architecture rules pass. Detekt complexity findings were resolved through helper extraction; unstable concatenated tags were replaced with stable constants. |
 | Update State | ✅ Complete | 2026-08-16 10:35 +08 | Exact acceptance verification passed; US-2 evidence is attached in feature_list.json, product/progress records are current, and commit a082a40 contains the implementation, tests, and product-state updates. |
 | Clean Exit | ✅ Complete | 2026-08-16 10:40 +08 | The US-2 clean-state checklist and session handoff are complete; final build, JVM/runtime tests, coverage, platform evidence, and lifecycle checks pass. US-3 remains the next slice. |
-| Install App To Device | ⏳ Pending | | |
+| Install App To Device | ✅ Complete | 2026-08-16 10:42 +08 | `./gradlew installDebug` exited 0 and installed `app-debug.apk` on both connected runtimes: `Medium_Phone(AVD) - 13` and `Pixel 9 Pro - 17`. |
 
 ## Baseline Goals and Scope
 
@@ -115,3 +115,9 @@
 - Handoff artifact: `docs/product/2026-08-16-table-handles/session-handoff.md` — “US-1 and US-2 are marked `passing`.”
 - Final verification: the exact US-2 instrumented command exited 0 with 4/4 tests; JVM tests exited 0 with 355 tests; coverage is 83.3009%; lifecycle validation exits 0 with one feature in progress.
 - Remaining scope: US-3 production action-flow and visual verification are intentionally unverified and remain the next selected slice.
+
+### Install App To Device
+
+- Device check: `adb devices` exited 0 and listed `emulator-5554` plus `adb-46201FDAP009P3-eXjY18._adb-tls-connect._tcp`.
+- Install command: `./gradlew installDebug` — exit 0; `Installed on 2 devices.` and `BUILD SUCCESSFUL`.
+- Installed runtimes: `Medium_Phone(AVD) - 13` and `Pixel 9 Pro - 17`.
