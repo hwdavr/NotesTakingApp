@@ -22,6 +22,7 @@ import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.TableHandleAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
 import javax.inject.Inject
@@ -597,6 +598,23 @@ fun NoteEditorViewModel.insertTableColumnLeft(blockId: String, columnIndex: Int)
                 row.withInsertedCell(columnIndex)
             }
         )
+    }
+}
+
+fun NoteEditorViewModel.onTableAction(action: TableHandleAction) {
+    when (action) {
+        is TableHandleAction.InsertColumnLeft -> insertTableColumnLeft(action.blockId, action.columnIndex)
+        is TableHandleAction.InsertColumnRight -> insertTableColumnRight(action.blockId, action.columnIndex)
+        is TableHandleAction.DeleteColumn -> deleteTableColumn(action.blockId, action.columnIndex)
+        is TableHandleAction.ClearColumn -> clearTableColumn(action.blockId, action.columnIndex)
+        is TableHandleAction.InsertRowAbove -> insertTableRowAbove(action.blockId, action.rowIndex)
+        is TableHandleAction.InsertRowBelow -> insertTableRowBelow(action.blockId, action.rowIndex)
+        is TableHandleAction.DeleteRow -> deleteTableRow(action.blockId, action.rowIndex)
+        is TableHandleAction.ClearRow -> clearTableRow(action.blockId, action.rowIndex)
+        is TableHandleAction.ClearTable -> clearTable(action.blockId)
+        is TableHandleAction.DuplicateTable -> duplicateTable(action.blockId)
+        is TableHandleAction.DeleteTable -> deleteTable(action.blockId)
+        is TableHandleAction.ToggleTableFitToWidth -> toggleTableFitToWidth(action.blockId)
     }
 }
 

@@ -17,6 +17,7 @@ import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.TableHandleAction
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -393,6 +394,60 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         viewModel.clearTable(tableId)
         table = currentTable(tableId)
         assertTrue(table.rows.flatten().all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+    }
+
+    @Test
+    fun tableActionDispatcherRoutesEveryProductionCommand() = runTest {
+        val tableId = "table-dispatch"
+        val originalRows = tableRows("A", "B", "C", "D")
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.InsertColumnLeft(tableId, 0))
+        assertEquals(3, currentTable(tableId).rows[0].size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.InsertColumnRight(tableId, 1))
+        assertEquals(3, currentTable(tableId).rows[0].size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.DeleteColumn(tableId, 0))
+        assertEquals(1, currentTable(tableId).rows[0].size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.ClearColumn(tableId, 0))
+        assertTrue(currentTable(tableId).rows.all { row -> row[0].joinToString("") { it.text }.isEmpty() })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.InsertRowAbove(tableId, 0))
+        assertEquals(3, currentTable(tableId).rows.size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.InsertRowBelow(tableId, 1))
+        assertEquals(3, currentTable(tableId).rows.size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.DeleteRow(tableId, 0))
+        assertEquals(1, currentTable(tableId).rows.size)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.ClearRow(tableId, 0))
+        assertTrue(currentTable(tableId).rows[0].all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.ClearTable(tableId))
+        assertTrue(currentTable(tableId).rows.flatten().all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.ToggleTableFitToWidth(tableId))
+        assertTrue(currentTable(tableId).fitToWidth)
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.DuplicateTable(tableId))
+        assertEquals(2, viewModel.uiState.value.document.blocks.count { it is EditorBlock.TableBlock })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.onTableAction(TableHandleAction.DeleteTable(tableId))
+        assertTrue(viewModel.uiState.value.document.blocks.none { it.id == tableId })
     }
 
     @Test

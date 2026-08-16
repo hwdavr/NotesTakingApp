@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: existing Note Editor with an editable note containing a `TableBlock`.
 - Standard verification path: `./gradlew testDebugUnitTest` and `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
-- Current active feature: `table-handles`; `US-1` — Apply table structure and persistence operations — is passing.
-- Current verified state: `US-1` and `US-2` are passing; `US-3` remains not started, so the overall tracker remains `In Progress`.
+- Current active feature: `table-handles`; `US-3` — Complete table-handle editing flow — is passing.
+- Current verified state: `US-1`, `US-2`, and `US-3` are passing; the overall tracker is `To be reviewed` for Evaluator handoff.
 
 ## Session Log
 
@@ -45,3 +45,16 @@
 - Commits: Prior implementation commits `a3ee82b` and `7472906`; final US-2 source, test, and product-state commit is pending.
 - Known risk or unresolved issue: The configured session exposed no callable Skill tool endpoint, so required stage skills were followed from their repository instructions as a documented fallback; US-3 still owns immediate action-flow and screenshot verification.
 - Next best step: Complete the clean-state checklist, write the session handoff, and install the final debug build to every connected runtime.
+
+### Session 004
+
+- Date: 2026-08-16
+- Goal: Implement the approved `US-3` slice through the harness-generator workflow.
+- Completed: Wired production table-handle actions through a typed ViewModel dispatcher; connected the Note Editor action callback; applied the persisted fit-to-width state to rendered column sizing; added production-backed action, focus, multi-table, ordering, persistence, duplicate, fit, and delete tests; captured the focused editor and all three approved sheets on the Android emulator.
+- Verification run: The final `TableHandlesScreenTest` suite passed 16/16 on `Medium_Phone(AVD) - 13`; each dedicated visual test passed; the exact artifact-size gate passed; Kover reported 83.8% line / 84.3% instruction coverage overall, with the editor ViewModel above 95% line coverage; all formatting, static analysis, lint, Compose, localization, architecture, and platform gates passed.
+- State update: US-3 is now `passing` with evidence for TC-US-3-01 through TC-US-3-06 and TC-US-3-VIS-01 through TC-US-3-VIS-04; all table-handles slices pass, so the tracker is now `To be reviewed` and must be evaluated by the Evaluator agent.
+- Evidence captured: `summary_US-3.md`, `feature_list.json`, four PNGs under `visual_evidence/`, and updated product capability/roadmap records.
+- Install evidence: Pending Stage 9 final install gate.
+- Commits: Pending final clean-state commit.
+- Known risk or unresolved issue: The configured session exposes no callable Skill tool endpoint, so required stage skills were followed from their repository instructions as a documented fallback and this is recorded in the change summary; no product or verification blocker remains.
+- Next best step: Complete the clean-state checklist, write the session handoff, install the final debug build, and hand off to the Evaluator workflow.

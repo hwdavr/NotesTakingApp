@@ -164,7 +164,7 @@
       "user_visible_behavior": "Users can restructure, clear, duplicate, fit, or delete tables from the editor without leaving the note; the final Delete action is always last in each sheet.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
@@ -185,8 +185,89 @@
         "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet",
         "mkdir -p \"$FEATURE_DIR/visual_evidence\" && test -s \"$FEATURE_DIR/visual_evidence/table_handles_focused.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_column_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_row_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_options_sheet.png\""
       ],
-      "evidence": [],
-      "notes": "Only slice with requires_visual_verification=true. Screenshot commands must first assert the production state in the instrumented test."
+      "evidence": [
+        {
+          "test_id": "TC-US-3-01",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; selectingOptionUpdatesAndDismisses confirms a production table action updates the table and dismisses the sheet."
+        },
+        {
+          "test_id": "TC-US-3-02",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; storedTargetSurvivesSheetFocusLoss applies the selected action to the original focused table after sheet focus changes."
+        },
+        {
+          "test_id": "TC-US-3-03",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; onlyFocusedTableShowsHandles verifies the non-focused table remains without handles and unchanged."
+        },
+        {
+          "test_id": "TC-US-3-04",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; deleteIsFinalActionInEverySheet verifies the destructive Delete action is last and separated by the required divider in column, row, and table sheets."
+        },
+        {
+          "test_id": "TC-US-3-05",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; operationPersistsAfterEditorReload restores the updated table through the existing editor auto-save/reload path."
+        },
+        {
+          "test_id": "TC-US-3-06",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; tableOptionsFlowCompletes, tableFitToWidthFlowCompletes, and tableDeleteFlowCompletes cover duplicate, fit-to-width, and delete outcomes through production sheet entry points."
+        },
+        {
+          "test_id": "TC-US-3-VIS-01",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureFocusedTableState",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureFocusedTableState",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: production assertions and screenshot passed; non-empty artifact at docs/product/2026-08-16-table-handles/visual_evidence/table_handles_focused.png (63,672 bytes)."
+        },
+        {
+          "test_id": "TC-US-3-VIS-02",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureColumnOptionsSheet",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureColumnOptionsSheet",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: production assertions and screenshot passed; non-empty artifact at docs/product/2026-08-16-table-handles/visual_evidence/table_column_sheet.png (71,749 bytes)."
+        },
+        {
+          "test_id": "TC-US-3-VIS-03",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureRowOptionsSheet",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureRowOptionsSheet",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: production assertions and screenshot passed; non-empty artifact at docs/product/2026-08-16-table-handles/visual_evidence/table_row_sheet.png (68,654 bytes)."
+        },
+        {
+          "test_id": "TC-US-3-VIS-04",
+          "command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet",
+          "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: production assertions and screenshot passed; non-empty artifact at docs/product/2026-08-16-table-handles/visual_evidence/table_options_sheet.png (68,328 bytes)."
+        }
+      ],
+      "notes": "All US-3 acceptance and visual verification commands pass on emulator-5554; only slice with requires_visual_verification=true is complete and ready for evaluator review."
     }
   ]
 }

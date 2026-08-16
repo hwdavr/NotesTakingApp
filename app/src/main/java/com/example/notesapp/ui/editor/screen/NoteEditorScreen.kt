@@ -139,19 +139,8 @@ import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
-import com.example.notesapp.ui.editor.viewmodel.clearTable
-import com.example.notesapp.ui.editor.viewmodel.clearTableColumn
-import com.example.notesapp.ui.editor.viewmodel.clearTableRow
-import com.example.notesapp.ui.editor.viewmodel.deleteTable
-import com.example.notesapp.ui.editor.viewmodel.deleteTableColumn
-import com.example.notesapp.ui.editor.viewmodel.deleteTableRow
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
-import com.example.notesapp.ui.editor.viewmodel.duplicateTable
-import com.example.notesapp.ui.editor.viewmodel.insertTableColumnLeft
-import com.example.notesapp.ui.editor.viewmodel.insertTableColumnRight
-import com.example.notesapp.ui.editor.viewmodel.insertTableRowAbove
-import com.example.notesapp.ui.editor.viewmodel.insertTableRowBelow
-import com.example.notesapp.ui.editor.viewmodel.toggleTableFitToWidth
+import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -210,31 +199,7 @@ fun NoteEditorScreen(
         onAddImage = viewModel::addImageBlock,
         onImageChange = viewModel::updateImageBlock,
         onAddTable = viewModel::addTableBlock,
-        onTableAction = { action ->
-            when (action) {
-                is TableHandleAction.InsertColumnLeft ->
-                    viewModel.insertTableColumnLeft(action.blockId, action.columnIndex)
-                is TableHandleAction.InsertColumnRight ->
-                    viewModel.insertTableColumnRight(action.blockId, action.columnIndex)
-                is TableHandleAction.DeleteColumn ->
-                    viewModel.deleteTableColumn(action.blockId, action.columnIndex)
-                is TableHandleAction.ClearColumn ->
-                    viewModel.clearTableColumn(action.blockId, action.columnIndex)
-                is TableHandleAction.InsertRowAbove ->
-                    viewModel.insertTableRowAbove(action.blockId, action.rowIndex)
-                is TableHandleAction.InsertRowBelow ->
-                    viewModel.insertTableRowBelow(action.blockId, action.rowIndex)
-                is TableHandleAction.DeleteRow ->
-                    viewModel.deleteTableRow(action.blockId, action.rowIndex)
-                is TableHandleAction.ClearRow ->
-                    viewModel.clearTableRow(action.blockId, action.rowIndex)
-                is TableHandleAction.ClearTable -> viewModel.clearTable(action.blockId)
-                is TableHandleAction.DuplicateTable -> viewModel.duplicateTable(action.blockId)
-                is TableHandleAction.DeleteTable -> viewModel.deleteTable(action.blockId)
-                is TableHandleAction.ToggleTableFitToWidth ->
-                    viewModel.toggleTableFitToWidth(action.blockId)
-            }
-        },
+        onTableAction = viewModel::onTableAction,
         onEmojiSelected = { emoji ->
             if (viewModel.insertEmoji(emoji)) {
                 emojiPickerViewModel.onEmojiSelected(emoji)
@@ -1314,6 +1279,7 @@ private fun TableGrid(
     onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
 ) {
+    val columnWeights = block.tableColumnWeights()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -1329,6 +1295,7 @@ private fun TableGrid(
             TableGridRow(
                 rowIndex = rowIndex,
                 row = row,
+                columnWeights = columnWeights,
                 isEditable = isEditable,
                 targetCell = targetCell,
                 focusedRowIndex = focusedRowIndex,
@@ -1344,6 +1311,7 @@ private fun TableGrid(
 private fun TableGridRow(
     rowIndex: Int,
     row: List<List<RichText>>,
+    columnWeights: List<Float>,
     isEditable: Boolean,
     targetCell: FocusedTableCell?,
     focusedRowIndex: Int?,
@@ -1370,6 +1338,7 @@ private fun TableGridRow(
                 rowIndex = rowIndex,
                 cellIndex = cellIndex,
                 cell = cell,
+                columnWeight = columnWeights.getOrElse(cellIndex) { 1f },
                 isEditable = isEditable,
                 isFocusedCell = targetCell == FocusedTableCell(rowIndex, cellIndex),
                 onCellChange = onCellChange,
@@ -1384,6 +1353,7 @@ private fun RowScope.TableGridCell(
     rowIndex: Int,
     cellIndex: Int,
     cell: List<RichText>,
+    columnWeight: Float,
     isEditable: Boolean,
     isFocusedCell: Boolean,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -1395,7 +1365,7 @@ private fun RowScope.TableGridCell(
         readOnly = !isEditable,
         onValueChange = { onCellChange(rowIndex, cellIndex, it) },
         modifier = Modifier
-            .weight(1f)
+            .weight(columnWeight)
             .background(
                 color = if (isFocusedCell) {
                     LocalAppColors.current.primary.copy(alpha = 0.08f)

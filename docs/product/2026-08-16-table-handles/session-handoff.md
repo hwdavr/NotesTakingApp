@@ -1,30 +1,30 @@
-# Session Handoff
+# Session Handoff — US-3
 
 ## Verified Now
 
-- What is currently working: US-1 and US-2 are marked `passing`. US-2 reveals accessible column, row, and table-options handles for focused editable table cells, hides them for read-only/outside focus, retains the target while a sheet is open, and renders localized ordered option sheets with Delete last.
-- What verification actually ran: the exact US-2 instrumented command passed 4/4 tests on `Medium_Phone(AVD) - 13`; `./gradlew testDebugUnitTest` passed 355 tests; `./gradlew koverLog` reported 83.3009%; assemble, compile warning, duplicate-class, ktlint, detekt, lint, Compose, localization, architecture, suppression, secret-scope, platform-evidence, lifecycle, and clean-state checks passed. `./gradlew installDebug` exited 0 and installed on `Medium_Phone(AVD) - 13` and `Pixel 9 Pro - 17`.
+- What is currently working: `US-1`, `US-2`, and `US-3` are `passing`. The production Note Editor dispatches all column, row, and table sheet actions through `NoteEditorViewModel`; actions update and dismiss sheets, preserve targets through focus changes, isolate multiple tables, persist through reload, and honor fit-to-width sizing. Read-only and Delete-last behavior remain covered.
+- What verification actually ran: the final production-backed `TableHandlesScreenTest` suite passed 16/16 on `Medium_Phone(AVD) - 13`. The four dedicated visual tests passed and produced [focused table](visual_evidence/table_handles_focused.png), [column sheet](visual_evidence/table_column_sheet.png), [row sheet](visual_evidence/table_row_sheet.png), and [table sheet](visual_evidence/table_options_sheet.png) artifacts. `./gradlew testDebugUnitTest` passed 356 tests; `./gradlew koverLog` reported 83.9635% application line coverage; ViewModel coverage is above 95% line. Assemble, compile, duplicate-class, ktlint, Detekt, lint, Compose, localization, architecture, platform, lifecycle, and artifact gates passed.
 
 ## Changed This Session
 
-- Code or behavior added: typed table-handle actions, production editor dispatch to existing US-1 ViewModel operations, focus-driven handle visuals, focused-cell semantics, table/row/column Material 3 option sheets, stable accessibility/test tags, and four production-entry-point instrumented tests.
-- Infrastructure or harness changes: Updated `feature_list.json`, `progress.md`, `product.md`, `summary_US-2.md`, and the US-2 clean-state checklist. No harness scripts or project rules changed. The configured session exposed no callable Skill tool endpoint, so the repository skill procedures were followed manually and recorded in the summary.
+- Code or behavior added: typed `TableHandleAction` dispatch in the editor ViewModel, production callback wiring in `NoteEditorScreen`, persisted fit-to-width column sizing in `TableLayout.kt`, a dispatcher unit test, and production-backed instrumented flow/visual tests.
+- Infrastructure or harness changes: Updated `feature_list.json` with ten US-3 evidence rows, `progress.md`, `product.md`, `summary_US-3.md`, the clean-state checklist, and the visual evidence directory. No harness scripts or project rules changed. The configured session exposed no callable Skill tool endpoint, so repository skill procedures were followed manually and recorded in the summary.
 
 ## Broken Or Unverified
 
-- Known defect: None found in the US-2 acceptance scope.
-- Unverified path: US-3 still owns immediate production action-flow assertions, multi-table focus boundaries, and approved visual screenshot captures; those paths are not claimed as passing.
-- Risk for the next session: Preserve the `TableBlock` JSON/default behavior and existing ViewModel receiver operations while completing US-3. Keep the tracker `In Progress` until every slice passes and the Evaluator performs review; do not transition directly to human review.
+- Known defect: None found in the table-handles acceptance scope.
+- Unverified path: Final APK installation evidence is the remaining Generator stage; Evaluator scoring and human review have not yet occurred.
+- Risk for the next session: Preserve the `To be reviewed` tracker state until the Evaluator workflow runs. Do not transition this feature directly to `To be human reviewed`; only the Evaluator may make that transition after scoring.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: `US-3` — Complete table-handle editing flow.
-- Why it is next: US-1 and US-2 provide the table operation foundation and focus/sheet UI; US-3 must prove action outcomes and visual parity against the approved mockups.
-- What counts as passing: Execute every US-3 acceptance and visual-evidence command on the emulator, record objective evidence, and pass the evaluator workflow.
-- What must not change during that step: Keep US-1 and US-2 passing, use localized strings/stable test tags, preserve target retention and read-only behavior, and follow `docs/product/design_system.md`.
+- Highest-priority unfinished feature: Final Stage 9 debug installation, followed by the Evaluator workflow for `table-handles`.
+- Why it is next: All implementation, runtime, visual, quality, and lifecycle gates are passing; only install evidence and independent evaluation remain.
+- What counts as passing: `./gradlew installDebug` exits 0 on an available runtime, the clean-state records include the install result, and the Evaluator verifies the recorded evidence.
+- What must not change during that step: Keep all three slices passing, preserve localized strings, stable test tags, target retention, read-only behavior, and the approved design-system layout.
 
 ## Commands
 
 - Startup: `cd /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
-- Verification: `./gradlew testDebugUnitTest && ./gradlew assembleDebug`
+- Verification: `./gradlew testDebugUnitTest && ./gradlew assembleDebug && ./gradlew koverLog`
 - Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest`
