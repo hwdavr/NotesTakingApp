@@ -59,3 +59,14 @@ Consolidated from `code_review_table-handles.md`, `test_review_table-handles.md`
 
 - The configured environment exposes no callable Skill endpoint; `feature-orient`, `android-implementation`, and `android-testing` procedures are being followed from their repository instructions and this limitation is recorded in the review artifacts.
 - No product or verification blocker remains; the feature is routed to human review with all slices still `passing`.
+
+## Approved v2 Alignment Correction — 2026-08-16
+
+- **Approved reference**: `docs/product/2026-08-16-table-handles/design/mockup_table_handles_v2.png`; only the top-right Table options visual height is reduced.
+- **Stage 1 evidence**: `app/src/main/java/com/example/notesapp/ui/editor/screen/TableHandleComponents.kt`; excerpt: `contentAlignment = Alignment.BottomCenter`.
+- **Stage 1 geometry evidence**: `app/src/main/java/com/example/notesapp/ui/editor/screen/NoteEditorScreen.kt`; excerpts: `.offset(x = (-48).dp)` and `.offset(y = 24.dp)`.
+- **Stage 1 test evidence**: `app/src/androidTest/java/com/example/notesapp/ui/editor/screen/TableHandlesScreenTest.kt`; excerpt: `handlesAlignToGridGeometryAndTableOptionsVisualIsShallow`.
+- **Stage 2 evidence**: `docs/current/evidence/table-handles-polish-actual.png`; the column visual ends on the grid top border, the row visual ends on the grid left border, and the shallow Table options visual is centered on the grid top border.
+- **Stage 2 runtime result**: `TableHandlesScreenTest` passed 21/21, and the corrected project-wide `connectedDebugAndroidTest` gate passed 116/116 on `Medium_Phone(AVD) - 13` (`emulator-5554`).
+- **Stage 3 result**: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture checks, `testDebugUnitTest`, and `koverLog` passed; application line coverage is 84.027%.
+- **Tooling note**: No callable Skill endpoint was exposed in this session; the required workflow and skill instructions were followed manually and the limitation remains documented.

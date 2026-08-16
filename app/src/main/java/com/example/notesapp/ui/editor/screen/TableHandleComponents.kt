@@ -28,8 +28,10 @@ internal fun TableColumnHandle(modifier: Modifier, onClick: () -> Unit) {
     TableHandleStrip(
         modifier = modifier,
         tag = "table_column_handle",
+        visualTag = "table_column_handle_visual",
         description = stringResource(R.string.table_column_handle_description),
         isHorizontal = true,
+        contentAlignment = Alignment.BottomCenter,
         onClick = onClick
     )
 }
@@ -39,8 +41,10 @@ internal fun TableRowHandle(modifier: Modifier, onClick: () -> Unit) {
     TableHandleStrip(
         modifier = modifier,
         tag = "table_row_handle",
+        visualTag = "table_row_handle_visual",
         description = stringResource(R.string.table_row_handle_description),
         isHorizontal = false,
+        contentAlignment = Alignment.CenterEnd,
         onClick = onClick
     )
 }
@@ -49,8 +53,10 @@ internal fun TableRowHandle(modifier: Modifier, onClick: () -> Unit) {
 private fun TableHandleStrip(
     modifier: Modifier,
     tag: String,
+    visualTag: String,
     description: String,
     isHorizontal: Boolean,
+    contentAlignment: Alignment,
     onClick: () -> Unit
 ) {
     val colors = LocalAppColors.current
@@ -63,7 +69,7 @@ private fun TableHandleStrip(
                 role = Role.Button
             }
             .testTag(tag),
-        contentAlignment = Alignment.Center
+        contentAlignment = contentAlignment
     ) {
         Box(
             modifier = if (isHorizontal) {
@@ -74,6 +80,7 @@ private fun TableHandleStrip(
                         colors.primary.copy(alpha = 0.15f),
                         RoundedCornerShape(4.dp)
                     )
+                    .testTag(visualTag)
             } else {
                 Modifier
                     .fillMaxHeight()
@@ -82,6 +89,7 @@ private fun TableHandleStrip(
                         colors.primary.copy(alpha = 0.15f),
                         RoundedCornerShape(4.dp)
                     )
+                    .testTag(visualTag)
             }
         )
         Box(

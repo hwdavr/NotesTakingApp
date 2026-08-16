@@ -70,3 +70,23 @@
 - Commits: Source/test fix `a0c9533`; fix-pass documentation commit follows this record.
 - Known risk or unresolved issue: None in the acceptance scope. Human review remains the next owner for visual evidence confirmation.
 - Next best step: Human review of the finalized fix-pass evidence and captured table UI states.
+
+### Session 006 — Approved UI Polish Pass
+
+- Date: 2026-08-16
+- Goal: Apply the approved v2-based handle alignment polish and reduce only the top-right Table options visual height.
+- Completed: Column overlay now uses the table’s actual column weights and divider spacing; row/column handle dimensions remain unchanged; the Table options visual is 28dp high inside its existing 48dp target; production geometry coverage was added.
+- Verification run: `TableHandlesScreenTest` passed 21/21 and the project-wide `connectedDebugAndroidTest` gate passed 116/116 on `Medium_Phone(AVD) - 13`; focused visual evidence was captured to `docs/current/evidence/table-handles-polish-actual.png`; assemble, ktlint, detekt, lint, Compose, localization, architecture, JVM, and Kover gates passed with 84.027% application line coverage.
+- State update: The tracker remains `To be human reviewed`; all existing slices remain `passing`.
+- Known risk or unresolved issue: None in the approved UI-polish scope. Workflow is stopped at the required Stage 3 approval gate.
+- Next best step: Human review of the updated focused-table evidence.
+
+### Session 007 — v2 Border-Anchor Correction
+
+- Date: 2026-08-16
+- Goal: Correct the visual comparison and implement the approved v2 border anchors for the row, column, and table-options handles.
+- Completed: Removed the row-handle rail from inside the grid; placed the row visual outside the grid with its right edge on the left border; pinned the column visual bottom to the top border; centered the 28dp Table options visual on the top-right border; added direct visual-bound assertions for all three anchors.
+- Verification run: `TableHandlesScreenTest` passed 21/21 and the corrected project-wide `connectedDebugAndroidTest` gate passed 116/116 on `Medium_Phone(AVD) - 13`; focused visual evidence is `docs/current/evidence/table-handles-polish-actual.png`; assemble, ktlint, detekt, lint, Compose, localization, architecture, JVM, and Kover gates passed with 84.027% application line coverage.
+- State update: The tracker remains `To be human reviewed`; all existing slices remain `passing`.
+- Known risk or unresolved issue: None in the corrected approved UI scope. Workflow is stopped at the required Stage 3 approval gate.
+- Next best step: Human review of the v2-aligned focused-table evidence.

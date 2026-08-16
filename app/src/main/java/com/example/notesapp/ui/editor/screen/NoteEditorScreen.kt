@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -1268,7 +1269,7 @@ private fun TableDocumentBlockContent(
             )
             if (focusedColumnIndex != null) {
                 TableColumnHandleRow(
-                    columnCount = block.rows.maxOfOrNull { it.size } ?: 0,
+                    columnWeights = block.tableColumnWeights(),
                     focusedColumnIndex = focusedColumnIndex,
                     onColumnHandleClick = onColumnHandleClick,
                     onTableHandleClick = onTableHandleClick
@@ -1293,9 +1294,18 @@ private fun TableGrid(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (handlesVisible) 48.dp else 0.dp)
+            .padding(
+                start = if (handlesVisible) 48.dp else 0.dp,
+                top = if (handlesVisible) 48.dp else 0.dp
+            )
             .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
-            .clip(RoundedCornerShape(4.dp))
+            .then(
+                if (handlesVisible) {
+                    Modifier
+                } else {
+                    Modifier.clip(RoundedCornerShape(4.dp))
+                }
+            )
             .testTag("editor_table_grid")
     ) {
         block.rows.forEachIndexed { rowIndex, row ->
@@ -1329,35 +1339,39 @@ private fun TableGridRow(
     onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .height(IntrinsicSize.Min)
     ) {
-        if (focusedRowIndex != null) {
-            if (rowIndex == focusedRowIndex) {
-                TableRowHandle(
-                    modifier = Modifier.width(48.dp).fillMaxHeight(),
-                    onClick = onRowHandleClick
+        Row(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+        ) {
+            row.forEachIndexed { cellIndex, cell ->
+                if (cellIndex > 0) {
+                    VerticalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
+                }
+                TableGridCell(
+                    rowIndex = rowIndex,
+                    cellIndex = cellIndex,
+                    cell = cell,
+                    columnWeight = columnWeights.getOrElse(cellIndex) { 1f },
+                    isEditable = isEditable,
+                    isFocusedCell = targetCell == TableFocusTarget(rowIndex, cellIndex),
+                    onCellChange = onCellChange,
+                    onCellFocusChanged = onCellFocusChanged
                 )
-            } else {
-                Spacer(modifier = Modifier.width(48.dp).fillMaxHeight())
             }
         }
-        row.forEachIndexed { cellIndex, cell ->
-            if (cellIndex > 0) {
-                VerticalDivider(color = LocalAppColors.current.border, thickness = 1.dp)
-            }
-            TableGridCell(
-                rowIndex = rowIndex,
-                cellIndex = cellIndex,
-                cell = cell,
-                columnWeight = columnWeights.getOrElse(cellIndex) { 1f },
-                isEditable = isEditable,
-                isFocusedCell = targetCell == TableFocusTarget(rowIndex, cellIndex),
-                onCellChange = onCellChange,
-                onCellFocusChanged = onCellFocusChanged
+        if (rowIndex == focusedRowIndex) {
+            TableRowHandle(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = (-48).dp)
+                    .width(48.dp)
+                    .fillMaxHeight(),
+                onClick = onRowHandleClick
             )
         }
     }
@@ -1375,41 +1389,48 @@ private fun RowScope.TableGridCell(
     onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit
 ) {
     val focusedCellDescription = stringResource(R.string.table_focused_cell_description)
-    BasicTextField(
-        value = cell.joinToString("") { it.text },
-        readOnly = !isEditable,
-        onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+    Box(
         modifier = Modifier
             .weight(columnWeight)
-            .background(
-                color = if (isFocusedCell) {
-                    LocalAppColors.current.primary.copy(alpha = 0.08f)
-                } else {
-                    LocalAppColors.current.transparent
-                }
-            )
-            .onFocusChanged { focusState ->
-                onCellFocusChanged(
-                    TableFocusTarget(rowIndex, cellIndex),
-                    focusState.isFocused
+            .fillMaxHeight()
+            .testTag("editor_table_cell_bounds")
+    ) {
+        BasicTextField(
+            value = cell.joinToString("") { it.text },
+            readOnly = !isEditable,
+            onValueChange = { onCellChange(rowIndex, cellIndex, it) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = if (isFocusedCell) {
+                        LocalAppColors.current.primary.copy(alpha = 0.08f)
+                    } else {
+                        LocalAppColors.current.transparent
+                    }
                 )
-            }
-            .semantics {
-                if (isFocusedCell) {
-                    contentDescription = focusedCellDescription
+                .onFocusChanged { focusState ->
+                    onCellFocusChanged(
+                        TableFocusTarget(rowIndex, cellIndex),
+                        focusState.isFocused
+                    )
                 }
-            }
-            .padding(horizontal = 8.dp, vertical = 6.dp)
-            .testTag("editor_table_cell"),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-        cursorBrush = SolidColor(LocalAppColors.current.primary),
-        singleLine = true
-    )
+                .semantics {
+                    if (isFocusedCell) {
+                        contentDescription = focusedCellDescription
+                    }
+                }
+                .testTag("editor_table_cell")
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+            cursorBrush = SolidColor(LocalAppColors.current.primary),
+            singleLine = true
+        )
+    }
 }
 
 @Composable
 private fun BoxScope.TableColumnHandleRow(
-    columnCount: Int,
+    columnWeights: List<Float>,
     focusedColumnIndex: Int,
     onColumnHandleClick: () -> Unit,
     onTableHandleClick: () -> Unit
@@ -1418,16 +1439,19 @@ private fun BoxScope.TableColumnHandleRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .padding(start = 48.dp, end = 48.dp)
+            .padding(start = 48.dp)
     ) {
-        repeat(columnCount) { columnIndex ->
+        columnWeights.forEachIndexed { columnIndex, columnWeight ->
             if (columnIndex == focusedColumnIndex) {
                 TableColumnHandle(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(columnWeight),
                     onClick = onColumnHandleClick
                 )
             } else {
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(columnWeight))
+            }
+            if (columnIndex < columnWeights.lastIndex) {
+                Spacer(modifier = Modifier.width(1.dp))
             }
         }
     }
@@ -1435,19 +1459,28 @@ private fun BoxScope.TableColumnHandleRow(
         onClick = onTableHandleClick,
         modifier = Modifier
             .align(Alignment.TopEnd)
+            .offset(y = 24.dp)
             .size(48.dp)
-            .background(
-                color = LocalAppColors.current.primary.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(12.dp)
-            )
             .testTag("table_options_handle")
     ) {
-        Icon(
-            imageVector = Icons.Outlined.MoreHoriz,
-            contentDescription = stringResource(R.string.table_options_handle_description),
-            tint = LocalAppColors.current.primary,
-            modifier = Modifier.size(22.dp)
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp)
+                .background(
+                    color = LocalAppColors.current.primary.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .testTag("table_options_visual"),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.MoreHoriz,
+                contentDescription = stringResource(R.string.table_options_handle_description),
+                tint = LocalAppColors.current.primary,
+                modifier = Modifier.size(22.dp)
+            )
+        }
     }
 }
 

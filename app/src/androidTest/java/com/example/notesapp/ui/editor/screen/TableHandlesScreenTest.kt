@@ -285,6 +285,74 @@ class TableHandlesScreenTest {
     }
 
     @Test
+    fun handlesAlignToGridGeometryAndTableOptionsVisualIsShallow() {
+        setProductionEditorContent(
+            blocks = listOf(
+                tableBlock(
+                    firstColumnText = "Long first column value",
+                    secondColumnText = "B"
+                )
+            )
+        )
+        focusFirstTableCell()
+
+        val firstCellBounds = composeRule
+            .onAllNodesWithTag("editor_table_cell_bounds", useUnmergedTree = true)
+            .get(0)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val gridBounds = composeRule
+            .onNodeWithTag("editor_table_grid", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val columnHandleBounds = composeRule
+            .onNodeWithTag("table_column_handle", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val columnVisualBounds = composeRule
+            .onNodeWithTag("table_column_handle_visual", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val rowHandleBounds = composeRule
+            .onNodeWithTag("table_row_handle", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val rowVisualBounds = composeRule
+            .onNodeWithTag("table_row_handle_visual", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val optionsTargetBounds = composeRule
+            .onNodeWithTag("table_options_handle", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val optionsVisualBounds = composeRule
+            .onNodeWithTag("table_options_visual", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val tolerance = with(composeRule.density) { 2.dp.toPx() }
+
+        assertWithinTolerance(gridBounds.left, firstCellBounds.left, tolerance)
+        assertWithinTolerance(firstCellBounds.left, columnHandleBounds.left, tolerance)
+        assertWithinTolerance(firstCellBounds.right, columnHandleBounds.right, tolerance)
+        assertWithinTolerance(firstCellBounds.top, rowHandleBounds.top, tolerance)
+        assertWithinTolerance(firstCellBounds.bottom, rowHandleBounds.bottom, tolerance)
+        assertWithinTolerance(gridBounds.top, columnVisualBounds.bottom, tolerance)
+        assertWithinTolerance(gridBounds.left, rowVisualBounds.right, tolerance)
+        assertWithinTolerance(
+            gridBounds.top,
+            (optionsVisualBounds.top + optionsVisualBounds.bottom) / 2f,
+            tolerance
+        )
+        assertTrue(optionsTargetBounds.height >= with(composeRule.density) { 48.dp.toPx() })
+        assertEquals(
+            with(composeRule.density) { 28.dp.toPx() },
+            optionsVisualBounds.height,
+            tolerance
+        )
+        assertTrue(optionsVisualBounds.height < optionsTargetBounds.height)
+    }
+
+    @Test
     fun deleteIsFinalActionInEverySheet() {
         setProductionEditorContent()
         focusFirstTableCell()
@@ -486,6 +554,13 @@ class TableHandlesScreenTest {
         val minimumSize = with(composeRule.density) { 48.dp.toPx() }
         assertTrue("$tag width is smaller than 48dp", bounds.width >= minimumSize)
         assertTrue("$tag height is smaller than 48dp", bounds.height >= minimumSize)
+    }
+
+    private fun assertWithinTolerance(expected: Float, actual: Float, tolerance: Float) {
+        assertTrue(
+            "Expected $expected, got $actual with tolerance $tolerance",
+            abs(expected - actual) <= tolerance
+        )
     }
 
     private fun assertContentDescriptionContains(tag: String, label: String) {
