@@ -53,7 +53,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering column and row insertion positions and empty-cell creation."
+          "result": "2026-08-16 fix-pass run: passed 51 NoteEditorViewModelTest tests covering column and row insertion positions and empty-cell creation."
         },
         {
           "test_id": "TC-US-1-02",
@@ -61,7 +61,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering non-final and final row/column deletion and table deletion."
+          "result": "2026-08-16 fix-pass run: passed 51 NoteEditorViewModelTest tests covering non-final and final row/column deletion and table deletion."
         },
         {
           "test_id": "TC-US-1-03",
@@ -69,7 +69,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering cell, row, column, and whole-table clearing."
+          "result": "2026-08-16 fix-pass run: passed 51 NoteEditorViewModelTest tests covering cell, row, column, and whole-table clearing."
         },
         {
           "test_id": "TC-US-1-04",
@@ -77,7 +77,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering adjacent deep-copy duplication with independent IDs and nested content."
+          "result": "2026-08-16 fix-pass run: passed 51 NoteEditorViewModelTest tests covering adjacent deep-copy duplication with independent IDs and nested content."
         },
         {
           "test_id": "TC-US-1-05",
@@ -85,7 +85,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering fit-to-width toggle persistence in editor state."
+          "result": "2026-08-16 fix-pass run: passed 51 NoteEditorViewModelTest tests covering fit-to-width toggle persistence in editor state."
         },
         {
           "test_id": "TC-US-1-06",
@@ -93,7 +93,7 @@
           "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 65 tests total (16 NoteDocumentTest, 49 NoteEditorViewModelTest), including legacy fitToWidth default, JSON round-trip, read-only no-op, and auto-save assertions."
+          "result": "2026-08-16 fix-pass run: passed 67 tests total (16 NoteDocumentTest, 51 NoteEditorViewModelTest), including legacy fitToWidth default, JSON round-trip, read-only no-op, focus-state dispatch, and auto-save assertions."
         }
       ],
       "notes": "Foundational slice; no API or database migration."
@@ -192,7 +192,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; selectingOptionUpdatesAndDismisses confirms a production table action updates the table and dismisses the sheet."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; selectingOptionUpdatesAndDismisses confirms a production table action updates the table and dismisses the sheet."
         },
         {
           "test_id": "TC-US-3-02",
@@ -200,7 +200,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; storedTargetSurvivesSheetFocusLoss applies the selected action to the original focused table after sheet focus changes."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; storedTargetSurvivesSheetFocusLoss applies the selected action to the original focused table after sheet focus changes."
         },
         {
           "test_id": "TC-US-3-03",
@@ -208,7 +208,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; onlyFocusedTableShowsHandles verifies the non-focused table remains without handles and unchanged."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; onlyFocusedTableShowsHandles verifies the non-focused table remains without handles and unchanged."
         },
         {
           "test_id": "TC-US-3-04",
@@ -216,7 +216,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; deleteIsFinalActionInEverySheet verifies the destructive Delete action is last and separated by the required divider in column, row, and table sheets."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; deleteIsFinalActionInEverySheet verifies the destructive Delete action is last and separated by the required divider in column, row, and table sheets."
         },
         {
           "test_id": "TC-US-3-05",
@@ -224,7 +224,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; operationPersistsAfterEditorReload restores the updated table through the existing editor auto-save/reload path."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; operationPersistsAfterEditorReload restores the updated table through the existing editor auto-save/reload path."
         },
         {
           "test_id": "TC-US-3-06",
@@ -232,7 +232,7 @@
           "executed_command": "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
           "exit_status": 0,
           "attempts": 1,
-          "result": "2026-08-16 final-code run: passed 16/16 on Medium_Phone(AVD) - 13; tableOptionsFlowCompletes, tableFitToWidthFlowCompletes, and tableDeleteFlowCompletes cover duplicate, fit-to-width, and delete outcomes through production sheet entry points."
+          "result": "2026-08-16 fix-pass run: passed 20/20 on Medium_Phone(AVD) - 13; tableOptionsFlowCompletes, tableFitToWidthFlowCompletes, and tableDeleteFlowCompletes cover duplicate, fit-to-width, and delete outcomes through production sheet entry points."
         },
         {
           "test_id": "TC-US-3-VIS-01",
@@ -267,7 +267,7 @@
           "result": "2026-08-16 final-code run: production assertions and screenshot passed; non-empty artifact at docs/product/2026-08-16-table-handles/visual_evidence/table_options_sheet.png (68,328 bytes)."
         }
       ],
-      "notes": "All US-3 acceptance and visual verification commands pass on emulator-5554; only slice with requires_visual_verification=true is complete and ready for evaluator review."
+      "notes": "All US-3 acceptance and visual verification commands pass on emulator-5554; fix-pass runtime and visual evidence was reverified on 2026-08-16."
     }
   ]
 }

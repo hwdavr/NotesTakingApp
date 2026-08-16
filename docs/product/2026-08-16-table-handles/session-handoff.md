@@ -1,30 +1,37 @@
-# Session Handoff — US-3
+# Session Handoff — table-handles Fix Pass
 
 ## Verified Now
 
-- What is currently working: `US-1`, `US-2`, and `US-3` are `passing`. The production Note Editor dispatches all column, row, and table sheet actions through `NoteEditorViewModel`; actions update and dismiss sheets, preserve targets through focus changes, isolate multiple tables, persist through reload, and honor fit-to-width sizing. Read-only and Delete-last behavior remain covered.
-- What verification actually ran: the final production-backed `TableHandlesScreenTest` suite passed 16/16 on `Medium_Phone(AVD) - 13`. The four dedicated visual tests passed and produced [focused table](visual_evidence/table_handles_focused.png), [column sheet](visual_evidence/table_column_sheet.png), [row sheet](visual_evidence/table_row_sheet.png), and [table sheet](visual_evidence/table_options_sheet.png) artifacts. `./gradlew testDebugUnitTest` passed 356 tests; `./gradlew koverLog` reported 83.9635% application line coverage; ViewModel coverage is above 95% line. Assemble, compile, duplicate-class, ktlint, Detekt, lint, Compose, localization, architecture, platform, lifecycle, and artifact gates passed. `./gradlew installDebug` exited 0 and installed `app-debug.apk` on `emulator-5554`; package `com.example.notesapp` is present.
+- `US-1`, `US-2`, and `US-3` remain `passing`; the product tracker is `To be human reviewed` as of 2026-08-16.
+- All 9 code-review findings and all 8 test-review findings are marked fixed. The source/test implementation is in commit `a0c9533`.
+- `./gradlew assembleDebug`, `./gradlew compileDebugKotlin`, `./gradlew checkDebugDuplicateClasses`, `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, and `./gradlew lint` passed. JVM evidence: 359 XML-reported tests, 0 failures/errors; 84.027% application line coverage.
+- The production-backed `TableHandlesScreenTest` suite passed 20/20 on `Medium_Phone(AVD) - 13` with no skips or failures. The four dedicated visual capture tests passed sequentially at 1/1 each and produced non-empty [focused table](visual_evidence/table_handles_focused.png), [column sheet](visual_evidence/table_column_sheet.png), [row sheet](visual_evidence/table_row_sheet.png), and [table sheet](visual_evidence/table_options_sheet.png) artifacts.
+- Architecture, Compose, localization, platform-evidence, visual-contract, and post-transition lifecycle checks passed.
+- `./gradlew installDebug` exited 0 on `emulator-5554` (`Medium_Phone(AVD) - 13`); `adb shell pm path com.example.notesapp` confirmed `com.example.notesapp` is installed.
 
 ## Changed This Session
 
-- Code or behavior added: typed `TableHandleAction` dispatch in the editor ViewModel, production callback wiring in `NoteEditorScreen`, persisted fit-to-width column sizing in `TableLayout.kt`, a dispatcher unit test, and production-backed instrumented flow/visual tests.
-- Infrastructure or harness changes: Updated `feature_list.json` with ten US-3 evidence rows, `progress.md`, `product.md`, `summary_US-3.md`, the clean-state checklist, and the visual evidence directory. No harness scripts or project rules changed. The configured session exposed no callable Skill tool endpoint, so repository skill procedures were followed manually and recorded in the summary.
+- Production behavior: `NoteEditorUiState` now owns focused table targets; typed focus actions are dispatched through the ViewModel; configuration/composition recreation restores handles; the content API fails fast if a table-action callback is omitted.
+- Test coverage: added focused-state lifecycle restoration, clear-all/delete/table dismissal and update assertions, rendered fit-to-width/toggle-back checks, multi-table focus switching, wide-table runtime coverage, accessibility descriptions and 48dp bounds, and JVM layout tests.
+- Harness evidence: finalized `clean-state-checklist.md`, updated both evaluator reports with per-finding `Fixed ✅` statuses, refreshed `feature_list.json`, `progress.md`, `summary_table-handles.md`, and the tracker note.
 
 ## Broken Or Unverified
 
-- Known defect: None found in the table-handles acceptance scope.
-- Unverified path: Evaluator scoring and human review have not yet occurred.
-- Risk for the next session: Preserve the `To be reviewed` tracker state until the Evaluator workflow runs. Do not transition this feature directly to `To be human reviewed`; only the Evaluator may make that transition after scoring.
+- Known product defect: none in the table-handles acceptance scope.
+- Unverified path: human review of the final captured visual states remains.
+- Risk for the next session: do not change slice statuses or move the tracker backward; review the evidence from the stable workspace and preserve the approved design-system behavior.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: Evaluator workflow for `table-handles`.
-- Why it is next: All Generator implementation, runtime, visual, quality, lifecycle, and install gates are passing; independent evaluation remains.
-- What counts as passing: The Evaluator verifies the recorded evidence and applies the score-based lifecycle transition.
-- What must not change during that step: Keep all three slices passing, preserve localized strings, stable test tags, target retention, read-only behavior, and the approved design-system layout.
+- Highest-priority unfinished feature: human review of `table-handles`.
+- Why it is next: every fix-stage implementation, test, quality, runtime, visual, lifecycle, and installation gate is being completed by the Generator.
+- What counts as passing: reviewer confirms the 9/9 code findings and 8/8 test findings are resolved and the attached evidence is acceptable.
+- What must not change during that step: keep `US-1`, `US-2`, and `US-3` as `passing`; preserve localized strings, stable test tags, ViewModel focus ownership, read-only behavior, and Delete-last ordering.
 
 ## Commands
 
 - Startup: `cd /Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Verification: `./gradlew testDebugUnitTest && ./gradlew assembleDebug && ./gradlew koverLog`
 - Focused debug command: `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest`
+- Visual capture commands: the four `#capture...` methods listed in `sprint-contract.md`, run sequentially.
+- Lifecycle: `bash scripts/check-feature-lifecycle.sh` passed after the tracker update.

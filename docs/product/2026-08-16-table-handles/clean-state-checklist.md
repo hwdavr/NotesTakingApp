@@ -1,63 +1,56 @@
-# Clean State Checklist — US-1
+# Clean State Checklist — table-handles Fix Pass
 
-**Date**: 2026-08-16  
-**Commit under verification**: `aa95f95` (`feat: add table structure operations`)
+**Date**: 2026-08-16
+**Source/test commit**: `a0c9533`
+**Documentation state**: Fix-pass documentation finalized in this workspace; tracker is `To be human reviewed`.
 
 ## 1. Build & Compilation
 
-- [x] Compile check — `./gradlew assembleDebug` exited 0 with `BUILD SUCCESSFUL`.
-- [x] Warning check — final compilation and lint output contained no active-source compiler warnings.
-- [x] Dependency safety — `./gradlew checkDebugDuplicateClasses` exited 0 with `BUILD SUCCESSFUL`.
-- [x] Ktlint verification — `./gradlew ktlintCheck` exited 0 with `BUILD SUCCESSFUL`.
-- [x] Static analysis — `./gradlew detekt` exited 0 with `BUILD SUCCESSFUL` and no unresolved findings.
-- [x] Suppression audit — the implementation diff adds no `@Suppress`, `@SuppressLint`, `tools:ignore`, disable directive, baseline, or exclusion.
+- [x] `./gradlew assembleDebug` exits 0 (`BUILD SUCCESSFUL`).
+- [x] `./gradlew compileDebugKotlin` exits 0 with no active-source compiler warnings.
+- [x] `./gradlew checkDebugDuplicateClasses` exits 0.
+- [x] `./gradlew ktlintCheck` exits 0.
+- [x] `./gradlew detekt` exits 0 with no findings.
+- [x] No new suppression, ignore, baseline, or disable directive is introduced; the source/test diff audit is clean.
 
 ## 2. Architecture & Standards
 
-- [x] Layer boundaries — `bash scripts/check-architecture-rules.sh` and `detekt` both pass; no data/domain layer was changed.
-- [x] Domain isolation — no domain code or Android dependency boundary changed in this slice.
-- [x] State hoisting — no Composable was changed; table commands update the existing ViewModel `StateFlow` and save path.
-- [x] Secret scanner — implementation diff contains no credentials, tokens, API keys, or new configuration values.
-- [x] API alignment — no API contract, DTO, repository, or network change is part of US-1; `sharedContracts/openapi.yaml` is unaffected.
+- [x] `bash scripts/check-architecture-rules.sh` exits 0 with 0 violations.
+- [x] `bash scripts/check-compose-rules.sh` exits 0 with 0 violations.
+- [x] `bash scripts/check-localization-rules.sh` exits 0 with 0 violations.
+- [x] No secrets, DTO boundary violations, hardcoded user strings, or business logic in Composables are introduced.
+- [x] Every interactive table handle and option row has a stable test tag and localized description; the production accessibility test asserts descriptions and 48dp minimum bounds.
 
 ## 3. Runtime & Stability
 
-- [x] Data persistence — `NoteDocumentTest` and `NoteEditorViewModelTest` verify JSON compatibility and existing auto-save; no Room schema changed.
-- [x] Resource management — table operations are synchronous state transformations and reuse the existing cancellable auto-save job; no new listener or resource lifecycle exists.
-- [x] Navigation integrity — no navigation or destination ownership changed.
-- [x] Secure sandbox — no file, permission, IPC, service, or external-process behavior changed.
-- [x] Dispatcher discipline — no new I/O coroutine was introduced; the existing ViewModel save coroutine remains the persistence boundary.
+- [x] Table actions remain ViewModel-backed and use the existing auto-save path.
+- [x] Focus targets survive composition/configuration recreation through `NoteEditorUiState`; the production lifecycle test passes.
+- [x] Read-only and outside-table focus behavior remain safe; the production suite passes.
+- [x] No new listener, service, file, permission, navigation, database, or external API boundary is introduced.
 
 ## 4. Testing & Quality
 
-- [x] Test run — final `./gradlew testDebugUnitTest` exited 0; the suite reports 355 tests passing.
-- [x] Global coverage — `./gradlew koverLog` exited 0 with `application line coverage: 83.8224%`.
-- [x] Feature coverage — Kover HTML reports 95.3% line coverage for `NoteEditorViewModel` and 95.2% for `NoteEditorViewModelKt`.
-- [x] Platform capability matrix — `platform-capability-matrix.md` declares `required: false` and `fail_loudly`; `check-platform-evidence.sh --evaluate --slice US-1` exited 0 because no special platform boundary exists.
-- [x] Real platform boundary — not applicable to this local document-transformation slice; no hardware, permission, model, network, or external Android service boundary is introduced. Runtime UI evidence remains owned by US-2/US-3.
-- [x] Mock data discipline — no shared cross-platform scenario is required for US-1; tests use small deterministic document fixtures for pure JVM transformations.
-- [x] TDD cleanup — the implementation diff adds no `@Ignore` or `@Disabled` annotations.
+- [x] `./gradlew testDebugUnitTest` exits 0; 359 XML-reported tests pass with 0 failures/errors.
+- [x] `./gradlew koverLog` exits 0 with 84.027% overall application line coverage; `NoteEditorViewModel` is 95.3% line and `NoteEditorViewModelKt` is 95.2% line.
+- [x] The production `TableHandlesScreenTest` command exits 0 with 20/20 tests passing and no skipped tests on `Medium_Phone(AVD) - 13`.
+- [x] `bash scripts/check-platform-evidence.sh docs/product/2026-08-16-table-handles/ --evaluate` exits 0.
+- [x] `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-16-table-handles/` exits 0.
+- [x] `TableLayoutTest` covers equal fit weights and restoration to default content-based sizing; production bounds assertions also pass.
+- [x] Four visual capture methods pass sequentially at 1/1 each; all four `visual_evidence/*.png` files are non-empty.
 
-## 5. Observability & Logging
+## 5. Documentation & Handoff
 
-- [x] Invocation audits — not applicable; US-1 adds no IPC, service, or background invocation.
-- [x] Standardized logs — not applicable; no new logging path was introduced.
-- [x] Context payloads — not applicable; no new telemetry event was introduced.
-- [x] Warn on hard reset — not applicable; no reset or destructive database path was changed.
+- [x] `code_review_table-handles.md` contains `Fixed ✅` for every required finding and a 9/9 fix-pass verdict.
+- [x] `test_review_table-handles.md` contains a `Fix Status` value for every revision-required/missing row and an 8/8 fix-pass summary.
+- [x] `feature_list.json` keeps `US-1`, `US-2`, and `US-3` as `passing` with refreshed evidence.
+- [x] `progress.md`, `summary_table-handles.md`, and `session-handoff.md` record the fix-pass evidence and next owner.
+- [x] `docs/product/product.md` records `To be human reviewed`; `bash scripts/check-feature-lifecycle.sh` passes after the tracker update.
 
-## 6. Cleanliness & State Reset
+## 6. Installation
 
-- [x] Reset execution — not applicable; US-1 does not add a reset operation.
-- [x] Idempotence — not applicable; no database reset behavior changed.
-- [⚠️] Artifact cleanup — generated Gradle reports remain ignored build outputs, but a concurrent harness-generator process has intentionally changed `feature_list.json` to mark US-2 `in_progress` after the US-1 handoff. This user-owned lifecycle edit is preserved and not committed or reverted by this task.
-
-## 7. Documentation & Handoff
-
-- [x] Progress audit — `progress.md`, `summary_US-1.md`, and `feature_list.json` record the passing slice and evidence.
-- [x] Session handoff — `session-handoff.md` is created in the stable feature workspace.
-- [x] ADRs and knowledge — existing autosave and architecture knowledge artifacts were reviewed; no new cross-feature architectural decision is required for this local operation slice.
-- [x] Harness lifecycle — `bash scripts/check-feature-lifecycle.sh` exits 0 and reports one `In Progress` feature; the tracker was not moved to human review.
+- [x] `./gradlew installDebug` exits 0 on the connected runtime; `app-debug.apk` is installed on `emulator-5554`.
+- [x] `adb devices` confirms `emulator-5554` remains available for human review.
 
 ## Final result
 
-All applicable checks pass. US-1 is ready for handoff. The only remaining clean-state exception is the preserved concurrent US-2 lifecycle edit described above; no US-2 implementation or evidence is claimed by this handoff.
+Fix-Stages 1–8 complete. All evaluator findings are fixed, all slices remain passing, and the feature is routed to human review.

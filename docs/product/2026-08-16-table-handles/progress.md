@@ -6,7 +6,7 @@
 - Standard startup path: existing Note Editor with an editable note containing a `TableBlock`.
 - Standard verification path: `./gradlew testDebugUnitTest` and `ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`.
 - Current active feature: `table-handles`; `US-3` — Complete table-handle editing flow — is passing.
-- Current verified state: `US-1`, `US-2`, and `US-3` are passing; the overall tracker is `To be reviewed` for Evaluator handoff.
+- Current verified state: `US-1`, `US-2`, and `US-3` are passing; the overall tracker is `To be human reviewed` after the evaluator fix pass.
 
 ## Session Log
 
@@ -58,3 +58,15 @@
 - Commits: Implementation and clean-state commit `a0a41e9`; final install-evidence documentation commit follows.
 - Known risk or unresolved issue: The configured session exposes no callable Skill tool endpoint, so required stage skills were followed from their repository instructions as a documented fallback and this is recorded in the change summary; no product or verification blocker remains.
 - Next best step: Hand off the `To be reviewed` feature to the Evaluator workflow; the Generator stages are complete.
+
+### Session 005 — Fix Pass
+
+- Date: 2026-08-16
+- Goal: Resolve every finding in `code_review_table-handles.md` and `test_review_table-handles.md` under the harness-fix workflow, then route the feature back to human review.
+- Completed: Added fail-fast production table-action handling, ViewModel-backed focused-cell state restoration, production clear/delete/table-action dismissal assertions, rendered fit-to-width/toggle-back checks, multi-table focus-switch coverage, an 8×12 wide-table runtime boundary, accessibility descriptions/48dp bounds, and the required `clean-state-checklist.md` fix-pass artifact.
+- Verification run: `assembleDebug`, `compileDebugKotlin`, duplicate-class, `testDebugUnitTest` (359 XML-reported tests), `koverLog` (84.027% application line coverage), ktlint, detekt, lint, architecture, Compose, localization, platform, visual-contract, and lifecycle checks all exited 0. The production `TableHandlesScreenTest` suite passed 20/20 on `Medium_Phone(AVD) - 13`; four sequential visual captures passed 1/1 each and produced four non-empty PNGs.
+- Install run: `./gradlew installDebug` exited 0 on `emulator-5554` (`Medium_Phone(AVD) - 13`); `adb shell pm path com.example.notesapp` confirmed the installed package.
+- State update: All slices remain `passing`; the product tracker is now `To be human reviewed`, dated 2026-08-16, with 9/9 findings fixed.
+- Commits: Source/test fix `a0c9533`; fix-pass documentation commit follows this record.
+- Known risk or unresolved issue: None in the acceptance scope. Human review remains the next owner for visual evidence confirmation.
+- Next best step: Human review of the finalized fix-pass evidence and captured table UI states.
