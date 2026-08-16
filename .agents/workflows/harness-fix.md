@@ -93,7 +93,7 @@ When **any** gate check fails during this pipeline (verification commands, check
     2. Re-run the global quality gates: `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lint`, and `./gradlew koverLog` (coverage ≥ 80% overall; ≥ 90% for ViewModel & Use Case).
     3. Attach objective evidence (command + exit status + fix attempts) to each Test ID's `evidence` field in `$FEATURE_DIR/feature_list.json`. All slices must remain `passing`.
     4. Run `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. Missing matrices, unavailable/pending/skipped environments, and fake-only platform tests remain hard failures; record them as `Unresolved ⚠️` rather than passing them through.
-    5. Run `bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"` when visual verification is required. Every final visual method must be declared in the sprint contract and have successful connected evidence.
+    5. Run `bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"` when visual verification is required. Every final visual method must be declared in the sprint contract, have successful connected evidence and a non-empty screenshot, and have reference-anchor proof in `visual_evidence/reference-anchor-verification.md` for the approved design.
     6. Reconcile the in-report statuses with re-verification: any finding whose verification command still fails must read `Unresolved ⚠️` in the report (not `Fixed ✅`).
 *   **Objective**: All acceptance-test commands and quality gates pass with evidence attached; report statuses are consistent with re-verification results.
 

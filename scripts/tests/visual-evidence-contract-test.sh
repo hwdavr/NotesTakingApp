@@ -9,7 +9,9 @@ trap 'rm -rf "$fixture_root"' EXIT
 
 write_valid_fixture() {
   local feature_dir="$1"
-  mkdir -p "$feature_dir"
+  mkdir -p "$feature_dir/design" "$feature_dir/visual_evidence"
+  printf 'reference mockup' > "$feature_dir/design/mockup_picker.png"
+  printf 'actual screenshot' > "$feature_dir/visual_evidence/emoji_picker_content.png"
   printf '%s\n' \
     '# Sprint Contract' \
     '' \
@@ -17,7 +19,7 @@ write_valid_fixture() {
     '' \
     '| Test ID | Covers AC | Test layer | Test file and method | Setup and action | Required assertions | Exact command |' \
     '|---|---|---|---|---|---|---|' \
-    '| TC-US-3-VIS-001 | AC-US-3-03 | Visual verification | app/src/androidTest/java/example/EmojiPickerVisualFlowTest.kt#emojiPickerContentLightTheme | fixture | screenshot | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest |' \
+    '| TC-US-3-VIS-001 | AC-US-3-03 | Visual verification | app/src/androidTest/java/example/EmojiPickerVisualFlowTest.kt#emojiPickerContentLightTheme | fixture | screenshot saved at visual_evidence/emoji_picker_content.png | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest |' \
     > "$feature_dir/sprint-contract.md"
   printf '%s\n' \
     '{' \
@@ -32,6 +34,17 @@ write_valid_fixture() {
     '  }]' \
     '}' \
     > "$feature_dir/feature_list.json"
+  printf '%s\n' \
+    '# Visual Reference Anchor Verification' \
+    '' \
+    '**Reference design**: `design/mockup_picker.png`' \
+    '' \
+    '## Reference Anchor Verification' \
+    '' \
+    '| Visual Test ID | Reference anchor | Runtime proof | Measured relationship | Actual screenshot | Result |' \
+    '|---|---|---|---|---|---|' \
+    '| TC-US-3-VIS-001 | Picker visual top edge aligns to the reference safe-area anchor. | `EmojiPickerVisualFlowTest#emojiPickerContentLightTheme`; testTag: `emoji_picker_visual` | `pickerBounds.top == safeAreaBounds.top + 16dp` | `visual_evidence/emoji_picker_content.png` | PASS |' \
+    > "$feature_dir/visual_evidence/reference-anchor-verification.md"
 }
 
 expect_failure() {
@@ -52,6 +65,28 @@ expect_failure() {
 valid="$fixture_root/valid"
 write_valid_fixture "$valid"
 (cd "$REPO_ROOT" && bash "$VALIDATOR" "$valid")
+
+missing_anchor_report="$fixture_root/missing-anchor-report"
+write_valid_fixture "$missing_anchor_report"
+mv "$missing_anchor_report/visual_evidence/reference-anchor-verification.md" \
+  "$missing_anchor_report/visual_evidence/reference-anchor-verification.missing"
+expect_failure "missing $missing_anchor_report/visual_evidence/reference-anchor-verification.md" \
+  bash "$VALIDATOR" "$missing_anchor_report"
+
+missing_anchor_tag="$fixture_root/missing-anchor-tag"
+write_valid_fixture "$missing_anchor_tag"
+sed 's/testTag:/boundsTag:/' "$missing_anchor_tag/visual_evidence/reference-anchor-verification.md" \
+  > "$missing_anchor_tag/visual_evidence/reference-anchor-verification.tmp"
+mv "$missing_anchor_tag/visual_evidence/reference-anchor-verification.tmp" \
+  "$missing_anchor_tag/visual_evidence/reference-anchor-verification.md"
+expect_failure "must name a visual bounds testTag" bash "$VALIDATOR" "$missing_anchor_tag"
+
+missing_screenshot="$fixture_root/missing-screenshot"
+write_valid_fixture "$missing_screenshot"
+mv "$missing_screenshot/visual_evidence/emoji_picker_content.png" \
+  "$missing_screenshot/visual_evidence/emoji_picker_content.missing"
+expect_failure "is missing non-empty screenshot visual_evidence/emoji_picker_content.png" \
+  bash "$VALIDATOR" "$missing_screenshot"
 
 missing_contract_row="$fixture_root/missing-contract-row"
 write_valid_fixture "$missing_contract_row"
@@ -81,4 +116,4 @@ jq '.features[0].verification = []' \
 mv "$missing_verification/feature_list.tmp" "$missing_verification/feature_list.json"
 expect_failure "is not listed in feature_list.json verification" bash "$VALIDATOR" "$missing_verification"
 
-echo "PASS: visual evidence validator aligns visual methods, sprint-contract rows, acceptance IDs, and successful evidence."
+echo "PASS: visual evidence validator rejects missing anchor proof and aligns methods, contract rows, screenshots, and evidence."

@@ -352,6 +352,7 @@ For each rule, record how it was checked for **this change** and its outcome.
 - [ ] Skipped (no UI changes)
 - [ ] Texts verified against design via `adb uiautomator dump`
 - [ ] Screenshot captured and compared
+- [ ] Design-critical reference anchors have bounds-based runtime proof tied to visual `testTag`s
 - [ ] Differences remaining: `<list or "none">`
 
 ---

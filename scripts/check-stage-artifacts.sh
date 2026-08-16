@@ -3,7 +3,7 @@
 #
 # Usage: bash scripts/check-stage-artifacts.sh <workflow> <stage> [artifact-directory]
 #   workflow: feature-delivery | bug-fixing | api-contract-update | harness-planning | create-ui-and-verify
-#   stage:    requirement-analysis | implementation-plan | feature-specification | slice-planning
+#   stage:    requirement-analysis | implementation-plan | feature-specification | slice-planning | ui-verification
 #
 # Exits 0 if required artifacts are present, 1 otherwise.
 # Designed to run on macOS /bin/bash (Bash 3.2) — no mapfile, no arrays with set -u.
@@ -17,7 +17,7 @@ DOCS_DIR="${3:-docs/current}"
 if [ -z "$WORKFLOW" ] || [ -z "$STAGE" ]; then
   echo "Usage: $0 <workflow> <stage> [artifact-directory]" >&2
   echo "Workflows: feature-delivery, bug-fixing, api-contract-update, harness-planning, create-ui-and-verify" >&2
-  echo "Stages: requirement-analysis, implementation-plan, feature-specification, slice-planning" >&2
+  echo "Stages: requirement-analysis, implementation-plan, feature-specification, slice-planning, ui-verification" >&2
   exit 2
 fi
 
@@ -211,8 +211,12 @@ $(jq -r '.features[] | "\(.id)|\(.requires_visual_verification)"' "$DOCS_DIR/fea
 EOF
     bash scripts/check-visual-evidence-contract.sh "$DOCS_DIR" --planning
     ;;
+  create-ui-and-verify/ui-verification)
+    require_file "ui_verification.md" "UI verification report"
+    bash scripts/check-ui-verification-artifact.sh "$DOCS_DIR"
+    ;;
   create-ui-and-verify/*)
-    echo "SKIP: create-ui-and-verify has no doc-artifact gates."
+    echo "SKIP: create-ui-and-verify has no doc-artifact gate for '$STAGE'."
     ;;
   *)
     echo "FAIL: unknown workflow/stage '$WORKFLOW/$STAGE'." >&2
@@ -225,7 +229,8 @@ EOF
     echo "  api-contract-update/implementation-plan" >&2
     echo "  harness-planning/feature-specification" >&2
     echo "  harness-planning/slice-planning" >&2
-    echo "  create-ui-and-verify/* (no gates)" >&2
+    echo "  create-ui-and-verify/ui-verification" >&2
+    echo "  create-ui-and-verify/* (no artifact gate for other stages)" >&2
     exit 2
     ;;
 esac

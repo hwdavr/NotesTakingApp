@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Ensures every final visual verification command is declared in the sprint
-# contract and has successful connected-test evidence before a feature passes.
+# contract, has successful connected-test evidence, and is accompanied by
+# reference-anchor proof before a feature passes.
 
 set -e
 
@@ -93,4 +94,50 @@ for method in $CONTRACT_METHODS; do
     || fail "visual contract method $method is not listed in feature_list.json verification"
 done
 
-echo "PASS: visual verification commands, sprint-contract rows, acceptance IDs, and connected evidence are aligned."
+if [ "$MODE" = "--evaluate" ]; then
+  ANCHOR_REPORT="$FEATURE_DIR/visual_evidence/reference-anchor-verification.md"
+  [ -f "$ANCHOR_REPORT" ] || fail "missing $ANCHOR_REPORT; visual evidence needs reference-anchor verification"
+  grep -Fq "## Reference Anchor Verification" "$ANCHOR_REPORT" \
+    || fail "$ANCHOR_REPORT has no '## Reference Anchor Verification' section"
+  grep -Fq "| Visual Test ID | Reference anchor | Runtime proof | Measured relationship | Actual screenshot | Result |" "$ANCHOR_REPORT" \
+    || fail "$ANCHOR_REPORT has no required reference-anchor table header"
+
+  REFERENCE_ASSET=$(sed -n 's/^\*\*Reference design\*\*: `\(design\/[^`]*\)`[[:space:]]*$/\1/p' "$ANCHOR_REPORT" | head -n 1)
+  [ -n "$REFERENCE_ASSET" ] \
+    || fail "$ANCHOR_REPORT must declare one backticked design/ reference asset"
+  case "$REFERENCE_ASSET" in
+    *..*) fail "$ANCHOR_REPORT reference asset must stay under design/" ;;
+  esac
+  [ -s "$FEATURE_DIR/$REFERENCE_ASSET" ] \
+    || fail "$ANCHOR_REPORT references missing or empty design asset $REFERENCE_ASSET"
+
+  for test_id in $CONTRACT_IDS; do
+    CONTRACT_ROW=$(printf '%s\n' "$CONTRACT_ROWS" | grep -E "^\\|[[:space:]]*$test_id[[:space:]]*\\|" || true)
+    SCREENSHOT_PATH=$(printf '%s\n' "$CONTRACT_ROW" | grep -oE 'visual_evidence/[[:alnum:]_./-]+\.png' | head -n 1 || true)
+    [ -n "$SCREENSHOT_PATH" ] \
+      || fail "$test_id has no visual_evidence PNG artifact path in sprint-contract.md"
+    case "$SCREENSHOT_PATH" in
+      *..*) fail "$test_id visual evidence path must stay under visual_evidence/" ;;
+    esac
+    [ -s "$FEATURE_DIR/$SCREENSHOT_PATH" ] \
+      || fail "$test_id is missing non-empty screenshot $SCREENSHOT_PATH"
+
+    REPORT_ROWS=$(grep -E "^\\|[[:space:]]*$test_id[[:space:]]*\\|" "$ANCHOR_REPORT" || true)
+    REPORT_ROW_COUNT=$(printf '%s\n' "$REPORT_ROWS" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')
+    [ "$REPORT_ROW_COUNT" -eq 1 ] \
+      || fail "$ANCHOR_REPORT must contain exactly one reference-anchor row for $test_id"
+    REPORT_ROW=$(printf '%s\n' "$REPORT_ROWS" | sed '/^[[:space:]]*$/d')
+    printf '%s\n' "$REPORT_ROW" | grep -Eq 'testTag:[[:space:]]*`[^`]+`' \
+      || fail "$test_id reference-anchor row must name a visual bounds testTag"
+    printf '%s\n' "$REPORT_ROW" | grep -Eq '`[^`]*#[A-Za-z_][A-Za-z0-9_]*`' \
+      || fail "$test_id reference-anchor row must name the runtime test method"
+    printf '%s\n' "$REPORT_ROW" | grep -Eq '[A-Za-z]+Bounds(\.[A-Za-z]+)?[[:space:]]*(==|>=|<=|>|<)' \
+      || fail "$test_id reference-anchor row must record a concrete bounds relationship"
+    printf '%s\n' "$REPORT_ROW" | grep -Fq "$SCREENSHOT_PATH" \
+      || fail "$test_id reference-anchor row must cite $SCREENSHOT_PATH"
+    printf '%s\n' "$REPORT_ROW" | grep -Eq '\|[[:space:]]*PASS[[:space:]]*\|[[:space:]]*$' \
+      || fail "$test_id reference-anchor row must end with PASS"
+  done
+fi
+
+echo "PASS: visual methods, contract rows, acceptance IDs, connected evidence, screenshots, and reference-anchor proof are aligned."

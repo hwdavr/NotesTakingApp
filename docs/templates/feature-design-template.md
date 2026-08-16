@@ -64,6 +64,16 @@ Describe the screen from top to bottom.
 |-----------|---------|-----------------|----------|
 | <component> | <purpose> | <default/loading/selected/disabled/error/etc.> | `<tag>` |
 
+### Reference Anchor Contract
+
+List each visual relationship in the approved reference that must be measured rather than judged
+only by a broad screenshot. When the visible shape is smaller than its touch target, assign a
+separate visual-bounds tag to the shape.
+
+| Reference relationship | Visual bounds node(s) | Required runtime measurement |
+|------------------------|-----------------------|------------------------------|
+| <for example, pill bottom meets table top border> | `<visual_tag>`, `<anchor_tag>` | `<visualBounds>.bottom == <anchorBounds>.top ± <tolerance>dp` |
+
 ### Visual States
 
 | State | User Sees | User Can Do |
@@ -142,6 +152,16 @@ Describe the screen from top to bottom.
 | Component | Purpose | Required States | Test Tag |
 |-----------|---------|-----------------|----------|
 | <component> | <purpose> | <default/loading/selected/disabled/error/etc.> | `<tag>` |
+
+### Reference Anchor Contract
+
+List each visual relationship in the approved reference that must be measured rather than judged
+only by a broad screenshot. When the visible shape is smaller than its touch target, assign a
+separate visual-bounds tag to the shape.
+
+| Reference relationship | Visual bounds node(s) | Required runtime measurement |
+|------------------------|-----------------------|------------------------------|
+| <for example, pill bottom meets table top border> | `<visual_tag>`, `<anchor_tag>` | `<visualBounds>.bottom == <anchorBounds>.top ± <tolerance>dp` |
 
 ### Visual States
 

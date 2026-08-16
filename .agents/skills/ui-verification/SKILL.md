@@ -88,7 +88,25 @@ For each screen state that has a reference design:
 
 Also compare colors, typography, spacing, shapes, opacity, toolbars, overlays/sheets, and control states against `docs/product/design_system.md`. A feature-local difference passes only when `design.md` records it as an explicit user-approved exception.
 
-If no original design screenshot exists, mark this step as `SKIPPED — no design reference provided`.
+If no original design screenshot exists, use the approved generated mockup. If neither original nor
+approved generated reference exists, do not record a visual PASS: return to the reference-design
+stage or request the missing reference. A UI comparison cannot be skipped as passing evidence.
+
+### 4a. Reference-anchor evidence for exact placement
+
+A broad screenshot comparison cannot prove exact placement when the reference encodes a spatial
+relationship. For every design-critical relationship (for example, an edge meeting a table/grid
+line, a center anchored to a border, equal spacing, an overlay corner, or a compact visual inside
+a 48dp touch target), add a bounds-based instrumented assertion and record it in the report.
+
+- Give the rendered visual shape its own stable `testTag` when the outer interactive target is
+  larger than the visible icon, strip, or pill. Do not measure only the touch target when the
+  reference concerns the visual's edge or size.
+- Use Compose semantics bounds (for example, `fetchSemanticsNode().boundsInRoot`) and an explicit
+  density-derived tolerance to compare the two named anchors.
+- Capture the actual screenshot in the same state as the bounds assertion.
+- Record the exact reference asset, test method, visual `testTag`, measured relationship, actual
+  screenshot path, and result. A generic “matches screenshot” claim is not evidence of alignment.
 
 ### 5. Checklist — what to verify
 - [ ] Screen is shown with no crash
@@ -100,14 +118,15 @@ If no original design screenshot exists, mark this step as `SKIPPED — no desig
 - [ ] No layout overflow or clipping on common screen sizes
 - [ ] Long content handled correctly (scrolling verified)
 - [ ] Bottom sheets with long content use `skipPartiallyExpanded = true` for reliable accessibility
-- [ ] Actual screenshot matches the original design screenshot (or SKIPPED — no design reference)
+- [ ] Actual screenshot matches the original or approved generated reference
 - [ ] Actual screenshot conforms to `docs/product/design_system.md` except for explicitly documented approved exceptions
 
 ---
 
 ## Output
 
-Produce `docs/current/ui_verification.md`:
+Produce `docs/current/ui_verification.md` from
+`docs/templates/ui-verification-template.md`:
 ```
 ## UI Verification — v<N>
 
@@ -122,11 +141,18 @@ Produce `docs/current/ui_verification.md`:
 - Result: <N passed / N total>
 
 ### Visual Verification
-| Screen / State | Texts Match Design | Matches Original Screenshot | Screenshot |
-|----------------|-------------------|-----------------------------|------------|
-| <Screen> — Loading | ✅ / ❌ | ✅ / ❌ / ⏭ SKIPPED | screenshot.png |
-| <Screen> — Success | ✅ / ❌ | ✅ / ❌ / ⏭ SKIPPED | screenshot.png |
-| <Screen> — Error | ✅ / ❌ | ✅ / ❌ / ⏭ SKIPPED | screenshot.png |
+| Screen / State | Texts Match Design | Matches Approved Reference | Screenshot |
+|----------------|-------------------|----------------------------|------------|
+| <Screen> — Loading | ✅ / ❌ | ✅ / ❌ | screenshot.png |
+| <Screen> — Success | ✅ / ❌ | ✅ / ❌ | screenshot.png |
+| <Screen> — Error | ✅ / ❌ | ✅ / ❌ | screenshot.png |
+
+**Reference design**: `design/<approved_mockup_or_screenshot>.png`
+
+### Reference Anchor Verification
+| Screen / State | Reference anchor | Runtime proof | Measured relationship | Actual screenshot | Result |
+|----------------|------------------|---------------|-----------------------|-------------------|--------|
+| <Screen> — <state> | <visual edge/center/spacing relationship from the approved reference> | `<TestClass>#<method>`; testTag: `<visual_bounds_tag>` | `<visualBounds>.<edge> == <anchorBounds>.<edge> ± <tolerance>dp` | `evidence/<screen>_<state>.png` | PASS / FAIL |
 
 ### Design Deviations
 <none / list each visual deviation from the original design screenshot, with description>
@@ -146,9 +172,11 @@ Update `docs/current/summary_v<N>.md`: mark UI Verification stage complete.
 - [ ] `lintDebug` and `ktlintCheck` — exit code 0
 - [ ] Instrumented UI tests pass (if present): `./gradlew connectedDebugAndroidTest`
 - [ ] All text strings verified against design — no unresolved mismatches
-- [ ] Actual screenshot compared against original design screenshot — no unresolved visual deviations (or SKIPPED with reason)
+- [ ] Actual screenshot compared against the original or approved generated reference — no unresolved visual deviations
+- [ ] Each design-critical spatial relationship has a reference-anchor row tied to a visual bounds tag, runtime test, measured relation, and actual screenshot
 - [ ] All UiState variants (loading, success, empty, error) confirmed rendering correctly
 - [ ] `docs/current/ui_verification.md` exists with verdict filled in
+- [ ] `bash scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current` exits 0
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

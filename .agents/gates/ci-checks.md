@@ -78,7 +78,7 @@ bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
 ```bash
 bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"
 ```
-**Must pass.** Every visual verification method in the final owner's `feature_list.json` must have a matching `TC-*-VIS-*` row in `sprint-contract.md`, an acceptance-test ID, and successful connected-test evidence.
+**Must pass.** Every visual verification method in the final owner's `feature_list.json` must have a matching `TC-*-VIS-*` row in `sprint-contract.md`, an acceptance-test ID, successful connected-test evidence, a non-empty screenshot, and one matching reference-anchor row in `visual_evidence/reference-anchor-verification.md`. Each row names the approved design asset, visual bounds `testTag`, runtime test, concrete bounds relationship, and screenshot.
 
 ### 10. Keyboard-Visible Planning Mockup (when a planned bottom sheet has text input)
 ```bash

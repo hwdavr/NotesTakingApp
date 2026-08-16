@@ -48,13 +48,27 @@ in `docs/current/design/`, never against defect evidence in `docs/current/eviden
 `docs/product/design_system.md`. Any deviation from either source must be an explicit approved
 exception.
 
+Before recording a PASS, create `docs/current/ui_verification.md` using the `ui-verification`
+skill's required report schema and run:
+
+```bash
+bash scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current
+```
+
+For every design-critical spatial relationship—such as edges that meet a border, center alignment,
+overlay anchoring, spacing, or a compact visual inside a larger touch target—the report must link
+the approved reference and actual screenshot to a bounds-based instrumented assertion. Name the
+visual bounds `testTag` (not only the outer touch target) and record the measured relation and
+tolerance. A broad screenshot with a statement such as “matches design” is not sufficient proof
+of placement.
+
 **Loop rule — if verification FAILS:**
 - Return to **Stage 1 — UI Implementation** to fix the implementation.
 - Re-run **Stage 2 — UI Verification** after each fix.
 - **Maximum 3 loops total.**
 - If still failing after 3 loops, stop and surface the deviation to the user with the screenshot attached.
 
-**PASS →** proceed to Stage 3 — Code + Test Review.
+**PASS →** the UI verification artifact gate above exits 0; then proceed to Stage 3 — Code + Test Review.
 
 ### Stage 3 — Code Quality Fix ⛔ STOP
 **INVOKE** the `code-quality-fix` skill via the Skill tool (name: `code-quality-fix`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
