@@ -18,7 +18,7 @@
 | Code Quality Fix | ✅ Complete | 2026-08-16 11:24 +08 | Ktlint, Detekt, Android Lint, Compose, localization, and architecture checks pass with 0 active violations after surgical formatting and utility extraction. |
 | Update State | ✅ Complete | 2026-08-16 11:33 +08 | US-3 is passing with ten evidence rows; all table-handles slices are passing; the product tracker is transitioned to `To be reviewed` and lifecycle validation passes. |
 | Clean Exit | ✅ Complete | 2026-08-16 11:33 +08 | The full clean-state checklist passed; summary, progress, feature evidence, product tracker, and handoff are updated. Install is the only remaining Generator stage. |
-| Install App To Device | Pending | | |
+| Install App To Device | ✅ Complete | 2026-08-16 11:35 +08 | `./gradlew installDebug` passed and installed `app-debug.apk` on `Medium_Phone(AVD) - 13` (`emulator-5554`). |
 
 ## Baseline Goals and Scope
 
@@ -107,3 +107,10 @@
 - Evidence artifact: `docs/product/2026-08-16-table-handles/clean-state-checklist_US-3.md` — “All applicable US-3 clean-state checks pass. The slice is implemented, verified, documented, and ready for the final debug installation and Evaluator workflow.”
 - Evidence artifact: `docs/product/2026-08-16-table-handles/session-handoff.md` — records the 16/16 emulator suite, 356 JVM tests, 83.9635% application line coverage, four visual artifacts, and Evaluator as the next owner.
 - Final clean-state checks: assemble, compile warning, duplicate classes, ktlint, Detekt, unit tests, Kover, architecture, Compose, suppression, secret, platform, TDD, artifact, and lifecycle checks all passed or are explicitly not applicable.
+
+### Install App To Device
+
+- Command: `./gradlew installDebug`
+- Result: exit 0 — `Installed APK 'app-debug.apk' on 'Medium_Phone(AVD) - 13'`; `Installed on 1 device.`
+- Runtime confirmation: `adb devices` reports `emulator-5554 device`, and `adb -s emulator-5554 shell pm list packages` reports `package:com.example.notesapp`.
+- Commit under verification: `a0a41e9` contains the implementation, tests, evidence, clean-state checklist, and handoff records installed by this gate.

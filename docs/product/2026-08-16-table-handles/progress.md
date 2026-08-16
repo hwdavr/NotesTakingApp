@@ -54,7 +54,7 @@
 - Verification run: The final `TableHandlesScreenTest` suite passed 16/16 on `Medium_Phone(AVD) - 13`; each dedicated visual test passed; the exact artifact-size gate passed; Kover reported 83.8% line / 84.3% instruction coverage overall, with the editor ViewModel above 95% line coverage; all formatting, static analysis, lint, Compose, localization, architecture, and platform gates passed.
 - State update: US-3 is now `passing` with evidence for TC-US-3-01 through TC-US-3-06 and TC-US-3-VIS-01 through TC-US-3-VIS-04; all table-handles slices pass, so the tracker is now `To be reviewed` and must be evaluated by the Evaluator agent.
 - Evidence captured: `summary_US-3.md`, `feature_list.json`, four PNGs under `visual_evidence/`, and updated product capability/roadmap records.
-- Install evidence: Pending Stage 9 final install gate.
-- Commits: Pending final clean-state commit.
+- Install evidence: Stage 9 `./gradlew installDebug` exited 0 and installed `app-debug.apk` on `Medium_Phone(AVD) - 13` (`emulator-5554`); package `com.example.notesapp` is present.
+- Commits: Implementation and clean-state commit `a0a41e9`; final install-evidence documentation commit follows.
 - Known risk or unresolved issue: The configured session exposes no callable Skill tool endpoint, so required stage skills were followed from their repository instructions as a documented fallback and this is recorded in the change summary; no product or verification blocker remains.
-- Next best step: Complete the clean-state checklist, write the session handoff, install the final debug build, and hand off to the Evaluator workflow.
+- Next best step: Hand off the `To be reviewed` feature to the Evaluator workflow; the Generator stages are complete.

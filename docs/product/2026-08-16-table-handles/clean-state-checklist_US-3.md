@@ -1,7 +1,7 @@
 # Clean State Checklist — US-3
 
 **Date**: 2026-08-16
-**Commit under verification**: Pending final clean-state commit
+**Commit under verification**: `a0a41e9` (`feat(editor): complete table handle editing flow`)
 
 ## 1. Build & Compilation
 
@@ -60,4 +60,4 @@
 
 ## Final result
 
-All applicable US-3 clean-state checks pass. The slice is implemented, verified, documented, and ready for the final debug installation and Evaluator workflow.
+All applicable US-3 clean-state checks pass. The slice is implemented, verified, documented, installed on `emulator-5554`, and ready for the Evaluator workflow.
