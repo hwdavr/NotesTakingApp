@@ -49,6 +49,7 @@ Lifecycle rules:
 |---|---|---|---|---|---|
 | note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass plus UI revisions applied: two-fifths-height picker when the IME is hidden, full available height above the keyboard while search is focused, no `Emoji` title or header cross button, search-clear retained, and three additional emojis per category. v2/keyboard mockups and runtime screenshots are recorded; 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows remain fixed, with full JVM, 95/95 connected, 83.4701% coverage, quality, platform, lifecycle, and visual gates passing. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
+| table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | Awaiting implementation approval | 2026-08-16 | Approved spec/design and regenerated mockups; implementation plan and test plan are ready for approval. |
 <!-- HARNESS_TRACKER_END -->
 
 ---

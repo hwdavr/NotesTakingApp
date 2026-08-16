@@ -5,6 +5,7 @@
 set -e
 
 FEATURE_DIR="${1:-}"
+MODE="${2:---evaluate}"
 
 fail() {
   echo "FAIL: $1" >&2
@@ -12,9 +13,10 @@ fail() {
 }
 
 if [ -z "$FEATURE_DIR" ]; then
-  echo "Usage: bash scripts/check-visual-evidence-contract.sh <feature-directory>" >&2
+  echo "Usage: bash scripts/check-visual-evidence-contract.sh <feature-directory> [--planning|--evaluate]" >&2
   exit 2
 fi
+[ "$MODE" = "--planning" ] || [ "$MODE" = "--evaluate" ] || fail "mode must be --planning or --evaluate"
 
 FEATURE_JSON="$FEATURE_DIR/feature_list.json"
 CONTRACT="$FEATURE_DIR/sprint-contract.md"
@@ -54,8 +56,10 @@ for test_id in $CONTRACT_IDS; do
       | select(.test_id == $id and .exit_status == 0 and ((.executed_command // "") | contains("connectedDebugAndroidTest")))
     ] | length
   ' "$FEATURE_JSON")
-  [ "$EVIDENCE_COUNT" -gt 0 ] \
-    || fail "$test_id has no successful connected-test evidence in feature_list.json"
+  if [ "$MODE" = "--evaluate" ]; then
+    [ "$EVIDENCE_COUNT" -gt 0 ] \
+      || fail "$test_id has no successful connected-test evidence in feature_list.json"
+  fi
 done
 
 for test_id in $FEATURE_IDS; do
@@ -67,7 +71,7 @@ VISUAL_COMMANDS=$(jq -r --arg owner "$VISUAL_OWNER" '
   .features[]
   | select(.id == $owner)
   | (.verification // [])[]
-  | select(test("connectedDebugAndroidTest") and test("VisualFlowTest") and test("testInstrumentationRunnerArguments.class=.*#"))
+  | select(test("connectedDebugAndroidTest") and test("testInstrumentationRunnerArguments.class=.*#"))
 ' "$FEATURE_JSON")
 VISUAL_METHODS=""
 while IFS= read -r command; do

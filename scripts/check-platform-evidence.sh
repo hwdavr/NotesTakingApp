@@ -64,7 +64,7 @@ POLICY=$(jq -r '.platform_validation.unsupported_environment_policy // empty' "$
 [ "$POLICY" = "fail_loudly" ] \
   || fail "platform_validation.unsupported_environment_policy must be fail_loudly"
 
-REQUIRED=$(jq -r '.platform_validation.required // empty' "$FEATURE_JSON")
+REQUIRED=$(jq -r 'if (.platform_validation | has("required")) then .platform_validation.required else empty end' "$FEATURE_JSON")
 if [ "$REQUIRED" != "true" ] && [ "$REQUIRED" != "false" ]; then
   fail "platform_validation.required must be boolean"
 fi

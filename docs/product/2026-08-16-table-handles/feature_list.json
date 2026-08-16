@@ -1,0 +1,76 @@
+{
+  "project": "NotesTakingApp",
+  "last_updated": "2026-08-16",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current active task.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "platform_validation": {
+    "required": false,
+    "reason": "No hardware, permission, model, network, or external Android service boundary is introduced; Compose runtime tests still verify the UI.",
+    "capability_matrix": "platform-capability-matrix.md",
+    "unsupported_environment_policy": "fail_loudly",
+    "real_boundary_test_required": false,
+    "real_boundary_test_ids": [],
+    "real_boundary_test_files": [],
+    "real_boundary_test_signal": "N/A: local document transformations and standard Compose UI only; no hardware, permission, model, network, or external Android service boundary. Instrumented Compose tests remain required for user-visible behavior."
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "editor-table-model",
+      "title": "Apply table structure and persistence operations",
+      "description": "Extend EditorBlock.TableBlock with backward-compatible fitToWidth serialization and implement insert, clear, delete, duplicate, and fit-to-width transformations in NoteEditorViewModel. Remove the entire block when deleting its final row or column, deep-copy duplicates, guard read-only state, and reuse auto-save.",
+      "ui_design": "docs/product/2026-08-16-table-handles/design.md",
+      "user_visible_behavior": "Table commands produce the specified updated document immediately and persist through the existing editor save path.",
+      "affects_ui": false,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": ["TC-US-1-01", "TC-US-1-02", "TC-US-1-03", "TC-US-1-04", "TC-US-1-05", "TC-US-1-06"],
+      "verification": ["./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest'"],
+      "evidence": [],
+      "notes": "Foundational slice; no API or database migration."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "editor-table-handles",
+      "title": "Reveal focused table handles and option sheets",
+      "description": "Add focus-driven column, row, and table-options handles to TableDocumentBlock, retain the target while a sheet is open, render the approved Material 3 sheets with Delete last, and expose localized labels, content descriptions, and stable test tags. Read-only notes show no handles.",
+      "ui_design": "docs/product/2026-08-16-table-handles/design/mockup_table_handles_v2.png",
+      "user_visible_behavior": "Tapping an editable cell reveals three handles; each handle opens its corresponding options sheet in the approved order, and tapping away dismisses the handles.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": ["TC-US-2-01", "TC-US-2-02", "TC-US-2-03", "TC-US-2-04"],
+      "verification": ["ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest"],
+      "evidence": [],
+      "notes": "Intermediate UI slice; final visual verification is owned by US-3."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "editor-table-flow",
+      "title": "Complete table-handle editing flow",
+      "description": "Wire production table handle actions to the ViewModel commands, verify immediate UI updates and sheet dismissal, cover read-only and multi-table focus boundaries, and capture the completed editor and three sheet states against the approved mockups.",
+      "ui_design": "docs/product/2026-08-16-table-handles/design/",
+      "user_visible_behavior": "Users can restructure, clear, duplicate, fit, or delete tables from the editor without leaving the note; the final Delete action is always last in each sheet.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": ["TC-US-3-01", "TC-US-3-02", "TC-US-3-03", "TC-US-3-04", "TC-US-3-05", "TC-US-3-06", "TC-US-3-VIS-01", "TC-US-3-VIS-02", "TC-US-3-VIS-03", "TC-US-3-VIS-04"],
+      "verification": ["ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureFocusedTableState", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureColumnOptionsSheet", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureRowOptionsSheet", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet", "mkdir -p \"$FEATURE_DIR/visual_evidence\" && test -s \"$FEATURE_DIR/visual_evidence/table_handles_focused.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_column_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_row_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_options_sheet.png\""],
+      "evidence": [],
+      "notes": "Only slice with requires_visual_verification=true. Screenshot commands must first assert the production state in the instrumented test."
+    }
+  ]
+}
