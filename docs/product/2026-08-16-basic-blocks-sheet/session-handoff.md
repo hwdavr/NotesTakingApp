@@ -1,30 +1,49 @@
-# Session Handoff
+# Session Handoff — Note Editor Basic Blocks Panel
 
 ## Verified Now
 
-- What is currently working: US-1 persists and renders paragraph, H1–H4, bulleted, numbered, to-do, Toggle, Callout, and Quote blocks. Legacy `heading` normalizes to `heading_1`; unknown text-like blocks retain readable content; Toggle expanded state persists; edits, splits, auto-save/reload, Markdown, and PDF retain the supported types.
-- What verification actually ran: all four US-1 contract commands, full JVM suite (368/368, zero failures/errors), Kover (83.8191% application line coverage; ViewModel 95.7%), assemble, Ktlint, Detekt, Lint, Compose/localization/architecture checks, US-1 platform evidence, the full connected suite (116/116 on `Medium_Phone(AVD) - 13`), and `installDebug` on `emulator-5554`.
+- What is currently working:
+  - All 3 slices of `basic-blocks-sheet` (US-1 document model compatibility/persistence, US-2 inline catalog insertion, US-3 compact accessibility & visual verification) are `passing`.
+  - The embedded 2-column Basic blocks panel sits directly under the unchanged 56 dp editor toolbar without a modal overlay.
+  - 11 basic block tiles (excluding Page) render with 48 dp touch targets and scroll vertically through Quote within the capped min(280 dp, 40% height) panel bounds.
+  - Selecting a tile inserts the block immediately after focus (or appends when no focus), focuses the new empty block, auto-saves, and collapses the panel.
+  - Inner BackHandler and plus trigger toggle collapse the panel safely without document mutation.
+  - Read-only trigger is visible, disabled, and blocks panel expansion.
+- What verification actually ran:
+  - `./gradlew assembleDebug`
+  - `./gradlew testDebugUnitTest`
+  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest` (9/9 passed)
+  - `bash scripts/check-platform-evidence.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate --slice US-3` (passed)
+  - `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate` (passed)
+  - `./gradlew koverLog` (83.8649% line coverage)
+  - `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug` (passed)
+  - `check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh` (0 violations)
+  - `bash scripts/check-feature-lifecycle.sh` (passed, 0 in progress, tracker set to `To be reviewed`)
 
 ## Changed This Session
 
-- Code or behavior added: canonical block-type mapper/factory; backward-compatible document serialization; Toggle expansion mutation; type-preserving split behavior; editor render treatments/tags/localized Toggle semantics; Markdown/PDF treatment; JVM and repository-backed integration coverage; shared JSON autosave scenario.
-- Infrastructure or harness changes: no dependency, Room schema, OpenAPI, permission, navigation, or harness change. The feature workspace, evidence, progress log, and product tracker were committed with `4163c80`; the runtime-test import correction and clean-exit artifacts were committed with `a1e46f5`.
+- Code or behavior added:
+  - Added `BasicBlocksPanelScreenTest.kt` covering accessibility, bounds, compact geometry, scrolling, Back dismissal, read-only safety, font scaling, light/dark themes, and screenshot capture.
+  - Added `visual_evidence/reference-anchor-verification.md` and captured top and scrolled screenshots `basic_blocks_panel_top.png` and `basic_blocks_panel_scrolled.png`.
+- Infrastructure or harness changes:
+  - Updated `feature_list.json` status to `passing` for US-3 with full objective command evidence.
+  - Updated `docs/product/product.md` tracker status to `To be reviewed`.
 
 ## Broken Or Unverified
 
-- Known defect: none in US-1 verification.
-- Unverified path: the inline Basic blocks catalog, its insertion flow, Android Back behavior, accessibility geometry, scrolling, and visual screenshots are deliberately not implemented by US-1; they belong to US-2/US-3.
-- Risk for the next session: do not bypass the existing auto-save path or add a no-op `NoteEditorScreenContent` callback. The full runtime suite initially caught missing imports for the moved `setFocusedBlock` extension; the import fix is verified by the successful 116/116 rerun and must be retained.
+- Known defect: None.
+- Unverified path: None.
+- Risk for the next session: None. Evaluator agent will run `harness-evaluation` workflow to score the completed feature.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-2 — Insert basic blocks from the inline catalog.
-- Why it is next: it makes the US-1 persisted types user-reachable while preserving the approved embedded, Page-free, non-modal layout.
-- What counts as passing: all US-2 acceptance rows in `sprint-contract.md`, the specified emulator `BasicBlocksPanelScreenTest`, and a passing slice-scoped platform-evidence check.
-- What must not change during that step: canonical storage values, legacy/unknown readable fallback, existing `Note.content` persistence/auto-save behavior, US-1 evidence, tracker status (`In Progress` until all slices pass), and the US-3-only visual-evidence ownership.
+- Highest-priority unfinished feature: Evaluator review of `basic-blocks-sheet`.
+- Why it is next: All slices are `passing` and tracker is `To be reviewed`. The Evaluator agent must score the implementation.
+- What counts as passing: Evaluation score >= 5.0/5 across code review, test review, visual review, and quality gates.
+- What must not change during that step: Functional requirements FR-001 through FR-019 and visual design contract.
 
 ## Commands
 
-- Startup: `adb devices`, `./gradlew installDebug`, then open the existing Note Editor on `emulator-5554`.
-- Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew assembleDebug`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, and `bash scripts/check-feature-lifecycle.sh`.
-- Focused debug command: `./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest'`.
+- Startup: `./gradlew assembleDebug`
+- Verification: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest`
+- Focused debug command: `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate`
