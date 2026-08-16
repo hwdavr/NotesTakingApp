@@ -451,8 +451,12 @@ fun NoteEditorScreenContent(
                                 indication = null,
                                 enabled = state.isEditable
                             ) {
-                                focusLastBlockTrigger++
-                                tableFocusResetTrigger++
+                                if (showBasicBlocksPanel) {
+                                    showBasicBlocksPanel = false
+                                } else {
+                                    focusLastBlockTrigger++
+                                    tableFocusResetTrigger++
+                                }
                             }
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -526,12 +530,7 @@ fun NoteEditorScreenContent(
                 }
             )
             if (showBasicBlocksPanel && state.isEditable) {
-                HorizontalDivider(
-                    modifier = Modifier.testTag("basic_blocks_panel_divider"),
-                    color = colors.border,
-                    thickness = 1.dp
-                )
-                BasicBlocksPanel(
+                BasicBlocksPanelSection(
                     onTileSelected = { type ->
                         if (!isSelectionInFlight) {
                             isSelectionInFlight = true
@@ -1815,6 +1814,17 @@ private fun EditorBottomBar(
             onToggleBasicBlocksPanel = onToggleBasicBlocksPanel
         )
     }
+}
+
+@Composable
+private fun BasicBlocksPanelSection(onTileSelected: (BasicBlockType) -> Unit) {
+    val colors = LocalAppColors.current
+    HorizontalDivider(
+        modifier = Modifier.testTag("basic_blocks_panel_divider"),
+        color = colors.border,
+        thickness = 1.dp
+    )
+    BasicBlocksPanel(onTileSelected = onTileSelected)
 }
 
 @Composable

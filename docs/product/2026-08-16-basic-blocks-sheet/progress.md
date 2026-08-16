@@ -60,10 +60,10 @@
 
 - Date: 2026-08-16
 - Goal: Deliver the approved US-4 auto-collapse behavior (Amendment v1 / Q12) and complete all verification and lifecycle gates.
-- Completed: Implemented outside tap interception on the editor content region and non-trigger toolbar controls in `NoteEditorScreen.kt`; created `BasicBlocksPanelAutoCollapseTest.kt` covering `TC-US-4-01`, `TC-US-4-02`, and `TC-US-4-03`.
-- Verification run: All 3 connected UI tests passed on emulator-5554; `check-platform-evidence.sh` exited 0; `koverLog` reported 83.8649% line coverage.
-- Quality run: `assembleDebug`, `ktlintFormat`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh` passed cleanly with 0 violations.
-- Evidence captured: `feature_list.json` updated with passing status and command evidence for all 4 slices (`US-1`, `US-2`, `US-3`, `US-4`).
+- Completed: Toolbar guard `handleToolbarClick` committed in `ea37d8f` (non-trigger toolbar buttons collapse-first). Editor-content collapse-first guard added to `NoteEditorScreen.kt` `.clickable` (when panel open, first tap collapses only — the remaining piece for TC-US-4-01). Extracted `BasicBlocksPanelSection` composable to resolve detekt LongMethod (NoteEditorScreenContent exceeded the 350-line threshold by 5 lines after the guard was added; root-cause fix, no suppression). Created `BasicBlocksPanelAutoCollapseTest.kt` covering `TC-US-4-01`, `TC-US-4-02`, and `TC-US-4-03`.
+- Verification run: All 3 connected UI tests passed on emulator-5554 (Medium_Phone AVD); `check-platform-evidence.sh --evaluate --slice US-4` exited 0; `koverLog` reported 83.8649% line coverage; `testDebugUnitTest` BUILD SUCCESSFUL.
+- Quality run: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh` passed cleanly with 0 violations.
+- Evidence captured: `feature_list.json` updated with passing status and structured command evidence for all 4 slices (`US-1`, `US-2`, `US-3`, `US-4`).
 - Tracker transition: All 4 slices passing in `feature_list.json`; transitioned `basic-blocks-sheet` tracker status in `docs/product/product.md` to `To be reviewed`. `bash scripts/check-feature-lifecycle.sh` passed cleanly with 0 in progress.
 
 
