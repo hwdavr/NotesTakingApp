@@ -99,7 +99,7 @@
 
 ### Update State
 
-- `docs/product/2026-08-16-table-handles/feature_list.json` — US-1 transitioned from `in_progress` to `passing` with evidence for TC-US-1-01 through TC-US-1-06; US-2 and US-3 remain `not_started`.
+- `docs/product/2026-08-16-table-handles/feature_list.json` — US-1 transitioned from `in_progress` to `passing` with evidence for TC-US-1-01 through TC-US-1-06; at this slice's state update US-2 and US-3 were `not_started`, and a concurrent generator later marked US-2 `in_progress`.
 - `docs/product/product.md` — tracker notes, current capabilities, portfolio status, roadmap, and document date updated; overall tracker correctly remains `In Progress`.
 - `bash scripts/check-feature-lifecycle.sh` — exit 0; evidence excerpt: `Feature lifecycle tracker valid: 3 feature(s), 1 in progress.`
 - Commit: `aa95f95` — `feat: add table structure operations`.
