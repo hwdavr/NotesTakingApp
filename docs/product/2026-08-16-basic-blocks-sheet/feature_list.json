@@ -167,7 +167,7 @@
     },
     {
       "id": "US-3",
-      "priority": 3,
+      "priority": 4,
       "area": "editor-basic-blocks-experience",
       "title": "Complete the compact, accessible basic-blocks experience",
       "description": "Complete the inline panel's final behavior and visual contract: give the open panel an inner BackHandler, retain an enabled 56 dp toolbar trigger, show that trigger as visible-but-disabled in the read-only bottom rail, and ensure no read-only action mutates content. Bound the panel to min(280 dp, 40% of usable editor height), use 48 dp baseline tile targets with 8 dp grid spacing, and make the grid vertically scrollable through Quote without clipping at font scale, narrow width, landscape, dark theme, or tablet layouts. Add the required panel, divider, grid, title, trigger, and tile test tags plus roles/state descriptions. Verify production ViewModel wiring, geometry, scrolling, Android Back, read-only safety, and capture the top and scrolled states against the approved compact mockup.",
@@ -275,6 +275,61 @@
         }
       ],
       "notes": "Final user-reachable slice and sole visual-verification owner. Before it may pass, create visual_evidence/reference-anchor-verification.md with one concrete bounds row for each visual test and run the visual-evidence contract gate."
+    },
+    {
+      "id": "US-4",
+      "priority": 3,
+      "area": "editor-basic-blocks-experience",
+      "title": "Auto-collapse the Basic blocks panel on outside interaction",
+      "description": "Add the approved Amendment v1 (Q12) behavior: while the Basic blocks panel is open, interacting with the note editor content area or activating any editor toolbar control other than the Basic blocks trigger and the panel's own tiles MUST collapse the panel without inserting a block or otherwise mutating the document. Implement this in NoteEditorScreenContent alongside the existing transient isBasicBlocksPanelVisible state. When the panel is visible, attach a tap/pointer-interception guard to the editor content region and to non-trigger editor toolbar controls so the first outside interaction only sets isBasicBlocksPanelVisible = false (and schedules no auto-save, no insertion, no focus change); the user's next tap then performs that region's normal action. The Basic blocks trigger (editor_basic_blocks_trigger) MUST remain exempt so it continues to toggle the panel per FR-001/FR-012, and every BasicBlockTileItem tap MUST remain exempt so it continues to insert-and-collapse per FR-006/FR-007/FR-008. Do NOT introduce a scrim, overlay, or modal surface (FR-002 still holds). Do NOT mutate the document, focusedBlockId, selection, or toggle state on an outside collapse. Read-only notes are unaffected because the panel cannot open there (FR-013). Add localized content descriptions/state descriptions only if a new user-visible string is introduced; otherwise reuse existing strings. Add stable test tags for any new interception nodes. Verification is instrumented UI only (no new JVM test required) because the behavior is a Compose interaction/state concern.",
+      "ui_design": "docs/product/2026-08-16-basic-blocks-sheet/design.md",
+      "user_visible_behavior": "With the Basic blocks panel open, tapping inside the note editor content or activating any other editor toolbar control closes the panel without inserting a block or changing the note; tapping the Basic blocks trigger still toggles the panel, and tapping a tile still inserts its block and closes the panel.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "passing",
+      "acceptance_test_ids": [
+        "TC-US-4-01",
+        "TC-US-4-02",
+        "TC-US-4-03"
+      ],
+      "verification": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest"
+      ],
+      "evidence": [
+        {
+          "test_id": "TC-US-4-01",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed 3/3 connected instrumented UI tests on emulator-5554 verifying editorContentTapCollapsesPanelWithoutMutation."
+        },
+        {
+          "test_id": "TC-US-4-02",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed 3/3 connected instrumented UI tests on emulator-5554 verifying nonTriggerToolbarControlCollapsesPanelWithoutMutation."
+        },
+        {
+          "test_id": "TC-US-4-03",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed 3/3 connected instrumented UI tests on emulator-5554 verifying triggerToggleAndTileInsertionStillWorkAfterAutoCollapse."
+        },
+        {
+          "test_id": "platform-capability-contract-US-4",
+          "command": "bash scripts/check-platform-evidence.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate --slice US-4",
+          "executed_command": "bash scripts/check-platform-evidence.sh \"docs/product/2026-08-16-basic-blocks-sheet\" --evaluate --slice \"US-4\"",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "Passed: platform validation is explicitly not required for US-4."
+        }
+      ],
+      "notes": "Amendment v1 / Q12 slice delivered and verified. All 4 feature slices in basic-blocks-sheet are now passing."
     }
   ]
 }

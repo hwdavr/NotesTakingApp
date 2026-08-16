@@ -50,6 +50,7 @@ See [platform-capability-matrix.md](platform-capability-matrix.md). This is not 
 | FR-017 | Font scaling and device configurations scroll rather than clip. | US-3 | TC-US-3-06 | In scope |
 | FR-018 | Existing documents load, edit, export, and persist without data loss. | US-1 | TC-US-1-02 | In scope |
 | FR-019 | Panel has no typing, search, or filtering control. | US-2 | TC-US-2-05 | In scope |
+| FR-020 | While the panel is open, interacting with editor content or any non-trigger toolbar control collapses the panel without mutation. | US-4 | TC-US-4-01 | In scope (Amendment v1) |
 | AC-001 | Plus expands an inline panel with no overlay or scrim. | US-2 | TC-US-2-01 | In scope |
 | AC-002 | Grid contains the exact eleven labels, final full-width Quote, and no Page. | US-2 | TC-US-2-02 | In scope |
 | AC-003 | Accessibility traversal exposes each tile's localized action semantics. | US-3 | TC-US-3-01 | In scope |
@@ -64,6 +65,7 @@ See [platform-capability-matrix.md](platform-capability-matrix.md). This is not 
 | AC-012 | Read-only trigger is visible/disabled and cannot open or mutate. | US-3 | TC-US-3-05 | In scope |
 | AC-013 | Larger fonts, narrow phones, landscape, and tablets remain reachable. | US-3 | TC-US-3-06 | In scope |
 | AC-014 | Existing documents retain content and behavior after load, edit, save, export, reload. | US-1 | TC-US-1-02 | In scope |
+| AC-015 | Panel collapses with no insertion/mutation when the user taps editor content or any non-trigger toolbar control while open. | US-4 | TC-US-4-01 | In scope (Amendment v1) |
 | Edge: no focused body block | Append at document end and focus the chosen new block. | US-2 | TC-US-2-04 | In scope |
 | Edge: focused non-text block | Insert after focused image, table, or voice without replacement. | US-2 | TC-US-2-03 | In scope |
 | Edge: empty new note | Retain editor's empty paragraph when focused; otherwise append the selected block. | US-2 | TC-US-2-04 | In scope |
@@ -75,6 +77,7 @@ See [platform-capability-matrix.md](platform-capability-matrix.md). This is not 
 | Edge: unknown stored block type | Preserve readable children through a safe compatibility fallback. | US-1 | TC-US-1-02 | In scope |
 | Edge: toggle state | Preserve expanded/collapsed state through auto-save and reload. | US-1 | TC-US-1-03 | In scope |
 | Edge: small viewport / large text | Grow only as needed and scroll rather than clip or hide a tile. | US-3 | TC-US-3-06 | In scope |
+| Edge: outside interaction while panel open | Collapse the panel without mutation when the user taps editor content or any toolbar control other than the panel trigger and tiles. | US-4 | TC-US-4-01 | In scope (Amendment v1) |
 | NFR: dependency and persistence boundary | Reuse existing dependencies and Note.content; no Room/API/permission change. | US-1 | TC-US-1-02 | In scope |
 | NFR: strings and testability | Localize all new copy and attach stable tags to interactive elements. | US-3 | TC-US-3-01 | In scope |
 | NFR: no IME from selector | Do not add a search or text-input control. | US-2 | TC-US-2-05 | In scope |
@@ -141,7 +144,7 @@ Given an editable Note Editor, the person opens the attached Basic blocks panel 
 | TC-US-2-05 | US-2 AC 5; FR-019 | Instrumented UI | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelScreenTest.kt#basicBlocksPanelHasNoInputAndCommitsRapidSelectionOnce | Open panel, inspect semantics, then perform rapid tile clicks. | No editable/search/filter semantics; first tile commits one block; later taps cannot duplicate it while collapsing. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest |
 | TC-US-2-06 | US-2 AC 6; AC-008 | Instrumented UI | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelScreenTest.kt#basicBlocksTilesCreateAllApprovedDefaults | Reopen panel and select each tile through the production callback. | Each type renders its correct hierarchy/marker/state, including unchecked to-do and empty expanded Toggle. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest |
 
-### US-3: Complete the compact, accessible basic-blocks experience (Priority: P3)
+### US-3: Complete the compact, accessible basic-blocks experience (Priority: P4)
 
 Given the completed inline insertion flow, users can navigate, scroll, dismiss, and view it safely across supported editor states and device configurations.
 
@@ -171,11 +174,32 @@ Given the completed inline insertion flow, users can navigate, scroll, dismiss, 
 | TC-US-3-VIS-01 | Compact top visual state | Visual verification | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelScreenTest.kt#captureBasicBlocksPanelTopState | Assert toolbar/panel/tile tags and compact top position, capture device image, then pull it to visual_evidence/basic_blocks_panel_top.png. | Verified open top state and non-empty workspace screenshot for comparison to design/mockup_basic_blocks_panel_compact.png. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest#captureBasicBlocksPanelTopState && mkdir -p "$FEATURE_DIR/visual_evidence" && adb -s emulator-5554 pull /sdcard/Download/notesapp_basic_blocks_panel_top.png "$FEATURE_DIR/visual_evidence/basic_blocks_panel_top.png" && test -s "$FEATURE_DIR/visual_evidence/basic_blocks_panel_top.png" |
 | TC-US-3-VIS-02 | Compact scrolled visual state | Visual verification | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelScreenTest.kt#captureBasicBlocksPanelScrolledState | Assert Quote is reached after scrolling, capture device image, then pull it to visual_evidence/basic_blocks_panel_scrolled.png. | Verified scrolled state and non-empty workspace screenshot prove catalog reachability against the approved compact mockup. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest#captureBasicBlocksPanelScrolledState && mkdir -p "$FEATURE_DIR/visual_evidence" && adb -s emulator-5554 pull /sdcard/Download/notesapp_basic_blocks_panel_scrolled.png "$FEATURE_DIR/visual_evidence/basic_blocks_panel_scrolled.png" && test -s "$FEATURE_DIR/visual_evidence/basic_blocks_panel_scrolled.png" |
 
+### US-4: Auto-collapse the Basic blocks panel on outside interaction (Priority: P3)
+
+Given the Basic blocks panel is open, when the user interacts with the note editor content or activates any editor toolbar control other than the Basic blocks trigger and the panel's own tiles, the panel collapses without inserting a block or mutating the document.
+
+**Why this priority:** US-1–US-3 already deliver the panel, insertion, and compact accessible experience. US-4 adds the approved Amendment v1 (Q12) auto-collapse behavior and is the interaction-polish slice. It introduces no new data, persistence, platform, or visual-verification boundary and no visual change (the panel's appearance is identical with or without auto-collapse), so US-3 remains the sole visual-verification owner and is kept as the final-priority slice (P4); US-4 is an intermediate slice (P3) so the visual-owner-is-final gate stays satisfied.
+
+**Independent Test:** An Android-runtime Compose test renders the production NoteEditorScreenContent with a real ViewModel, opens the panel, taps editor content and a non-trigger toolbar control, and asserts the panel collapses with no document mutation; plus regression assertions that the trigger toggle and tile insertion flows still close the panel correctly.
+
+**Acceptance Criteria:**
+
+1. Given the panel is open, when the user taps inside the note editor content area, then the panel collapses, no block is inserted, and the document is unchanged.
+2. Given the panel is open, when the user activates any editor toolbar control other than the Basic blocks trigger, then the panel collapses, no block is inserted, and the document is unchanged.
+3. Given the auto-collapse behavior is in place, when the user then taps the Basic blocks trigger or selects a tile, then the trigger still toggles the panel and a tile still inserts and collapses the panel (regression).
+
+| Test ID | Covers AC | Test layer | Test file and method | Setup and action | Required assertions | Exact command |
+|---|---|---|---|---|---|---|
+| TC-US-4-01 | US-4 AC 1; AC-015; FR-020 | Instrumented UI | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelAutoCollapseTest.kt#editorContentTapCollapsesPanelWithoutMutation | Render production editor, open the panel, record document state, then tap inside the note editor content area. | basic_blocks_panel disappears; document block count/order/text unchanged; no new block was inserted; focusedBlockId and selection are not moved by the collapse; no auto-save mutation is scheduled for the collapse. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest |
+| TC-US-4-02 | US-4 AC 2; AC-015; FR-020 | Instrumented UI | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelAutoCollapseTest.kt#nonTriggerToolbarControlCollapsesPanelWithoutMutation | Open the panel, record document state, then activate an editor toolbar control other than editor_basic_blocks_trigger (for example an existing editor toolbar action). | basic_blocks_panel disappears; the first activation only collapses the panel and does not insert a block or mutate the document; document count/order/text unchanged. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest |
+| TC-US-4-03 | US-4 AC 3; FR-001/FR-006/FR-008 regression | Instrumented UI | app/src/androidTest/java/com/example/notesapp/ui/editor/screen/BasicBlocksPanelAutoCollapseTest.kt#triggerToggleAndTileInsertionStillWorkAfterAutoCollapse | Open and auto-collapse the panel via an editor content tap, then tap editor_basic_blocks_trigger to reopen, then select a tile. | Trigger reopen toggles the panel open as before; tile selection inserts exactly one empty block of the chosen type after the focused block (or appends), focuses it at zero selection, schedules auto-save, and collapses the panel exactly once; auto-collapse did not break the existing toggle/insert contract. | env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest |
+
 ## Sprint Log
 
 | Phase | Agent | Target / Outcome | Notes & Core Decisions |
 | :--- | :--- | :--- | :--- |
 | Planning | Planner | Sprint contract compiled | Three vertical slices; US-1 resolves compatibility risk first and US-3 owns all visual evidence. |
+| Planning (Amendment v1) | Planner | US-4 added | Approved Amendment v1 (Q12 = yes) adds FR-020/AC-015: the open panel auto-collapses on editor-content or non-trigger toolbar interaction without mutation. US-1–US-3 remain passing; US-4 is the final interaction-polish slice and owns no new visual/platform boundary. |
 | Implementation | Generator | Pending user approval | No application code has been written. |
 | Review 1 | Evaluator | Pending | |
 | Final Review | Evaluator | Pending | |

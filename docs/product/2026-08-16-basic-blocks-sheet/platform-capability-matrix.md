@@ -10,12 +10,12 @@ feature_list.json declares platform_validation.required as false for this reason
 
 ## Scope
 
-- Feature/slice: US-1 through US-3, Note Editor Basic Blocks Panel.
-- Platform boundary: Existing Compose rendering and standard Android Back behavior only.
+- Feature/slice: US-1 through US-4, Note Editor Basic Blocks Panel (US-4 added by approved Amendment v1 / Q12).
+- Platform boundary: Existing Compose rendering and standard Android Back behavior only. US-4 adds only a Compose tap/pointer-interception guard on existing editor regions; no new Android service, permission, or hardware adapter.
 - Minimum API: 24.
 - Target API: 34.
-- Single resource owner: NoteEditorScreenContent owns transient panel visibility; NoteEditorViewModel owns document mutation and auto-save.
-- Input/output contract: Toolbar tap opens or closes a screen-local panel; tile tap invokes the production ViewModel insertion command and updates the existing Note.content JSON; Android Back closes an open panel before normal editor navigation.
+- Single resource owner: NoteEditorScreenContent owns transient panel visibility (including the US-4 outside-interaction auto-collapse); NoteEditorViewModel owns document mutation and auto-save.
+- Input/output contract: Toolbar tap opens or closes a screen-local panel; tile tap invokes the production ViewModel insertion command and updates the existing Note.content JSON; Android Back closes an open panel before normal editor navigation; US-4 — while the panel is open, a tap on editor content or a non-trigger toolbar control closes the panel without mutation (first tap collapses only).
 
 ## Runtime Matrix
 
@@ -24,6 +24,7 @@ feature_list.json declares platform_validation.required as false for this reason
 | API 24 | Compose toolbar tap and inline layout | Plus opens a normal panel below the 56 dp toolbar with no overlay. | TC-US-2-01; env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest | Planned Medium_Phone emulator, Android runtime. | Planned |
 | API 24 | Compose lazy-grid scrolling and accessibility semantics | 48 dp actions scroll through Quote and expose labels/roles/tags. | TC-US-3-01 and TC-US-3-03; env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest | Planned Medium_Phone emulator, Android runtime. | Planned |
 | API 24 | Android Back dispatch | Inner panel handler consumes Back before normal Note Editor navigation. | TC-US-3-04; env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest | Planned Medium_Phone emulator, Android runtime. | Planned |
+| API 24 | Compose outside-tap interception (US-4) | While the panel is open, a tap on editor content or a non-trigger toolbar control closes the panel without document mutation; the first tap collapses only. | TC-US-4-01, TC-US-4-02, TC-US-4-03; env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest | Planned Medium_Phone emulator, Android runtime. | Planned |
 | API 24 | Local JSON and existing auto-save | New type/default/toggle data survives the existing document save/reload path. | TC-US-1-04; ./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest' | Planned deterministic local DAO and MockWebServer fixture. | Planned |
 | API 34 | Light/dark rendering and capture flow | Compact top and scrolled panel states can be asserted and captured on the target emulator. | TC-US-3-VIS-01 and TC-US-3-VIS-02; env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest | Planned Medium_Phone emulator, Android runtime. | Planned |
 

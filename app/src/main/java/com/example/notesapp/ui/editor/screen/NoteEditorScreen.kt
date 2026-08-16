@@ -13,6 +13,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -99,6 +101,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -330,9 +334,27 @@ fun NoteEditorScreenContent(
                 .imePadding()
         ) {
             EditorTopBar(
-                onBack = onBack,
-                onShare = onShareRequested,
-                onMore = { showNoteActionsSheet = true }
+                onBack = {
+                    if (showBasicBlocksPanel) {
+                        showBasicBlocksPanel = false
+                    } else {
+                        onBack()
+                    }
+                },
+                onShare = {
+                    if (showBasicBlocksPanel) {
+                        showBasicBlocksPanel = false
+                    } else {
+                        onShareRequested()
+                    }
+                },
+                onMore = {
+                    if (showBasicBlocksPanel) {
+                        showBasicBlocksPanel = false
+                    } else {
+                        showNoteActionsSheet = true
+                    }
+                }
             )
             HorizontalDivider(color = colors.border, thickness = 1.dp)
             Column(
@@ -340,6 +362,15 @@ fun NoteEditorScreenContent(
                 Modifier.weight(1f)
                     .fillMaxWidth()
                     .background(colors.background)
+                    .pointerInput(showBasicBlocksPanel) {
+                        if (showBasicBlocksPanel) {
+                            awaitEachGesture {
+                                val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                                down.consume()
+                                showBasicBlocksPanel = false
+                            }
+                        }
+                    }
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -1800,6 +1831,13 @@ private fun DefaultBottomBar(
     onToggleBasicBlocksPanel: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val handleToolbarClick: (() -> Unit) -> Unit = { action ->
+        if (isBasicBlocksPanelOpen) {
+            onToggleBasicBlocksPanel()
+        } else {
+            action()
+        }
+    }
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
@@ -1833,7 +1871,7 @@ private fun DefaultBottomBar(
                 modifier =
                 Modifier.size(36.dp)
                     .background(colors.border, RoundedCornerShape(8.dp))
-                    .clickable(onClick = onToggleFormattingToolbar)
+                    .clickable(onClick = { handleToolbarClick(onToggleFormattingToolbar) })
                     .testTag("editor_toggle_formatting"),
                 contentAlignment = Alignment.Center
             ) {
@@ -1847,7 +1885,7 @@ private fun DefaultBottomBar(
         }
         item {
             EditorBarButton(
-                onClick = { activeTextBlockId?.let { onToggleCheckbox(it) } },
+                onClick = { handleToolbarClick { activeTextBlockId?.let { onToggleCheckbox(it) } } },
                 modifier = Modifier.testTag("editor_checkbox_action")
             ) {
                 Icon(
@@ -1858,7 +1896,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Icon(
                     Icons.Outlined.Link,
                     contentDescription = stringResource(R.string.editor_link_description),
@@ -1867,7 +1905,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Text(
                     stringResource(R.string.editor_mention_action),
                     color = colors.textPrimary,
@@ -1876,10 +1914,13 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EmojiInsertionControl(onOpenEmojiPicker = onOpenEmojiPicker, isEditable = true)
+            EmojiInsertionControl(
+                onOpenEmojiPicker = { handleToolbarClick(onOpenEmojiPicker) },
+                isEditable = true
+            )
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Undo,
                     contentDescription = stringResource(R.string.editor_undo_description),
@@ -1888,7 +1929,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Redo,
                     contentDescription = stringResource(R.string.editor_redo_description),
@@ -1897,7 +1938,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Icon(
                     Icons.Outlined.CameraAlt,
                     contentDescription = stringResource(R.string.editor_camera_description),
@@ -1906,7 +1947,10 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = onAddImage, modifier = Modifier.testTag("editor_add_image")) {
+            EditorBarButton(
+                onClick = { handleToolbarClick(onAddImage) },
+                modifier = Modifier.testTag("editor_add_image")
+            ) {
                 Icon(
                     Icons.Outlined.Image,
                     contentDescription = stringResource(R.string.editor_image_description),
@@ -1915,7 +1959,10 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = onOpenVoiceRecorder, modifier = Modifier.testTag("editor_mic_btn")) {
+            EditorBarButton(
+                onClick = { handleToolbarClick(onOpenVoiceRecorder) },
+                modifier = Modifier.testTag("editor_mic_btn")
+            ) {
                 Icon(
                     Icons.Outlined.Mic,
                     contentDescription = stringResource(R.string.editor_mic_description),
@@ -1924,7 +1971,10 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = onAddTable, modifier = Modifier.testTag("editor_add_table")) {
+            EditorBarButton(
+                onClick = { handleToolbarClick(onAddTable) },
+                modifier = Modifier.testTag("editor_add_table")
+            ) {
                 Icon(
                     Icons.Outlined.TableChart,
                     contentDescription = stringResource(R.string.editor_table_description),
@@ -1933,7 +1983,7 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = {}) {
+            EditorBarButton(onClick = { handleToolbarClick {} }) {
                 Icon(
                     Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                     contentDescription = stringResource(R.string.editor_close_description),

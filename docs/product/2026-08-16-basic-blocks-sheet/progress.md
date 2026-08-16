@@ -43,3 +43,27 @@
 - Evidence captured: `feature_list.json` updated with passing status and command output evidence for all US-3 test IDs; screenshots `basic_blocks_panel_top.png` and `basic_blocks_panel_scrolled.png` saved under `visual_evidence/`.
 - Tracker transition: All 3 slices passing in `feature_list.json`; transitioned `basic-blocks-sheet` tracker status in `docs/product/product.md` to `To be reviewed`. `bash scripts/check-feature-lifecycle.sh` passed cleanly with 0 in progress.
 
+### Session 004 — Amendment v1 Approval and US-4 Slice Planning
+
+- Date: 2026-08-16
+- Goal: Apply the user-approved spec amendment v1 (Q12 = yes) and run harness-planning Stage 2 (slice-planning) for the new US-4 slice.
+- Completed: Wrote `spec_amendment_v1.md`; applied the amendment to `spec.md` (added Q12, In-Scope bullet, FR-020, AC-015, new edge case, and the Editable/panel-open screen-state update) and `design.md` (status note + auto-collapse interaction rule in Screen 2 Interaction Rules). Added the US-4 slice to `feature_list.json` (status `not_started`, instrumented-UI verification via `BasicBlocksPanelAutoCollapseTest`), added FR-020 / AC-015 / outside-interaction edge rows and the full US-4 user-story + acceptance-test table (TC-US-4-01..TC-US-4-03) to `sprint-contract.md`, and extended `platform-capability-matrix.md` scope and runtime matrix to cover US-1 through US-4. US-1, US-2, US-3 remain `passing` and unchanged.
+- Verification run: Planning-only session; no code or tests executed. Lifecycle and stage gates pending after tracker transition to `Awaiting implementation approval`.
+- Evidence captured: `spec_amendment_v1.md`, amended `spec.md`/`design.md`, updated `feature_list.json`, `sprint-contract.md`, `platform-capability-matrix.md`, and this `progress.md`.
+- Files or artifacts updated: `spec_amendment_v1.md`, `spec.md`, `design.md`, `feature_list.json`, `sprint-contract.md`, `platform-capability-matrix.md`, `progress.md`, and (next) `docs/product/product.md` tracker.
+- Known risk or unresolved issue: US-4 implementation must preserve FR-002 (no overlay/scrim) and FR-013 (read-only safety); the first outside tap must collapse only, with a second tap performing the target region's normal action. No new visual-verification owner; US-3 already owns the visual gate.
+- Priority adjustment: The `check-stage-artifacts.sh harness-planning slice-planning` gate requires the single visual-verification owner to be the final-priority slice. Because US-4 is a behavior-only amendment with no visual change, US-3 remains the sole visual-verification owner and is kept as the final-priority slice (priority 4); US-4 is an intermediate slice (priority 3). US-3's recorded VIS evidence stays intact and remains the valid final visual proof because the panel's appearance is identical with or without auto-collapse.
+- Gate results: `bash scripts/check-feature-lifecycle.sh` exited 0 (4 features, 0 in progress); `bash scripts/check-stage-artifacts.sh harness-planning slice-planning docs/product/2026-08-16-basic-blocks-sheet` exited 0; `bash scripts/check-platform-evidence.sh docs/product/2026-08-16-basic-blocks-sheet --planning` exited 0.
+- Next best step: User approval of the US-4 slice boundaries, sprint-contract rows, and platform contract. Then enter harness-generator for US-4 only.
+
+### Session 005 — US-4 Generator Delivery & Feature Completion
+
+- Date: 2026-08-16
+- Goal: Deliver the approved US-4 auto-collapse behavior (Amendment v1 / Q12) and complete all verification and lifecycle gates.
+- Completed: Implemented outside tap interception on the editor content region and non-trigger toolbar controls in `NoteEditorScreen.kt`; created `BasicBlocksPanelAutoCollapseTest.kt` covering `TC-US-4-01`, `TC-US-4-02`, and `TC-US-4-03`.
+- Verification run: All 3 connected UI tests passed on emulator-5554; `check-platform-evidence.sh` exited 0; `koverLog` reported 83.8649% line coverage.
+- Quality run: `assembleDebug`, `ktlintFormat`, `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, and `check-architecture-rules.sh` passed cleanly with 0 violations.
+- Evidence captured: `feature_list.json` updated with passing status and command evidence for all 4 slices (`US-1`, `US-2`, `US-3`, `US-4`).
+- Tracker transition: All 4 slices passing in `feature_list.json`; transitioned `basic-blocks-sheet` tracker status in `docs/product/product.md` to `To be reviewed`. `bash scripts/check-feature-lifecycle.sh` passed cleanly with 0 in progress.
+
+

@@ -1,7 +1,7 @@
 # Feature Spec — Note Editor Basic Blocks Panel
 
 **Date**: 2026-08-16
-**Status**: Approved
+**Status**: Approved (Amendment v1 applied — see spec_amendment_v1.md)
 **Related design**: design.md
 
 ---
@@ -29,6 +29,7 @@ As a person editing a note, I want to choose a basic content block from the tool
 - Keep the existing 56 dp editor toolbar unchanged while limiting the embedded Basic blocks panel to a compact height of min(280 dp, 40% of usable editor height).
 - Use 48 dp baseline block tiles in a vertically scrollable grid so the remaining block types are reachable without enlarging the panel.
 - Use the supplied reference as the catalog-layout source while applying the project Material 3 design system.
+- Auto-collapse the open Basic blocks panel when the user interacts with the note editor content area or activates any editor toolbar control other than the Basic blocks trigger and the panel's own tiles, without inserting a block or mutating the document (per approved Amendment v1 / Q12).
 
 ### Out Of Scope
 
@@ -96,6 +97,7 @@ None. This is an on-device editor and persistence change.
 - **FR-017**: The panel MUST remain usable at increased font scale, on narrow phones, in landscape, and on tablets; its grid content MUST scroll rather than clip. A tile may expand beyond its baseline only to prevent text clipping at the user's font scale.
 - **FR-018**: Existing notes and existing editor block types MUST continue to load, edit, export, and persist without data loss.
 - **FR-019**: The Basic blocks panel MUST contain no typing, search, or filtering control; it does not independently invoke the IME.
+- **FR-020**: While the Basic blocks panel is open, when the user interacts with the note editor content area or activates any editor toolbar control other than the Basic blocks trigger and the panel's own tiles, the panel MUST collapse without inserting a block or otherwise mutating the document. The Basic blocks trigger continues to toggle the panel per FR-001/FR-012, and a tile selection continues to insert and collapse per FR-006/FR-007/FR-008. (Added by approved Amendment v1 / Q12.)
 
 ## Acceptance Criteria
 
@@ -113,6 +115,7 @@ None. This is an on-device editor and persistence change.
 - **AC-012**: Given a read-only note, when the editor renders, then the plus control is visible with disabled semantics; when it is tapped, then no panel expands and the document remains unchanged.
 - **AC-013**: Given a user uses increased font scale, a narrow phone, landscape, or a tablet, when the panel expands, then all tile labels remain accessible without clipping and the grid can scroll.
 - **AC-014**: Given an existing note made before this feature, when it loads, edits, saves, exports, and reloads, then its existing blocks retain their content and behavior.
+- **AC-015**: Given the Basic blocks panel is open, when the user taps inside the note editor content or activates any editor toolbar control other than the Basic blocks trigger, then the panel collapses, no block is inserted, and the document is unchanged. (Added by approved Amendment v1 / Q12.)
 
 ## Data And Persistence
 
@@ -137,6 +140,7 @@ None. This is an on-device editor and persistence change.
 | Unknown stored block type | Preserve readable content safely and do not crash; use the existing compatibility fallback. |
 | Toggle state | Keep the user-visible expanded/collapsed state after auto-save and reload. |
 | Small viewport / large text | Permit vertical scrolling; do not truncate a tile's label or make it unreachable. |
+| Outside interaction while panel open | Collapse the panel without mutation when the user taps editor content or any toolbar control other than the panel trigger and tiles. (Amendment v1.) |
 
 ## Explicit Assumptions
 
@@ -165,13 +169,14 @@ All questions are answered before specification approval.
 | Q9 | What is the default Toggle list state? | ✅ Answered | Insert an empty, expanded toggle item. |
 | Q10 | Should the selector be modal? | ✅ Answered | No. It is an embedded view directly under the editor toolbar. |
 | Q11 | How should the embedded tool area be sized? | ✅ Answered | Make the Basic blocks panel compact, reduce tile height, and make the grid scrollable. |
+| Q12 | When the Basic blocks panel is open and the user taps the note editor content or any other editor toolbar button, should the panel auto-close? | ✅ Answered | Yes. The panel MUST collapse without inserting a block or otherwise mutating the document. (Amendment v1.) |
 
 ## Screen States
 
 | State | Requirement | Acceptance Criteria |
 |-------|-------------|---------------------|
 | Editable / panel closed | The enabled plus trigger is visible in the existing toolbar; no selector occupies editor space. | AC-001 |
-| Editable / panel open | The Basic blocks grid is a compact, inline region directly below the toolbar; no modal or keyboard is shown. The grid scrolls to hidden rows. | AC-001 through AC-005, AC-013 |
+| Editable / panel open | The Basic blocks grid is a compact, inline region directly below the toolbar; no modal or keyboard is shown. The grid scrolls to hidden rows. The panel collapses when the user moves focus to editor content or activates any other toolbar control, without inserting a block or mutating the document. | AC-001 through AC-005, AC-013, AC-015 |
 | Selection committed | Exactly one requested block appears after the focused block (or at end), receives focus, persists, and panel collapses. | AC-006 through AC-010 |
 | Panel collapsed | The panel returns to hidden state without a document mutation. | AC-011 |
 | Read-only | The plus trigger remains visible but disabled and the panel cannot expand. | AC-012 |

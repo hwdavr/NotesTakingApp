@@ -1,7 +1,7 @@
 # Feature Design — Note Editor Basic Blocks Panel
 
 **Date**: 2026-08-16
-**Status**: Approved
+**Status**: Approved (Amendment v1 applied — see spec_amendment_v1.md)
 **Source request**: Show Basic blocks as an embedded view under the Note Editor toolbar, not as a bottom sheet.
 **Related spec**: spec.md
 **Project design system**: docs/product/design_system.md
@@ -163,6 +163,7 @@ No Page row or blank selectable tile is present.
 - The tile inserts after the focused document block; when no body block is focused, it appends at the end.
 - The new block is focused immediately so typing can begin without an extra selection step.
 - The plus control toggles the panel. Android Back collapses an open panel; no scrim, swipe, drag gesture, or close button exists.
+- **Auto-collapse on outside interaction (Amendment v1 / Q12)**: While the panel is open, interacting with the note editor content area or activating any editor toolbar control other than the Basic blocks trigger and the panel's own tiles MUST collapse the panel without inserting a block or mutating the document. This does not alter the trigger's toggle behavior (FR-001/FR-012) or a tile's insert-and-collapse behavior (FR-006/FR-007/FR-008). Typical implementation: when the panel is visible, the editor content region and non-trigger toolbar controls consume the first outside tap to collapse the panel, so a second tap is required to perform their own action; tile taps and the trigger tap are exempt because they own the panel state.
 - A vertical grid scroll is supported with TalkBack scroll actions and ordinary touch scrolling; it must reveal every tile, including the full-width Quote row, without changing the panel cap.
 - Rapid repeated taps cannot insert duplicate blocks while the panel is collapsing.
 - The panel does not contain search, filters, Page, nested-category navigation, or typing controls.
