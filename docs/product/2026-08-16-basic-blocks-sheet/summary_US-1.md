@@ -18,7 +18,7 @@
 | Code Quality Fix | ✅ Complete | 2026-08-16 18:04 +08 | Root-cause refactors resolve detekt complexity/function-count and test line-length findings; formatting, static analysis, lint, and custom compliance checks pass with no suppressions. |
 | Update State | ✅ Complete | 2026-08-16 18:11 +08 | US-1 is `passing` with objective Test ID evidence; product documentation is current, lifecycle remains valid, and scoped implementation commit `4163c80` is recorded. |
 | Clean Exit | ✅ Complete | 2026-08-16 18:19 +08 | Every clean-state checklist item was evaluated, all applicable checks pass, and the handoff documents the intentional US-2/US-3 boundaries plus preserved unrelated workspace changes. |
-| Install App To Device | ⏳ Pending | — | |
+| Install App To Device | ✅ Complete | 2026-08-16 18:21 +08 | `installDebug` exited 0 and installed the debug APK on the connected `emulator-5554` / `Medium_Phone(AVD) - 13`. |
 
 ## Baseline Goals and Scope
 
@@ -122,3 +122,8 @@
 - `./gradlew connectedDebugAndroidTest` — exit 0. Evidence excerpt: `Finished 116 tests on Medium_Phone(AVD) - 13`.
 - `./gradlew ktlintCheck`, `./gradlew detekt`, and `./gradlew lintDebug` — final import-fix replay exits 0.
 - `bash scripts/check-feature-lifecycle.sh` — exit 0. Evidence excerpt: `Feature lifecycle tracker valid: 4 feature(s), 1 in progress.`
+
+### Install App To Device
+
+- `adb devices` — evidence excerpt: `emulator-5554 device`.
+- `./gradlew installDebug --console=plain` — exit 0. Evidence excerpt: `Installed on 1 device.`

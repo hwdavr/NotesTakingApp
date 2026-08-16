@@ -3,12 +3,12 @@
 ## Verified Now
 
 - What is currently working: US-1 persists and renders paragraph, H1–H4, bulleted, numbered, to-do, Toggle, Callout, and Quote blocks. Legacy `heading` normalizes to `heading_1`; unknown text-like blocks retain readable content; Toggle expanded state persists; edits, splits, auto-save/reload, Markdown, and PDF retain the supported types.
-- What verification actually ran: all four US-1 contract commands, full JVM suite (368/368, zero failures/errors), Kover (83.8191% application line coverage; ViewModel 95.7%), assemble, Ktlint, Detekt, Lint, Compose/localization/architecture checks, US-1 platform evidence, and the full connected suite (116/116 on `Medium_Phone(AVD) - 13`).
+- What verification actually ran: all four US-1 contract commands, full JVM suite (368/368, zero failures/errors), Kover (83.8191% application line coverage; ViewModel 95.7%), assemble, Ktlint, Detekt, Lint, Compose/localization/architecture checks, US-1 platform evidence, the full connected suite (116/116 on `Medium_Phone(AVD) - 13`), and `installDebug` on `emulator-5554`.
 
 ## Changed This Session
 
 - Code or behavior added: canonical block-type mapper/factory; backward-compatible document serialization; Toggle expansion mutation; type-preserving split behavior; editor render treatments/tags/localized Toggle semantics; Markdown/PDF treatment; JVM and repository-backed integration coverage; shared JSON autosave scenario.
-- Infrastructure or harness changes: no dependency, Room schema, OpenAPI, permission, navigation, or harness change. The feature workspace, evidence, progress log, and product tracker were committed with `4163c80`.
+- Infrastructure or harness changes: no dependency, Room schema, OpenAPI, permission, navigation, or harness change. The feature workspace, evidence, progress log, and product tracker were committed with `4163c80`; the runtime-test import correction and clean-exit artifacts were committed with `a1e46f5`.
 
 ## Broken Or Unverified
 
@@ -25,6 +25,6 @@
 
 ## Commands
 
-- Startup: `adb devices`, then open the existing Note Editor on `emulator-5554`.
+- Startup: `adb devices`, `./gradlew installDebug`, then open the existing Note Editor on `emulator-5554`.
 - Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew assembleDebug`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, and `bash scripts/check-feature-lifecycle.sh`.
 - Focused debug command: `./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest'`.
