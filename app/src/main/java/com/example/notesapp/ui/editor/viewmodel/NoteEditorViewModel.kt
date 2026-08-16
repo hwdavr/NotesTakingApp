@@ -22,6 +22,7 @@ import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.UUID
@@ -45,6 +46,7 @@ data class NoteEditorUiState(
     val isLoaded: Boolean = false,
     val isFormattingToolbarVisible: Boolean = false,
     val focusedBlockId: String? = null,
+    val focusedTableCells: Map<String, TableFocusTarget> = emptyMap(),
     val selectionStart: Int = 0,
     val selectionEnd: Int = 0,
     val isFavorite: Boolean = false,
@@ -603,6 +605,32 @@ fun NoteEditorViewModel.insertTableColumnLeft(blockId: String, columnIndex: Int)
 
 fun NoteEditorViewModel.onTableAction(action: TableHandleAction) {
     when (action) {
+        is TableHandleAction.FocusCell -> if (tableCanEdit()) {
+            val table = currentTableBlock(action.blockId)
+            if (table != null &&
+                action.rowIndex in table.rows.indices &&
+                action.columnIndex in 0 until table.columnCount()
+            ) {
+                val current = uiStateInternal.value
+                val target = TableFocusTarget(
+                    rowIndex = action.rowIndex,
+                    columnIndex = action.columnIndex
+                )
+                if (current.focusedTableCells[action.blockId] != target) {
+                    uiStateInternal.value = current.copy(
+                        focusedTableCells = current.focusedTableCells + (action.blockId to target)
+                    )
+                }
+            }
+        }
+        is TableHandleAction.ClearFocus -> {
+            val current = uiStateInternal.value
+            if (action.blockId in current.focusedTableCells) {
+                uiStateInternal.value = current.copy(
+                    focusedTableCells = current.focusedTableCells - action.blockId
+                )
+            }
+        }
         is TableHandleAction.InsertColumnLeft -> insertTableColumnLeft(action.blockId, action.columnIndex)
         is TableHandleAction.InsertColumnRight -> insertTableColumnRight(action.blockId, action.columnIndex)
         is TableHandleAction.DeleteColumn -> deleteTableColumn(action.blockId, action.columnIndex)
@@ -771,19 +799,28 @@ private fun NoteEditorViewModel.removeTableBlock(blockId: String) {
     }
     commitTableDocument(
         document = current.document.copy(blocks = remainingBlocks),
-        focusedBlockId = nextFocusedBlockId
+        focusedBlockId = nextFocusedBlockId,
+        focusedTableCells = current.focusedTableCells - blockId
     )
 }
 
 private fun NoteEditorViewModel.commitTableDocument(
     document: NoteDocument,
-    focusedBlockId: String? = uiStateInternal.value.focusedBlockId
+    focusedBlockId: String? = uiStateInternal.value.focusedBlockId,
+    focusedTableCells: Map<String, TableFocusTarget> = uiStateInternal.value.focusedTableCells
 ) {
     val current = uiStateInternal.value
-    if (document == current.document && focusedBlockId == current.focusedBlockId) return
+    if (
+        document == current.document &&
+        focusedBlockId == current.focusedBlockId &&
+        focusedTableCells == current.focusedTableCells
+    ) {
+        return
+    }
     uiStateInternal.value = current.copy(
         document = document,
-        focusedBlockId = focusedBlockId
+        focusedBlockId = focusedBlockId,
+        focusedTableCells = focusedTableCells
     )
     scheduleAutoSave()
 }

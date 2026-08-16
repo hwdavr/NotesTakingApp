@@ -1,7 +1,22 @@
 package com.example.notesapp.ui.editor.model
 
+data class TableFocusTarget(
+    val rowIndex: Int,
+    val columnIndex: Int
+)
+
 sealed interface TableHandleAction {
     val blockId: String
+
+    data class FocusCell(
+        override val blockId: String,
+        val rowIndex: Int,
+        val columnIndex: Int
+    ) : TableHandleAction
+
+    data class ClearFocus(
+        override val blockId: String
+    ) : TableHandleAction
 
     data class InsertColumnLeft(
         override val blockId: String,

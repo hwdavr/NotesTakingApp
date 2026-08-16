@@ -17,6 +17,7 @@ import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -448,6 +449,23 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
         viewModel.onTableAction(TableHandleAction.DeleteTable(tableId))
         assertTrue(viewModel.uiState.value.document.blocks.none { it.id == tableId })
+    }
+
+    @Test
+    fun tableFocusActionsPersistTargetInViewModelState() = runTest {
+        val tableId = "table-focus"
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = tableRows("A", "B", "C", "D")))
+
+        viewModel.onTableAction(TableHandleAction.FocusCell(tableId, rowIndex = 1, columnIndex = 0))
+
+        assertEquals(
+            TableFocusTarget(rowIndex = 1, columnIndex = 0),
+            viewModel.uiState.value.focusedTableCells[tableId]
+        )
+
+        viewModel.onTableAction(TableHandleAction.ClearFocus(tableId))
+
+        assertTrue(tableId !in viewModel.uiState.value.focusedTableCells)
     }
 
     @Test

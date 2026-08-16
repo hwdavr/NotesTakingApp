@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -134,6 +135,7 @@ import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
+import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
@@ -263,7 +265,12 @@ fun NoteEditorScreenContent(
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
     onDeleteVoiceAudio: ((String) -> Unit)? = null,
-    onTableAction: (TableHandleAction) -> Unit = {},
+    onTableAction: (TableHandleAction) -> Unit = { action ->
+        error(
+            "NoteEditorScreenContent requires an onTableAction callback; " +
+                "received ${action::class.simpleName}"
+        )
+    },
     onConfirmCategorization: () -> Unit = {},
     onCancelCategorization: () -> Unit = {},
     onConfirmManualMove: () -> Unit = {},
@@ -433,6 +440,7 @@ fun NoteEditorScreenContent(
                             onToggleCheckboxChecked = onToggleCheckboxChecked,
                             onImageChange = onImageChange,
                             onTableCellChange = onTableCellChange,
+                            focusedTableCells = state.focusedTableCells,
                             onTableAction = onTableAction,
                             onBlockFocused = onBlockFocused,
                             onSelectionChange = onSelectionChange,
@@ -747,6 +755,7 @@ private fun DocumentBlockList(
     onToggleCheckboxChecked: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    focusedTableCells: Map<String, TableFocusTarget>,
     onTableAction: (TableHandleAction) -> Unit,
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
@@ -807,6 +816,7 @@ private fun DocumentBlockList(
                         onCellChange = { row, cell, value ->
                             onTableCellChange(block.id, row, cell, value)
                         },
+                        focusedCell = focusedTableCells[block.id],
                         onAction = onTableAction,
                         clearFocusTrigger = tableFocusResetTrigger
                     )
@@ -1158,12 +1168,12 @@ private fun ImageDocumentBlock(
 private fun TableDocumentBlock(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
+    focusedCell: TableFocusTarget?,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onAction: (TableHandleAction) -> Unit,
     clearFocusTrigger: Int
 ) {
-    var focusedCell by remember(block.id) { mutableStateOf<FocusedTableCell?>(null) }
-    var tableHasFocus by remember(block.id) { mutableStateOf(false) }
+    var tableHasFocus by remember(block.id) { mutableStateOf(focusedCell != null) }
     var activeSheet by remember(block.id) { mutableStateOf<TableHandleSheet?>(null) }
     val columnCount = block.rows.maxOfOrNull { it.size } ?: 0
     val targetCell = focusedCell?.takeIf { target ->
@@ -1177,17 +1187,20 @@ private fun TableDocumentBlock(
 
     LaunchedEffect(clearFocusTrigger) {
         if (clearFocusTrigger > 0) {
-            focusedCell = null
             tableHasFocus = false
             activeSheet = null
+            onAction(TableHandleAction.ClearFocus(block.id))
         }
     }
     LaunchedEffect(isEditable) {
         if (!isEditable) {
-            focusedCell = null
             tableHasFocus = false
             activeSheet = null
+            onAction(TableHandleAction.ClearFocus(block.id))
         }
+    }
+    LaunchedEffect(focusedCell) {
+        tableHasFocus = focusedCell != null
     }
 
     TableDocumentBlockContent(
@@ -1199,13 +1212,10 @@ private fun TableDocumentBlock(
         onCellChange = onCellChange,
         onCellFocusChanged = { cell, hasFocus ->
             if (hasFocus && isEditable) {
-                focusedCell = cell
                 tableHasFocus = true
-            } else if (!hasFocus && focusedCell == cell) {
+                onAction(TableHandleAction.FocusCell(block.id, cell.rowIndex, cell.columnIndex))
+            } else if (!hasFocus && targetCell == cell) {
                 tableHasFocus = false
-                if (activeSheet == null) {
-                    focusedCell = null
-                }
             }
         },
         onColumnHandleClick = { activeSheet = TableHandleSheet.Column },
@@ -1225,11 +1235,11 @@ private fun TableDocumentBlock(
 private fun TableDocumentBlockContent(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
-    targetCell: FocusedTableCell?,
+    targetCell: TableFocusTarget?,
     focusedColumnIndex: Int?,
     focusedRowIndex: Int?,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onColumnHandleClick: () -> Unit,
     onRowHandleClick: () -> Unit,
     onTableHandleClick: () -> Unit
@@ -1272,11 +1282,11 @@ private fun TableDocumentBlockContent(
 private fun TableGrid(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
-    targetCell: FocusedTableCell?,
+    targetCell: TableFocusTarget?,
     focusedRowIndex: Int?,
     handlesVisible: Boolean,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
 ) {
     val columnWeights = block.tableColumnWeights()
@@ -1313,13 +1323,18 @@ private fun TableGridRow(
     row: List<List<RichText>>,
     columnWeights: List<Float>,
     isEditable: Boolean,
-    targetCell: FocusedTableCell?,
+    targetCell: TableFocusTarget?,
     focusedRowIndex: Int?,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit,
+    onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .height(IntrinsicSize.Min)
+    ) {
         if (focusedRowIndex != null) {
             if (rowIndex == focusedRowIndex) {
                 TableRowHandle(
@@ -1340,7 +1355,7 @@ private fun TableGridRow(
                 cell = cell,
                 columnWeight = columnWeights.getOrElse(cellIndex) { 1f },
                 isEditable = isEditable,
-                isFocusedCell = targetCell == FocusedTableCell(rowIndex, cellIndex),
+                isFocusedCell = targetCell == TableFocusTarget(rowIndex, cellIndex),
                 onCellChange = onCellChange,
                 onCellFocusChanged = onCellFocusChanged
             )
@@ -1357,7 +1372,7 @@ private fun RowScope.TableGridCell(
     isEditable: Boolean,
     isFocusedCell: Boolean,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onCellFocusChanged: (cell: FocusedTableCell, hasFocus: Boolean) -> Unit
+    onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit
 ) {
     val focusedCellDescription = stringResource(R.string.table_focused_cell_description)
     BasicTextField(
@@ -1375,7 +1390,7 @@ private fun RowScope.TableGridCell(
             )
             .onFocusChanged { focusState ->
                 onCellFocusChanged(
-                    FocusedTableCell(rowIndex, cellIndex),
+                    TableFocusTarget(rowIndex, cellIndex),
                     focusState.isFocused
                 )
             }
@@ -1439,7 +1454,7 @@ private fun BoxScope.TableColumnHandleRow(
 @Composable
 private fun TableHandleSheets(
     activeSheet: TableHandleSheet?,
-    targetCell: FocusedTableCell?,
+    targetCell: TableFocusTarget?,
     blockId: String,
     onDismiss: () -> Unit,
     onAction: (TableHandleAction) -> Unit
@@ -1470,11 +1485,6 @@ private fun TableHandleSheets(
         }
     }
 }
-
-private data class FocusedTableCell(
-    val rowIndex: Int,
-    val columnIndex: Int
-)
 
 private enum class TableHandleSheet {
     Column,
