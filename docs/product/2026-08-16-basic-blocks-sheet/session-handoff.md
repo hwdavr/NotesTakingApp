@@ -1,49 +1,30 @@
-# Session Handoff — Note Editor Basic Blocks Panel
+# Session Handoff — basic-blocks-sheet (US-4 Delivered)
 
 ## Verified Now
 
-- What is currently working:
-  - All 3 slices of `basic-blocks-sheet` (US-1 document model compatibility/persistence, US-2 inline catalog insertion, US-3 compact accessibility & visual verification) are `passing`.
-  - The embedded 2-column Basic blocks panel sits directly under the unchanged 56 dp editor toolbar without a modal overlay.
-  - 11 basic block tiles (excluding Page) render with 48 dp touch targets and scroll vertically through Quote within the capped min(280 dp, 40% height) panel bounds.
-  - Selecting a tile inserts the block immediately after focus (or appends when no focus), focuses the new empty block, auto-saves, and collapses the panel.
-  - Inner BackHandler and plus trigger toggle collapse the panel safely without document mutation.
-  - Read-only trigger is visible, disabled, and blocks panel expansion.
-- What verification actually ran:
-  - `./gradlew assembleDebug`
-  - `./gradlew testDebugUnitTest`
-  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest` (9/9 passed)
-  - `bash scripts/check-platform-evidence.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate --slice US-3` (passed)
-  - `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate` (passed)
-  - `./gradlew koverLog` (83.8649% line coverage)
-  - `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug` (passed)
-  - `check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh` (0 violations)
-  - `bash scripts/check-feature-lifecycle.sh` (passed, 0 in progress, tracker set to `To be reviewed`)
+- What is currently working: All 4 vertical slices (`US-1`, `US-2`, `US-3`, `US-4`) are complete and `passing`. US-4 auto-collapse behavior (Amendment v1 / Q12) collapses the open Basic blocks panel on outside interaction (tapping note editor content or non-trigger toolbar controls) without block insertion, focus change, or document mutation.
+- What verification actually ran: `BasicBlocksPanelAutoCollapseTest` (3/3 passed on `emulator-5554`), `assembleDebug`, `testDebugUnitTest` (368 passed), `koverLog` (83.8649%), `ktlintCheck`, `detekt`, `lintDebug`, `check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh`, `check-platform-evidence.sh`, and `check-feature-lifecycle.sh` (0 in progress, 4 valid features).
 
 ## Changed This Session
 
-- Code or behavior added:
-  - Added `BasicBlocksPanelScreenTest.kt` covering accessibility, bounds, compact geometry, scrolling, Back dismissal, read-only safety, font scaling, light/dark themes, and screenshot capture.
-  - Added `visual_evidence/reference-anchor-verification.md` and captured top and scrolled screenshots `basic_blocks_panel_top.png` and `basic_blocks_panel_scrolled.png`.
-- Infrastructure or harness changes:
-  - Updated `feature_list.json` status to `passing` for US-3 with full objective command evidence.
-  - Updated `docs/product/product.md` tracker status to `To be reviewed`.
+- Code or behavior added: Outside tap pointerInput interception on the editor content region and `handleToolbarClick` on non-trigger toolbar controls in `NoteEditorScreen.kt`; `BasicBlocksPanelAutoCollapseTest.kt` with `TC-US-4-01`, `TC-US-4-02`, `TC-US-4-03`.
+- Infrastructure or harness changes: Updated `feature_list.json`, `sprint-contract.md`, `progress.md`, `summary_US-4.md`, `clean-state-checklist.md`, and `product.md` tracker status set to `To be reviewed`.
 
 ## Broken Or Unverified
 
 - Known defect: None.
 - Unverified path: None.
-- Risk for the next session: None. Evaluator agent will run `harness-evaluation` workflow to score the completed feature.
+- Risk for the next session: Low; all 4 feature slices pass, baseline build and tests are green.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: Evaluator review of `basic-blocks-sheet`.
-- Why it is next: All slices are `passing` and tracker is `To be reviewed`. The Evaluator agent must score the implementation.
-- What counts as passing: Evaluation score >= 5.0/5 across code review, test review, visual review, and quality gates.
-- What must not change during that step: Functional requirements FR-001 through FR-019 and visual design contract.
+- Highest-priority unfinished feature: None in this workspace; feature is ready for independent evaluation review via `harness-evaluation`.
+- Why it is next: All 4 slices are passing and tracker status is `To be reviewed`.
+- What counts as passing: Evaluator scoring 5.0/5 across all categories.
+- What must not change during that step: Application code and tests should remain intact unless evaluator identifies findings.
 
 ## Commands
 
-- Startup: `./gradlew assembleDebug`
-- Verification: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelScreenTest`
-- Focused debug command: `bash scripts/check-visual-evidence-contract.sh docs/product/2026-08-16-basic-blocks-sheet --evaluate`
+- Startup: `bash scripts/check-feature-lifecycle.sh`
+- Verification: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.BasicBlocksPanelAutoCollapseTest`
+- Focused debug command: `./gradlew testDebugUnitTest`

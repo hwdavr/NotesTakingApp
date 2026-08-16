@@ -1,7 +1,7 @@
-# Clean State Checklist — US-3
+# Clean State Checklist — US-4
 
 **Feature workspace**: `docs/product/2026-08-16-basic-blocks-sheet/`
-**Slice**: US-3 — Complete the compact, accessible basic-blocks experience
+**Slice**: US-4 — Auto-collapse the Basic blocks panel on outside interaction
 **Checked**: 2026-08-16
 
 ## 1. Build & Compilation
@@ -23,9 +23,9 @@
 
 ## 3. Runtime & Stability
 
-- [x] **Data Persistence** — document mutations and basic block insertions save and reload cleanly.
+- [x] **Data Persistence** — document state and focus remain intact on outside tap collapse.
 - [x] **Resource Management** — no leaked listeners or background tasks.
-- [x] **Navigation Integrity** — inner BackHandler collapses open panel without interrupting editor navigation.
+- [x] **Navigation Integrity** — inner BackHandler and outside tap collapse open panel without interrupting editor navigation.
 - [x] **Secure Sandbox** — on-device note storage; no untrusted IPC.
 - [x] **Dispatcher Discipline** — main thread unblocked; coroutines dispatched properly.
 
@@ -34,12 +34,12 @@
 - [x] **Test Run** — `./gradlew testDebugUnitTest` exited 0.
 - [x] **Global Coverage** — `./gradlew koverLog` reported 83.8649% line coverage (minimum 80%).
 - [x] **Feature Coverage** — ViewModel and component logic fully covered.
-- [x] **Visual Reference Anchors** — `visual_evidence/reference-anchor-verification.md` created with top and scrolled states; `check-visual-evidence-contract.sh` passed.
-- [x] **Platform Capability Matrix** — `check-platform-evidence.sh` passed for US-3.
-- [x] **Real Platform Boundary** — 9/9 connected UI tests passed on `emulator-5554`.
+- [x] **Visual Reference Anchors** — US-3 visual evidence and reference-anchor verification remain valid.
+- [x] **Platform Capability Matrix** — `check-platform-evidence.sh` passed for US-4.
+- [x] **Real Platform Boundary** — 3/3 connected UI tests passed on `emulator-5554`.
 - [x] **Mock Data Discipline** — UI tests use production stateless composable with mock states.
 - [x] **TDD Cleanup** — no `@Ignore` or `@Disabled` annotations in test source.
-- [x] **Android Runtime Suite** — `BasicBlocksPanelScreenTest` passed on emulator-5554.
+- [x] **Android Runtime Suite** — `BasicBlocksPanelAutoCollapseTest` passed on emulator-5554.
 - [x] **Android Lint** — `./gradlew lintDebug` exited 0.
 
 ## 5. Observability & Logging
@@ -57,7 +57,7 @@
 
 ## 7. Documentation & Handoff
 
-- [x] **Progress Audit** — `progress.md`, `feature_list.json`, `product.md`, and `summary_US-3.md` updated.
+- [x] **Progress Audit** — `progress.md`, `feature_list.json`, `product.md`, and `summary_US-4.md` updated.
 - [x] **Session Handoff** — `session-handoff.md` written.
 - [x] **ADRs & Pitfalls** — `docs/knowledge/pitfalls/2026-08-16-visual-reference-anchor-evidence.md` cited.
 - [x] **Harness Lifecycle** — `bash scripts/check-feature-lifecycle.sh` exited 0: tracker status set to `To be reviewed` with 0 in progress.
