@@ -119,7 +119,8 @@ sealed class EditorBlock {
     ) : EditorBlock()
     data class TableBlock(
         override val id: String = newBlockId(),
-        val rows: List<List<List<RichText>>> = defaultTableRows()
+        val rows: List<List<List<RichText>>> = defaultTableRows(),
+        val fitToWidth: Boolean = false
     ) : EditorBlock()
     data class Voice(
         val blockId: String,
@@ -247,6 +248,7 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("id", id)
         .put("type", "table")
         .put("rows", rows.toRowsJson())
+        .put("fitToWidth", fitToWidth)
     is EditorBlock.Voice -> JSONObject()
         .put("id", id)
         .put("blockId", blockId)
@@ -276,7 +278,8 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
         )
         "table" -> EditorBlock.TableBlock(
             id = id,
-            rows = optJSONArray("rows").toRows()
+            rows = optJSONArray("rows").toRows(),
+            fitToWidth = optBoolean("fitToWidth", false)
         )
         "voice" -> EditorBlock.Voice(
             blockId = optString("blockId", id),

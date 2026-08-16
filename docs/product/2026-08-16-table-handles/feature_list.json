@@ -34,10 +34,68 @@
       "user_visible_behavior": "Table commands produce the specified updated document immediately and persist through the existing editor save path.",
       "affects_ui": false,
       "requires_visual_verification": false,
-      "status": "not_started",
-      "acceptance_test_ids": ["TC-US-1-01", "TC-US-1-02", "TC-US-1-03", "TC-US-1-04", "TC-US-1-05", "TC-US-1-06"],
-      "verification": ["./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest'"],
-      "evidence": [],
+      "status": "passing",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03",
+        "TC-US-1-04",
+        "TC-US-1-05",
+        "TC-US-1-06"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest' --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest'"
+      ],
+      "evidence": [
+        {
+          "test_id": "TC-US-1-01",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering column and row insertion positions and empty-cell creation."
+        },
+        {
+          "test_id": "TC-US-1-02",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering non-final and final row/column deletion and table deletion."
+        },
+        {
+          "test_id": "TC-US-1-03",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering cell, row, column, and whole-table clearing."
+        },
+        {
+          "test_id": "TC-US-1-04",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering adjacent deep-copy duplication with independent IDs and nested content."
+        },
+        {
+          "test_id": "TC-US-1-05",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 49 NoteEditorViewModelTest tests covering fit-to-width toggle persistence in editor state."
+        },
+        {
+          "test_id": "TC-US-1-06",
+          "command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "executed_command": "./gradlew testDebugUnitTest --tests 'com.example.notesapp.ui.editor.mapper.NoteDocumentTest' --tests 'com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest'",
+          "exit_status": 0,
+          "attempts": 1,
+          "result": "2026-08-16 final-code run: passed 65 tests total (16 NoteDocumentTest, 49 NoteEditorViewModelTest), including legacy fitToWidth default, JSON round-trip, read-only no-op, and auto-save assertions."
+        }
+      ],
       "notes": "Foundational slice; no API or database migration."
     },
     {
@@ -51,8 +109,15 @@
       "affects_ui": true,
       "requires_visual_verification": false,
       "status": "not_started",
-      "acceptance_test_ids": ["TC-US-2-01", "TC-US-2-02", "TC-US-2-03", "TC-US-2-04"],
-      "verification": ["ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest"],
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02",
+        "TC-US-2-03",
+        "TC-US-2-04"
+      ],
+      "verification": [
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest"
+      ],
       "evidence": [],
       "notes": "Intermediate UI slice; final visual verification is owned by US-3."
     },
@@ -67,8 +132,26 @@
       "affects_ui": true,
       "requires_visual_verification": true,
       "status": "not_started",
-      "acceptance_test_ids": ["TC-US-3-01", "TC-US-3-02", "TC-US-3-03", "TC-US-3-04", "TC-US-3-05", "TC-US-3-06", "TC-US-3-VIS-01", "TC-US-3-VIS-02", "TC-US-3-VIS-03", "TC-US-3-VIS-04"],
-      "verification": ["ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureFocusedTableState", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureColumnOptionsSheet", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureRowOptionsSheet", "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet", "mkdir -p \"$FEATURE_DIR/visual_evidence\" && test -s \"$FEATURE_DIR/visual_evidence/table_handles_focused.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_column_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_row_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_options_sheet.png\""],
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-02",
+        "TC-US-3-03",
+        "TC-US-3-04",
+        "TC-US-3-05",
+        "TC-US-3-06",
+        "TC-US-3-VIS-01",
+        "TC-US-3-VIS-02",
+        "TC-US-3-VIS-03",
+        "TC-US-3-VIS-04"
+      ],
+      "verification": [
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest",
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureFocusedTableState",
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureColumnOptionsSheet",
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureRowOptionsSheet",
+        "ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.TableHandlesScreenTest#captureTableOptionsSheet",
+        "mkdir -p \"$FEATURE_DIR/visual_evidence\" && test -s \"$FEATURE_DIR/visual_evidence/table_handles_focused.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_column_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_row_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/table_options_sheet.png\""
+      ],
       "evidence": [],
       "notes": "Only slice with requires_visual_verification=true. Screenshot commands must first assert the production state in the instrumented test."
     }

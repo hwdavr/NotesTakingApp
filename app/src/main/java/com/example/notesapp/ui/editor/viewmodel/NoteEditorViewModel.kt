@@ -339,6 +339,7 @@ open class NoteEditorViewModel @Inject constructor(
             )
         }
     }
+
     fun onFolderSelected(folderId: String?) {
         if (!canEdit()) return
         uiStateInternal.value = uiStateInternal.value.copy(folderId = folderId)
@@ -587,6 +588,211 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
 }
+
+fun NoteEditorViewModel.insertTableColumnLeft(blockId: String, columnIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (columnIndex !in 0 until block.columnCount()) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.map { row ->
+                row.withInsertedCell(columnIndex)
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.insertTableColumnRight(blockId: String, columnIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (columnIndex !in 0 until block.columnCount()) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.map { row ->
+                row.withInsertedCell(columnIndex + 1)
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.deleteTableColumn(blockId: String, columnIndex: Int) {
+    if (!tableCanEdit()) return
+    val table = currentTableBlock(blockId) ?: return
+    if (columnIndex !in 0 until table.columnCount()) return
+    if (table.columnCount() == 1) {
+        removeTableBlock(blockId)
+        return
+    }
+    mutateTableBlock(blockId) { block ->
+        block.copy(
+            rows = block.rows.map { row ->
+                row.toMutableList().apply {
+                    if (columnIndex < size) removeAt(columnIndex)
+                }
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.clearTableColumn(blockId: String, columnIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (columnIndex !in 0 until block.columnCount()) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.map { row ->
+                row.mapIndexed { cellIndex, cell ->
+                    if (cellIndex == columnIndex) emptyTableCell() else cell
+                }
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.insertTableRowAbove(blockId: String, rowIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (rowIndex !in block.rows.indices) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.toMutableList().apply {
+                add(rowIndex, emptyTableRow(block.columnCount()))
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.insertTableRowBelow(blockId: String, rowIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (rowIndex !in block.rows.indices) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.toMutableList().apply {
+                add(rowIndex + 1, emptyTableRow(block.columnCount()))
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.deleteTableRow(blockId: String, rowIndex: Int) {
+    if (!tableCanEdit()) return
+    val table = currentTableBlock(blockId) ?: return
+    if (rowIndex !in table.rows.indices) return
+    if (table.rows.size == 1) {
+        removeTableBlock(blockId)
+        return
+    }
+    mutateTableBlock(blockId) { block ->
+        block.copy(rows = block.rows.filterIndexed { index, _ -> index != rowIndex })
+    }
+}
+
+fun NoteEditorViewModel.clearTableRow(blockId: String, rowIndex: Int) {
+    mutateTableBlock(blockId) { block ->
+        if (rowIndex !in block.rows.indices) return@mutateTableBlock null
+        block.copy(
+            rows = block.rows.mapIndexed { index, row ->
+                if (index == rowIndex) row.map { emptyTableCell() } else row
+            }
+        )
+    }
+}
+
+fun NoteEditorViewModel.clearTable(blockId: String) {
+    mutateTableBlock(blockId) { block ->
+        block.copy(rows = block.rows.map { row -> row.map { emptyTableCell() } })
+    }
+}
+
+fun NoteEditorViewModel.duplicateTable(blockId: String) {
+    if (!tableCanEdit()) return
+    val current = uiStateInternal.value
+    val index = current.document.blocks.indexOfFirst { it.id == blockId }
+    val table = current.document.blocks.getOrNull(index) as? EditorBlock.TableBlock ?: return
+    val duplicatedTable = table.deepCopy()
+    val blocks = current.document.blocks.toMutableList().apply {
+        add(index + 1, duplicatedTable)
+    }
+    commitTableDocument(current.document.copy(blocks = blocks))
+}
+
+fun NoteEditorViewModel.deleteTable(blockId: String) {
+    if (currentTableBlock(blockId) == null) return
+    removeTableBlock(blockId)
+}
+
+fun NoteEditorViewModel.toggleTableFitToWidth(blockId: String) {
+    mutateTableBlock(blockId) { block ->
+        block.copy(fitToWidth = !block.fitToWidth)
+    }
+}
+
+private fun NoteEditorViewModel.tableCanEdit(): Boolean = uiStateInternal.value.isEditable
+
+private fun NoteEditorViewModel.currentTableBlock(blockId: String): EditorBlock.TableBlock? =
+    uiStateInternal.value.document.blocks.firstOrNull { it.id == blockId } as? EditorBlock.TableBlock
+
+private fun NoteEditorViewModel.mutateTableBlock(
+    blockId: String,
+    transform: (EditorBlock.TableBlock) -> EditorBlock.TableBlock?
+) {
+    if (!tableCanEdit()) return
+    val current = uiStateInternal.value
+    val index = current.document.blocks.indexOfFirst { it.id == blockId }
+    val table = current.document.blocks.getOrNull(index) as? EditorBlock.TableBlock ?: return
+    val updatedTable = transform(table) ?: return
+    if (updatedTable == table) return
+    val blocks = current.document.blocks.toMutableList().apply {
+        this[index] = updatedTable
+    }
+    commitTableDocument(current.document.copy(blocks = blocks))
+}
+
+private fun NoteEditorViewModel.removeTableBlock(blockId: String) {
+    if (!tableCanEdit()) return
+    val current = uiStateInternal.value
+    val index = current.document.blocks.indexOfFirst { it.id == blockId }
+    if (index < 0 || current.document.blocks[index] !is EditorBlock.TableBlock) return
+    val remainingBlocks = current.document.blocks.filterNot { it.id == blockId }
+        .ifEmpty { listOf(EditorBlock.TextBlock()) }
+    val nextFocusedBlockId = if (current.focusedBlockId == blockId) {
+        remainingBlocks[index.coerceAtMost(remainingBlocks.lastIndex)].id
+    } else {
+        current.focusedBlockId
+    }
+    commitTableDocument(
+        document = current.document.copy(blocks = remainingBlocks),
+        focusedBlockId = nextFocusedBlockId
+    )
+}
+
+private fun NoteEditorViewModel.commitTableDocument(
+    document: NoteDocument,
+    focusedBlockId: String? = uiStateInternal.value.focusedBlockId
+) {
+    val current = uiStateInternal.value
+    if (document == current.document && focusedBlockId == current.focusedBlockId) return
+    uiStateInternal.value = current.copy(
+        document = document,
+        focusedBlockId = focusedBlockId
+    )
+    scheduleAutoSave()
+}
+
+private fun EditorBlock.TableBlock.columnCount(): Int = rows.maxOfOrNull { it.size } ?: 0
+
+private fun List<List<RichText>>.withInsertedCell(index: Int): List<List<RichText>> {
+    val updatedRow = toMutableList()
+    while (updatedRow.size < index) {
+        updatedRow += emptyTableCell()
+    }
+    updatedRow.add(index, emptyTableCell())
+    return updatedRow
+}
+
+private fun emptyTableCell(): List<RichText> = listOf(RichText(""))
+
+private fun emptyTableRow(columnCount: Int): List<List<RichText>> = List(columnCount) { emptyTableCell() }
+
+private fun EditorBlock.TableBlock.deepCopy(): EditorBlock.TableBlock = copy(
+    id = newBlockId(),
+    rows = rows.map { row ->
+        row.map { cell ->
+            cell.map { richText -> richText.copy(marks = richText.marks.toList()) }
+        }
+    }
+)
 
 private const val TAG = "NotesApp/NoteEditorViewModel"
 

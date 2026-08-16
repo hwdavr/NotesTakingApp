@@ -15,6 +15,7 @@ import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
+import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.text
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,6 +29,7 @@ import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -287,6 +289,193 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
             .first()
         val cellText = updatedTableBlock.rows[1][0].joinToString("") { it.text }
         assertEquals("Alice Bob", cellText)
+    }
+
+    @Test
+    fun tableInsertOperations() = runTest {
+        val tableId = "table-insert"
+        val originalRows = tableRows("A", "B", "C", "D")
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.insertTableColumnLeft(tableId, columnIndex = 0)
+        var table = currentTable(tableId)
+        assertEquals(2, table.rows.size)
+        assertEquals(3, table.rows[0].size)
+        assertEquals("", table.rows[0][0].joinToString("") { it.text })
+        assertEquals("A", table.rows[0][1].joinToString("") { it.text })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.insertTableColumnRight(tableId, columnIndex = 1)
+        table = currentTable(tableId)
+        assertEquals(3, table.rows[0].size)
+        assertEquals("B", table.rows[0][1].joinToString("") { it.text })
+        assertEquals("", table.rows[0][2].joinToString("") { it.text })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.insertTableRowAbove(tableId, rowIndex = 0)
+        table = currentTable(tableId)
+        assertEquals(3, table.rows.size)
+        assertTrue(table.rows[0].all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+        assertEquals("A", table.rows[1][0].joinToString("") { it.text })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.insertTableRowBelow(tableId, rowIndex = 1)
+        table = currentTable(tableId)
+        assertEquals(3, table.rows.size)
+        assertEquals("D", table.rows[1][1].joinToString("") { it.text })
+        assertTrue(table.rows[2].all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+
+        val unevenRows = listOf(
+            listOf(listOf(RichText("A"))),
+            listOf(listOf(RichText("B")), listOf(RichText("C")))
+        )
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = unevenRows))
+        viewModel.insertTableColumnRight(tableId, columnIndex = 1)
+        table = currentTable(tableId)
+        assertEquals(3, table.rows[0].size)
+        assertTrue(table.rows[0].drop(1).all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+    }
+
+    @Test
+    fun tableDeleteOperations() = runTest {
+        val tableId = "table-delete"
+        val originalRows = tableRows("A", "B", "C", "D")
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.deleteTableColumn(tableId, columnIndex = 0)
+        var table = currentTable(tableId)
+        assertEquals(1, table.rows[0].size)
+        assertEquals("B", table.rows[0][0].joinToString("") { it.text })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.deleteTableRow(tableId, rowIndex = 0)
+        table = currentTable(tableId)
+        assertEquals(1, table.rows.size)
+        assertEquals("C", table.rows[0][0].joinToString("") { it.text })
+
+        setEditorDocument(
+            EditorBlock.TableBlock(
+                id = tableId,
+                rows = listOf(listOf(originalRows[0][0]))
+            )
+        )
+        viewModel.deleteTableColumn(tableId, columnIndex = 0)
+        assertTrue(viewModel.uiState.value.document.blocks.none { it.id == tableId })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = listOf(originalRows[0])))
+        viewModel.deleteTableRow(tableId, rowIndex = 0)
+        assertTrue(viewModel.uiState.value.document.blocks.none { it.id == tableId })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.deleteTable(tableId)
+        assertTrue(viewModel.uiState.value.document.blocks.none { it.id == tableId })
+    }
+
+    @Test
+    fun tableClearOperations() = runTest {
+        val tableId = "table-clear"
+        val originalRows = tableRows("A", "B", "C", "D")
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+
+        viewModel.clearTableColumn(tableId, columnIndex = 0)
+        var table = currentTable(tableId)
+        assertEquals("", table.rows[0][0].joinToString("") { it.text })
+        assertEquals("B", table.rows[0][1].joinToString("") { it.text })
+        assertEquals("", table.rows[1][0].joinToString("") { it.text })
+
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = originalRows))
+        viewModel.clearTableRow(tableId, rowIndex = 1)
+        table = currentTable(tableId)
+        assertEquals("A", table.rows[0][0].joinToString("") { it.text })
+        assertEquals("", table.rows[1][0].joinToString("") { it.text })
+        assertEquals("", table.rows[1][1].joinToString("") { it.text })
+
+        viewModel.clearTable(tableId)
+        table = currentTable(tableId)
+        assertTrue(table.rows.flatten().all { cell -> cell.joinToString("") { it.text }.isEmpty() })
+    }
+
+    @Test
+    fun duplicateTableDeepCopies() = runTest {
+        val table = EditorBlock.TableBlock(
+            id = "table-duplicate",
+            rows = tableRows("A", "B", "C", "D"),
+            fitToWidth = true
+        )
+        setEditorDocument(
+            EditorBlock.TextBlock(id = "before"),
+            table,
+            EditorBlock.TextBlock(id = "after")
+        )
+
+        viewModel.duplicateTable(table.id)
+
+        val blocks = viewModel.uiState.value.document.blocks
+        val duplicate = blocks[2] as EditorBlock.TableBlock
+        assertEquals(table.rows, duplicate.rows)
+        assertEquals(table.fitToWidth, duplicate.fitToWidth)
+        assertEquals(table.id, (blocks[1] as EditorBlock.TableBlock).id)
+        assertNotSame(table.id, duplicate.id)
+        assertNotSame(table.rows, duplicate.rows)
+        assertNotSame(table.rows[0], duplicate.rows[0])
+        assertNotSame(table.rows[0][0][0], duplicate.rows[0][0][0])
+    }
+
+    @Test
+    fun toggleTableFitToWidth() = runTest {
+        val tableId = "table-fit"
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = tableRows("A", "B", "C", "D")))
+
+        viewModel.toggleTableFitToWidth(tableId)
+        assertTrue(currentTable(tableId).fitToWidth)
+        viewModel.toggleTableFitToWidth(tableId)
+        assertTrue(!currentTable(tableId).fitToWidth)
+    }
+
+    @Test
+    fun readOnlyTableCommandsAreNoOps() = runTest {
+        val tableId = "table-read-only"
+        val table = EditorBlock.TableBlock(id = tableId, rows = tableRows("A", "B", "C", "D"))
+        setEditorDocument(table, editable = false)
+        val initialDocument = viewModel.uiState.value.document
+
+        viewModel.insertTableColumnLeft(tableId, 0)
+        viewModel.insertTableColumnRight(tableId, 0)
+        viewModel.deleteTableColumn(tableId, 0)
+        viewModel.clearTableColumn(tableId, 0)
+        viewModel.insertTableRowAbove(tableId, 0)
+        viewModel.insertTableRowBelow(tableId, 0)
+        viewModel.deleteTableRow(tableId, 0)
+        viewModel.clearTableRow(tableId, 0)
+        viewModel.clearTable(tableId)
+        viewModel.duplicateTable(tableId)
+        viewModel.deleteTable(tableId)
+        viewModel.toggleTableFitToWidth(tableId)
+        advanceTimeBy(2_001)
+
+        assertEquals(initialDocument, viewModel.uiState.value.document)
+        coVerify(exactly = 0) { noteRepository.save(any()) }
+    }
+
+    @Test
+    fun tableOperationsAutoSaveUpdatedDocument() = runTest {
+        val tableId = "table-save"
+        setEditorDocument(EditorBlock.TableBlock(id = tableId, rows = tableRows("A", "B", "C", "D")))
+
+        viewModel.clearTableColumn(tableId, columnIndex = 0)
+        advanceTimeBy(2_001)
+
+        coVerify {
+            noteRepository.save(
+                match { note ->
+                    val savedTable = NoteDocument.fromContent(note.content).blocks
+                        .filterIsInstance<EditorBlock.TableBlock>()
+                        .single()
+                    savedTable.rows[0][0].joinToString("") { it.text }.isEmpty() &&
+                        savedTable.rows[0][1].joinToString("") { it.text } == "B"
+                }
+            )
+        }
     }
 
     @Test
@@ -655,6 +844,29 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals("checkbox", updatedBlock.type)
         assertEquals("Buy milk", updatedBlock.text())
     }
+
+    private fun setEditorDocument(vararg blocks: EditorBlock, editable: Boolean = true) {
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "table-note",
+            title = "Table note",
+            document = NoteDocument(blocks = blocks.toList()),
+            isEditable = editable,
+            isLoaded = true
+        )
+    }
+
+    private fun currentTable(tableId: String): EditorBlock.TableBlock =
+        viewModel.uiState.value.document.blocks.first { it.id == tableId } as EditorBlock.TableBlock
+
+    private fun tableRows(
+        firstCell: String,
+        secondCell: String,
+        thirdCell: String,
+        fourthCell: String
+    ): List<List<List<RichText>>> = listOf(
+        listOf(listOf(RichText(firstCell)), listOf(RichText(secondCell))),
+        listOf(listOf(RichText(thirdCell)), listOf(RichText(fourthCell)))
+    )
 
     private class FakeNoteSummarizer : NoteSummarizer {
         val inputs = mutableListOf<Pair<String, String>>()

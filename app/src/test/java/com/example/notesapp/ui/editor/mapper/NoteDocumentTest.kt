@@ -211,6 +211,39 @@ class NoteDocumentTest {
     }
 
     @Test
+    fun legacyTableDefaultsFitToWidth() {
+        val legacyJson = """
+            {
+              "version": 1,
+              "blocks": [
+                {
+                  "id": "table-1",
+                  "type": "table",
+                  "rows": [[[{"text": "Name"}]]]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val restored = NoteDocument.fromContent(legacyJson)
+        val table = restored.blocks.single() as EditorBlock.TableBlock
+
+        assertTrue(!table.fitToWidth)
+        assertTrue(!restored.toJsonString().contains("\"fitToWidth\":true"))
+    }
+
+    @Test
+    fun tableFitToWidthRoundTrips() {
+        val original = NoteDocument(
+            blocks = listOf(EditorBlock.TableBlock(fitToWidth = true))
+        )
+
+        val restored = NoteDocument.fromContent(original.toJsonString())
+
+        assertTrue((restored.blocks.single() as EditorBlock.TableBlock).fitToWidth)
+    }
+
+    @Test
     fun `toMarkdown handles checkbox states`() {
         val doc = NoteDocument(
             blocks = listOf(
