@@ -18,7 +18,7 @@
 | Code Quality Fix | ✅ Complete | 2026-08-16 09:52 | Build, formatting, static analysis, Android lint, and all repository architecture/Compose/localization checks pass with no suppressions. |
 | Update State | ✅ Complete | 2026-08-16 09:55 | US-1 marked `passing` with six acceptance evidence records; tracker remains `In Progress` because US-2 and US-3 are not started. Commit `aa95f95`. |
 | Clean Exit | ⚠️ Complete with documented concurrent edit | 2026-08-16 10:02 | Clean-state checklist and session handoff completed; final JVM verification is green. A concurrent US-2 generator edit to `feature_list.json` is preserved and excluded from this task. |
-| Install App To Device | ⏳ Pending | | |
+| Install App To Device | ✅ Complete | 2026-08-16 10:07 | `./gradlew installDebug` exited 0 and installed the debug APK on both connected runtimes. |
 
 ## Baseline Goals and Scope
 
@@ -110,3 +110,10 @@
 - `docs/product/2026-08-16-table-handles/session-handoff.md` — verified state, changed behavior, unverified next-slice paths, and next-step commands recorded using the required template.
 - Final pre-install verification: `./gradlew testDebugUnitTest` — exit 0; evidence excerpt: `BUILD SUCCESSFUL`.
 - Final repository gate: implementation commit `aa95f95` and clean-exit documentation commit `99ec90d` are present. The overall tracker remains `In Progress` and was not moved to human review; a concurrent generator has since marked US-2 `in_progress`.
+
+### Install App To Device
+
+- Command: `./gradlew installDebug`
+- Result: exit 0 — `Installed on 2 devices.`
+- Devices: `Pixel 9 Pro - 17` and `Medium_Phone(AVD) - 13`.
+- The concurrent US-2 generator also created `summary_US-2.md`; that untracked work is outside US-1 and is preserved.

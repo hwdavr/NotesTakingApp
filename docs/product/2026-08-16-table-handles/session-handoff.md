@@ -3,7 +3,7 @@
 ## Verified Now
 
 - What is currently working: US-1 table model and persistence operations are implemented and marked `passing`: backward-compatible `fitToWidth`, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, fit toggle, read-only guards, and existing auto-save.
-- What verification actually ran: all six exact US-1 acceptance commands; `./gradlew testDebugUnitTest` (355 tests); `./gradlew koverLog` (83.8224%); `assembleDebug`; `ktlintCheck`; `detekt`; `lintDebug`; Compose, localization, architecture, duplicate-class, platform-evidence, and lifecycle checks. The app is installed in Stage 9 after this handoff is finalized.
+- What verification actually ran: all six exact US-1 acceptance commands; `./gradlew testDebugUnitTest` (355 tests); `./gradlew koverLog` (83.8224%); `assembleDebug`; `ktlintCheck`; `detekt`; `lintDebug`; Compose, localization, architecture, duplicate-class, platform-evidence, and lifecycle checks. `./gradlew installDebug` exited 0 and installed on `Pixel 9 Pro - 17` and `Medium_Phone(AVD) - 13`.
 
 ## Changed This Session
 
