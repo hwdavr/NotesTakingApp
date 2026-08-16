@@ -44,6 +44,7 @@ import com.example.notesapp.ui.editor.model.TableHandleAction
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
+import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import io.mockk.mockk
 import java.io.File

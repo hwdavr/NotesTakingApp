@@ -46,6 +46,7 @@ import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
