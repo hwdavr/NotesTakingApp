@@ -12,12 +12,13 @@
     agy-harness-generator.sh   — agy only
     codex-harness-generator.sh — codex only
 
-  INSTALL (one-time):
+  INSTALL / UPDATE:
     cd /path/to/NotesTakingApp
     sed -e "s|__PROJECT_ROOT__|$(pwd)|g" \
         -e "s|__HOME__|$HOME|g" \
-      harness/scripts/com.notesapp.harness-generator.plist.template \
+      docs/com.notesapp.harness-generator.plist.template \
       > ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
+    launchctl unload ~/Library/LaunchAgents/com.notesapp.harness-generator.plist 2>/dev/null || true
     launchctl load ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
 
   UNINSTALL:
