@@ -135,6 +135,7 @@ import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
+import com.example.notesapp.ui.editor.components.MermaidBlockCard
 import com.example.notesapp.ui.editor.components.TableColumnOptionsSheet
 import com.example.notesapp.ui.editor.components.TableOptionsSheet
 import com.example.notesapp.ui.editor.components.TableRowOptionsSheet
@@ -158,6 +159,7 @@ import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
+import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -239,7 +241,9 @@ fun NoteEditorScreen(
         onConfirmCategorization = { viewModel.confirmCategorization(onBack) },
         onCancelCategorization = { viewModel.cancelCategorization(onBack) },
         onConfirmManualMove = { viewModel.confirmCategorization(onBack, onMoveNote) },
-        onCancelManualMove = { viewModel.cancelCategorization(onBack) }
+        onCancelManualMove = { viewModel.cancelCategorization(onBack) },
+        onUpdateMermaidTitle = { blockId, title -> viewModel.updateMermaidBlock(blockId, title = title) },
+        onUpdateMermaidCode = { blockId, code -> viewModel.updateMermaidBlock(blockId, code = code) }
     )
 }
 
@@ -294,7 +298,10 @@ fun NoteEditorScreenContent(
     onConfirmCategorization: () -> Unit = {},
     onCancelCategorization: () -> Unit = {},
     onConfirmManualMove: () -> Unit = {},
-    onCancelManualMove: () -> Unit = {}
+    onCancelManualMove: () -> Unit = {},
+    onUpdateMermaidTitle: (blockId: String, title: String) -> Unit = { _, _ -> },
+    onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
+    onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -501,6 +508,9 @@ fun NoteEditorScreenContent(
                             onSelectionChange = onSelectionChange,
                             onDeleteBlock = onDeleteBlock,
                             onDeleteVoiceAudio = onDeleteVoiceAudio,
+                            onUpdateMermaidTitle = onUpdateMermaidTitle,
+                            onUpdateMermaidCode = onUpdateMermaidCode,
+                            onOpenMermaidFullscreen = onOpenMermaidFullscreen,
                             focusedBlockId = state.focusedBlockId,
                             selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
@@ -822,6 +832,9 @@ private fun DocumentBlockList(
     onSelectionChange: (Int, Int) -> Unit,
     onDeleteBlock: (String) -> Unit,
     onDeleteVoiceAudio: ((String) -> Unit)? = null,
+    onUpdateMermaidTitle: ((String, String) -> Unit)? = null,
+    onUpdateMermaidCode: ((String, String) -> Unit)? = null,
+    onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     focusedBlockId: String?,
     selectionStart: Int,
     selectionEnd: Int,
@@ -840,29 +853,27 @@ private fun DocumentBlockList(
             }
         }
     }
-    Column(
-        modifier = Modifier.fillMaxWidth().testTag("rich_document_blocks"),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
+    Column {
         blocks.forEach { block ->
-            val focusRequester = focusRequesters.getOrPut(block.id) { FocusRequester() }
             when (block) {
-                is EditorBlock.TextBlock ->
+                is EditorBlock.TextBlock -> {
+                    val requester = focusRequesters.getOrPut(block.id) { FocusRequester() }
                     TextDocumentBlock(
                         block = block,
                         isEditable = isEditable,
-                        onChange = { onTextBlockChange(block.id, it) },
+                        onChange = { text -> onTextBlockChange(block.id, text) },
                         onToggleCheckboxChecked = { onToggleCheckboxChecked(block.id) },
                         onToggleExpanded = { onToggleToggleExpanded(block.id) },
                         onFocus = { onBlockFocused(block.id) },
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
-                        focusRequester = focusRequester,
+                        focusRequester = requester,
                         selectionStart = selectionStart,
                         selectionEnd = selectionEnd,
-                        isFocused = block.id == focusedBlockId,
+                        isFocused = (block.id == focusedBlockId),
                         focusTrigger = if (block.id == lastTextBlockId) focusLastBlockTrigger else 0
                     )
+                }
                 is EditorBlock.ImageBlock ->
                     ImageDocumentBlock(
                         block = block,
@@ -890,18 +901,13 @@ private fun DocumentBlockList(
                     )
                 }
                 is EditorBlock.MermaidBlock -> {
-                    val defaultTitle = stringResource(com.example.notesapp.R.string.basic_blocks_mermaid_label)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("editor_mermaid_block_${block.id}")
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = block.title.ifBlank { defaultTitle },
-                            modifier = Modifier.testTag("editor_mermaid_title_${block.id}")
-                        )
-                    }
+                    MermaidBlockCard(
+                        block = block,
+                        isEditable = isEditable,
+                        onUpdateTitle = { title -> onUpdateMermaidTitle?.invoke(block.id, title) },
+                        onUpdateCode = { code -> onUpdateMermaidCode?.invoke(block.id, code) },
+                        onOpenFullscreen = { onOpenMermaidFullscreen?.invoke(block) }
+                    )
                 }
             }
         }

@@ -5,10 +5,27 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: `docs/product/2026-08-18-mermaid-chart-preview/`
 - Standard verification path: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Current highest-priority unfinished feature: `US-3` (Mermaid Diagram Card with Mode Toggle & Quick Template Chips)
+- Current highest-priority unfinished feature: `US-4` (Fullscreen Interactive Diagram Viewer & Visual Verification)
 - Current blocker: None
 
 ## Session Log
+
+### Session 004 — Implementation & Verification of US-3
+
+- Date: 2026-08-18
+- Goal: Implement US-3 (Mermaid Diagram Card with Mode Toggle & Quick Template Chips).
+- Completed:
+  - Added string resources for Mermaid diagram card UI in `strings.xml`.
+  - Created `MermaidBlockCard.kt` Compose component with elevated card surface, title editing, "Edit Code" / "View Chart" header toggle button, quick template chips ("Flowchart", "Sequence", "Class", "State"), monospace code editor, syntax validation status badge, inline pinch-zoom viewport, and read-only mode protection.
+  - Wired `MermaidBlockCard` into `NoteEditorScreen.kt` in `DocumentBlockList` with callbacks for title/code updates.
+  - Authored instrumented UI test suite `MermaidBlockCardTest.kt` covering `TC-US-3-01` through `TC-US-3-06`.
+- Verification run:
+  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest` -> PASS (6/6 tests passed, exit 0)
+  - `bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-18-mermaid-chart-preview --evaluate --slice US-3` -> PASS (exit 0)
+  - `./gradlew koverLog` -> PASS (Application Line Coverage: 85.64% > 80%)
+  - `./gradlew ktlintCheck` & `./gradlew detekt` -> PASS (0 violations)
+  - `bash harness/scripts/check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh` -> PASS (0 violations)
+- Files or artifacts updated: `strings.xml`, `MermaidBlockCard.kt`, `NoteEditorScreen.kt`, `MermaidBlockCardTest.kt`, `feature_list.json`, `progress.md`, `summary_US-3.md`, `product.md`.
 
 ### Session 003 — Implementation & Verification of US-2
 

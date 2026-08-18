@@ -43,6 +43,8 @@ import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.editor.viewmodel.addImageBlock
+import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.theme.NotesTakingAppTheme

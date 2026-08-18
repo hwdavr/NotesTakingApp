@@ -122,7 +122,7 @@
       "user_visible_behavior": "Mermaid block defaults to diagram preview mode. Tapping 'Edit Code' reveals code editor with template chips. Tapping template inserts starter boilerplate. Diagram can be pinched to zoom inline.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
@@ -139,7 +139,50 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testReadOnlyHidesEditControls",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testEmptyDiagramShowsPlaceholder"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-3-01",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testMermaidCardDefaultsToPreviewMode",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        },
+        {
+          "test_id": "TC-US-3-02",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testToggleBetweenPreviewAndCodeEditor",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        },
+        {
+          "test_id": "TC-US-3-03",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testTemplateChipInsertion",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        },
+        {
+          "test_id": "TC-US-3-04",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testPinchZoomWithinCard",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        },
+        {
+          "test_id": "TC-US-3-05",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testReadOnlyHidesEditControls",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        },
+        {
+          "test_id": "TC-US-3-06",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testEmptyDiagramShowsPlaceholder",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T12:28:10+08:00"
+        }
+      ],
       "notes": "Card-level interaction and editing; visual verification is owned by final slice US-4."
     },
     {

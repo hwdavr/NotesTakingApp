@@ -428,4 +428,22 @@
     <string name="basic_blocks_quote_description">Insert Quote</string>
     <string name="basic_blocks_mermaid_label">Mermaid Diagram</string>
     <string name="basic_blocks_mermaid_description">Insert Mermaid Diagram</string>
+    <string name="mermaid_edit_code">Edit Code</string>
+    <string name="mermaid_view_chart">View Chart</string>
+    <string name="mermaid_default_title">Mermaid Diagram</string>
+    <string name="mermaid_empty_placeholder">Tap Edit Code to create a diagram</string>
+    <string name="mermaid_valid_syntax">Valid Mermaid syntax</string>
+    <string name="mermaid_syntax_error_header">Syntax error in diagram code</string>
+    <string name="mermaid_template_flowchart">Flowchart</string>
+    <string name="mermaid_template_sequence">Sequence</string>
+    <string name="mermaid_template_class">Class</string>
+    <string name="mermaid_template_state">State</string>
+    <string name="mermaid_fullscreen_content_description">Expand diagram fullscreen</string>
+    <string name="mermaid_toggle_mode_content_description">Toggle diagram mode</string>
+    <string name="mermaid_copy_code">Copy Code</string>
+    <string name="mermaid_code_copied">Mermaid code copied to clipboard</string>
+    <string name="mermaid_zoom_in">Zoom in</string>
+    <string name="mermaid_zoom_out">Zoom out</string>
+    <string name="mermaid_fit_to_screen">Fit to Screen</string>
+    <string name="mermaid_reset_zoom">Reset Zoom</string>
 </resources>
