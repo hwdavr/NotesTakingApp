@@ -14,8 +14,9 @@
 | Implement | ✅ | 2026-08-18 11:27 | Implemented EditorBlock.MermaidBlock, BasicBlockType.MERMAID, BasicBlocksPanel tile, NoteEditorViewModel insertion & update, and NoteExporter markdown/pdf export. |
 | Test | ✅ | 2026-08-18 11:28 | 377 unit & integration tests passed. Kover line coverage: 85.34% (> 80%). Platform evidence check: PASS. |
 | Fix | ✅ | 2026-08-18 11:30 | ktlintCheck, detekt, check-compose-rules.sh, check-localization-rules.sh, and check-architecture-rules.sh passed (0 violations). |
-| Update State | | | |
-| Clean Exit | | | |
+| Update State | ✅ | 2026-08-18 11:31 | Updated feature_list.json (US-1 status: passing), progress.md, and product.md. Committed US-1 changes (commit df85549). |
+| Clean Exit | ✅ | 2026-08-18 11:31 | Working tree clean. Created session-handoff.md. Ready for next slice or stage. |
+| Install App | ✅ | 2026-08-18 11:31 | Successfully installed debug APK to target emulator emulator-5554. |
 
 ## Key Decisions
 - Add EditorBlock.MermaidBlock(id, code, title) to NoteDocument.kt with "mermaid" JSON type serialization.
