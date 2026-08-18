@@ -35,7 +35,7 @@ Adapt for bugs:
 - Design the fix (UiState changes if needed)
 
 Output: `docs/current/spec_v<N>.md` created; `docs/current/summary_v<N>.md` updated with bug context, fault area, and root cause.
-Gate: root cause is specific enough that a reproduction test can be written. Run `bash scripts/check-stage-artifacts.sh bug-fixing requirement-analysis` — must exit 0.
+Gate: root cause is specific enough that a reproduction test can be written. Run `bash harness/scripts/check-stage-artifacts.sh bug-fixing requirement-analysis` — must exit 0.
 
 ---
 
@@ -59,7 +59,7 @@ Adapt — the plan must include:
 - Which `@Ignore` annotation to remove once the fix is applied
 
 Output: `docs/current/implementation_plan_v<N>.md` created; `docs/current/summary_v<N>.md` updated.
-Gate: Run `bash scripts/check-stage-artifacts.sh bug-fixing implementation-plan` — must exit 0. **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
+Gate: Run `bash harness/scripts/check-stage-artifacts.sh bug-fixing implementation-plan` — must exit 0. **STOP — present fix plan to user. Do not proceed until user explicitly approves.**
 
 ---
 

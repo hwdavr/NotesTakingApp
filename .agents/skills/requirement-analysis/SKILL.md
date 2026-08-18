@@ -24,7 +24,7 @@ Do not write any code in this stage.
 
 ### 1. Requirement & Impact Analysis
 1. Read the user's feature request in full. Do not assume anything that is not explicitly stated.
-2. **Read `docs/templates/evaluator-rubric-template.md`** for final quality evidence and issues that require follow-up.
+2. **Read `harness/templates/evaluator-rubric-template.md`** for final quality evidence and issues that require follow-up.
 3. Search the codebase for all affected files (Screens, ViewModels, UseCases, Repos, DTOs, Tests).
 4. Classify changes (`modify`, `extend`, `new`, `delete`).
 5. **API & Contract Check**:
@@ -46,7 +46,7 @@ Create `docs/current/` directory, if there are existing files, remove them insid
 If the user provides a design screenshot or mockup, save it to **`docs/current/design/`** so it can be referenced during UI Verification.
 
 Produce **`docs/current/summary_v<N>.md`** — create this file **first**, before `spec_v<N>.md`.
-Use the template from `docs/templates/progress-template.md`.
+Use the template from `harness/templates/progress-template.md`.
 The Stage Progress table must list every stage from the **active workflow** in order. Use the matching table below.
 All **Timestamp** values must be in `YYYY-MM-DD HH:MM` format:
 
@@ -101,7 +101,7 @@ All **Timestamp** values must be in `YYYY-MM-DD HH:MM` format:
 Mark the first row as ✅ Complete when this stage's gate passes.
 
 Produce **`spec_v<N>.md`** (inside `docs/current/`).
-Use the template from `docs/templates/spec-template.md`.
+Use the template from `harness/templates/spec-template.md`.
 
 ---
 

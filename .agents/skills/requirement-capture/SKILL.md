@@ -15,7 +15,7 @@ This stage ends only when every open question has been answered by the user.
 
 ## Load
 - `skills/spec-driven-development/SKILL.md`
-- `docs/templates/requirement-summary-template.md`
+- `harness/templates/requirement-summary-template.md`
 
 ---
 
@@ -75,7 +75,7 @@ Q1. <question>
 
 ## Output
 
-Write **`docs/current/requirement-summary.md`** following **`docs/templates/requirement-summary-template.md`** exactly.
+Write **`docs/current/requirement-summary.md`** following **`harness/templates/requirement-summary-template.md`** exactly.
 
 **Save Design Screenshot**: If the user provides a design screenshot, mockup, or layout visual in their prompt, you **MUST** save the original design screenshot to **`docs/current/design/`** at this stage so that it is permanently preserved and can be referenced during Slice Planning and UI implementation.
 

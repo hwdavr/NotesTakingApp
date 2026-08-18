@@ -2,7 +2,7 @@ Set-StrictMode -Version Latest
 
 function Get-RuleCheckProjectRoot {
     param([Parameter(Mandatory = $true)][string]$ScriptDirectory)
-    return (Resolve-Path (Join-Path $ScriptDirectory "..")).Path
+    return (Resolve-Path (Join-Path $ScriptDirectory "../..")).Path
 }
 
 function Resolve-RuleCheckSourceRoot {

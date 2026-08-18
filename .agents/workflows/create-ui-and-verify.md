@@ -52,7 +52,7 @@ Before recording a PASS, create `docs/current/ui_verification.json` using the `u
 skill's required report schema and run:
 
 ```bash
-bash scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current
+bash harness/scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current
 ```
 
 For every design-critical spatial relationship—such as edges that meet a border, center alignment,

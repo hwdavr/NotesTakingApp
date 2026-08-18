@@ -2,8 +2,8 @@
 
 set -e
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-VALIDATOR="$REPO_ROOT/scripts/check-visual-evidence-contract.sh"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+VALIDATOR="$REPO_ROOT/harness/scripts/check-visual-evidence-contract.sh"
 fixture_root=$(mktemp -d "${TMPDIR:-/tmp}/visual-evidence-test.XXXXXX")
 trap 'rm -rf "$fixture_root"' EXIT
 

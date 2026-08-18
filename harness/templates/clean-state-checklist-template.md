@@ -36,7 +36,7 @@ Run this checklist before committing and at the end of each session to ensure co
 *   [ ] **Test Run**: Run `./gradlew testDebugUnitTest` and confirm all unit and integration tests exit GREEN.
 *   [ ] **Global Coverage**: Verify that overall project line coverage meets the minimum threshold of **80%** (via `koverLog`).
 *   [ ] **Feature Coverage**: Verify that new ViewModel and domain Use Cases hit the minimum target of **90%** coverage.
-*   [ ] **Visual Reference Anchors**: When visual verification is required, run `bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"`; each visual Test ID must have a non-empty screenshot and reference-anchor proof tied to a visual bounds `testTag` and a runtime assertion.
+*   [ ] **Visual Reference Anchors**: When visual verification is required, run `bash harness/scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"`; each visual Test ID must have a non-empty screenshot and reference-anchor proof tied to a visual bounds `testTag` and a runtime assertion.
 *   [ ] **Platform Capability Matrix**: Verify `platform-capability-matrix.md` declares minimum/target/API-boundary behavior and the `fail_loudly` unsupported-environment policy.
 *   [ ] **Real Platform Boundary**: For platform-bound behavior, the slice that owns the declared real instrumented test must run it; fake/JVM-only tests are supplemental and missing environments must fail or be marked `Blocked`/`Revise`. Non-owning slices must run `check-platform-evidence.sh --evaluate --slice "$FEATURE_ID"`; the no-slice evaluation remains required before final feature evaluation.
 *   [ ] **Mock Data Discipline**: Ensure no inline mock data is used; utilize shared JSON scenarios loaded from `sharedContracts/test-scenarios/`.
@@ -63,4 +63,4 @@ Run this checklist before committing and at the end of each session to ensure co
 *   [ ] **Progress Audit**: Update progress logs and task checklists in the changes audit directory.
 *   [ ] **Session Handoff**: Create or update the `session-handoff.md` file detailing modifications and next steps.
 *   [ ] **ADRs & Pitfalls**: Confirm that all new features and public API changes are accompanied by ADRs or knowledge updates.
-*   [ ] **Harness Lifecycle**: For complex features, run `bash scripts/check-feature-lifecycle.sh`; verify the stable product workspace, status, completion evidence, and active-feature count are consistent.
+*   [ ] **Harness Lifecycle**: For complex features, run `bash harness/scripts/check-feature-lifecycle.sh`; verify the stable product workspace, status, completion evidence, and active-feature count are consistent.

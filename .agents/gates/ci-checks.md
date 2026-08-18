@@ -49,11 +49,11 @@ Defines the minimum set of checks that must pass before a change is considered r
 
 ### 7. Compose Rules
 ```bash
-bash scripts/check-compose-rules.sh
+bash harness/scripts/check-compose-rules.sh
 ```
 Windows:
 ```powershell
-scripts\check-compose-rules.cmd
+harness\scripts\check-compose-rules.cmd
 ```
 **Must pass.** Catches Compose-specific violations not covered by Ktlint/Detekt:
 - Hardcoded strings (must use `stringResource()`)
@@ -67,22 +67,22 @@ scripts\check-compose-rules.cmd
 ### 8. Platform Capability Evidence (when a platform boundary is in scope)
 ```bash
 # Generator: validates the selected slice's platform-boundary ownership.
-bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate --slice "$FEATURE_ID"
+bash harness/scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate --slice "$FEATURE_ID"
 
 # Final feature evaluation: validates every declared real boundary.
-bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
+bash harness/scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate
 ```
 **Must pass.** A non-owning slice validates the declared contract without waiting for a later slice's boundary test. The boundary-owning slice and final feature evaluation reject missing capability matrices, pending/unavailable/skipped runtime evidence, and fake-only platform-boundary tests.
 
 ### 9. Visual Evidence Contract (when visual verification is required)
 ```bash
-bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"
+bash harness/scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"
 ```
 **Must pass.** Every visual verification method in the final owner's `feature_list.json` must have a matching `TC-*-VIS-*` row in `sprint-contract.md`, an acceptance-test ID, successful connected-test evidence, a non-empty screenshot, and one matching reference-anchor row in `visual_evidence/reference-anchor-verification.md`. Each row names the approved design asset, visual bounds `testTag`, runtime test, concrete bounds relationship, and screenshot.
 
 ### 10. Keyboard-Visible Planning Mockup (when a planned bottom sheet has text input)
 ```bash
-bash scripts/check-keyboard-mockup-contract.sh "$FEATURE_DIR"
+bash harness/scripts/check-keyboard-mockup-contract.sh "$FEATURE_DIR"
 ```
 **Must pass during harness planning.** A design with a bottom-sheet textbox, text field, search field, or other text input must describe the keyboard-visible state and reference distinct non-empty base and keyboard-visible mockup assets.
 

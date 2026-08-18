@@ -29,16 +29,16 @@ Execute the following set of checks to verify complete quality baseline correctn
 ./gradlew ktlintCheck
 ./gradlew detekt
 ./gradlew lintDebug
-bash scripts/check-compose-rules.sh
-bash scripts/check-localization-rules.sh
-bash scripts/check-architecture-rules.sh
+bash harness/scripts/check-compose-rules.sh
+bash harness/scripts/check-localization-rules.sh
+bash harness/scripts/check-architecture-rules.sh
 ```
 
 On Windows (using PowerShell or Command Prompt), run the native script launchers instead:
 ```powershell
-scripts\check-compose-rules.cmd
-scripts\check-localization-rules.cmd
-scripts\check-architecture-rules.cmd
+harness\scripts\check-compose-rules.cmd
+harness\scripts\check-localization-rules.cmd
+harness\scripts\check-architecture-rules.cmd
 ```
 
 ### 2. Auto-Fix Formatting Issues
@@ -71,9 +71,9 @@ Clean git status with all formatting and structural violations fixed.
 - [ ] `./gradlew ktlintCheck` — exit code 0
 - [ ] `./gradlew detekt` — exit code 0
 - [ ] `./gradlew lintDebug` — exit code 0
-- [ ] `bash scripts/check-compose-rules.sh` or `scripts\check-compose-rules.cmd` — exit code 0 (or skipped if no UI changed)
-- [ ] `bash scripts/check-localization-rules.sh` or `scripts\check-localization-rules.cmd` — exit code 0
-- [ ] `bash scripts/check-architecture-rules.sh` or `scripts\check-architecture-rules.cmd` — exit code 0
+- [ ] `bash harness/scripts/check-compose-rules.sh` or `harness\scripts\check-compose-rules.cmd` — exit code 0 (or skipped if no UI changed)
+- [ ] `bash harness/scripts/check-localization-rules.sh` or `harness\scripts\check-localization-rules.cmd` — exit code 0
+- [ ] `bash harness/scripts/check-architecture-rules.sh` or `harness\scripts\check-architecture-rules.cmd` — exit code 0
 - [ ] `summary_{feature_id}.md` (or `summary_v<N>.md`) updated and marked complete
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.

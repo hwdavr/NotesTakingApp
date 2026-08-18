@@ -86,7 +86,7 @@ States covered:
 
 ## Test Plan
 
-> Produce a separate test plan document using **[`docs/templates/test-plan-template.md`](../templates/test-plan-template.md)** and link it here once created.
+> Produce a separate test plan document using **[`harness/templates/test-plan-template.md`](test-plan-template.md)** and link it here once created.
 
 ---
 

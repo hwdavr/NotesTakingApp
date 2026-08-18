@@ -6,7 +6,7 @@ Rules from [`compose-rules.md`](../../.agents/rules/compose-rules.md), categoris
 
 | Badge | Meaning |
 |---|---|
-| 🤖 **Scripted** | [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) or [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) detects this automatically on every CI run |
+| 🤖 **Scripted** | [`check-compose-rules.sh`](../scripts/check-compose-rules.sh) or [`check-localization-rules.sh`](../scripts/check-localization-rules.sh) detects this automatically on every CI run |
 | 🧠 **Evaluator** | AI code review can reliably identify this — pattern recognition, semantic understanding |
 | 👁️ **Human** | Requires design judgement, visual inspection, or context that neither script nor AI can fully substitute |
 
@@ -119,7 +119,7 @@ A rule can carry more than one badge when layered enforcement is needed.
 
 ## Script Coverage Map
 
-The [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) script currently covers:
+The [`check-compose-rules.sh`](../scripts/check-compose-rules.sh) script currently covers:
 
 | Script Check | Rules Covered |
 |---|---|
@@ -132,4 +132,4 @@ The [`check-compose-rules.sh`](../../scripts/check-compose-rules.sh) script curr
 | **Check 7** — `Column { ... .forEach {` pattern | 8.1 |
 
 > [!NOTE]
-> String-resource checks (rules 1.6 · 4.1) are now owned by [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh). See the [Localization Rules Enforcement Matrix](localization-rules-enforcement-matrix.md) for details.
+> String-resource checks (rules 1.6 · 4.1) are now owned by [`check-localization-rules.sh`](../scripts/check-localization-rules.sh). See the [Localization Rules Enforcement Matrix](localization-rules-enforcement-matrix.md) for details.

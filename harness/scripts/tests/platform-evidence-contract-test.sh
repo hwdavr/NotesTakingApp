@@ -3,7 +3,7 @@
 set -e
 
 REPO_ROOT="$(pwd)"
-VALIDATOR="$REPO_ROOT/scripts/check-platform-evidence.sh"
+VALIDATOR="$REPO_ROOT/harness/scripts/check-platform-evidence.sh"
 fixture_root=$(mktemp -d "${TMPDIR:-/tmp}/platform-evidence-test.XXXXXX")
 trap 'rm -rf "$fixture_root"' EXIT
 

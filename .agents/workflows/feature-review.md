@@ -63,7 +63,7 @@ After reading, summarise the key constraints and open decisions you will verify 
 ### Stage 5: Quality Assessment ⛔ STOP
 The Evaluator's primary deliverable is the final quality assessment report.
 
-*   **`evaluator-rubric.md`**: Generated strictly by following the structure defined in the **[`evaluator-rubric-template.md`](docs/templates/evaluator-rubric-template.md)**.
+*   **`evaluator-rubric.md`**: Generated strictly by following the structure defined in the **[`evaluator-rubric-template.md`](../../harness/templates/evaluator-rubric-template.md)**.
 
 > [!IMPORTANT]
 > The Evaluator **MUST** execute the following grading policy inside `evaluator-rubric.md`:

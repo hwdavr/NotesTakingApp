@@ -18,9 +18,9 @@ For trivially small changes, skip this stage and go directly to the Implementati
 ## Load
 
 - `skills/incremental-implementation/SKILL.md`
-- `docs/templates/feature_list_template.json`
-- `docs/templates/progress-template.md`
-- `docs/templates/sprint-contract-template.md`
+- `harness/templates/feature_list_template.json`
+- `harness/templates/progress-template.md`
+- `harness/templates/sprint-contract-template.md`
 - **Requirement input** — read the path from the active workflow's `Input:` line:
   - harness-planning workflow → `$FEATURE_DIR/spec.md` (+ `$FEATURE_DIR/design.md` if present)
   - Other workflows → `docs/current/spec_v<N>.md`
@@ -42,7 +42,7 @@ Then answer:
 
 ### 2. Compile Sprint Contract
 
-Decompose the high-level requirement into a detailed scope, acceptance criteria, and verification plan. Strictly follow the structure in `docs/templates/sprint-contract-template.md` to generate `sprint-contract.md`. Fill in the Sprint Overview (Sprint ID, Feature Name, Duration), Scope (In Scope, Out of Scope), the **Spec Coverage Matrix**, and User Scenarios & Testing (user stories with acceptance criteria and acceptance test cases).
+Decompose the high-level requirement into a detailed scope, acceptance criteria, and verification plan. Strictly follow the structure in `harness/templates/sprint-contract-template.md` to generate `sprint-contract.md`. Fill in the Sprint Overview (Sprint ID, Feature Name, Duration), Scope (In Scope, Out of Scope), the **Spec Coverage Matrix**, and User Scenarios & Testing (user stories with acceptance criteria and acceptance test cases).
 
 The Spec Coverage Matrix is mandatory. It must include the source requirement ID, concise requirement text, primary user-story ID, acceptance-test ID, and handling. A requirement may map to multiple secondary tests, but it must have exactly one primary owner. Preserve the source requirement ID verbatim so the planning gate can verify coverage.
 
@@ -102,9 +102,9 @@ Express the dependency order explicitly (linear or branching).
 
 ## Output
 
-Write the **feature list** following `docs/templates/feature_list_template.json`.
-Write the **progress file** following `docs/templates/progress-template.md`.
-Write the **sprint contract** following `docs/templates/sprint-contract-template.md`.
+Write the **feature list** following `harness/templates/feature_list_template.json`.
+Write the **progress file** following `harness/templates/progress-template.md`.
+Write the **sprint contract** following `harness/templates/sprint-contract-template.md`.
 
 Output paths are defined by the calling workflow:
 - **harness-planning workflow** → `$FEATURE_DIR/feature_list.json`, `$FEATURE_DIR/progress.md`, and `$FEATURE_DIR/sprint-contract.md`

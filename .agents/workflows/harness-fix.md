@@ -57,7 +57,7 @@ When **any** gate check fails during this pipeline (verification commands, check
 
 ### Fix-Stage 1 — Orient
 *   **Action**:
-    1. Run `bash scripts/check-feature-lifecycle.sh`; confirm the active feature row is `To be fixed`. Stop if validation fails.
+    1. Run `bash harness/scripts/check-feature-lifecycle.sh`; confirm the active feature row is `To be fixed`. Stop if validation fails.
     2. Read, in order:
         1. `$FEATURE_DIR/sprint-contract.md` — Acceptance Test Cases and verification commands (the gates that must stay green).
         2. `$FEATURE_DIR/platform-capability-matrix.md` — API/runtime contract and unsupported-environment policy.
@@ -92,8 +92,8 @@ When **any** gate check fails during this pipeline (verification commands, check
     1. Re-run, **one by one**, every verification command listed in `$FEATURE_DIR/sprint-contract.md` Acceptance Test Cases. Apply the Gate Failure Resolution Policy on any failure (up to 3 attempts per command).
     2. Re-run the global quality gates: `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lint`, and `./gradlew koverLog` (coverage ≥ 80% overall; ≥ 90% for ViewModel & Use Case).
     3. Attach objective evidence (command + exit status + fix attempts) to each Test ID's `evidence` field in `$FEATURE_DIR/feature_list.json`. All slices must remain `passing`.
-    4. Run `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. Missing matrices, unavailable/pending/skipped environments, and fake-only platform tests remain hard failures; record them as `Unresolved ⚠️` rather than passing them through.
-    5. Run `bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"` when visual verification is required. Every final visual method must be declared in the sprint contract, have successful connected evidence and a non-empty screenshot, and have reference-anchor proof in `visual_evidence/reference-anchor-verification.md` for the approved design.
+    4. Run `bash harness/scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. Missing matrices, unavailable/pending/skipped environments, and fake-only platform tests remain hard failures; record them as `Unresolved ⚠️` rather than passing them through.
+    5. Run `bash harness/scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"` when visual verification is required. Every final visual method must be declared in the sprint contract, have successful connected evidence and a non-empty screenshot, and have reference-anchor proof in `visual_evidence/reference-anchor-verification.md` for the approved design.
     6. Reconcile the in-report statuses with re-verification: any finding whose verification command still fails must read `Unresolved ⚠️` in the report (not `Fixed ✅`).
 *   **Objective**: All acceptance-test commands and quality gates pass with evidence attached; report statuses are consistent with re-verification results.
 
@@ -105,7 +105,7 @@ When **any** gate check fails during this pipeline (verification commands, check
         *   Transition the feature status `To be fixed` → `To be human reviewed`.
         *   Update the date to today and append to the notes column: "Fix pass applied; re-verification evidence attached; <N>/<M> findings fixed."
         *   Update the `*Document last updated*` date.
-        *   Run `bash scripts/check-feature-lifecycle.sh` after the tracker update. Do not claim completion if it fails.
+        *   Run `bash harness/scripts/check-feature-lifecycle.sh` after the tracker update. Do not claim completion if it fails.
     4. Commit the source, test, report-status, and documentation changes:
         ```bash
         git commit -m "fix(<area>): resolve evaluator findings from code_review and test_review"
@@ -115,8 +115,8 @@ When **any** gate check fails during this pipeline (verification commands, check
 
 ### Fix-Stage 7 — Clean Exit
 *   **Action**:
-    1. Run every item in [`docs/templates/clean-state-checklist-template.md`](../../docs/templates/clean-state-checklist-template.md) (Gate Failure Resolution Policy applies per item).
-    2. Update `$FEATURE_DIR/session-handoff.md` per [`docs/templates/session-handoff-template.md`](../../docs/templates/session-handoff-template.md), documenting what was fixed, the re-verification evidence, any `Unresolved ⚠️` findings, residual risks, and that the feature is now `To be human reviewed`.
+    1. Run every item in [`harness/templates/clean-state-checklist-template.md`](../../harness/templates/clean-state-checklist-template.md) (Gate Failure Resolution Policy applies per item).
+    2. Update `$FEATURE_DIR/session-handoff.md` per [`harness/templates/session-handoff-template.md`](../../harness/templates/session-handoff-template.md), documenting what was fixed, the re-verification evidence, any `Unresolved ⚠️` findings, residual risks, and that the feature is now `To be human reviewed`.
     3. Mark Fix-Stage 7 ✅ in the summary.
 *   **Objective**: Repository left green, stable, and self-documenting for human review.
 

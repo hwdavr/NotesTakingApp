@@ -23,12 +23,12 @@ description: You are a senior Android developer running an independent code and 
 When a feature is submitted for review, execute these steps in order:
 
 ### Stage 1: Read the Baselines
-- Run `bash scripts/check-feature-lifecycle.sh`; stop if lifecycle state is invalid.
+- Run `bash harness/scripts/check-feature-lifecycle.sh`; stop if lifecycle state is invalid.
 - Select the active non-complete `FEATURE_DIR` from the Harness Feature Tracker in `docs/product/product.md`. Do not infer lifecycle state by scanning product directories.
 - Read `$FEATURE_DIR/sprint-contract.md` to see the agreed **Acceptance Criteria**, **Scope**, and **Exclusions**.
 - Read `$FEATURE_DIR/feature_list.json` to verify the target feature definition and its current status.
-- Read `$FEATURE_DIR/platform-capability-matrix.md` and validate it with `bash scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. A missing matrix, missing required API row, pending/unavailable/skipped environment, or non-zero real-boundary test is a review failure; do not convert it into a pass because the environment is inconvenient.
-- When `feature_list.json` declares a visual-verification owner, validate visual traceability with `bash scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"`; a visual method without a sprint-contract row, successful connected evidence, non-empty screenshot, or reference-anchor proof is a review failure.
+- Read `$FEATURE_DIR/platform-capability-matrix.md` and validate it with `bash harness/scripts/check-platform-evidence.sh "$FEATURE_DIR" --evaluate`. A missing matrix, missing required API row, pending/unavailable/skipped environment, or non-zero real-boundary test is a review failure; do not convert it into a pass because the environment is inconvenient.
+- When `feature_list.json` declares a visual-verification owner, validate visual traceability with `bash harness/scripts/check-visual-evidence-contract.sh "$FEATURE_DIR"`; a visual method without a sprint-contract row, successful connected evidence, non-empty screenshot, or reference-anchor proof is a review failure.
 - If the change affects UI, read `docs/product/design_system.md`, `$FEATURE_DIR/design.md`, and its visual assets. Treat unexplained deviations from the global design system as review findings.
 
 ---
@@ -60,7 +60,7 @@ When a feature is submitted for review, execute these steps in order:
 ### Stage 5: Quality Assessment ⛔ STOP
 The Evaluator's primary deliverable is the final quality assessment report.
 
-*   **`evaluator-rubric.md`**: Generated strictly by following the structure defined in the **[`evaluator-rubric-template.md`](docs/templates/evaluator-rubric-template.md)**.
+*   **`evaluator-rubric.md`**: Generated strictly by following the structure defined in the **[`evaluator-rubric-template.md`](../../harness/templates/evaluator-rubric-template.md)**.
 
 > [!IMPORTANT]
 > The Evaluator **MUST** execute the following grading policy inside `evaluator-rubric.md`:
@@ -89,7 +89,7 @@ After presenting the evaluation results, update the Harness Feature Tracker in `
 *   **If the overall score is `5.0 / 5` (perfect)** → transition the feature status from `To be reviewed` → `To be human reviewed`.
 *   **If the overall score is less than `5.0 / 5` (not perfect)** → transition the feature status from `To be reviewed` → `To be fixed`. This routes the feature to the **harness-fix workflow** (`.agents/workflows/harness-fix.md`): the Generator resolves every finding in `$FEATURE_DIR/code_review_{feature_id}.md` and `$FEATURE_DIR/test_review_{feature_id}.md`, updates the per-finding status inside those reports, and then transitions to `To be human reviewed`.
 *   Update the date to today and add the evaluation verdict (`Accept` / `Revise` / `Block`) and overall score to the notes column.
-*   Run `bash scripts/check-feature-lifecycle.sh` after the tracker update. Do not claim completion if it fails.
+*   Run `bash harness/scripts/check-feature-lifecycle.sh` after the tracker update. Do not claim completion if it fails.
 
 ---
 

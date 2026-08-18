@@ -52,7 +52,7 @@ If no → skip.
 ### 2. Past bugs
 **Qualifying question:** "Would a skilled developer waste significant time diagnosing this same bug in the future without this record?"
 
-If yes (non-obvious, hard-to-diagnose, systemic) → record in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `docs/templates/regression-template.md`.
+If yes (non-obvious, hard-to-diagnose, systemic) → record in `docs/knowledge/past-bugs/<YYYY-MM-DD>-<slug>.md` using `harness/templates/regression-template.md`.
 If no (routine typo, simple null-check, obvious fix) → skip.
 
 ### 3. Pitfalls

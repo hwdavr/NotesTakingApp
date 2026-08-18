@@ -14,8 +14,8 @@ Repair the repository harness when it allows incorrect evidence, hides unavailab
 Work only on harness-environment concerns:
 
 - `.agents/workflows/`, `.agents/rules/`, and `.agents/gates/` instructions;
-- `docs/templates/` and harness artifact schemas;
-- `scripts/` validators, environment probes, and contract tests;
+- `harness/templates/` and harness artifact schemas;
+- `harness/scripts/` validators, environment probes, and contract tests;
 - test fixtures that validate harness behavior;
 - `docs/knowledge/pitfalls/` and `docs/changes/` audit records.
 
@@ -49,7 +49,7 @@ Never relabel a `SPEC_GAP`, `MODEL_OR_PLATFORM_CAPABILITY`, or `APPLICATION_DEFE
 
 1. Read `AGENTS.md`, `.agents/rules/android-architecture.md`, and `.agents/rules/testing-strategy.md`.
 2. Read the specific workflow, gate, template, or validator named by the incident. Read it completely before editing.
-3. Run `bash scripts/check-feature-lifecycle.sh` when the incident concerns a complex feature. Do not change the tracker or select a slice.
+3. Run `bash harness/scripts/check-feature-lifecycle.sh` when the incident concerns a complex feature. Do not change the tracker or select a slice.
 4. Collect the smallest raw evidence set: failing command, exit code, relevant log, artifact path, and the harness rule that should have caught it.
 5. Check `git status --short` and preserve unrelated user changes.
 
@@ -103,11 +103,11 @@ Run the narrowest relevant checks, then the project gates affected by the change
 
 ```bash
 bash -n <changed-shell-scripts>
-bash scripts/check-feature-lifecycle.sh
-bash scripts/check-stage-artifacts.sh <workflow> <stage> <feature-dir>
-bash scripts/check-platform-evidence.sh <feature-dir> --planning
-bash scripts/check-platform-evidence.sh <feature-dir> --evaluate
-bash scripts/tests/<relevant-contract-test>.sh
+bash harness/scripts/check-feature-lifecycle.sh
+bash harness/scripts/check-stage-artifacts.sh <workflow> <stage> <feature-dir>
+bash harness/scripts/check-platform-evidence.sh <feature-dir> --planning
+bash harness/scripts/check-platform-evidence.sh <feature-dir> --evaluate
+bash harness/scripts/tests/<relevant-contract-test>.sh
 git diff --check
 ```
 

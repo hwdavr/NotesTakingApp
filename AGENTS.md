@@ -30,7 +30,9 @@ Do not preload all rules and all skills at once. Load what the current stage req
 | `.agents/rules/` | Mandatory constraints (L1 core + L3 on-demand). |
 | `.agents/skills/` | How-to guides and modular workflow steps (L2). |
 | `.agents/gates/` | CI checks and review/release checklists. |
-| `docs/templates/` | Standard output formats for plans, reviews, tests. |
+| `harness/templates/` | Standard output formats for plans, reviews, tests. |
+| `harness/rules-matrix/` | Visual matrix mapping of rules to files. |
+| `harness/scripts/` | Validation scripts and contract test runners. |
 | `docs/product/<YYYY-MM-DD>-<feature-short-name>/` | Stable complex-feature workspace for planning, implementation, evidence, and completed records. |
 | `docs/knowledge/` | Past bugs, pitfalls, architecture decisions (L3). |
 | `docs/changes/` | Audit trail — one directory per delivered change. |
@@ -91,7 +93,7 @@ Key skills under `.agents/skills/`:
 - **Every stage gate must pass before advancing** — do not skip gates
 - **Every stage skill must be invoked via the Skill tool** — reading the SKILL.md manually is not a substitute. The workflow's "INVOKE" instruction is a command, not a suggestion
 - **Memory of prior approval does not bypass workflow stages** — source of truth is on disk. Ad-hoc workflows use `docs/current/`; every complex harness feature uses one stable dated workspace under `docs/product/`. If a required artifact is missing, re-run the stage via its skill. Require the approved `spec.md`, `design.md` when UI is affected, `feature_list.json`, and `sprint-contract.md` in that workspace.
-- **Validate harness lifecycle state** — run `bash scripts/check-feature-lifecycle.sh` before selecting a complex feature and after every tracker transition. Folder location never represents status; the tracker and per-slice evidence do.
+- **Validate harness lifecycle state** — run `bash harness/scripts/check-feature-lifecycle.sh` before selecting a complex feature and after every tracker transition. Folder location never represents status; the tracker and per-slice evidence do.
 - **Stage completion requires evidence** — when marking a stage complete in `summary_v<N>.md`, cite the artifact path and paste a one-line excerpt. A stage is not complete until the artifact exists on disk and is referenced from the summary
 - **Do not suppress rule violations** — agents must fix root causes, not add `@Suppress`, `@SuppressLint`, `tools:ignore`, ktlint/detekt disable comments, baselines, or broader excludes unless the user explicitly approves a documented false positive
 - **Fix rule/workflow/skill mismatches through a PR** — if an agent finds conflicting, stale, or mismatched instructions across rules, workflows, skills, gates, or templates, it must state the issue and why the fix is needed, then raise a PR that corrects the source instruction instead of silently working around it

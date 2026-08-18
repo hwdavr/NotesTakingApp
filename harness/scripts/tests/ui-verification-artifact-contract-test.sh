@@ -2,9 +2,9 @@
 
 set -e
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-VALIDATOR="$REPO_ROOT/scripts/check-ui-verification-artifact.sh"
-STAGE_VALIDATOR="$REPO_ROOT/scripts/check-stage-artifacts.sh"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+VALIDATOR="$REPO_ROOT/harness/scripts/check-ui-verification-artifact.sh"
+STAGE_VALIDATOR="$REPO_ROOT/harness/scripts/check-stage-artifacts.sh"
 fixture_root=$(mktemp -d "${TMPDIR:-/tmp}/ui-verification-artifact-test.XXXXXX")
 trap 'rm -rf "$fixture_root"' EXIT
 

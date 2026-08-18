@@ -7,7 +7,7 @@
 # falls back to grep -P otherwise.
 #
 # Usage:
-#   ./scripts/check-localization-rules.sh [--all] [<source-root>]
+#   ./harness/scripts/check-localization-rules.sh [--all] [<source-root>]
 #
 # <source-root> defaults to app/src/main/java
 #
@@ -19,7 +19,7 @@
 set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ---------- argument parsing --------------------------------------------------
 SCAN_ALL=false

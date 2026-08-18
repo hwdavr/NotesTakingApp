@@ -30,8 +30,8 @@ This skill ends only when every material question has been answered by the user 
 
 - `docs/product/design_system.md` — mandatory for every UI-affecting specification and design
 - `skills/spec-driven-development/SKILL.md`
-- `docs/templates/feature-spec-template.md`
-- `docs/templates/feature-design-template.md`
+- `harness/templates/feature-spec-template.md`
+- `harness/templates/feature-design-template.md`
 
 ---
 
@@ -95,7 +95,7 @@ If any item fails, ask more questions and do not write the artifacts yet.
 
 ### 5. Write the active `spec.md`
 
-Use `docs/templates/feature-spec-template.md`.
+Use `harness/templates/feature-spec-template.md`.
 
 The spec file must always describe:
 - Objective and user goal
@@ -124,7 +124,7 @@ Before handling either design-input path, read `docs/product/design_system.md`. 
 
 **If the user provided a screenshot or mockup image:**
 1. Save the user-provided image(s) unchanged to the active `design/` folder (`$FEATURE_DIR/design/` or `docs/current/design/`).
-2. Write `design.md` using `docs/templates/feature-design-template.md`, referencing the user-provided mockup(s) in the Design Assets section.
+2. Write `design.md` using `harness/templates/feature-design-template.md`, referencing the user-provided mockup(s) in the Design Assets section.
 3. Record any explicit user-approved differences between the supplied mockup and `docs/product/design_system.md`.
 4. **Do NOT invoke the `ux-design` skill** — the user-provided mockup is the feature-specific source of truth, with the global design system supplying all unspecified decisions.
 

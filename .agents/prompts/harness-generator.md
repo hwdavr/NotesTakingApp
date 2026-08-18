@@ -32,7 +32,7 @@ Non-negotiable rules (from AGENTS.md):
 - Do not suppress rule violations (@Suppress, @SuppressLint, tools:ignore, baselines) - fix root causes
 - Every stage skill must be invoked via the Skill tool - reading SKILL.md manually is not a substitute
 - Stage completion requires evidence: cite artifact path + one-line excerpt in summary_{feature_id}.md
-- Run bash scripts/check-feature-lifecycle.sh before selecting work and after every tracker transition
+- Run bash harness/scripts/check-feature-lifecycle.sh before selecting work and after every tracker transition
 - CRITICAL: When all slices are passing, you MUST transition the tracker status to "To be reviewed" — NEVER to "To be human reviewed". Only the Evaluator agent (harness-evaluation workflow) is authorized to transition a feature to "To be human reviewed" after scoring. Transitioning directly to "To be human reviewed" bypasses the mandatory evaluation and is a workflow violation.
 
 Build commands (run from project root):

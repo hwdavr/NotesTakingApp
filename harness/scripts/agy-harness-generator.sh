@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# scripts/agy-harness-generator.sh
+# harness/scripts/agy-harness-generator.sh
 #
 # Picks the next available harness task and launches Antigravity CLI (agy)
 # to implement it via the harness-generator workflow.
 #
 # Usage:
-#   bash scripts/agy-harness-generator.sh            # auto-pick + launch agy (interactive TUI, YOLO mode)
-#   bash scripts/agy-harness-generator.sh --check    # dry-run: print selected task + prompt, no mutations
-#   bash scripts/agy-harness-generator.sh --headless # use agy -p (non-interactive) instead of agy -i
+#   bash harness/scripts/agy-harness-generator.sh            # auto-pick + launch agy (interactive TUI, YOLO mode)
+#   bash harness/scripts/agy-harness-generator.sh --check    # dry-run: print selected task + prompt, no mutations
+#   bash harness/scripts/agy-harness-generator.sh --headless # use agy -p (non-interactive) instead of agy -i
 #
 # Exit codes:
 #   0 — task found; agy launched (or --check printed the task)
@@ -16,7 +16,7 @@
 #
 # Background scheduling (every 2 hours via launchd):
 #   sed "s|__PROJECT_ROOT__|$(pwd)|g" \
-#     scripts/com.notesapp.harness-generator.plist.template \
+#     harness/scripts/com.notesapp.harness-generator.plist.template \
 #     > ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
 #   launchctl load ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
 #

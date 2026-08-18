@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verifies required stage artifacts exist on disk before advancing a workflow stage.
 #
-# Usage: bash scripts/check-stage-artifacts.sh <workflow> <stage> [artifact-directory]
+# Usage: bash harness/scripts/check-stage-artifacts.sh <workflow> <stage> [artifact-directory]
 #   workflow: feature-delivery | bug-fixing | api-contract-update | harness-planning | create-ui-and-verify
 #   stage:    requirement-analysis | implementation-plan | feature-specification | slice-planning | ui-verification
 #
@@ -9,6 +9,8 @@
 # Designed to run on macOS /bin/bash (Bash 3.2) — no mapfile, no arrays with set -u.
 
 set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 WORKFLOW="${1:-}"
 STAGE="${2:-}"
@@ -27,7 +29,7 @@ if [ ! -d "$DOCS_DIR" ]; then
 fi
 
 if [ "$WORKFLOW" = "harness-planning" ]; then
-  bash scripts/check-feature-lifecycle.sh
+  bash "$SCRIPT_DIR/check-feature-lifecycle.sh"
 fi
 
 require_file() {
@@ -111,7 +113,7 @@ case "$WORKFLOW/$STAGE" in
         echo "FAIL: $DOCS_DIR/design.md must reference docs/product/design_system.md." >&2
         exit 1
       fi
-      bash scripts/check-keyboard-mockup-contract.sh "$DOCS_DIR"
+      bash "$SCRIPT_DIR/check-keyboard-mockup-contract.sh" "$DOCS_DIR"
     fi
     ;;
   harness-planning/slice-planning)
@@ -120,7 +122,7 @@ case "$WORKFLOW/$STAGE" in
     require_file "progress.md" "progress tracker"
     require_file "platform-capability-matrix.md" "platform capability matrix"
     if [ -f "$DOCS_DIR/design.md" ]; then
-      bash scripts/check-keyboard-mockup-contract.sh "$DOCS_DIR"
+      bash "$SCRIPT_DIR/check-keyboard-mockup-contract.sh" "$DOCS_DIR"
     fi
     if ! grep -q "Acceptance Test Cases" "$DOCS_DIR/sprint-contract.md"; then
       echo "FAIL: sprint contract has no 'Acceptance Test Cases' matrix." >&2
@@ -167,7 +169,7 @@ case "$WORKFLOW/$STAGE" in
       echo "FAIL: every feature must declare boolean affects_ui and requires_visual_verification fields." >&2
       exit 1
     fi
-    bash scripts/check-platform-evidence.sh "$DOCS_DIR" --planning
+    bash "$SCRIPT_DIR/check-platform-evidence.sh" "$DOCS_DIR" --planning
     ui_feature_count=$(jq '[.features[] | select(.affects_ui)] | length' "$DOCS_DIR/feature_list.json")
     visual_owner_count=$(jq '[.features[] | select(.requires_visual_verification)] | length' "$DOCS_DIR/feature_list.json")
     if [ "$ui_feature_count" -eq 0 ] && [ "$visual_owner_count" -ne 0 ]; then
@@ -209,11 +211,11 @@ case "$WORKFLOW/$STAGE" in
     done <<EOF
 $(jq -r '.features[] | "\(.id)|\(.requires_visual_verification)"' "$DOCS_DIR/feature_list.json")
 EOF
-    bash scripts/check-visual-evidence-contract.sh "$DOCS_DIR" --planning
+    bash "$SCRIPT_DIR/check-visual-evidence-contract.sh" "$DOCS_DIR" --planning
     ;;
   create-ui-and-verify/ui-verification)
     require_file "ui_verification.json" "UI verification report"
-    bash scripts/check-ui-verification-artifact.sh "$DOCS_DIR"
+    bash "$SCRIPT_DIR/check-ui-verification-artifact.sh" "$DOCS_DIR"
     ;;
   create-ui-and-verify/*)
     echo "SKIP: create-ui-and-verify has no doc-artifact gate for '$STAGE'."

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# scripts/codex-harness-generator.sh
+# harness/scripts/codex-harness-generator.sh
 #
 # Picks the next available harness task and launches OpenAI Codex CLI (codex)
 # to implement it via the harness-generator workflow.
 #
 # Usage:
-#   bash scripts/codex-harness-generator.sh            # auto-pick + launch codex (interactive TUI, YOLO mode)
-#   bash scripts/codex-harness-generator.sh --check    # dry-run: print selected task + prompt, no mutations
-#   bash scripts/codex-harness-generator.sh --headless # use codex exec (non-interactive) instead of TUI
+#   bash harness/scripts/codex-harness-generator.sh            # auto-pick + launch codex (interactive TUI, YOLO mode)
+#   bash harness/scripts/codex-harness-generator.sh --check    # dry-run: print selected task + prompt, no mutations
+#   bash harness/scripts/codex-harness-generator.sh --headless # use codex exec (non-interactive) instead of TUI
 #
 # Exit codes:
 #   0 — task found; codex launched (or --check printed the task)
@@ -16,7 +16,7 @@
 #
 # Background scheduling (every 2 hours via launchd):
 #   sed "s|__PROJECT_ROOT__|$(pwd)|g" \
-#     scripts/com.notesapp.harness-generator.plist.template \
+#     harness/scripts/com.notesapp.harness-generator.plist.template \
 #     > ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
 #   launchctl load ~/Library/LaunchAgents/com.notesapp.harness-generator.plist
 #   # Edit the plist to point at codex-harness-generator.sh instead of agy-.

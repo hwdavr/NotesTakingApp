@@ -20,7 +20,7 @@ Turn user requirements and feature specifications into a complete, state-of-the-
 - `docs/product/design_system.md` — mandatory project-wide visual source of truth; load before making any visual decision
 - `skills/ux-design/references/quick-reference.md` — 10 priority categories for Android/Compose UX rules
 - `skills/ux-design/references/pro-rules.md` — Pre-delivery polish checklist & app interface standards
-- `docs/templates/feature-design-template.md` — Standard structure for `design.md`
+- `harness/templates/feature-design-template.md` — Standard structure for `design.md`
 
 ---
 
@@ -47,7 +47,7 @@ If the user request or supplied mockup conflicts with `docs/product/design_syste
 
 ### 2. Formulate `design.md`
 
-Write `design.md` using `docs/templates/feature-design-template.md` in the active feature directory (`$FEATURE_DIR/design.md` for harness, `docs/current/design.md` for ad-hoc).
+Write `design.md` using `harness/templates/feature-design-template.md` in the active feature directory (`$FEATURE_DIR/design.md` for harness, `docs/current/design.md` for ad-hoc).
 
 At the top of `design.md`, link `docs/product/design_system.md`. For each screen, identify the semantic tokens and existing component patterns it uses, plus any explicit approved exceptions.
 

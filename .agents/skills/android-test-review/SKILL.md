@@ -16,7 +16,7 @@ Identify the active workflow first. The test-review report is an **output**, nev
 - **Ad-hoc review**: `docs/current/spec_v<N>.md`, `implementation_plan_v<N>.md`, `test_plan_v<N>.md`, `summary_v<N>.md`, and any testing-stage evidence such as `test_report_v<N>.md`.
 - **Harness evaluation**: `$FEATURE_DIR/spec.md`, `$FEATURE_DIR/sprint-contract.md`, `$FEATURE_DIR/feature_list.json`, the active slice summary, and testing-stage evidence recorded in `$FEATURE_DIR/progress.md` or the slice summary.
 - All test files mapped by the active plan or sprint contract, plus the production files that implement the mapped behavior.
-- `rules/testing-strategy.md` and `docs/templates/test-review-template.md`.
+- `rules/testing-strategy.md` and `harness/templates/test-review-template.md`.
 
 If a required baseline or test-evidence artifact is missing, record it as a blocking finding. Do not substitute a prior `test_review_*.md` for the missing source evidence.
 
@@ -80,7 +80,7 @@ For bug fixes, confirm that the reproduction test was red before the fix, is gre
 
 ## Output
 
-Produce a report from `docs/templates/test-review-template.md`:
+Produce a report from `harness/templates/test-review-template.md`:
 
 - **Ad-hoc workflows**: `docs/current/test_review_v<N>.md`
 - **Harness evaluation**: `$FEATURE_DIR/test_review_{feature_id}.md`

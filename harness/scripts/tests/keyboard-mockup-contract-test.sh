@@ -2,9 +2,9 @@
 
 set -e
 
-REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-VALIDATOR="$REPO_ROOT/scripts/check-keyboard-mockup-contract.sh"
-STAGE_GATE="$REPO_ROOT/scripts/check-stage-artifacts.sh"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+VALIDATOR="$REPO_ROOT/harness/scripts/check-keyboard-mockup-contract.sh"
+STAGE_GATE="$REPO_ROOT/harness/scripts/check-stage-artifacts.sh"
 fixture_root=$(mktemp -d "${TMPDIR:-/tmp}/keyboard-mockup-test.XXXXXX")
 trap 'rm -rf "$fixture_root"' EXIT
 

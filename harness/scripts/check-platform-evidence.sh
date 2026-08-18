@@ -16,17 +16,17 @@ fail() {
 }
 
 if [ -z "$FEATURE_DIR" ]; then
-  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
+  echo "Usage: bash harness/scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
   exit 2
 fi
 
 if [ "$MODE" != "--planning" ] && [ "$MODE" != "--evaluate" ]; then
-  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
+  echo "Usage: bash harness/scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
   exit 2
 fi
 
 if [ -n "$SLICE_FLAG" ] && { [ "$SLICE_FLAG" != "--slice" ] || [ -z "$SLICE_ID" ]; }; then
-  echo "Usage: bash scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
+  echo "Usage: bash harness/scripts/check-platform-evidence.sh <feature-directory> [--planning|--evaluate] [--slice <slice-id>]" >&2
   exit 2
 fi
 

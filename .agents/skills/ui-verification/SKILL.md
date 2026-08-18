@@ -407,7 +407,7 @@ structured visual evaluation.
 ## Output
 
 Produce `docs/current/ui_verification.json` from
-`docs/templates/ui-verification-template.json`. The output is a single JSON document:
+`harness/templates/ui-verification-template.json`. The output is a single JSON document:
 ```json
 {
   "version": "<N>",
@@ -556,7 +556,7 @@ Update `docs/current/summary_v<N>.md`: mark UI Verification stage complete.
 - [ ] Actual screenshot compared against the original or approved generated reference
 - [ ] All UiState variants (loading, success, empty, error) confirmed rendering correctly
 - [ ] `docs/current/ui_verification.json` exists with verdict filled in
-- [ ] `bash scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current` exits 0
+- [ ] `bash harness/scripts/check-stage-artifacts.sh create-ui-and-verify ui-verification docs/current` exits 0
 
 **APPROVED →** Return to the active workflow file and proceed to the next stage defined there.
 

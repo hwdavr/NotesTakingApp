@@ -41,14 +41,14 @@ Adapt the skill output to cover:
 - DTO and Domain model changes required
 - Identify which layers are affected (data, domain, UI)
 
-Run `bash scripts/check-stage-artifacts.sh api-contract-update requirement-analysis` — must exit 0 before proceeding.
+Run `bash harness/scripts/check-stage-artifacts.sh api-contract-update requirement-analysis` — must exit 0 before proceeding.
 
 ---
 
 ### Stage 2 — Implementation Plan ⛔ STOP ✅ Always
 **INVOKE** the `implementation-plan` skill via the Skill tool (name: `implementation-plan`). Reading the SKILL.md manually is not a substitute — the Skill tool is the required mechanism.
 
-Run `bash scripts/check-stage-artifacts.sh api-contract-update implementation-plan` — must exit 0.
+Run `bash harness/scripts/check-stage-artifacts.sh api-contract-update implementation-plan` — must exit 0.
 
 **Stop and present the plan. Do not proceed until the user explicitly approves.**
 

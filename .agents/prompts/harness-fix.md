@@ -29,7 +29,7 @@ Non-negotiable rules (from AGENTS.md):
 - Do not suppress rule violations (@Suppress, @SuppressLint, tools:ignore, baselines) - fix root causes only
 - Every stage skill must be invoked via the Skill tool - reading SKILL.md manually is not a substitute
 - Stage completion requires evidence: cite artifact path + one-line excerpt in summary_{feature_id}.md
-- Run bash scripts/check-feature-lifecycle.sh before selecting work and after every tracker transition
+- Run bash harness/scripts/check-feature-lifecycle.sh before selecting work and after every tracker transition
 
 Build commands (run from project root):
 - ./gradlew assembleDebug              # build check
@@ -42,6 +42,6 @@ Build commands (run from project root):
 After re-verification passes, update the Harness Feature Tracker in docs/product/product.md:
 - Transition the feature status from "To be fixed" to "To be human reviewed".
 - Update the date to today and append the fix-pass outcome to the notes column.
-- Run bash scripts/check-feature-lifecycle.sh after the tracker update.
+- Run bash harness/scripts/check-feature-lifecycle.sh after the tracker update.
 
 Execute the Fix Mode Pipeline now. Begin with Fix-Stage 1 (Orient).

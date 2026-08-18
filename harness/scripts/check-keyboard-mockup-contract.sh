@@ -12,7 +12,7 @@ fail() {
 }
 
 if [ -z "$FEATURE_DIR" ]; then
-  echo "Usage: bash scripts/check-keyboard-mockup-contract.sh <feature-directory>" >&2
+  echo "Usage: bash harness/scripts/check-keyboard-mockup-contract.sh <feature-directory>" >&2
   exit 2
 fi
 

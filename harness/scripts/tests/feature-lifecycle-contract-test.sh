@@ -4,7 +4,7 @@ set -e
 
 PRODUCT_FILE="docs/product/product.md"
 REPO_ROOT="$(pwd)"
-VALIDATOR="$REPO_ROOT/scripts/check-feature-lifecycle.sh"
+VALIDATOR="$REPO_ROOT/harness/scripts/check-feature-lifecycle.sh"
 
 bash "$VALIDATOR" "$PRODUCT_FILE"
 

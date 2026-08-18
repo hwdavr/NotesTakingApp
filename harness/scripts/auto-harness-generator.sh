@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/auto-harness-generator.sh
+# harness/scripts/auto-harness-generator.sh
 #
 # Picks the next available harness task and launches an AI agent to handle it.
 # The mode is auto-selected from the feature's tracker status in product.md:
@@ -17,9 +17,9 @@
 # building live in harness-generator-common.sh (sourced below).
 #
 # Usage:
-#   bash scripts/auto-harness-generator.sh            # auto-pick + launch (interactive TUI in a TTY or Terminal.app)
-#   bash scripts/auto-harness-generator.sh --check    # dry-run: print selected task + prompt
-#   bash scripts/auto-harness-generator.sh --headless # non-interactive drain mode
+#   bash harness/scripts/auto-harness-generator.sh            # auto-pick + launch (interactive TUI in a TTY or Terminal.app)
+#   bash harness/scripts/auto-harness-generator.sh --check    # dry-run: print selected task + prompt
+#   bash harness/scripts/auto-harness-generator.sh --headless # non-interactive drain mode
 #
 # Exit codes:
 #   0 — task/session completed, or --check printed the task
@@ -39,7 +39,7 @@ set -euo pipefail
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # --- run separator -----------------------------------------------------------
 

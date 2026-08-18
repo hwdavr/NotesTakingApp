@@ -64,13 +64,15 @@ Project Root
 │       ├── ci-checks.md
 │       ├── review-checklist.md
 │       └── release-checklist.md
+├── harness/                   ← Shared harness assets
+│   ├── templates/             ← Standard output templates for plans, reviews, and tests.
+│   ├── rules-matrix/          ← Visual matrix mapping of rules to files.
+│   └── scripts/               ← Validation scripts and contract test runners.
 └── docs/                      ← Documentation and artifacts
     ├── current/               ← Active stage outputs (spec_v1.md, implementation_plan_v1.md, summary_v1.md).
     ├── implementation-plans/  ← Archived design and implementation plans.
     ├── knowledge/             ← Post-mortems, pitfalls, past bugs, and ADRs.
-    ├── changes/               ← Audit trail — one directory per delivered change.
-    ├── templates/             ← Standard output templates for plans, reviews, and tests.
-    └── rules-matrix/          ← Visual matrix mapping of rules to files.
+    └── changes/               ← Audit trail — one directory per delivered change.
 ```
 
 ---

@@ -14,7 +14,7 @@ fail() {
 }
 
 if [ -z "$FEATURE_DIR" ]; then
-  echo "Usage: bash scripts/check-visual-evidence-contract.sh <feature-directory> [--planning|--evaluate]" >&2
+  echo "Usage: bash harness/scripts/check-visual-evidence-contract.sh <feature-directory> [--planning|--evaluate]" >&2
   exit 2
 fi
 [ "$MODE" = "--planning" ] || [ "$MODE" = "--evaluate" ] || fail "mode must be --planning or --evaluate"

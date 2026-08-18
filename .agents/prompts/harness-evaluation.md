@@ -37,6 +37,6 @@ After completing Stage 5 (Quality Assessment), update the Harness Feature Tracke
 - If the overall score is 5.0/5 (perfect) -> transition the feature status from "To be reviewed" to "To be human reviewed".
 - If the overall score is less than 5.0/5 (not perfect) -> transition the feature status from "To be reviewed" to "To be fixed". This routes the feature back to the Generator to resolve every finding in code_review_{feature_id}.md and test_review_{feature_id}.md before human review.
 - Update the date to today and add the evaluation verdict (Accept/Revise/Block) and overall score to the notes column.
-- Run bash scripts/check-feature-lifecycle.sh after the tracker update.
+- Run bash harness/scripts/check-feature-lifecycle.sh after the tracker update.
 
 Execute Stages 1..5 now. Begin with Stage 1 (Read the Baselines).

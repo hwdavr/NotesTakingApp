@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/harness-generator-common.sh
+# harness/scripts/harness-generator-common.sh
 #
 # Shared logic for agy-harness-generator.sh and codex-harness-generator.sh.
 # Must be SOURCED by a wrapper script — not executed directly.
@@ -32,9 +32,9 @@ fi
 [ -n "${AGENT_HEADLESS_CMD:-}" ] || { echo "ERROR: AGENT_HEADLESS_CMD not set." >&2; exit 1; }
 [ -n "${AGENT_BG_CMD:-}" ] || { echo "ERROR: AGENT_BG_CMD not set." >&2; exit 1; }
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PRODUCT_FILE="$ROOT_DIR/docs/product/product.md"
-LIFECYCLE_SCRIPT="$ROOT_DIR/scripts/check-feature-lifecycle.sh"
+LIFECYCLE_SCRIPT="$ROOT_DIR/harness/scripts/check-feature-lifecycle.sh"
 START_MARKER="<!-- HARNESS_TRACKER_START -->"
 END_MARKER="<!-- HARNESS_TRACKER_END -->"
 TODAY="$(date +%Y-%m-%d)"

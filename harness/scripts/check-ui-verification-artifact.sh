@@ -12,7 +12,7 @@ fail() {
 }
 
 if [ -z "$DOCS_DIR" ]; then
-  echo "Usage: bash scripts/check-ui-verification-artifact.sh <docs-directory>" >&2
+  echo "Usage: bash harness/scripts/check-ui-verification-artifact.sh <docs-directory>" >&2
   exit 2
 fi
 

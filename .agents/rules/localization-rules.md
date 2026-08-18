@@ -4,8 +4,8 @@
 Rules for handling all user-visible text in this project.
 
 > **Enforcement Matrix** — each rule below is tagged as Scripted 🤖 / Evaluator 🧠 / Human 👁️  
-> in [`localization-rules-enforcement-matrix.md`](../../docs/rules-matrix/localization-rules-enforcement-matrix.md).  
-> Scripted checks run via [`check-localization-rules.sh`](../../scripts/check-localization-rules.sh) on Unix/Git Bash or [`check-localization-rules.cmd`](../../scripts/check-localization-rules.cmd) on Windows.
+> in [`localization-rules-enforcement-matrix.md`](../../harness/rules-matrix/localization-rules-enforcement-matrix.md).  
+> Scripted checks run via [`check-localization-rules.sh`](../../harness/scripts/check-localization-rules.sh) on Unix/Git Bash or [`check-localization-rules.cmd`](../../harness/scripts/check-localization-rules.cmd) on Windows.
 
 ---
 

@@ -40,16 +40,16 @@ Run all checks and record results:
 ./gradlew ktlintCheck
 ./gradlew detekt
 ./gradlew lintDebug
-bash scripts/check-compose-rules.sh
-bash scripts/check-localization-rules.sh
-bash scripts/check-architecture-rules.sh
+bash harness/scripts/check-compose-rules.sh
+bash harness/scripts/check-localization-rules.sh
+bash harness/scripts/check-architecture-rules.sh
 ```
 
 On Windows (using PowerShell or Command Prompt), run the native script launchers instead:
 ```powershell
-scripts\check-compose-rules.cmd
-scripts\check-localization-rules.cmd
-scripts\check-architecture-rules.cmd
+harness\scripts\check-compose-rules.cmd
+harness\scripts\check-localization-rules.cmd
+harness\scripts\check-architecture-rules.cmd
 ```
 
 For every command, record its exact exit code, timestamp, commit, and complete failure details in the review report. A non-zero global gate is a review failure even when the violation is outside the changed feature; identify the source and whether it appears pre-existing, but do not report the gate as passing or approve the review without an explicit user waiver.
@@ -277,7 +277,7 @@ Verify secrets, PII logging, and backward compatibility. Perform a source-level 
 
 ## Output
 
-Produce a report from `docs/templates/code-review-template.md`:
+Produce a report from `harness/templates/code-review-template.md`:
 
 - Ad-hoc workflows: `docs/current/code_review_v<N>.md`
 - Harness evaluation: `$FEATURE_DIR/code_review_{feature_id}.md`

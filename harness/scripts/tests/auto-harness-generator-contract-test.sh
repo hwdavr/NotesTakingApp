@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TEST_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/auto-harness-contract.XXXXXX")
 ACTIVE_FIXTURE=""
 
@@ -41,6 +41,14 @@ write_fake_codex() {
   cat > "$home_dir/.local/bin/codex" <<'FAKE_CODEX'
 #!/usr/bin/env bash
 set -euo pipefail
+
+if [ "${3:-}" = "ping" ]; then
+  if [ "${FAKE_MODE:-advance}" = "quota" ]; then
+    printf 'quota.reached\n' >&2
+    exit 9
+  fi
+  exit 0
+fi
 
 count=0
 if [ -f "$FAKE_COUNT_FILE" ]; then
@@ -121,16 +129,16 @@ FAKE_AGY
 create_fixture() {
   local name="$1"
   ACTIVE_FIXTURE="$TEST_ROOT/$name"
-  mkdir -p "$ACTIVE_FIXTURE/scripts" \
+  mkdir -p "$ACTIVE_FIXTURE/harness/scripts" \
     "$ACTIVE_FIXTURE/docs/product/test-feature" \
     "$ACTIVE_FIXTURE/home/.local/bin" \
     "$ACTIVE_FIXTURE/.agents"
 
   cp -r "$PROJECT_ROOT/.agents/prompts" "$ACTIVE_FIXTURE/.agents/"
-  cp "$PROJECT_ROOT/scripts/auto-harness-generator.sh" "$ACTIVE_FIXTURE/scripts/"
-  cp "$PROJECT_ROOT/scripts/harness-generator-common.sh" "$ACTIVE_FIXTURE/scripts/"
-  cp "$PROJECT_ROOT/scripts/check-feature-lifecycle.sh" "$ACTIVE_FIXTURE/scripts/"
-  chmod +x "$ACTIVE_FIXTURE/scripts/"*.sh
+  cp "$PROJECT_ROOT/harness/scripts/auto-harness-generator.sh" "$ACTIVE_FIXTURE/harness/scripts/"
+  cp "$PROJECT_ROOT/harness/scripts/harness-generator-common.sh" "$ACTIVE_FIXTURE/harness/scripts/"
+  cp "$PROJECT_ROOT/harness/scripts/check-feature-lifecycle.sh" "$ACTIVE_FIXTURE/harness/scripts/"
+  chmod +x "$ACTIVE_FIXTURE/harness/scripts/"*.sh
 
   printf '%s\n' \
     '# Fixture' \
@@ -192,7 +200,7 @@ FAKE_OSASCRIPT
 
 run_generator() {
   local mode="$1"
-  local generator="$ACTIVE_FIXTURE/scripts/auto-harness-generator.sh"
+  local generator="$ACTIVE_FIXTURE/harness/scripts/auto-harness-generator.sh"
   set +e
   HOME="$ACTIVE_FIXTURE/home" \
     FAKE_MODE="$mode" \
@@ -203,7 +211,7 @@ run_generator() {
 
 run_generator_without_flag() {
   local mode="$1"
-  local generator="$ACTIVE_FIXTURE/scripts/auto-harness-generator.sh"
+  local generator="$ACTIVE_FIXTURE/harness/scripts/auto-harness-generator.sh"
   set +e
   HOME="$ACTIVE_FIXTURE/home" \
     FAKE_MODE="$mode" \
@@ -342,7 +350,7 @@ test_quota_fallback() {
   run_generator "quota"
 
   [ "$LAST_STATUS" -eq 2 ] || fail_test "quota fallback should drain and finish with exit 2"
-  assert_file_line_count "$ACTIVE_FIXTURE/codex.count" 2
+  assert_file_line_count "$ACTIVE_FIXTURE/codex.count" 0
   assert_file_line_count "$ACTIVE_FIXTURE/agy.count" 2
   grep -Fq -- '--dangerously-skip-permissions -p' "$ACTIVE_FIXTURE/agy.args" ||
     fail_test "agy fallback was not invoked in print mode"
