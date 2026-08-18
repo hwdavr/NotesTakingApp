@@ -434,6 +434,7 @@
     <string name="mermaid_empty_placeholder">Tap Edit Code to create a diagram</string>
     <string name="mermaid_valid_syntax">Valid Mermaid syntax</string>
     <string name="mermaid_syntax_error_header">Syntax error in diagram code</string>
+    <string name="mermaid_quick_templates">Quick Templates</string>
     <string name="mermaid_template_flowchart">Flowchart</string>
     <string name="mermaid_template_sequence">Sequence</string>
     <string name="mermaid_template_class">Class</string>

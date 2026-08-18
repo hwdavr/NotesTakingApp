@@ -255,7 +255,7 @@ private fun MermaidCodeEditorContent(block: EditorBlock.MermaidBlock, onUpdateCo
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
-            text = "Quick Templates",
+            text = stringResource(R.string.mermaid_quick_templates),
             style = TextStyle(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,

@@ -10,6 +10,29 @@
 
 ## Session Log
 
+### Session 006 — Fix Pass & Re-verification (harness-fix)
+
+- Date: 2026-08-18
+- Goal: Resolve code review finding (`MermaidBlockCard.kt:257` hardcoded string `"Quick Templates"`) and re-verify feature.
+- Completed:
+  - Extracted hardcoded string `"Quick Templates"` in `MermaidBlockCard.kt:257` to `stringResource(R.string.mermaid_quick_templates)` in `strings.xml`.
+  - Updated in-report status lines in `code_review_mermaid-chart-preview.md` and `test_review_mermaid-chart-preview.md`.
+  - Created `summary_mermaid-chart-preview.md`.
+- Verification run:
+  - `./gradlew assembleDebug` -> PASS (exit 0)
+  - `./gradlew testDebugUnitTest` -> PASS (exit 0)
+  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest` -> PASS (6/6 tests, exit 0)
+  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FullscreenDiagramViewerTest` -> PASS (3/3 tests, exit 0)
+  - `./gradlew ktlintCheck` & `./gradlew detekt` -> PASS (exit 0)
+  - `./gradlew lintDebug` -> PASS (0 Lint errors, exit 0)
+  - `./gradlew :app:koverLogDebug` -> PASS (line coverage: 83.24% >= 80%)
+  - `bash harness/scripts/check-localization-rules.sh` -> PASS (0 violations)
+  - `bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-18-mermaid-chart-preview --evaluate` -> PASS
+  - `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-08-18-mermaid-chart-preview` -> PASS
+  - `bash harness/scripts/check-feature-lifecycle.sh` -> PASS
+- Files or artifacts updated: `MermaidBlockCard.kt`, `strings.xml`, `code_review_mermaid-chart-preview.md`, `test_review_mermaid-chart-preview.md`, `summary_mermaid-chart-preview.md`, `progress.md`, `product.md`.
+
+
 ### Session 005 — Implementation & Verification of US-4
 
 - Date: 2026-08-18
