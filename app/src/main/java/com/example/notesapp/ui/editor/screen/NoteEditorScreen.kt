@@ -1458,7 +1458,6 @@ private fun TableDocumentBlockContent(
     onRowHandleClick: () -> Unit,
     onTableHandleClick: () -> Unit
 ) {
-    val handlesVisible = targetCell != null
     Column(
         modifier = Modifier.fillMaxWidth().testTag("editor_table_block"),
         verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -1475,7 +1474,6 @@ private fun TableDocumentBlockContent(
                 isEditable = isEditable,
                 targetCell = targetCell,
                 focusedRowIndex = focusedRowIndex,
-                handlesVisible = handlesVisible,
                 onCellChange = onCellChange,
                 onCellFocusChanged = onCellFocusChanged,
                 onRowHandleClick = onRowHandleClick
@@ -1498,7 +1496,6 @@ private fun TableGrid(
     isEditable: Boolean,
     targetCell: TableFocusTarget?,
     focusedRowIndex: Int?,
-    handlesVisible: Boolean,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
@@ -1508,17 +1505,10 @@ private fun TableGrid(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = if (handlesVisible) 48.dp else 0.dp,
-                top = if (handlesVisible) 48.dp else 0.dp
+                start = 24.dp,
+                top = 24.dp
             )
             .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
-            .then(
-                if (handlesVisible) {
-                    Modifier
-                } else {
-                    Modifier.clip(RoundedCornerShape(4.dp))
-                }
-            )
             .testTag("editor_table_grid")
     ) {
         block.rows.forEachIndexed { rowIndex, row ->
@@ -1581,8 +1571,8 @@ private fun TableGridRow(
             TableRowHandle(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset(x = (-48).dp)
-                    .width(48.dp)
+                    .offset(x = (-24).dp)
+                    .width(24.dp)
                     .fillMaxHeight(),
                 onClick = onRowHandleClick
             )
@@ -1651,8 +1641,8 @@ private fun BoxScope.TableColumnHandleRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
-            .padding(start = 48.dp)
+            .height(24.dp)
+            .padding(start = 24.dp)
     ) {
         columnWeights.forEachIndexed { columnIndex, columnWeight ->
             if (columnIndex == focusedColumnIndex) {
@@ -1672,7 +1662,7 @@ private fun BoxScope.TableColumnHandleRow(
         onClick = onTableHandleClick,
         modifier = Modifier
             .align(Alignment.TopEnd)
-            .offset(y = 24.dp)
+            .offset(y = 0.dp)
             .size(48.dp)
             .testTag("table_options_handle")
     ) {

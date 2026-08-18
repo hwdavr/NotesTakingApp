@@ -63,7 +63,7 @@
       {
         "region": "<region>",
         "element": "<element>",
-        "property": "<exists / position / size / alignment / spacing / visibility / clipping / overlap>",
+        "property": "<exists / position / size / alignment / spacing / visibility / clipping / overlap / cross_state_invariance>",
         "expected": "<value>",
         "actual": "<value>",
         "within_tolerance": true,

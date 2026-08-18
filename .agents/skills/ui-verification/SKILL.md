@@ -164,6 +164,7 @@ For each critical element within each in-scope region, verify deterministic stru
 | `visibility` | Element is visible (not hidden, not zero-sized) |
 | `clipping` | Content is not clipped or overflowing its bounds |
 | `overlap` | Element does not unintentionally overlap siblings |
+| `cross_state_invariance` | Element position/size remains unchanged across interactive focus/selection transitions (zero layout shift) |
 
 **Default tolerances:**
 
@@ -296,6 +297,7 @@ fixing meaningless pixel differences.
 #### Major → usually FAIL
 - Wrong component dimensions (beyond tolerance)
 - Large spacing deviation (>8dp from reference)
+- Layout shift or positional jumping during focus, selection, or interactive state transitions
 - Wrong typography hierarchy (e.g. body used where heading expected)
 - Incorrect icon or asset
 - Wrong theme applied
@@ -383,6 +385,7 @@ structured visual evaluation.
 - [ ] Area of interest declared and documented
 - [ ] In-scope regions identified and listed
 - [ ] Out-of-scope regions regression-checked (exists, visible, no shift)
+- [ ] Cross-state positional invariance verified for interactive overlays/handles (zero host layout shift)
 - [ ] All text strings match the design (`spec_v<N>.md`)
 - [ ] Structural properties verified within tolerance for all critical elements
 - [ ] Dynamic content regions identified and masked

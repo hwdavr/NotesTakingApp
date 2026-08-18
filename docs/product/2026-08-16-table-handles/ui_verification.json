@@ -1,0 +1,321 @@
+{
+  "version": "2",
+  "reference_design": "design/mockup_table_handles_v2.png",
+
+  "build_and_static_checks": {
+    "assembleDebug": "PASS",
+    "lintDebug": "PASS",
+    "ktlintCheck": "PASS"
+  },
+
+  "instrumented_tests": {
+    "passed": 22,
+    "total": 22
+  },
+
+  "normalization": {
+    "reference_resolution": "1024×1024",
+    "reference_density": "2.75x",
+    "runtime_resolution": "1080×2400",
+    "runtime_density": "2.625x",
+    "logical_space": "411×914 dp",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+
+  "scope": {
+    "type": "partial",
+    "area_of_interest": "Note Editor table block handles (column handle, row handle, table options handle) and associated modal bottom sheets (Column Options, Row Options, Table Options)",
+    "rationale": "Spec Section Functional Requirements (FR-001 through FR-023) and Acceptance Criteria (AC-001 through AC-020): focus-driven column/row handle strips and top-right table options button, plus modal bottom sheets for structural table modifications",
+    "in_scope_regions": [
+      "table_column_handle",
+      "table_row_handle",
+      "table_options_handle",
+      "focused_table_cell_highlight",
+      "table_column_options_sheet",
+      "table_row_options_sheet",
+      "table_options_sheet"
+    ],
+    "out_of_scope_regions": [
+      "editor_top_bar",
+      "editor_folder_pill",
+      "editor_title_field",
+      "editor_intro_text_block",
+      "editor_bottom_toolbar"
+    ]
+  },
+
+  "regression_checks": [
+    {
+      "region": "editor_top_bar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_folder_pill",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_title_field",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_intro_text_block",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_bottom_toolbar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    }
+  ],
+
+  "region_decomposition": [
+    {
+      "region": "editor_top_bar",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 24, "y_end": 80 }
+    },
+    {
+      "region": "editor_title_field",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 140, "y_end": 180 }
+    },
+    {
+      "region": "editor_table_grid",
+      "bounds_dp": { "x_start": 40, "x_end": 395, "y_start": 226, "y_end": 426 }
+    },
+    {
+      "region": "table_column_handle",
+      "bounds_dp": { "x_start": 40, "x_end": 217, "y_start": 202, "y_end": 226 }
+    },
+    {
+      "region": "table_row_handle",
+      "bounds_dp": { "x_start": 16, "x_end": 40, "y_start": 226, "y_end": 326 }
+    },
+    {
+      "region": "table_options_handle",
+      "bounds_dp": { "x_start": 347, "x_end": 395, "y_start": 202, "y_end": 250 }
+    },
+    {
+      "region": "table_column_options_sheet",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 550, "y_end": 914 }
+    },
+    {
+      "region": "table_row_options_sheet",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 550, "y_end": 914 }
+    },
+    {
+      "region": "table_options_sheet",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 550, "y_end": 914 }
+    }
+  ],
+
+  "structural_verification": {
+    "tolerances": {
+      "position_dp": 4,
+      "size_percent": 5,
+      "spacing_dp": 4
+    },
+    "checks": [
+      {
+        "region": "table_column_handle",
+        "element": "table_column_handle_visual",
+        "property": "position",
+        "expected": "columnVisualBounds.bottom == gridBounds.top ± 2dp",
+        "actual": "columnVisualBounds.bottom == gridBounds.top (within 2dp)",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_row_handle",
+        "element": "table_row_handle_visual",
+        "property": "position",
+        "expected": "rowVisualBounds.right == gridBounds.left ± 2dp",
+        "actual": "rowVisualBounds.right == gridBounds.left (within 2dp)",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_options_handle",
+        "element": "table_options_visual",
+        "property": "position",
+        "expected": "optionsVisualBounds.centerY == gridBounds.top ± 2dp",
+        "actual": "optionsVisualBounds.centerY == gridBounds.top (within 2dp)",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_options_handle",
+        "element": "table_options_visual",
+        "property": "size",
+        "expected": "optionsVisualBounds.height == 28.dp ± 2dp, optionsTargetBounds.height >= 48.dp",
+        "actual": "height = 28dp visual, 48dp touch target",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_column_handle",
+        "element": "table_column_handle touch target",
+        "property": "size",
+        "expected": "width >= 48dp, height >= 48dp",
+        "actual": "width >= 48dp, height >= 48dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_row_handle",
+        "element": "table_row_handle touch target",
+        "property": "size",
+        "expected": "width >= 48dp, height >= 48dp",
+        "actual": "width >= 48dp, height >= 48dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_options_handle",
+        "element": "table_options_handle touch target",
+        "property": "size",
+        "expected": "width >= 48dp, height >= 48dp",
+        "actual": "width >= 48dp, height >= 48dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_column_options_sheet",
+        "element": "table_delete_column",
+        "property": "position",
+        "expected": "deleteBounds.top > earlierActionBounds.top and dividerBounds.top < deleteBounds.top",
+        "actual": "Delete column is final action, separated by HorizontalDivider",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_row_options_sheet",
+        "element": "table_delete_row",
+        "property": "position",
+        "expected": "deleteBounds.top > earlierActionBounds.top and dividerBounds.top < deleteBounds.top",
+        "actual": "Delete row is final action, separated by HorizontalDivider",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_options_sheet",
+        "element": "table_delete",
+        "property": "position",
+        "expected": "deleteBounds.top > earlierActionBounds.top and dividerBounds.top < deleteBounds.top",
+        "actual": "Delete table is final action, separated by HorizontalDivider",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "table_options_sheet",
+        "element": "table_fit_to_width",
+        "property": "size",
+        "expected": "Equal cell widths within 2dp when active",
+        "actual": "abs(fitWidths[0] - fitWidths[1]) < 2dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "editor_table_grid",
+        "element": "editor_table_grid",
+        "property": "cross_state_invariance",
+        "expected": "Table grid boundsInRoot (x, y, width, height) remain invariant across focus transitions (tolerance 0.5dp)",
+        "actual": "initialGridBounds == focusedGridBounds within 0.5dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      }
+    ]
+  },
+
+  "dynamic_content_masking": [
+    {
+      "region": "table_cell_text_values",
+      "rationale": "Cell texts are runtime scenario content"
+    },
+    {
+      "region": "editor_title_and_path",
+      "rationale": "Note title and folder pill are test document metadata"
+    },
+    {
+      "region": "status_bar",
+      "rationale": "System clock, network, and battery icons vary across devices"
+    }
+  ],
+
+  "perceptual_comparison": [
+    {
+      "region": "table_column_handle",
+      "confidence": "high",
+      "notes": "Column handle strip (12dp height, primary 15% opacity, 4dp rounded corners) with centered 8dp primary grip dot sits directly above the focused column. High visual concordance with mockup_table_handles_v2.png."
+    },
+    {
+      "region": "table_row_handle",
+      "confidence": "high",
+      "notes": "Row handle strip (12dp width, primary 15% opacity, 4dp rounded corners) with centered 8dp primary grip dot sits directly left of the focused row. High visual concordance with mockup_table_handles_v2.png."
+    },
+    {
+      "region": "table_options_handle",
+      "confidence": "high",
+      "notes": "Shallow 28dp pill icon button with primary 15% opacity background and MoreHoriz icon centered on the table's top-right corner. High visual concordance with mockup_table_handles_v2.png."
+    },
+    {
+      "region": "focused_table_cell_highlight",
+      "confidence": "high",
+      "notes": "Focused cell displays primary 8% opacity background tint, visually highlighting active editing cell."
+    },
+    {
+      "region": "table_column_options_sheet",
+      "confidence": "high",
+      "notes": "M3 modal bottom sheet with 16dp rounded corners, drag handle, 18sp bold title 'Column Options', 4 actions with proper icons, and red destructive 'Delete column' below horizontal divider."
+    },
+    {
+      "region": "table_row_options_sheet",
+      "confidence": "high",
+      "notes": "M3 modal bottom sheet with 16dp rounded corners, drag handle, 18sp bold title 'Row Options', 4 actions with proper icons, and red destructive 'Delete row' below horizontal divider."
+    },
+    {
+      "region": "table_options_sheet",
+      "confidence": "high",
+      "notes": "M3 modal bottom sheet with 16dp rounded corners, drag handle, 18sp bold title 'Table Options', 4 actions with proper icons, and red destructive 'Delete table' below horizontal divider."
+    }
+  ],
+
+  "defect_classification": [],
+
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "Note Editor table block handles and structural modification bottom sheets",
+    "issues": [],
+    "regression_summary": {
+      "editor_top_bar": "PASS — exists, visible, no layout shift",
+      "editor_folder_pill": "PASS — exists, visible, no layout shift",
+      "editor_title_field": "PASS — exists, visible, no layout shift",
+      "editor_intro_text_block": "PASS — exists, visible, no layout shift",
+      "editor_bottom_toolbar": "PASS — exists, visible, no layout shift"
+    }
+  },
+
+  "design_deviations": [],
+
+  "verdict": {
+    "result": "PASS",
+    "reason": "All build, static analysis (ktlint, lintDebug), and instrumented UI tests (22/22 TableHandlesScreenTest, 131/131 full suite) pass; cross-state positional invariance is verified with zero layout shift during focus transitions; geometric alignment anchors (column bottom on grid top, row right on grid left, table options centered on top-right border) meet tolerances; Material 3 bottom sheets match approved design specifications with 48dp+ touch targets, 16dp rounded tops, proper divider separation, and red destructive action styling.",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}

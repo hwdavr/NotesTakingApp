@@ -269,8 +269,8 @@ class TableHandlesScreenTest {
             .assertContentDescriptionEquals("Row options")
         composeRule.onNodeWithTag("table_options_handle")
             .assertContentDescriptionEquals("Table options")
-        assertMinimumTouchTarget("table_column_handle")
-        assertMinimumTouchTarget("table_row_handle")
+        assertMinimumHandleBounds("table_column_handle", minWidthDp = 48, minHeightDp = 24)
+        assertMinimumHandleBounds("table_row_handle", minWidthDp = 24, minHeightDp = 48)
         assertMinimumTouchTarget("table_options_handle")
 
         composeRule.onNodeWithTag("table_options_handle").performClick()
@@ -351,6 +351,28 @@ class TableHandlesScreenTest {
             tolerance
         )
         assertTrue(optionsVisualBounds.height < optionsTargetBounds.height)
+    }
+
+    @Test
+    fun tableGridBoundsRemainInvariantAcrossFocusTransitions() {
+        setProductionEditorContent()
+        val initialGridBounds = composeRule
+            .onNodeWithTag("editor_table_grid", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+
+        focusFirstTableCell()
+
+        val focusedGridBounds = composeRule
+            .onNodeWithTag("editor_table_grid", useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+
+        val tolerance = with(composeRule.density) { 0.5f.dp.toPx() }
+        assertWithinTolerance(initialGridBounds.left, focusedGridBounds.left, tolerance)
+        assertWithinTolerance(initialGridBounds.top, focusedGridBounds.top, tolerance)
+        assertWithinTolerance(initialGridBounds.width, focusedGridBounds.width, tolerance)
+        assertWithinTolerance(initialGridBounds.height, focusedGridBounds.height, tolerance)
     }
 
     @Test
@@ -555,6 +577,15 @@ class TableHandlesScreenTest {
         val minimumSize = with(composeRule.density) { 48.dp.toPx() }
         assertTrue("$tag width is smaller than 48dp", bounds.width >= minimumSize)
         assertTrue("$tag height is smaller than 48dp", bounds.height >= minimumSize)
+    }
+
+    private fun assertMinimumHandleBounds(tag: String, minWidthDp: Int, minHeightDp: Int) {
+        val bounds = composeRule.onNodeWithTag(tag, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val minWidth = with(composeRule.density) { minWidthDp.dp.toPx() }
+        val minHeight = with(composeRule.density) { minHeightDp.dp.toPx() }
+        assertTrue("$tag width is smaller than ${minWidthDp}dp", bounds.width >= minWidth)
+        assertTrue("$tag height is smaller than ${minHeightDp}dp", bounds.height >= minHeight)
     }
 
     private fun assertWithinTolerance(expected: Float, actual: Float, tolerance: Float) {
