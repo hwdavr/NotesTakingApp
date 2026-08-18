@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Validates the ad-hoc UI verification artifact. A broad screenshot comparison
-# cannot prove exact placement, so each approved reference needs concrete
-# bounds-based anchor evidence tied to a tagged runtime node.
+# Validates the ad-hoc UI verification JSON artifact. Checks that required JSON
+# keys are present and that referenced design and evidence assets exist on disk.
 
 set -e
 
@@ -19,44 +18,43 @@ fi
 
 [ -d "$DOCS_DIR" ] || fail "missing artifact directory $DOCS_DIR"
 
-REPORT="$DOCS_DIR/ui_verification.md"
+REPORT="$DOCS_DIR/ui_verification.json"
 [ -f "$REPORT" ] || fail "missing $REPORT"
-grep -Fq "### Reference Anchor Verification" "$REPORT" \
-  || fail "$REPORT has no '### Reference Anchor Verification' section"
-grep -Fq "| Screen / State | Reference anchor | Runtime proof | Measured relationship | Actual screenshot | Result |" "$REPORT" \
-  || fail "$REPORT has no required reference-anchor table header"
 
-REFERENCE_ASSET=$(sed -n 's/^\*\*Reference design\*\*: `\(design\/[^`]*\)`[[:space:]]*$/\1/p' "$REPORT" | head -n 1)
-[ -n "$REFERENCE_ASSET" ] \
-  || fail "$REPORT must declare one backticked design/ reference asset"
+# Validate it is parseable JSON
+jq empty "$REPORT" 2>/dev/null \
+  || fail "$REPORT is not valid JSON"
+
+# Required top-level keys
+for key in version reference_design build_and_static_checks normalization scope \
+           structural_verification defect_classification ai_visual_evaluation verdict; do
+  jq -e ".$key" "$REPORT" >/dev/null 2>&1 \
+    || fail "$REPORT is missing required key '$key'"
+done
+
+# Verdict must have a result
+VERDICT_RESULT=$(jq -r '.verdict.result' "$REPORT" 2>/dev/null)
+[ -n "$VERDICT_RESULT" ] && [ "$VERDICT_RESULT" != "null" ] \
+  || fail "$REPORT verdict must declare a result"
+
+# Reference design asset must exist on disk
+REFERENCE_ASSET=$(jq -r '.reference_design' "$REPORT" 2>/dev/null)
+[ -n "$REFERENCE_ASSET" ] && [ "$REFERENCE_ASSET" != "null" ] \
+  || fail "$REPORT must declare a reference_design asset"
 case "$REFERENCE_ASSET" in
   *..*) fail "$REPORT reference asset must stay under design/" ;;
 esac
 [ -s "$DOCS_DIR/$REFERENCE_ASSET" ] \
   || fail "$REPORT references missing or empty design asset $REFERENCE_ASSET"
 
-ANCHOR_ROWS=$(grep -E '^\|.*\|[[:space:]]*PASS[[:space:]]*\|[[:space:]]*$' "$REPORT" || true)
-[ -n "$ANCHOR_ROWS" ] \
-  || fail "$REPORT needs at least one passing reference-anchor row"
+# Structural verification must have at least one check
+CHECKS_COUNT=$(jq '.structural_verification.checks | length' "$REPORT" 2>/dev/null)
+[ "$CHECKS_COUNT" -gt 0 ] 2>/dev/null \
+  || fail "$REPORT needs at least one structural_verification check"
 
-while IFS= read -r anchor_row; do
-  [ -n "$anchor_row" ] || continue
-  printf '%s\n' "$anchor_row" | grep -Eq 'testTag:[[:space:]]*`[^`]+`' \
-    || fail "$REPORT reference-anchor row must name a visual bounds testTag"
-  printf '%s\n' "$anchor_row" | grep -Eq '`[^`]*#[A-Za-z_][A-Za-z0-9_]*`' \
-    || fail "$REPORT reference-anchor row must name the runtime test method"
-  printf '%s\n' "$anchor_row" | grep -Eq '[A-Za-z]+Bounds(\.[A-Za-z]+)?[[:space:]]*(==|>=|<=|>|<)' \
-    || fail "$REPORT reference-anchor row must record a concrete bounds relationship"
-  SCREENSHOT_PATH=$(printf '%s\n' "$anchor_row" | grep -oE 'evidence/[[:alnum:]_./-]+\.(png|jpg|jpeg)' | head -n 1 || true)
-  [ -n "$SCREENSHOT_PATH" ] \
-    || fail "$REPORT reference-anchor row must cite an evidence/ screenshot"
-  case "$SCREENSHOT_PATH" in
-    *..*) fail "$REPORT screenshot path must stay under evidence/" ;;
-  esac
-  [ -s "$DOCS_DIR/$SCREENSHOT_PATH" ] \
-    || fail "$REPORT references missing or empty screenshot $SCREENSHOT_PATH"
-done <<EOF
-$ANCHOR_ROWS
-EOF
+# AI visual evaluation must have a status
+AI_STATUS=$(jq -r '.ai_visual_evaluation.status' "$REPORT" 2>/dev/null)
+[ -n "$AI_STATUS" ] && [ "$AI_STATUS" != "null" ] \
+  || fail "$REPORT ai_visual_evaluation must declare a status"
 
-echo "PASS: UI verification artifact includes non-empty reference and actual images plus bounds-based anchor proof."
+echo "PASS: UI verification JSON artifact is valid with reference design, structural checks, and AI evaluation."

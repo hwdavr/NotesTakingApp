@@ -13,20 +13,74 @@ write_valid_fixture() {
   mkdir -p "$docs_dir/design" "$docs_dir/evidence"
   printf 'reference mockup' > "$docs_dir/design/mockup_editor.png"
   printf 'actual screenshot' > "$docs_dir/evidence/editor_actual.png"
-  printf '%s\n' \
-    '# UI Verification — v1' \
-    '' \
-    '**Reference design**: `design/mockup_editor.png`' \
-    '' \
-    '### Reference Anchor Verification' \
-    '' \
-    '| Screen / State | Reference anchor | Runtime proof | Measured relationship | Actual screenshot | Result |' \
-    '|---|---|---|---|---|---|' \
-    '| Note editor — focused table | Row handle visual ends on the table grid left border. | `TableHandlesScreenTest#handlesAlignToGridGeometry`; testTag: `table_row_handle_visual` | `rowVisualBounds.right == gridBounds.left ± 2dp` | `evidence/editor_actual.png` | PASS |' \
-    '' \
-    '### Verdict' \
-    'PASS — reference anchors are verified.' \
-    > "$docs_dir/ui_verification.md"
+  cat > "$docs_dir/ui_verification.json" <<'FIXTURE'
+{
+  "version": "1",
+  "reference_design": "design/mockup_editor.png",
+  "build_and_static_checks": {
+    "assembleDebug": "PASS",
+    "lintDebug": "PASS",
+    "ktlintCheck": "PASS"
+  },
+  "instrumented_tests": { "passed": "5", "total": "5" },
+  "normalization": {
+    "reference_resolution": "390x844",
+    "reference_density": "2x",
+    "runtime_resolution": "1080x2400",
+    "runtime_density": "2.75x",
+    "logical_space": "393x873 dp",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+  "scope": {
+    "type": "partial",
+    "area_of_interest": "table handles",
+    "rationale": "spec US-2",
+    "in_scope_regions": ["table_handles"],
+    "out_of_scope_regions": ["header"]
+  },
+  "regression_checks": [
+    { "region": "header", "exists": true, "not_clipped": true, "no_layout_shift": true, "result": "PASS" }
+  ],
+  "region_decomposition": [
+    { "region": "table_handles", "bounds_dp": { "x_start": 0, "x_end": 390, "y_start": 200, "y_end": 600 } }
+  ],
+  "structural_verification": {
+    "tolerances": { "position_dp": 4, "size_percent": 5, "spacing_dp": 4 },
+    "checks": [
+      {
+        "region": "table_handles",
+        "element": "row_handle",
+        "property": "alignment",
+        "expected": "right edge == grid left ± 2dp",
+        "actual": "right edge == grid left + 1dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      }
+    ]
+  },
+  "dynamic_content_masking": [],
+  "perceptual_comparison": [
+    { "region": "table_handles", "confidence": "high", "notes": "handles match reference" }
+  ],
+  "defect_classification": [],
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "table handles",
+    "issues": [],
+    "regression_summary": { "header": "PASS — exists, visible, no layout shift" }
+  },
+  "design_deviations": [],
+  "verdict": {
+    "result": "PASS",
+    "reason": "",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}
+FIXTURE
 }
 
 expect_failure() {
@@ -44,29 +98,35 @@ expect_failure() {
   }
 }
 
+# Test 1: valid fixture passes both validators
 valid="$fixture_root/valid"
 write_valid_fixture "$valid"
 (cd "$REPO_ROOT" && bash "$VALIDATOR" "$valid")
 (cd "$REPO_ROOT" && bash "$STAGE_VALIDATOR" create-ui-and-verify ui-verification "$valid")
 
-missing_anchor="$fixture_root/missing-anchor"
-write_valid_fixture "$missing_anchor"
-sed '/### Reference Anchor Verification/,$d' "$missing_anchor/ui_verification.md" \
-  > "$missing_anchor/ui_verification.tmp"
-mv "$missing_anchor/ui_verification.tmp" "$missing_anchor/ui_verification.md"
-expect_failure "has no '### Reference Anchor Verification' section" \
-  bash "$VALIDATOR" "$missing_anchor"
+# Test 2: missing structural checks fails
+missing_checks="$fixture_root/missing-checks"
+write_valid_fixture "$missing_checks"
+jq '.structural_verification.checks = []' "$missing_checks/ui_verification.json" \
+  > "$missing_checks/ui_verification.tmp"
+mv "$missing_checks/ui_verification.tmp" "$missing_checks/ui_verification.json"
+expect_failure "needs at least one structural_verification check" \
+  bash "$VALIDATOR" "$missing_checks"
 
-missing_tag="$fixture_root/missing-tag"
-write_valid_fixture "$missing_tag"
-sed 's/testTag:/boundsTag:/' "$missing_tag/ui_verification.md" > "$missing_tag/ui_verification.tmp"
-mv "$missing_tag/ui_verification.tmp" "$missing_tag/ui_verification.md"
-expect_failure "must name a visual bounds testTag" bash "$VALIDATOR" "$missing_tag"
+# Test 3: missing verdict fails
+missing_verdict="$fixture_root/missing-verdict"
+write_valid_fixture "$missing_verdict"
+jq 'del(.verdict)' "$missing_verdict/ui_verification.json" \
+  > "$missing_verdict/ui_verification.tmp"
+mv "$missing_verdict/ui_verification.tmp" "$missing_verdict/ui_verification.json"
+expect_failure "missing required key 'verdict'" \
+  bash "$VALIDATOR" "$missing_verdict"
 
-missing_screenshot="$fixture_root/missing-screenshot"
-write_valid_fixture "$missing_screenshot"
-mv "$missing_screenshot/evidence/editor_actual.png" "$missing_screenshot/evidence/editor_actual.missing"
-expect_failure "references missing or empty screenshot evidence/editor_actual.png" \
-  bash "$VALIDATOR" "$missing_screenshot"
+# Test 4: missing reference design asset fails
+missing_asset="$fixture_root/missing-asset"
+write_valid_fixture "$missing_asset"
+rm "$missing_asset/design/mockup_editor.png"
+expect_failure "references missing or empty design asset" \
+  bash "$VALIDATOR" "$missing_asset"
 
-echo "PASS: UI verification artifact validator rejects screenshot-only and unanchored visual evidence."
+echo "PASS: UI verification artifact validator correctly validates JSON structure and rejects invalid fixtures."

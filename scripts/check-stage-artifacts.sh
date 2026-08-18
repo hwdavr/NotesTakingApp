@@ -212,7 +212,7 @@ EOF
     bash scripts/check-visual-evidence-contract.sh "$DOCS_DIR" --planning
     ;;
   create-ui-and-verify/ui-verification)
-    require_file "ui_verification.md" "UI verification report"
+    require_file "ui_verification.json" "UI verification report"
     bash scripts/check-ui-verification-artifact.sh "$DOCS_DIR"
     ;;
   create-ui-and-verify/*)

@@ -48,7 +48,7 @@ in `docs/current/design/`, never against defect evidence in `docs/current/eviden
 `docs/product/design_system.md`. Any deviation from either source must be an explicit approved
 exception.
 
-Before recording a PASS, create `docs/current/ui_verification.md` using the `ui-verification`
+Before recording a PASS, create `docs/current/ui_verification.json` using the `ui-verification`
 skill's required report schema and run:
 
 ```bash

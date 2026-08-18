@@ -25,7 +25,7 @@ Do not substitute the outer 48dp target for a smaller visual pill/icon when the 
 ## Reference
 
 - docs/templates/visual-reference-anchor-verification-template.md
-- docs/templates/ui-verification-template.md
+- docs/templates/ui-verification-template.json
 - scripts/check-visual-evidence-contract.sh
 - scripts/check-ui-verification-artifact.sh
 - docs/product/2026-08-16-table-handles/visual_evidence/reference-anchor-verification.md
