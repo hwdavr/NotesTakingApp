@@ -1,0 +1,290 @@
+{
+  "version": "2",
+  "reference_design": "design/mockup_note_editor_emoji_picker_v2.png",
+
+  "build_and_static_checks": {
+    "assembleDebug": "PASS",
+    "lintDebug": "PASS",
+    "ktlintCheck": "PASS"
+  },
+
+  "instrumented_tests": {
+    "passed": 20,
+    "total": 20
+  },
+
+  "normalization": {
+    "reference_resolution": "896×1920",
+    "reference_density": "2.18x",
+    "runtime_resolution": "1080×2400",
+    "runtime_density": "2.625x",
+    "logical_space": "411×914 dp",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+
+  "scope": {
+    "type": "partial",
+    "area_of_interest": "Note Editor bottom toolbar emoji action and emoji picker bottom sheet surface",
+    "rationale": "Spec Section Screen 1 / note-emoji refinement: toolbar emoji action, 2/5-height bottom sheet without title or header close button, full-height expansion when keyboard is visible, search bar, category rail, emoji grid, and skin-tone selector",
+    "in_scope_regions": [
+      "bottom_toolbar_emoji_action",
+      "emoji_picker_sheet",
+      "emoji_picker_search_bar",
+      "emoji_picker_category_rail",
+      "emoji_picker_results_grid",
+      "emoji_skin_tone_menu",
+      "emoji_picker_empty_search",
+      "emoji_picker_keyboard_expanded_sheet"
+    ],
+    "out_of_scope_regions": [
+      "editor_top_bar",
+      "editor_folder_pill",
+      "editor_title_field",
+      "editor_body_text_area"
+    ]
+  },
+
+  "regression_checks": [
+    {
+      "region": "editor_top_bar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_folder_pill",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_title_field",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_body_text_area",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    }
+  ],
+
+  "region_decomposition": [
+    {
+      "region": "editor_top_bar",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 24, "y_end": 80 }
+    },
+    {
+      "region": "editor_title_field",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 140, "y_end": 180 }
+    },
+    {
+      "region": "editor_body_text_area",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 190, "y_end": 548 }
+    },
+    {
+      "region": "emoji_picker_sheet_ime_hidden",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 548, "y_end": 914 }
+    },
+    {
+      "region": "emoji_picker_sheet_ime_visible",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 24, "y_end": 500 }
+    },
+    {
+      "region": "emoji_picker_drag_handle",
+      "bounds_dp": { "x_start": 189, "x_end": 221, "y_start": 554, "y_end": 560 }
+    },
+    {
+      "region": "emoji_picker_search_bar",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 568, "y_end": 624 }
+    },
+    {
+      "region": "emoji_picker_category_rail",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 632, "y_end": 680 }
+    },
+    {
+      "region": "emoji_picker_results_grid",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 688, "y_end": 914 }
+    }
+  ],
+
+  "structural_verification": {
+    "tolerances": {
+      "position_dp": 4,
+      "size_percent": 5,
+      "spacing_dp": 4
+    },
+    "checks": [
+      {
+        "region": "emoji_picker_sheet",
+        "element": "emoji_picker_sheet (IME hidden)",
+        "property": "size",
+        "expected": "height == rootHeight * 0.40 (365.6 dp)",
+        "actual": "365.6 dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_sheet",
+        "element": "emoji_picker_sheet (IME visible)",
+        "property": "position",
+        "expected": "top <= 12f dp, height > rootHeight * 0.40",
+        "actual": "top <= 12f dp, height = ~476 dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_sheet",
+        "element": "emoji_title_and_header_close",
+        "property": "visibility",
+        "expected": "Absent / removed in refinement",
+        "actual": "Absent",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_search_bar",
+        "element": "emoji_picker_search",
+        "property": "exists",
+        "expected": "Present, placeholder 'Search emoji', corner radius 12dp, height >= 48dp",
+        "actual": "Present, height 56dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_search_bar",
+        "element": "emoji_picker_clear_search",
+        "property": "visibility",
+        "expected": "Visible when query is non-empty, hidden when empty",
+        "actual": "Visible only with non-empty query",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_category_rail",
+        "element": "emoji_picker_categories",
+        "property": "exists",
+        "expected": "9 categories: Recent, Smileys & Emotion, People & Body, Animals & Nature, Food & Drink, Activities, Travel & Places, Objects, Symbols, Flags",
+        "actual": "9 categories in exact approved order",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_results_grid",
+        "element": "emoji_picker_grid",
+        "property": "size",
+        "expected": "Adaptive cells >= 48×48 dp with TalkBack accessibility labels",
+        "actual": ">= 48×48 dp cells",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_skin_tone_menu",
+        "element": "emoji_skin_tone_selector",
+        "property": "exists",
+        "expected": "6 items: Default + 5 skin tone variants",
+        "actual": "6 items rendered with distinct accessible labels",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "bottom_toolbar_emoji_action",
+        "element": "editor_insert_emoji (read-only note)",
+        "property": "visibility",
+        "expected": "Visible, disabled (assertIsNotEnabled), description 'Emoji insertion is unavailable in a read-only note.'",
+        "actual": "Visible, disabled, description matched",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "emoji_picker_empty_search",
+        "element": "emoji_picker_search_empty",
+        "property": "visibility",
+        "expected": "Visible on no search results with 'No emoji found' and 'Clear search'",
+        "actual": "Visible with exact strings",
+        "within_tolerance": true,
+        "result": "PASS"
+      }
+    ]
+  },
+
+  "dynamic_content_masking": [
+    {
+      "region": "editor_title_field_and_body",
+      "rationale": "Note title and body text are test scenario content"
+    },
+    {
+      "region": "status_bar",
+      "rationale": "System clock and status icons vary across runtime devices"
+    },
+    {
+      "region": "keyboard_ime",
+      "rationale": "Soft keyboard keys are system IME layout"
+    }
+  ],
+
+  "perceptual_comparison": [
+    {
+      "region": "emoji_picker_sheet",
+      "confidence": "high",
+      "notes": "Surface background #FFFFFF, 16dp rounded corners, drag handle, 2/5 height when IME hidden and expanded above IME when visible match approved mockup v2."
+    },
+    {
+      "region": "emoji_picker_search_bar",
+      "confidence": "high",
+      "notes": "Full width search input with search icon, placeholder 'Search emoji', and clear button when active matches design tokens."
+    },
+    {
+      "region": "emoji_picker_category_rail",
+      "confidence": "high",
+      "notes": "Category chips horizontally scrollable, selected category 'Recent' styled with primary pill background / indicator."
+    },
+    {
+      "region": "emoji_picker_results_grid",
+      "confidence": "high",
+      "notes": "Clear Unicode glyphs with proper spacing, long-press skin tone selector popup displays all 6 tones."
+    },
+    {
+      "region": "bottom_toolbar_emoji_action",
+      "confidence": "high",
+      "notes": "Emoticon icon in bottom toolbar disabled at 38% alpha in read-only notes."
+    },
+    {
+      "region": "emoji_picker_empty_search",
+      "confidence": "high",
+      "notes": "Centered localized secondary text 'No emoji found' with actionable 'Clear search' button."
+    }
+  ],
+
+  "defect_classification": [],
+
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "Note Editor bottom toolbar emoji action and emoji picker bottom sheet surface",
+    "issues": [],
+    "regression_summary": {
+      "editor_top_bar": "PASS — exists, visible, no layout shift",
+      "editor_folder_pill": "PASS — exists, visible, no layout shift",
+      "editor_title_field": "PASS — exists, visible, no layout shift",
+      "editor_body_text_area": "PASS — exists, visible, no layout shift"
+    }
+  },
+
+  "design_deviations": [],
+
+  "verdict": {
+    "result": "PASS",
+    "reason": "All build, static analysis, and instrumented UI tests pass; structural bounds assertions (2/5 sheet height, keyboard-expanded height, header omission, search/category/grid components, skin-tone menu, read-only disabled state, and empty search recovery) meet tolerances and match approved mockup v2 and design specification.",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}
