@@ -64,6 +64,7 @@ import com.example.notesapp.R
 import com.example.notesapp.ui.editor.mapper.DEFAULT_MERMAID_CODE
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.theme.LocalAppColors
+import kotlin.math.roundToInt
 
 @Composable
 fun MermaidBlockCard(
@@ -246,10 +247,7 @@ private fun MermaidCardHeader(
 }
 
 @Composable
-private fun MermaidCodeEditorContent(
-    block: EditorBlock.MermaidBlock,
-    onUpdateCode: (String) -> Unit
-) {
+private fun MermaidCodeEditorContent(block: EditorBlock.MermaidBlock, onUpdateCode: (String) -> Unit) {
     val colors = LocalAppColors.current
     Column(
         modifier = Modifier
@@ -410,9 +408,7 @@ private fun MermaidCodeEditorContent(
 }
 
 @Composable
-private fun MermaidPreviewContent(
-    block: EditorBlock.MermaidBlock
-) {
+private fun MermaidPreviewContent(block: EditorBlock.MermaidBlock) {
     val colors = LocalAppColors.current
     if (block.code.trim().isEmpty()) {
         Box(
@@ -520,7 +516,7 @@ private fun MermaidPreviewContent(
                         contentColor = colors.primary
                     ) {
                         Text(
-                            text = "${(scale * 100).toInt()}%",
+                            text = "${(scale * 100).roundToInt()}%",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -532,11 +528,7 @@ private fun MermaidPreviewContent(
 }
 
 @Composable
-private fun MermaidSvgView(
-    svgString: String,
-    isDark: Boolean,
-    modifier: Modifier = Modifier
-) {
+internal fun MermaidSvgView(svgString: String, isDark: Boolean, modifier: Modifier = Modifier) {
     if (svgString.isEmpty()) return
 
     val htmlData = remember(svgString, isDark) {

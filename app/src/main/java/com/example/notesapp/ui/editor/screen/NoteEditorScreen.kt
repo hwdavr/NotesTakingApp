@@ -317,6 +317,7 @@ fun NoteEditorScreenContent(
     BackHandler(enabled = showBasicBlocksPanel) { showBasicBlocksPanel = false }
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameTextFieldValue by remember { mutableStateOf("") }
+    var activeFullscreenMermaidBlock by remember { mutableStateOf<EditorBlock.MermaidBlock?>(null) }
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
     val breadcrumbText =
         buildBreadcrumb(
@@ -510,7 +511,10 @@ fun NoteEditorScreenContent(
                             onDeleteVoiceAudio = onDeleteVoiceAudio,
                             onUpdateMermaidTitle = onUpdateMermaidTitle,
                             onUpdateMermaidCode = onUpdateMermaidCode,
-                            onOpenMermaidFullscreen = onOpenMermaidFullscreen,
+                            onOpenMermaidFullscreen = { block ->
+                                activeFullscreenMermaidBlock = block
+                                onOpenMermaidFullscreen(block)
+                            },
                             focusedBlockId = state.focusedBlockId,
                             selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
@@ -614,31 +618,14 @@ fun NoteEditorScreenContent(
             )
         }
         if (showRenameDialog) {
-            AlertDialog(
-                onDismissRequest = { showRenameDialog = false },
-                title = { Text(stringResource(R.string.folders_rename_note_title)) },
-                text = {
-                    OutlinedTextField(
-                        value = renameTextFieldValue,
-                        onValueChange = { renameTextFieldValue = it },
-                        label = { Text(stringResource(R.string.folders_note_title_label)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            NoteEditorRenameDialog(
+                value = renameTextFieldValue,
+                onValueChange = { renameTextFieldValue = it },
+                onConfirm = {
+                    onRename(renameTextFieldValue)
+                    showRenameDialog = false
                 },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            onRename(renameTextFieldValue)
-                            showRenameDialog = false
-                        }
-                    ) { Text(stringResource(R.string.folders_create_action)) }
-                },
-                dismissButton = {
-                    Button(onClick = { showRenameDialog = false }) {
-                        Text(stringResource(R.string.folders_cancel_action))
-                    }
-                }
+                onDismiss = { showRenameDialog = false }
             )
         }
         NoteEditorCategorizationOverlay(
@@ -648,6 +635,12 @@ fun NoteEditorScreenContent(
             onConfirmManualMove = onConfirmManualMove,
             onCancelManualMove = onCancelManualMove
         )
+        activeFullscreenMermaidBlock?.let { block ->
+            FullscreenDiagramViewerDialog(
+                block = block,
+                onDismiss = { activeFullscreenMermaidBlock = null }
+            )
+        }
     }
 }
 

@@ -51,7 +51,7 @@ Lifecycle rules:
 | note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass plus UI revisions applied: two-fifths-height picker when the IME is hidden, full available height above the keyboard while search is focused, no `Emoji` title or header cross button, search-clear retained, and three additional emojis per category. v2/keyboard mockups and runtime screenshots are recorded; 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows remain fixed, with full JVM, 95/95 connected, 83.4701% coverage, quality, platform, lifecycle, and visual gates passing. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
-| mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | In Progress | 2026-08-18 | US-1, US-2, and US-3 delivered and verified (TC-US-1-01..03, TC-US-2-01..03, TC-US-3-01..06 passing). US-4 pending. |
+| mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be reviewed | 2026-08-18 | All 4 vertical slices delivered and verified (US-1, US-2, US-3, US-4 passing). Fullscreen interactive diagram viewer with edge-to-edge canvas, zoom controls (+, -, 100%, Fit to Screen), code copy, SVG export, connected UI test suite, screenshots, and visual anchor proof delivered. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -79,6 +79,7 @@ Lifecycle rules:
 | Mermaid block model foundation (US-1) | ✅ Slice done | Added EditorBlock.MermaidBlock model with type: 'mermaid' JSON persistence, 'Mermaid Diagram' tile addition to BasicBlocksPanel, auto-save integration in NoteEditorViewModel, and Markdown/PDF export support. |
 | Mermaid local rendering engine (US-2) | ✅ Slice done | On-device MermaidRenderer backed by local assets, theme token synchronization (Light/Dark AppColors), SVG string generation, and non-crashing structured error handling for invalid syntax. |
 | Mermaid diagram card & mode toggle (US-3) | ✅ Slice done | Elevated Material 3 card container (#FFFFFF surface, #E7E3F6 border, 12dp rounded corners), diagram title editing, 'Edit Code' / 'View Chart' mode toggle, quick template chips (Flowchart, Sequence, Class, State), monospace code editor, syntax validation status badge, inline pinch-to-zoom/pan viewport, and read-only mode protection. |
+| Mermaid fullscreen viewer & visual verification (US-4) | ✅ Slice done | FullscreenDiagramViewerDialog with edge-to-edge canvas, zoom controls (+, -, 100%, Fit to Screen), code copy to clipboard, SVG export/sharing, connected UI test suite (TC-US-4-01..03), 3 state-verifying screenshots, and reference anchor proof. |
 
 ### ✅ Folder & Collection Management
 
@@ -161,7 +162,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, the complete emoji path, and the complete table structure, handle, production editing, persistence, and visual-verification path |
+| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, and complete Mermaid diagram preview & fullscreen interactive viewer |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
