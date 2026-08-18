@@ -76,7 +76,7 @@
       "user_visible_behavior": "Mermaid DSL code renders locally as a high-quality SVG diagram with theme-matched colors, and invalid code produces an inline syntax alert without crashing.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -87,7 +87,29 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.MermaidRendererTest.testDarkThemeTokenInjection\"",
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.MermaidRendererTest.testInvalidSyntaxReturnsStructuredError\""
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-2-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.MermaidRendererTest.testRenderValidFlowchartProducesSvg\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T11:56:37+08:00"
+        },
+        {
+          "test_id": "TC-US-2-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.MermaidRendererTest.testDarkThemeTokenInjection\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T11:56:40+08:00"
+        },
+        {
+          "test_id": "TC-US-2-03",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.MermaidRendererTest.testInvalidSyntaxReturnsStructuredError\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-18T11:56:43+08:00"
+        }
+      ],
       "notes": "Core offline rendering engine; intermediate UI slice."
     },
     {

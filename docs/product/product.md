@@ -51,7 +51,7 @@ Lifecycle rules:
 | note-emoji | Note Emoji | [docs/product/2026-08-15-note-emoji/](2026-08-15-note-emoji/) | To be human reviewed | 2026-08-15 | Fix pass plus UI revisions applied: two-fifths-height picker when the IME is hidden, full available height above the keyboard while search is focused, no `Emoji` title or header cross button, search-clear retained, and three additional emojis per category. v2/keyboard mockups and runtime screenshots are recorded; 4/4 code findings and 15/15 originally revision-required or missing test-evidence rows remain fixed, with full JVM, 95/95 connected, 83.4701% coverage, quality, platform, lifecycle, and visual gates passing. |
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
-| mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | In Progress | 2026-08-18 | US-1 (Document Block Model, Persistence & Basic Blocks Panel Insertion) delivered and verified (TC-US-1-01, TC-US-1-02, TC-US-1-03 passing). US-2, US-3, US-4 pending. |
+| mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | In Progress | 2026-08-18 | US-1 and US-2 delivered and verified (TC-US-1-01, TC-US-1-02, TC-US-1-03, TC-US-2-01, TC-US-2-02, TC-US-2-03 passing). US-3, US-4 pending. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -77,6 +77,7 @@ Lifecycle rules:
 | Emoji discovery catalog (US-2) | ✅ Slice done | Expanded app-bundled Unicode catalog covers nine approved categories with three additional localized entries per category, localized name/keyword search, clearable empty states, and exact default plus five skin-tone variants; selection reuses the editor insertion path and keeps the compact one-third-height sheet open. |
 | Emoji Recent persistence and runtime validation (US-3) | ✅ Slice done | Exact inserted Unicode, including skin-tone variants, is stored as a bounded local MRU and restored after repository/app recreation with an empty fallback on read failure; the shipped picker has real Android glyph evidence and approved content, read-only, and empty-search visual captures. |
 | Mermaid block model foundation (US-1) | ✅ Slice done | Added EditorBlock.MermaidBlock model with type: 'mermaid' JSON persistence, 'Mermaid Diagram' tile addition to BasicBlocksPanel, auto-save integration in NoteEditorViewModel, and Markdown/PDF export support. |
+| Mermaid local rendering engine (US-2) | ✅ Slice done | On-device MermaidRenderer backed by local assets, theme token synchronization (Light/Dark AppColors), SVG string generation, and non-crashing structured error handling for invalid syntax. |
 
 ### ✅ Folder & Collection Management
 
@@ -177,4 +178,4 @@ Lifecycle rules:
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
 
-*Document last updated: 2026-08-16*
+*Document last updated: 2026-08-18*

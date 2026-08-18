@@ -5,10 +5,27 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: `docs/product/2026-08-18-mermaid-chart-preview/`
 - Standard verification path: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Current highest-priority unfinished feature: `US-2` (Local Offline Mermaid Rendering Engine & Theme Synchronization)
+- Current highest-priority unfinished feature: `US-3` (Mermaid Diagram Card with Mode Toggle & Quick Template Chips)
 - Current blocker: None
 
 ## Session Log
+
+### Session 003 — Implementation & Verification of US-2
+
+- Date: 2026-08-18
+- Goal: Implement US-2 (Local Offline Mermaid Rendering Engine & Theme Synchronization).
+- Completed:
+  - Created `MermaidRenderer.kt` on-device rendering engine component supporting offline evaluation, theme token injection (`AppColors` light/dark tokens), SVG generation, and structured error states (`RenderResult.Success` and `RenderResult.Error`).
+  - Authored `MermaidRendererTest.kt` verifying valid flowchart SVG generation (`TC-US-2-01`), dark theme token injection (`TC-US-2-02`), and structured error handling for syntax errors (`TC-US-2-03`).
+- Verification run:
+  - `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.components.MermaidRendererTest.testRenderValidFlowchartProducesSvg"` -> PASS (exit 0)
+  - `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.components.MermaidRendererTest.testDarkThemeTokenInjection"` -> PASS (exit 0)
+  - `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.components.MermaidRendererTest.testInvalidSyntaxReturnsStructuredError"` -> PASS (exit 0)
+  - `bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-18-mermaid-chart-preview --evaluate --slice US-2` -> PASS (exit 0)
+  - `./gradlew koverLog` -> PASS (Application Line Coverage: 85.64% > 80%)
+  - `./gradlew ktlintCheck` & `./gradlew detekt` -> PASS (0 violations)
+  - `bash harness/scripts/check-compose-rules.sh`, `check-localization-rules.sh`, `check-architecture-rules.sh` -> PASS (0 violations)
+- Files or artifacts updated: `MermaidRenderer.kt`, `MermaidRendererTest.kt`, `feature_list.json`, `progress.md`, `summary_US-2.md`, `product.md`.
 
 ### Session 002 — Implementation & Verification of US-1
 
