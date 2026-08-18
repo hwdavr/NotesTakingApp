@@ -30,5 +30,5 @@
 | 26 | `evaluator-rubric.md` created | Evaluation | PASS | Evaluator rubric scored |
 | 27 | Visual screenshots present | Evidence | PASS | 3 screenshots under `visual_evidence/` |
 | 28 | Reference anchor verification report | Evidence | PASS | `reference-anchor-verification.md` |
-| 29 | String resources defined in `strings.xml` | Localization | REVISION REQUIRED | 1 hardcoded string literal in `MermaidBlockCard.kt:257` |
+| 29 | String resources defined in `strings.xml` | Localization | PASS | Extracted `"Quick Templates"` to `strings.xml` in fix pass |
 | 30 | Git working tree clean | Repository | PASS | Clean state |

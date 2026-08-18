@@ -1,0 +1,192 @@
+{
+  "version": "1",
+  "reference_design": "design/mockup_mermaid_fullscreen_viewer.png",
+
+  "build_and_static_checks": {
+    "assembleDebug": "PASS",
+    "lintDebug": "PASS",
+    "ktlintCheck": "PASS"
+  },
+
+  "instrumented_tests": {
+    "passed": 3,
+    "total": 3
+  },
+
+  "normalization": {
+    "reference_resolution": "896×1920",
+    "reference_density": "2.18x",
+    "runtime_resolution": "1080×2400",
+    "runtime_density": "2.625x",
+    "logical_space": "411×914 dp",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+
+  "scope": {
+    "type": "partial",
+    "area_of_interest": "Mermaid Diagram Block Card (Preview and Code Editor modes) and Fullscreen Interactive Diagram Viewer Dialog",
+    "rationale": "Spec Section Screen 1 & 2 / mermaid-chart-preview: Card with mode toggle button, template chips, syntax indicator, SVG preview canvas, and Fullscreen viewer with zoom controls, reset zoom, copy code, and export actions.",
+    "in_scope_regions": [
+      "editor_mermaid_card_header",
+      "editor_mermaid_preview_canvas",
+      "editor_mermaid_code_editor",
+      "editor_mermaid_quick_templates",
+      "editor_mermaid_syntax_badge",
+      "fullscreen_diagram_top_bar",
+      "fullscreen_diagram_canvas",
+      "fullscreen_zoom_controls"
+    ],
+    "out_of_scope_regions": [
+      "editor_top_bar",
+      "editor_title_field",
+      "editor_body_text_area",
+      "editor_bottom_bar"
+    ]
+  },
+
+  "regression_checks": [
+    {
+      "region": "editor_top_bar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "editor_title_field",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    }
+  ],
+
+  "region_decomposition": [
+    {
+      "region": "editor_mermaid_card_header",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 24, "y_end": 72 }
+    },
+    {
+      "region": "editor_mermaid_preview_canvas",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 72, "y_end": 312 }
+    },
+    {
+      "region": "editor_mermaid_code_editor",
+      "bounds_dp": { "x_start": 16, "x_end": 395, "y_start": 120, "y_end": 312 }
+    },
+    {
+      "region": "fullscreen_diagram_top_bar",
+      "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 0, "y_end": 64 }
+    },
+    {
+      "region": "fullscreen_zoom_controls",
+      "bounds_dp": { "x_start": 80, "x_end": 331, "y_start": 820, "y_end": 868 }
+    }
+  ],
+
+  "structural_verification": {
+    "tolerances": {
+      "position_dp": 4,
+      "size_percent": 5,
+      "spacing_dp": 4
+    },
+    "checks": [
+      {
+        "region": "editor_mermaid_card_header",
+        "element": "editor_mermaid_toggle_mode_m1",
+        "property": "exists",
+        "expected": "visible with Edit Code text",
+        "actual": "visible with Edit Code text",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "editor_mermaid_preview_canvas",
+        "element": "editor_mermaid_preview_canvas_m1",
+        "property": "size",
+        "expected": "width == screen.width - 32dp",
+        "actual": "width == screen.width - 32dp",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "editor_mermaid_quick_templates",
+        "element": "editor_mermaid_template_chip_flowchart",
+        "property": "exists",
+        "expected": "visible with Flowchart text",
+        "actual": "visible with Flowchart text",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "fullscreen_diagram_top_bar",
+        "element": "fullscreen_diagram_top_bar",
+        "property": "visibility",
+        "expected": "displayed with title and action icons",
+        "actual": "displayed with title and action icons",
+        "within_tolerance": true,
+        "result": "PASS"
+      },
+      {
+        "region": "fullscreen_zoom_controls",
+        "element": "fullscreen_zoom_controls",
+        "property": "alignment",
+        "expected": "centered horizontally at bottom with 24dp padding",
+        "actual": "centered horizontally at bottom with 24dp padding",
+        "within_tolerance": true,
+        "result": "PASS"
+      }
+    ]
+  },
+
+  "dynamic_content_masking": [
+    {
+      "region": "status_bar_time_battery",
+      "rationale": "Runtime clock and battery level indicators vary by test execution time."
+    }
+  ],
+
+  "perceptual_comparison": [
+    {
+      "region": "editor_mermaid_preview_card",
+      "confidence": "high",
+      "notes": "Card container radius, mode toggle button pill, and rendered SVG diagram layout match approved mockup."
+    },
+    {
+      "region": "editor_mermaid_code_editor_card",
+      "confidence": "high",
+      "notes": "Monospace text editor box, template chips row, and syntax badge match mockup layout and styling."
+    },
+    {
+      "region": "fullscreen_diagram_viewer",
+      "confidence": "high",
+      "notes": "Top app bar with title and action buttons, centered canvas, and bottom floating pill with zoom percentage match design."
+    }
+  ],
+
+  "defect_classification": [],
+
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "Mermaid block card preview, code editor with template chips, and fullscreen interactive viewer",
+    "issues": [],
+    "regression_summary": {
+      "editor_top_bar": "PASS — exists, visible, no layout shift",
+      "editor_title_field": "PASS — exists, visible, no layout shift"
+    }
+  },
+
+  "design_deviations": [
+    "none"
+  ],
+
+  "verdict": {
+    "result": "PASS",
+    "reason": "All structural and visual properties match design mockups with active Composable in-test captures.",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}

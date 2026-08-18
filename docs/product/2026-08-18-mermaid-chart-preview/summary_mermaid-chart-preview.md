@@ -57,3 +57,31 @@
   - `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-08-18-mermaid-chart-preview` -> PASS (exit 0)
 - All vertical slices remain `passing`.
 - Fix-Stage 5 completed: ✅
+
+---
+
+## Fix-Stage 6 — Update State ✅ (2026-08-18)
+- Updated in-report status lines in `code_review_mermaid-chart-preview.md` and `test_review_mermaid-chart-preview.md`.
+- Updated `progress.md` with Session 006 log.
+- Transitioned feature status in `docs/product/product.md` from `To be fixed` to `To be human reviewed`.
+- Verified feature lifecycle tracker via `bash harness/scripts/check-feature-lifecycle.sh` (exit 0).
+- Committed fix pass: commit `05eea5a`.
+- Fix-Stage 6 completed: ✅
+
+---
+
+## Fix-Stage 7 — Clean Exit ✅ (2026-08-18)
+- Updated `clean-state-checklist.md` item 29 to `PASS`.
+- Updated `session-handoff.md` with completed fix pass details.
+- Fix-Stage 7 completed: ✅
+
+---
+
+## Fix-Stage 8 — Install App To Device ✅ (2026-08-18)
+- Executed `./gradlew installDebug` (exit code 0).
+- Successfully installed fixed debug build to connected devices:
+  - `emulator-5554` (Medium_Phone AVD - 13)
+  - `adb-46201FDAP009P3-eXjY18._adb-tls-connect._tcp` (Pixel 9 Pro - 17)
+- Fix-Stage 8 completed: ✅
+
+

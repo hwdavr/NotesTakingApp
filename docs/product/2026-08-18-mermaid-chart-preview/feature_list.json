@@ -206,9 +206,9 @@
       ],
       "verification": [
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FullscreenDiagramViewerTest",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testMermaidCardDefaultsToPreviewMode && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testToggleBetweenPreviewAndCodeEditor && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FullscreenDiagramViewerTest#testOpenFullscreenViewerAndNavigateBack && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png"
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardPreviewState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_preview.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardCodeEditorState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_code_editor.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureFullscreenDiagramViewerState && adb -s emulator-5554 pull /sdcard/Download/mermaid_fullscreen_viewer.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png"
       ],
       "evidence": [
         {
@@ -240,30 +240,30 @@
         },
         {
           "test_id": "TC-US-4-VIS-01",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testMermaidCardDefaultsToPreviewMode && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testMermaidCardDefaultsToPreviewMode && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardPreviewState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_preview.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardPreviewState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_preview.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_preview.png",
           "exit_code": 0,
           "exit_status": 0,
           "result": "PASS",
-          "timestamp": "2026-08-18T12:58:55+08:00"
+          "timestamp": "2026-08-18T18:17:36+08:00"
         },
         {
           "test_id": "TC-US-4-VIS-02",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testToggleBetweenPreviewAndCodeEditor && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.MermaidBlockCardTest#testToggleBetweenPreviewAndCodeEditor && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardCodeEditorState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_code_editor.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureMermaidCardCodeEditorState && adb -s emulator-5554 pull /sdcard/Download/mermaid_card_code_editor.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_card_code_editor.png",
           "exit_code": 0,
           "exit_status": 0,
           "result": "PASS",
-          "timestamp": "2026-08-18T12:59:04+08:00"
+          "timestamp": "2026-08-18T18:17:36+08:00"
         },
         {
           "test_id": "TC-US-4-VIS-03",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FullscreenDiagramViewerTest#testOpenFullscreenViewerAndNavigateBack && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FullscreenDiagramViewerTest#testOpenFullscreenViewerAndNavigateBack && mkdir -p docs/product/2026-08-18-mermaid-chart-preview/visual_evidence && adb exec-out screencap -p > docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureFullscreenDiagramViewerState && adb -s emulator-5554 pull /sdcard/Download/mermaid_fullscreen_viewer.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.MermaidVisualFlowTest#captureFullscreenDiagramViewerState && adb -s emulator-5554 pull /sdcard/Download/mermaid_fullscreen_viewer.png docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png && test -s docs/product/2026-08-18-mermaid-chart-preview/visual_evidence/mermaid_fullscreen_viewer.png",
           "exit_code": 0,
           "exit_status": 0,
           "result": "PASS",
-          "timestamp": "2026-08-18T12:59:13+08:00"
+          "timestamp": "2026-08-18T18:17:36+08:00"
         }
       ],
       "notes": "Final user-reachable slice and sole visual verification owner."

@@ -493,14 +493,20 @@ private fun MermaidPreviewContent(block: EditorBlock.MermaidBlock) {
                 val svgString = if (renderResult is RenderResult.Success) renderResult.svg else ""
 
                 Box(
-                    modifier = Modifier.graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x,
-                        translationY = offset.y
-                    )
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offset.x,
+                            translationY = offset.y
+                        )
                 ) {
-                    MermaidSvgView(svgString = svgString, isDark = isDark)
+                    MermaidSvgView(
+                        svgString = svgString,
+                        isDark = isDark,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
 
                 if (scale != 1f || offset != Offset.Zero) {
@@ -536,26 +542,35 @@ internal fun MermaidSvgView(svgString: String, isDark: Boolean, modifier: Modifi
         <!DOCTYPE html>
         <html>
         <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
-                body {
-                    margin: 0;
-                    padding: 0;
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                html, body {
+                    width: 100%;
+                    height: 100%;
                     background-color: transparent;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
                     overflow: hidden;
                 }
+                .wrapper {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 8px;
+                }
                 svg {
+                    width: 100%;
+                    height: 100%;
                     max-width: 100%;
                     max-height: 100%;
                 }
             </style>
         </head>
         <body>
-            $svgString
+            <div class="wrapper">
+                $svgString
+            </div>
         </body>
         </html>
         """.trimIndent()
@@ -564,16 +579,30 @@ internal fun MermaidSvgView(svgString: String, isDark: Boolean, modifier: Modifi
     AndroidView(
         factory = { context ->
             WebView(context).apply {
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
                 setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
                 settings.apply {
-                    javaScriptEnabled = false
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    allowFileAccess = true
                     blockNetworkLoads = true
-                    allowFileAccess = false
+                    loadWithOverviewMode = true
+                    useWideViewPort = false
                 }
             }
         },
         update = { webView ->
-            webView.loadDataWithBaseURL(null, htmlData, "text/html", "UTF-8", null)
+            webView.loadDataWithBaseURL(
+                "file:///android_asset/mermaid/",
+                htmlData,
+                "text/html; charset=utf-8",
+                "UTF-8",
+                null
+            )
         },
         modifier = modifier.fillMaxSize()
     )
