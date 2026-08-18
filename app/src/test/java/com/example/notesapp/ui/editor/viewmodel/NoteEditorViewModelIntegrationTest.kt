@@ -267,6 +267,85 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         )
     }
 
+    @Test
+    fun testInsertMermaidBlockFromBasicBlocksPanel() = runTest {
+        val noteId = "mermaid-insert-note"
+        val syncResponse = """
+            [
+              {
+                "id": "mermaid-insert-note",
+                "userId": "auth0|abc123",
+                "type": "note",
+                "parentId": null,
+                "name": "Mermaid Test Note",
+                "content": "{\"version\":1,\"blocks\":[{\"id\":\"b1\",\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]}",
+                "sortKey": "b0",
+                "version": 1,
+                "deviceId": "test_device",
+                "lastSyncedVersion": 1,
+                "createdAt": "2026-08-18T10:00:00Z",
+                "updatedAt": "2026-08-18T10:00:00Z"
+              }
+            ]
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"mermaid-insert-note","version":2,"updatedAt":"2026-08-18T10:00:01Z"}""")
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+
+        fakeNoteDao.insert(
+            NoteEntity(
+                id = noteId,
+                folderId = null,
+                title = "Mermaid Test Note",
+                content = NoteDocument.empty().toJsonString(),
+                sortKey = "b0",
+                version = 1,
+                deviceId = "test_device",
+                lastSyncedVersion = 1,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        viewModel.load(noteId)
+        advanceUntilIdle()
+        waitUntil { viewModel.uiState.value.isLoaded }
+
+        val inserted = viewModel.insertBasicBlock(BasicBlockType.MERMAID)
+        assertTrue(inserted)
+
+        val state = viewModel.uiState.value
+        val mermaidBlock = state.document.blocks.filterIsInstance<EditorBlock.MermaidBlock>().firstOrNull()
+        assertTrue(
+            "Mermaid block should have default starter flowchart code",
+            mermaidBlock?.code?.contains("graph TD") == true
+        )
+        assertEquals(mermaidBlock?.id, state.focusedBlockId)
+        assertTrue(
+            "Basic blocks panel should be auto-collapsed after insertion",
+            !state.showBasicBlocksPanel
+        )
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+        waitUntil { fakeNoteDao.getNoteById(noteId)?.content?.contains("\"type\":\"mermaid\"") == true }
+
+        val savedContent = fakeNoteDao.getNoteById(noteId)?.content
+        assertTrue(!savedContent.isNullOrBlank())
+        assertTrue(savedContent!!.contains("\"type\":\"mermaid\""))
+    }
+
     private fun testSummaryUseCase(): SummarizeNoteUseCase = SummarizeNoteUseCase(
         object : NoteSummarizer {
             override suspend fun summarize(title: String, noteText: String): NoteSummary =

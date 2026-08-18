@@ -13,6 +13,12 @@ import java.util.UUID
 import org.json.JSONArray
 import org.json.JSONObject
 
+const val DEFAULT_MERMAID_TITLE = "Mermaid Diagram"
+const val DEFAULT_MERMAID_CODE = """graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Result 1]
+    B -->|No| D[Result 2]"""
+
 private const val DOCUMENT_VERSION = 1
 data class NoteDocument(
     val version: Int = DOCUMENT_VERSION,
@@ -36,6 +42,7 @@ data class NoteDocument(
             is EditorBlock.TableBlock -> block.rows.joinToString("\n") { row ->
                 row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
             }
+            is EditorBlock.MermaidBlock -> listOf(block.title, block.code).filter { it.isNotBlank() }.joinToString("\n")
             is EditorBlock.Voice -> ""
         }
     }.trim()
@@ -81,6 +88,9 @@ data class NoteDocument(
                     "| " + row.joinToString(" | ") { cell -> cell.joinToString("") { it.text } } + " |"
                 }
                 "| $header |\n| $divider |\n$body"
+            }
+            is EditorBlock.MermaidBlock -> {
+                "```mermaid\n${block.code}\n```"
             }
             is EditorBlock.Voice -> ""
         }
@@ -134,6 +144,11 @@ sealed class EditorBlock {
         override val id: String = newBlockId(),
         val rows: List<List<List<RichText>>> = defaultTableRows(),
         val fitToWidth: Boolean = false
+    ) : EditorBlock()
+    data class MermaidBlock(
+        override val id: String = newBlockId(),
+        val code: String = DEFAULT_MERMAID_CODE,
+        val title: String = DEFAULT_MERMAID_TITLE
     ) : EditorBlock()
     data class Voice(
         val blockId: String,
@@ -273,6 +288,11 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("type", "table")
         .put("rows", rows.toRowsJson())
         .put("fitToWidth", fitToWidth)
+    is EditorBlock.MermaidBlock -> JSONObject()
+        .put("id", id)
+        .put("type", "mermaid")
+        .put("title", title)
+        .put("code", code)
     is EditorBlock.Voice -> JSONObject()
         .put("id", id)
         .put("blockId", blockId)
@@ -298,6 +318,11 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
             id = id,
             rows = optJSONArray("rows").toRows(),
             fitToWidth = optBoolean("fitToWidth", false)
+        )
+        "mermaid" -> EditorBlock.MermaidBlock(
+            id = id,
+            title = optString("title", DEFAULT_MERMAID_TITLE),
+            code = optString("code", DEFAULT_MERMAID_CODE)
         )
         "voice" -> EditorBlock.Voice(
             blockId = optString("blockId", id),

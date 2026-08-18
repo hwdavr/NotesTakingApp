@@ -48,6 +48,7 @@ data class NoteEditorUiState(
     val createdAt: Long = 0L,
     val isLoaded: Boolean = false,
     val isFormattingToolbarVisible: Boolean = false,
+    val showBasicBlocksPanel: Boolean = false,
     val focusedBlockId: String? = null,
     val focusedTableCells: Map<String, TableFocusTarget> = emptyMap(),
     val selectionStart: Int = 0,
@@ -306,7 +307,11 @@ open class NoteEditorViewModel @Inject constructor(
         if (!uiStateInternal.value.isEditable) return false
 
         val current = uiStateInternal.value
-        val newBlock = type.createEmptyTextBlock()
+        val newBlock: EditorBlock = if (type == BasicBlockType.MERMAID) {
+            EditorBlock.MermaidBlock()
+        } else {
+            type.createEmptyTextBlock()
+        }
         val focusedIndex = current.focusedBlockId?.let { focusedId ->
             current.document.blocks.indexOfFirst { it.id == focusedId }.takeIf { it >= 0 }
         }
@@ -322,6 +327,7 @@ open class NoteEditorViewModel @Inject constructor(
         uiStateInternal.value = current.copy(
             document = current.document.copy(blocks = updatedBlocks),
             focusedBlockId = newBlock.id,
+            showBasicBlocksPanel = false,
             selectionStart = 0,
             selectionEnd = 0
         )
@@ -346,10 +352,6 @@ open class NoteEditorViewModel @Inject constructor(
         return true
     }
 
-    fun addImageBlock() {
-        if (!uiStateInternal.value.isEditable) return
-        appendBlock(EditorBlock.ImageBlock())
-    }
     fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
         if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
@@ -362,10 +364,6 @@ open class NoteEditorViewModel @Inject constructor(
                 block
             }
         }
-    }
-    fun addTableBlock() {
-        if (!uiStateInternal.value.isEditable) return
-        appendBlock(EditorBlock.TableBlock())
     }
     fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
         if (!uiStateInternal.value.isEditable) return
@@ -893,7 +891,7 @@ private fun EditorBlock.TableBlock.deepCopy(): EditorBlock.TableBlock = copy(
 
 private const val TAG = "NotesApp/NoteEditorViewModel"
 
-private fun NoteEditorViewModel.appendBlock(block: EditorBlock) {
+internal fun NoteEditorViewModel.appendBlock(block: EditorBlock) {
     val current = uiStateInternal.value
     uiStateInternal.value = current.copy(
         document = current.document.copy(blocks = current.document.blocks + block)
@@ -901,7 +899,7 @@ private fun NoteEditorViewModel.appendBlock(block: EditorBlock) {
     scheduleAutoSave()
 }
 
-private fun NoteEditorViewModel.updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
+internal fun NoteEditorViewModel.updateBlock(blockId: String, transform: (EditorBlock) -> EditorBlock) {
     val current = uiStateInternal.value
     uiStateInternal.value = current.copy(
         document = current.document.copy(

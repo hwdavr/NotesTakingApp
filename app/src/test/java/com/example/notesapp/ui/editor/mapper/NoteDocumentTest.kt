@@ -270,7 +270,8 @@ class NoteDocumentTest {
 
     @Test
     fun basicBlockTypesRoundTripWithDefaults() {
-        val supportedTypes = BasicBlockType.entries.filter { it != BasicBlockType.UNKNOWN }
+        val supportedTypes = BasicBlockType.entries
+            .filter { it != BasicBlockType.UNKNOWN && it != BasicBlockType.MERMAID }
         val originalBlocks = supportedTypes.map { type -> type.createEmptyTextBlock() }
 
         val restoredBlocks = NoteDocument(blocks = originalBlocks)
@@ -327,5 +328,29 @@ class NoteDocumentTest {
 
         assertEquals("toggle", toggle.type)
         assertTrue(toggle.isExpanded)
+    }
+
+    @Test
+    fun testMermaidBlockSerializationAndDeserialization() {
+        val customCode = "graph LR\n  X[Alpha] --> Y[Beta]"
+        val customTitle = "System Architecture"
+        val originalDoc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.MermaidBlock(
+                    id = "mermaid-test-1",
+                    code = customCode,
+                    title = customTitle
+                )
+            )
+        )
+
+        val jsonString = originalDoc.toJsonString()
+        val restoredDoc = NoteDocument.fromContent(jsonString)
+
+        assertEquals(1, restoredDoc.blocks.size)
+        val restoredBlock = restoredDoc.blocks[0] as EditorBlock.MermaidBlock
+        assertEquals("mermaid-test-1", restoredBlock.id)
+        assertEquals(customCode, restoredBlock.code)
+        assertEquals(customTitle, restoredBlock.title)
     }
 }

@@ -130,6 +130,9 @@ class NoteExporter(private val context: Context) {
                 is EditorBlock.TableBlock -> {
                     renderTable(block, renderer, textPaint, borderPaint)
                 }
+                is EditorBlock.MermaidBlock -> {
+                    renderMermaidBlock(block, renderer, textPaint)
+                }
                 is EditorBlock.Voice -> {
                     renderer.currentY += 10f
                 }
@@ -142,6 +145,45 @@ class NoteExporter(private val context: Context) {
             pdfDocument.close()
             outputStream.close()
         }
+    }
+
+    private fun renderMermaidBlock(block: EditorBlock.MermaidBlock, renderer: PdfRenderer, textPaint: TextPaint) {
+        textPaint.textSize = 14f
+        textPaint.isFakeBoldText = true
+        val titleText = block.title.ifBlank { "Mermaid Diagram" }
+        val titleLayout = StaticLayout.Builder.obtain(
+            titleText,
+            0,
+            titleText.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(titleLayout.height + 10f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        titleLayout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += titleLayout.height + 6f
+
+        textPaint.textSize = 10f
+        textPaint.isFakeBoldText = false
+        val codeLayout = StaticLayout.Builder.obtain(
+            block.code,
+            0,
+            block.code.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(codeLayout.height + 15f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        codeLayout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += codeLayout.height + 15f
     }
 
     private fun renderTextBlock(block: EditorBlock.TextBlock, renderer: PdfRenderer, textPaint: TextPaint) {

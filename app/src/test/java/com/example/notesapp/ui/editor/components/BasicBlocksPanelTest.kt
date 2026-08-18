@@ -20,7 +20,8 @@ class BasicBlocksPanelTest {
             "basic_blocks_todo_list",
             "basic_blocks_toggle_list",
             "basic_blocks_callout",
-            "basic_blocks_quote"
+            "basic_blocks_quote",
+            "basic_blocks_mermaid"
         )
         val expectedTypes = listOf(
             BasicBlockType.PARAGRAPH,
@@ -33,10 +34,11 @@ class BasicBlocksPanelTest {
             BasicBlockType.TODO_LIST,
             BasicBlockType.TOGGLE_LIST,
             BasicBlockType.CALLOUT,
-            BasicBlockType.QUOTE
+            BasicBlockType.QUOTE,
+            BasicBlockType.MERMAID
         )
 
-        assertEquals(11, approvedBasicBlockTiles.size)
+        assertEquals(12, approvedBasicBlockTiles.size)
         assertEquals(expectedTags, approvedBasicBlockTiles.map { it.testTag })
         assertEquals(expectedTypes, approvedBasicBlockTiles.map { it.type })
     }

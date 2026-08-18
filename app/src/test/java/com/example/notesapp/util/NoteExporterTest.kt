@@ -165,4 +165,34 @@ class NoteExporterTest {
 
         // Since exportToPdf is hard to test, I'll focus on what's testable.
     }
+
+    @Test
+    fun testExportMermaidBlockToMarkdown() {
+        val note = Note(
+            id = "n-mermaid",
+            title = "Mermaid Export Note",
+            content = """
+                {
+                  "blocks": [
+                    {
+                      "id": "b-mermaid-1",
+                      "type": "mermaid",
+                      "title": "System Flow",
+                      "code": "graph TD\n    A[Start] --> B[End]"
+                    }
+                  ]
+                }
+            """.trimIndent(),
+            folderId = "f1",
+            createdAt = 0L,
+            updatedAt = 0L
+        )
+        val outputStream = ByteArrayOutputStream()
+        exporter.exportToMarkdown(note, outputStream)
+
+        val result = outputStream.toString()
+        assertTrue(result.contains("```mermaid"))
+        assertTrue(result.contains("graph TD\n    A[Start] --> B[End]"))
+        assertTrue(result.contains("```"))
+    }
 }

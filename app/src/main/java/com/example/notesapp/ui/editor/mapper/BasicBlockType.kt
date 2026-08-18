@@ -12,6 +12,7 @@ enum class BasicBlockType(val storageValue: String) {
     TOGGLE_LIST("toggle"),
     CALLOUT("callout"),
     QUOTE("quote"),
+    MERMAID("mermaid"),
     UNKNOWN("");
 
     companion object {

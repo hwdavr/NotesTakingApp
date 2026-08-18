@@ -153,6 +153,8 @@ import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
+import com.example.notesapp.ui.editor.viewmodel.addImageBlock
+import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
@@ -886,6 +888,20 @@ private fun DocumentBlockList(
                         isEditable = isEditable,
                         onDeleteAudio = { onDeleteVoiceAudio?.invoke(block.blockId) }
                     )
+                }
+                is EditorBlock.MermaidBlock -> {
+                    val defaultTitle = stringResource(com.example.notesapp.R.string.basic_blocks_mermaid_label)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("editor_mermaid_block_${block.id}")
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = block.title.ifBlank { defaultTitle },
+                            modifier = Modifier.testTag("editor_mermaid_title_${block.id}")
+                        )
+                    }
                 }
             }
         }

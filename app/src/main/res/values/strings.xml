@@ -426,4 +426,6 @@
     <string name="basic_blocks_callout_description">Insert Callout</string>
     <string name="basic_blocks_quote_label">Quote</string>
     <string name="basic_blocks_quote_description">Insert Quote</string>
+    <string name="basic_blocks_mermaid_label">Mermaid Diagram</string>
+    <string name="basic_blocks_mermaid_description">Insert Mermaid Diagram</string>
 </resources>

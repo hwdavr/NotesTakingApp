@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Notes
+import androidx.compose.material.icons.outlined.AutoAwesomeMosaic
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatQuote
@@ -188,6 +189,13 @@ val approvedBasicBlockTiles = listOf(
         descriptionRes = R.string.basic_blocks_quote_description,
         testTag = "basic_blocks_quote",
         icon = Icons.Outlined.FormatQuote
+    ),
+    BasicBlockTileItem(
+        type = BasicBlockType.MERMAID,
+        labelRes = R.string.basic_blocks_mermaid_label,
+        descriptionRes = R.string.basic_blocks_mermaid_description,
+        testTag = "basic_blocks_mermaid",
+        icon = Icons.Outlined.AutoAwesomeMosaic
     )
 )
 
