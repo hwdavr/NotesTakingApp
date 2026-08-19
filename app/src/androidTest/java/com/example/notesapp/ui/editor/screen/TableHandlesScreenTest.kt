@@ -21,6 +21,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.pressBack
@@ -261,6 +263,26 @@ class TableHandlesScreenTest {
     }
 
     @Test
+    fun wideTableScrollsHorizontallyToRevealOffscreenColumns() {
+        setProductionEditorContent(blocks = listOf(wideTableBlock()))
+
+        val scrollNode = composeRule.onNodeWithTag("editor_table_scroll", useUnmergedTree = true)
+        val initialRange = scrollNode.fetchSemanticsNode()
+            .config[SemanticsProperties.HorizontalScrollAxisRange]
+        assertTrue("Table should be horizontally scrollable", initialRange.maxValue() > 0f)
+        val initialValue = initialRange.value()
+
+        scrollNode.performTouchInput {
+            swipe(start = centerRight, end = centerLeft, durationMillis = 500)
+        }
+        composeRule.waitForIdle()
+
+        val scrolledValue = scrollNode.fetchSemanticsNode()
+            .config[SemanticsProperties.HorizontalScrollAxisRange].value()
+        assertTrue("Table content should scroll horizontally", scrolledValue > initialValue)
+    }
+
+    @Test
     fun handlesAndActionsExposeAccessibleLabelsAndMinimumBounds() {
         setProductionEditorContent()
         focusFirstTableCell()
@@ -483,8 +505,11 @@ class TableHandlesScreenTest {
         assertSheetAbsent("table_options_sheet")
 
         val fitWidths = tableCellWidths()
-        assertTrue(abs(fitWidths[0] - fitWidths[1]) < 2f)
-        assertTrue(abs(defaultWidths[0] - defaultWidths[1]) > 2f)
+        assertTrue("fit widths should match: $fitWidths", abs(fitWidths[0] - fitWidths[1]) < 2f)
+        assertTrue(
+            "default widths should differ: $defaultWidths",
+            abs(defaultWidths[0] - defaultWidths[1]) > 2f
+        )
 
         composeRule.onNodeWithTag("table_options_handle").performClick()
         composeRule.onNodeWithTag("table_fit_to_width").performClick()
@@ -492,7 +517,10 @@ class TableHandlesScreenTest {
         assertTrue(!(viewModel.uiState.value.document.blocks.first() as EditorBlock.TableBlock).fitToWidth)
         assertSheetAbsent("table_options_sheet")
         val restoredWidths = tableCellWidths()
-        assertTrue(abs(restoredWidths[0] - restoredWidths[1]) > 2f)
+        assertTrue(
+            "restored widths should differ: $restoredWidths",
+            abs(restoredWidths[0] - restoredWidths[1]) > 2f
+        )
     }
 
     @Test

@@ -15,16 +15,16 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -1509,23 +1509,66 @@ private fun TableDocumentBlockContent(
             color = LocalAppColors.current.textPrimary,
             fontSize = 13.sp
         )
-        Box(modifier = Modifier.fillMaxWidth()) {
-            TableGrid(
-                block = block,
-                isEditable = isEditable,
-                targetCell = targetCell,
-                focusedRowIndex = focusedRowIndex,
-                onCellChange = onCellChange,
-                onCellFocusChanged = onCellFocusChanged,
-                onRowHandleClick = onRowHandleClick
-            )
-            if (focusedColumnIndex != null) {
-                TableColumnHandleRow(
-                    columnWeights = block.tableColumnWeights(),
-                    focusedColumnIndex = focusedColumnIndex,
-                    onColumnHandleClick = onColumnHandleClick,
-                    onTableHandleClick = onTableHandleClick
-                )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val weights = block.tableColumnWeights()
+            val dividerWidth = (1.dp * (weights.size - 1).coerceAtLeast(0))
+            val columnWidths = remember(block.id, block.rows, block.fitToWidth, maxWidth) {
+                tableColumnWidths(weights, maxWidth - TableHandleGutterWidth - dividerWidth)
+            }
+            val tableContentWidth = columnWidths.fold(0.dp) { total, width -> total + width } + dividerWidth
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .width(TableHandleGutterWidth + tableContentWidth)
+                        .testTag("editor_table_scroll")
+                ) {
+                    TableGrid(
+                        block = block,
+                        isEditable = isEditable,
+                        columnWidths = columnWidths,
+                        targetCell = targetCell,
+                        focusedRowIndex = focusedRowIndex,
+                        onCellChange = onCellChange,
+                        onCellFocusChanged = onCellFocusChanged,
+                        onRowHandleClick = onRowHandleClick
+                    )
+                    if (focusedColumnIndex != null) {
+                        TableColumnHandleRow(
+                            columnWidths = columnWidths,
+                            focusedColumnIndex = focusedColumnIndex,
+                            onColumnHandleClick = onColumnHandleClick
+                        )
+                    }
+                }
+                if (focusedColumnIndex != null) {
+                    IconButton(
+                        onClick = onTableHandleClick,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(48.dp)
+                            .testTag("table_options_handle")
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(28.dp)
+                                .background(
+                                    color = LocalAppColors.current.primary.copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .testTag("table_options_visual"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MoreHoriz,
+                                contentDescription = stringResource(R.string.table_options_handle_description),
+                                tint = LocalAppColors.current.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -1535,18 +1578,18 @@ private fun TableDocumentBlockContent(
 private fun TableGrid(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
+    columnWidths: List<Dp>,
     targetCell: TableFocusTarget?,
     focusedRowIndex: Int?,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onCellFocusChanged: (cell: TableFocusTarget, hasFocus: Boolean) -> Unit,
     onRowHandleClick: () -> Unit
 ) {
-    val columnWeights = block.tableColumnWeights()
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = 24.dp,
+                start = TableHandleGutterWidth,
                 top = 24.dp
             )
             .border(1.dp, LocalAppColors.current.border, RoundedCornerShape(4.dp))
@@ -1559,7 +1602,7 @@ private fun TableGrid(
             TableGridRow(
                 rowIndex = rowIndex,
                 row = row,
-                columnWeights = columnWeights,
+                columnWidths = columnWidths,
                 isEditable = isEditable,
                 targetCell = targetCell,
                 focusedRowIndex = focusedRowIndex,
@@ -1575,7 +1618,7 @@ private fun TableGrid(
 private fun TableGridRow(
     rowIndex: Int,
     row: List<List<RichText>>,
-    columnWeights: List<Float>,
+    columnWidths: List<Dp>,
     isEditable: Boolean,
     targetCell: TableFocusTarget?,
     focusedRowIndex: Int?,
@@ -1600,7 +1643,7 @@ private fun TableGridRow(
                     rowIndex = rowIndex,
                     cellIndex = cellIndex,
                     cell = cell,
-                    columnWeight = columnWeights.getOrElse(cellIndex) { 1f },
+                    columnWidth = columnWidths.getOrElse(cellIndex) { TableColumnMinWidth },
                     isEditable = isEditable,
                     isFocusedCell = targetCell == TableFocusTarget(rowIndex, cellIndex),
                     onCellChange = onCellChange,
@@ -1612,8 +1655,8 @@ private fun TableGridRow(
             TableRowHandle(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset(x = (-24).dp)
-                    .width(24.dp)
+                    .offset(x = -TableHandleGutterWidth)
+                    .width(TableHandleGutterWidth)
                     .fillMaxHeight(),
                 onClick = onRowHandleClick
             )
@@ -1622,11 +1665,11 @@ private fun TableGridRow(
 }
 
 @Composable
-private fun RowScope.TableGridCell(
+private fun TableGridCell(
     rowIndex: Int,
     cellIndex: Int,
     cell: List<RichText>,
-    columnWeight: Float,
+    columnWidth: Dp,
     isEditable: Boolean,
     isFocusedCell: Boolean,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
@@ -1635,7 +1678,7 @@ private fun RowScope.TableGridCell(
     val focusedCellDescription = stringResource(R.string.table_focused_cell_description)
     Box(
         modifier = Modifier
-            .weight(columnWeight)
+            .width(columnWidth)
             .fillMaxHeight()
             .testTag("editor_table_cell_bounds")
     ) {
@@ -1673,57 +1716,25 @@ private fun RowScope.TableGridCell(
 }
 
 @Composable
-private fun BoxScope.TableColumnHandleRow(
-    columnWeights: List<Float>,
-    focusedColumnIndex: Int,
-    onColumnHandleClick: () -> Unit,
-    onTableHandleClick: () -> Unit
-) {
+private fun TableColumnHandleRow(columnWidths: List<Dp>, focusedColumnIndex: Int, onColumnHandleClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(24.dp)
-            .padding(start = 24.dp)
+            .padding(start = TableHandleGutterWidth)
     ) {
-        columnWeights.forEachIndexed { columnIndex, columnWeight ->
+        columnWidths.forEachIndexed { columnIndex, columnWidth ->
             if (columnIndex == focusedColumnIndex) {
                 TableColumnHandle(
-                    modifier = Modifier.weight(columnWeight),
+                    modifier = Modifier.width(columnWidth),
                     onClick = onColumnHandleClick
                 )
             } else {
-                Spacer(modifier = Modifier.weight(columnWeight))
+                Spacer(modifier = Modifier.width(columnWidth))
             }
-            if (columnIndex < columnWeights.lastIndex) {
+            if (columnIndex < columnWidths.lastIndex) {
                 Spacer(modifier = Modifier.width(1.dp))
             }
-        }
-    }
-    IconButton(
-        onClick = onTableHandleClick,
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .offset(y = 0.dp)
-            .size(48.dp)
-            .testTag("table_options_handle")
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(28.dp)
-                .background(
-                    color = LocalAppColors.current.primary.copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .testTag("table_options_visual"),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.MoreHoriz,
-                contentDescription = stringResource(R.string.table_options_handle_description),
-                tint = LocalAppColors.current.primary,
-                modifier = Modifier.size(22.dp)
-            )
         }
     }
 }
