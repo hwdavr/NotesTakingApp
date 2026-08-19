@@ -346,6 +346,81 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         assertTrue(savedContent!!.contains("\"type\":\"mermaid\""))
     }
 
+    @Test
+    fun testInsertCodeBlockFromBasicBlocksPanel() = runTest {
+        val noteId = "code-insert-note"
+        val syncResponse = """
+            [
+              {
+                "id": "code-insert-note",
+                "userId": "auth0|abc123",
+                "type": "note",
+                "parentId": null,
+                "name": "Code Test Note",
+                "content": "{\"version\":1,\"blocks\":[{\"id\":\"b1\",\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]}",
+                "sortKey": "b0",
+                "version": 1,
+                "deviceId": "test_device",
+                "lastSyncedVersion": 1,
+                "createdAt": "2026-08-19T10:00:00Z",
+                "updatedAt": "2026-08-19T10:00:00Z"
+              }
+            ]
+        """.trimIndent()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"code-insert-note","version":2,"updatedAt":"2026-08-19T10:00:01Z"}""")
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+
+        fakeNoteDao.insert(
+            NoteEntity(
+                id = noteId,
+                folderId = null,
+                title = "Code Test Note",
+                content = NoteDocument.empty().toJsonString(),
+                sortKey = "b0",
+                version = 1,
+                deviceId = "test_device",
+                lastSyncedVersion = 1,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        viewModel.load(noteId)
+        advanceUntilIdle()
+        waitUntil { viewModel.uiState.value.isLoaded }
+
+        val inserted = viewModel.insertBasicBlock(BasicBlockType.CODE)
+        assertTrue(inserted)
+
+        val state = viewModel.uiState.value
+        val codeBlock = state.document.blocks.filterIsInstance<EditorBlock.CodeBlock>().firstOrNull()
+        assertTrue("Code block should be inserted", codeBlock != null)
+        assertEquals("Plain Text", codeBlock?.language)
+        assertEquals("", codeBlock?.code)
+        assertEquals(codeBlock?.id, state.focusedBlockId)
+        assertTrue("Basic blocks panel should be auto-collapsed after insertion", !state.showBasicBlocksPanel)
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+        waitUntil { fakeNoteDao.getNoteById(noteId)?.content?.contains("\"type\":\"code\"") == true }
+
+        val savedContent = fakeNoteDao.getNoteById(noteId)?.content
+        assertTrue(!savedContent.isNullOrBlank())
+        assertTrue(savedContent!!.contains("\"type\":\"code\""))
+    }
+
     private fun testSummaryUseCase(): SummarizeNoteUseCase = SummarizeNoteUseCase(
         object : NoteSummarizer {
             override suspend fun summarize(title: String, noteText: String): NoteSummary =

@@ -1,0 +1,167 @@
+{
+  "project": "NotesTakingApp",
+  "last_updated": "2026-08-19",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current active task.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "platform_validation": {
+    "required": false,
+    "capability_matrix": "platform-capability-matrix.md",
+    "unsupported_environment_policy": "fail_loudly",
+    "reason": "Code Block editing, syntax highlighting, and basic blocks panel operate entirely on-device within the standard Android framework (Jetpack Compose, Room, Android ClipboardManager) and do not depend on external hardware, OEM voice engines, or AI models."
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "editor",
+      "title": "Document Block Model, Persistence & Basic Blocks Panel Insertion",
+      "description": "Add EditorBlock.CodeBlock(id, language, code) to NoteDocument.kt with backward-compatible JSON serialization (type: 'code'), BasicBlockType.CODE in BasicBlockType.kt, BasicBlocksPanel.kt reorganization into 'Basic' and 'Advanced' sections, auto-save integration in NoteEditorViewModel, and Markdown/PDF export formatting in NoteExporter.kt.",
+      "ui_design": "docs/product/2026-08-18-code-block/design/mockup_basic_blocks_panel_advanced.png",
+      "user_visible_behavior": "Users see 'Basic' and 'Advanced' section headers in the Basic Blocks panel, can tap 'Code' under Advanced to insert an empty Code Block, see notes auto-saved, and can export notes containing Code Blocks to Markdown and PDF.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "passing",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03",
+        "TC-US-1-04"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentTest.testCodeBlockSerializationAndDeserialization\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.BasicBlocksPanelTest.testBasicAndAdvancedSectionHeadersAndCodeTile\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testInsertCodeBlockFromBasicBlocksPanel\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterTest.testExportCodeBlockToMarkdownAndPdf\""
+      ],
+      "evidence": [
+        {
+          "test_id": "TC-US-1-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentTest.testCodeBlockSerializationAndDeserialization\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "CodeBlock JSON serialization round-trip preserves id, language, and code content."
+        },
+        {
+          "test_id": "TC-US-1-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.BasicBlocksPanelTest.testBasicAndAdvancedSectionHeadersAndCodeTile\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "BasicBlocksPanel renders Basic and Advanced section headers with Code tile under Advanced."
+        },
+        {
+          "test_id": "TC-US-1-03",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testInsertCodeBlockFromBasicBlocksPanel\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "insertBasicBlock(BasicBlockType.CODE) adds CodeBlock to document with default language 'Plain Text' and empty code."
+        },
+        {
+          "test_id": "TC-US-1-04",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterTest.testExportCodeBlockToMarkdownAndPdf\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Markdown export contains fenced code block with language identifier; PDF export path verified via instrumented tests."
+        },
+        {
+          "test_id": "platform-evidence",
+          "command": "bash harness/scripts/check-platform-evidence.sh \"docs/product/2026-08-18-code-block\" --evaluate --slice \"US-1\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Platform validation explicitly not required (standard Android framework APIs only)."
+        }
+      ],
+      "notes": "Foundational model, persistence, panel reorganization, and export delivered; visual verification is owned by final slice US-4. Re-delivered 2026-08-19 after a repository reset (clean build; all TC-US-1-01..04 re-verified exit 0). PDF export is exercised by the instrumented NoteExporterTest on the emulator because Robolectric cannot start a PdfDocument page."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "editor",
+      "title": "Client-Side Syntax Highlighter & Line Number Engine",
+      "description": "Implement the lightweight on-device syntax highlighting engine and tokenizer supporting regex rules for Kotlin, Java, Python, JavaScript, TypeScript, HTML, CSS, JSON, SQL, Shell, C/C++, Rust, Go, and Plain Text, along with dynamic line count and gutter numbering calculation.",
+      "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
+      "user_visible_behavior": "Monospace code snippets are styled with theme-appropriate syntax token coloring (keywords, strings, comments, numbers, types) and display synchronized line numbers.",
+      "affects_ui": false,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02",
+        "TC-US-2-03"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testSyntaxHighlightingForSupportedLanguages\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testDynamicLineNumberCalculation\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testPlainTextAndFallbackHandling\""
+      ],
+      "evidence": [],
+      "notes": "Core syntax highlighting and line calculation engine."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "editor",
+      "title": "Code Block Card UI, Language Selection, Copy Action & Deletion",
+      "description": "Implement CodeBlockCard.kt composable featuring elevated Material 3 card container (#FFFFFF light, #1E1E1E dark, #E7E3F6 border, 12dp rounded corners), language selector chip with DropdownMenu, 'Copy' icon button with ClipboardManager integration and visual feedback, 'Delete' icon button for block removal, line numbers gutter, and syntax-highlighted monospace text editor with auto-save.",
+      "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
+      "user_visible_behavior": "Users can interact with the Code Block card in the editor, choose from 14 programming languages via dropdown, edit monospace code with live syntax coloring and line numbers, copy code with one tap, and delete the block.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-02",
+        "TC-US-3-03",
+        "TC-US-3-04"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockLanguage\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockContent\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.CodeBlockCardTest",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testDeleteCodeBlockFromDocument\""
+      ],
+      "evidence": [],
+      "notes": "Interactive card component, actions, and ViewModel wiring."
+    },
+    {
+      "id": "US-4",
+      "priority": 4,
+      "area": "editor",
+      "title": "Connected UI Flows, Visual Verification & Acceptance Verification",
+      "description": "Deliver CodeBlockVisualFlowTest.kt connected instrumented UI tests verifying full user journey (panel insertion, editing, language change, clipboard copying, block deletion, read-only behavior) and capturing in-test visual evidence screenshots for reference-anchor verification.",
+      "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
+      "user_visible_behavior": "End-to-end verified Code Block experience with confirmed visual alignment against approved design mockups in both editable and read-only modes.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-4-01",
+        "TC-US-4-02",
+        "TC-US-4-03",
+        "TC-US-4-VIS-01",
+        "TC-US-4-VIS-02"
+      ],
+      "verification": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureCodeBlockEditor && adb -s emulator-5554 pull /sdcard/Download/code_block_editor.png docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png && test -s docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureBasicBlocksPanelAdvanced && adb -s emulator-5554 pull /sdcard/Download/basic_blocks_panel_advanced.png docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png && test -s docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png"
+      ],
+      "evidence": [],
+      "notes": "Final visual verification and acceptance slice."
+    }
+  ]
+}

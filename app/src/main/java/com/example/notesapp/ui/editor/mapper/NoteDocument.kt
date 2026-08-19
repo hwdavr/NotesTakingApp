@@ -18,6 +18,7 @@ const val DEFAULT_MERMAID_CODE = """graph TD
     A[Start] --> B{Decision}
     B -->|Yes| C[Result 1]
     B -->|No| D[Result 2]"""
+const val DEFAULT_CODE_BLOCK_LANGUAGE = "Plain Text"
 
 private const val DOCUMENT_VERSION = 1
 data class NoteDocument(
@@ -43,6 +44,7 @@ data class NoteDocument(
                 row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
             }
             is EditorBlock.MermaidBlock -> listOf(block.title, block.code).filter { it.isNotBlank() }.joinToString("\n")
+            is EditorBlock.CodeBlock -> block.code
             is EditorBlock.Voice -> ""
         }
     }.trim()
@@ -91,6 +93,9 @@ data class NoteDocument(
             }
             is EditorBlock.MermaidBlock -> {
                 "```mermaid\n${block.code}\n```"
+            }
+            is EditorBlock.CodeBlock -> {
+                "```${codeBlockLanguageSlug(block.language)}\n${block.code}\n```"
             }
             is EditorBlock.Voice -> ""
         }
@@ -150,6 +155,11 @@ sealed class EditorBlock {
         val code: String = DEFAULT_MERMAID_CODE,
         val title: String = DEFAULT_MERMAID_TITLE
     ) : EditorBlock()
+    data class CodeBlock(
+        override val id: String = newBlockId(),
+        val language: String = DEFAULT_CODE_BLOCK_LANGUAGE,
+        val code: String = ""
+    ) : EditorBlock()
     data class Voice(
         val blockId: String,
         val audioFilePath: String?,
@@ -170,6 +180,11 @@ data class RichText(
     val marks: List<String> = emptyList()
 )
 fun noteContentPreview(content: String): String = NoteDocument.fromContent(content).toPlainText().ifBlank { content }
+fun codeBlockLanguageSlug(language: String): String = when (language.trim().lowercase()) {
+    "" -> ""
+    DEFAULT_CODE_BLOCK_LANGUAGE.lowercase() -> ""
+    else -> language.trim().lowercase().replace(" ", "")
+}
 fun newBlockId(): String = "b_${UUID.randomUUID()}"
 fun parseMarkdownTextBlock(id: String = newBlockId(), text: String): EditorBlock.TextBlock {
     val trimmed = text.trimStart()
@@ -293,6 +308,11 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("type", "mermaid")
         .put("title", title)
         .put("code", code)
+    is EditorBlock.CodeBlock -> JSONObject()
+        .put("id", id)
+        .put("type", "code")
+        .put("language", language)
+        .put("code", code)
     is EditorBlock.Voice -> JSONObject()
         .put("id", id)
         .put("blockId", blockId)
@@ -323,6 +343,11 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
             id = id,
             title = optString("title", DEFAULT_MERMAID_TITLE),
             code = optString("code", DEFAULT_MERMAID_CODE)
+        )
+        "code" -> EditorBlock.CodeBlock(
+            id = id,
+            language = optString("language", DEFAULT_CODE_BLOCK_LANGUAGE).ifBlank { DEFAULT_CODE_BLOCK_LANGUAGE },
+            code = optString("code", "")
         )
         "voice" -> EditorBlock.Voice(
             blockId = optString("blockId", id),

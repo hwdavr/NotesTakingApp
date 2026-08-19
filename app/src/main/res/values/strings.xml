@@ -428,6 +428,11 @@
     <string name="basic_blocks_quote_description">Insert Quote</string>
     <string name="basic_blocks_mermaid_label">Mermaid Diagram</string>
     <string name="basic_blocks_mermaid_description">Insert Mermaid Diagram</string>
+    <string name="basic_blocks_section_basic">Basic</string>
+    <string name="basic_blocks_section_advanced">Advanced</string>
+    <string name="basic_blocks_code_label">Code</string>
+    <string name="basic_blocks_code_description">Insert Code</string>
+    <string name="code_block_empty_placeholder">// Enter code here...</string>
     <string name="mermaid_edit_code">Edit Code</string>
     <string name="mermaid_view_chart">View Chart</string>
     <string name="mermaid_default_title">Mermaid Diagram</string>

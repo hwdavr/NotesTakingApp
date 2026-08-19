@@ -13,6 +13,7 @@ enum class BasicBlockType(val storageValue: String) {
     CALLOUT("callout"),
     QUOTE("quote"),
     MERMAID("mermaid"),
+    CODE("code"),
     UNKNOWN("");
 
     companion object {

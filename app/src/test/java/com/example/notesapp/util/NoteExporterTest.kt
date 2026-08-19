@@ -195,4 +195,37 @@ class NoteExporterTest {
         assertTrue(result.contains("graph TD\n    A[Start] --> B[End]"))
         assertTrue(result.contains("```"))
     }
+
+    @Test
+    fun testExportCodeBlockToMarkdownAndPdf() {
+        val note = Note(
+            id = "n-code",
+            title = "Code Export Note",
+            content = """
+                {
+                  "blocks": [
+                    {
+                      "id": "b-code-1",
+                      "type": "code",
+                      "language": "Kotlin",
+                      "code": "fun main() {\n    println(\"Hello\")\n}"
+                    }
+                  ]
+                }
+            """.trimIndent(),
+            folderId = "f1",
+            createdAt = 0L,
+            updatedAt = 0L
+        )
+
+        val markdownStream = ByteArrayOutputStream()
+        exporter.exportToMarkdown(note, markdownStream)
+        val markdown = markdownStream.toString()
+        assertTrue(markdown.contains("```kotlin"))
+        assertTrue(markdown.contains("fun main() {"))
+        assertTrue(markdown.contains("println(\"Hello\")"))
+
+        // PdfDocument requires the real Android runtime (Robolectric cannot start a page).
+        // The PDF export path is exercised by CodeBlockPdfExportTest on the emulator.
+    }
 }

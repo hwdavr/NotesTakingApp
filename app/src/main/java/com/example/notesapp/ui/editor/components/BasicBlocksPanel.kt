@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.AutoAwesomeMosaic
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatQuote
 import androidx.compose.material.icons.outlined.Info
@@ -83,21 +84,29 @@ fun BasicBlocksPanel(onTileSelected: (BasicBlockType) -> Unit, modifier: Modifie
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(
-                    items = approvedBasicBlockTiles,
-                    key = { it.testTag },
-                    span = { item ->
-                        if (item.type == BasicBlockType.QUOTE) {
-                            GridItemSpan(2)
-                        } else {
-                            GridItemSpan(1)
-                        }
+                basicBlocksSections.forEach { section ->
+                    item(
+                        key = section.testTag,
+                        span = { GridItemSpan(2) }
+                    ) {
+                        BasicBlocksSectionHeader(section)
                     }
-                ) { tile ->
-                    BasicBlockTile(
-                        tile = tile,
-                        onClick = { onTileSelected(tile.type) }
-                    )
+                    items(
+                        items = section.tiles,
+                        key = { it.testTag },
+                        span = { tile ->
+                            if (tile.type == BasicBlockType.QUOTE) {
+                                GridItemSpan(2)
+                            } else {
+                                GridItemSpan(1)
+                            }
+                        }
+                    ) { tile ->
+                        BasicBlockTile(
+                            tile = tile,
+                            onClick = { onTileSelected(tile.type) }
+                        )
+                    }
                 }
             }
         }
@@ -112,7 +121,7 @@ data class BasicBlockTileItem(
     val icon: ImageVector
 )
 
-val approvedBasicBlockTiles = listOf(
+private val basicBlockTiles = listOf(
     BasicBlockTileItem(
         type = BasicBlockType.PARAGRAPH,
         labelRes = R.string.basic_blocks_text_label,
@@ -189,6 +198,16 @@ val approvedBasicBlockTiles = listOf(
         descriptionRes = R.string.basic_blocks_quote_description,
         testTag = "basic_blocks_quote",
         icon = Icons.Outlined.FormatQuote
+    )
+)
+
+private val advancedBlockTiles = listOf(
+    BasicBlockTileItem(
+        type = BasicBlockType.CODE,
+        labelRes = R.string.basic_blocks_code_label,
+        descriptionRes = R.string.basic_blocks_code_description,
+        testTag = "basic_blocks_code",
+        icon = Icons.Outlined.Code
     ),
     BasicBlockTileItem(
         type = BasicBlockType.MERMAID,
@@ -198,6 +217,42 @@ val approvedBasicBlockTiles = listOf(
         icon = Icons.Outlined.AutoAwesomeMosaic
     )
 )
+
+data class BasicBlockSection(
+    @StringRes val titleRes: Int,
+    val testTag: String,
+    val tiles: List<BasicBlockTileItem>
+)
+
+val basicBlocksSections = listOf(
+    BasicBlockSection(
+        titleRes = R.string.basic_blocks_section_basic,
+        testTag = "basic_blocks_section_basic",
+        tiles = basicBlockTiles
+    ),
+    BasicBlockSection(
+        titleRes = R.string.basic_blocks_section_advanced,
+        testTag = "basic_blocks_section_advanced",
+        tiles = advancedBlockTiles
+    )
+)
+
+val approvedBasicBlockTiles: List<BasicBlockTileItem> = basicBlockTiles + advancedBlockTiles
+
+@Composable
+private fun BasicBlocksSectionHeader(section: BasicBlockSection) {
+    val colors = LocalAppColors.current
+    Text(
+        text = stringResource(section.titleRes),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(section.testTag)
+            .padding(start = 4.dp, top = 8.dp, bottom = 4.dp),
+        color = colors.textSecondary,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.SemiBold
+    )
+}
 
 @Composable
 private fun BasicBlockTile(tile: BasicBlockTileItem, onClick: () -> Unit) {

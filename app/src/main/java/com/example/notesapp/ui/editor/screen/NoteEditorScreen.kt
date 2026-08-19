@@ -133,6 +133,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
+import com.example.notesapp.ui.editor.components.CodeBlockCard
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
 import com.example.notesapp.ui.editor.components.MermaidBlockCard
@@ -159,6 +160,7 @@ import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
+import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
 import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
 import com.example.notesapp.ui.theme.LocalAppColors
 
@@ -243,7 +245,8 @@ fun NoteEditorScreen(
         onConfirmManualMove = { viewModel.confirmCategorization(onBack, onMoveNote) },
         onCancelManualMove = { viewModel.cancelCategorization(onBack) },
         onUpdateMermaidTitle = { blockId, title -> viewModel.updateMermaidBlock(blockId, title = title) },
-        onUpdateMermaidCode = { blockId, code -> viewModel.updateMermaidBlock(blockId, code = code) }
+        onUpdateMermaidCode = { blockId, code -> viewModel.updateMermaidBlock(blockId, code = code) },
+        onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) }
     )
 }
 
@@ -301,6 +304,7 @@ fun NoteEditorScreenContent(
     onCancelManualMove: () -> Unit = {},
     onUpdateMermaidTitle: (blockId: String, title: String) -> Unit = { _, _ -> },
     onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
+    onUpdateCodeBlockCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
@@ -511,6 +515,7 @@ fun NoteEditorScreenContent(
                             onDeleteVoiceAudio = onDeleteVoiceAudio,
                             onUpdateMermaidTitle = onUpdateMermaidTitle,
                             onUpdateMermaidCode = onUpdateMermaidCode,
+                            onUpdateCodeBlockCode = onUpdateCodeBlockCode,
                             onOpenMermaidFullscreen = { block ->
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
@@ -827,6 +832,7 @@ private fun DocumentBlockList(
     onDeleteVoiceAudio: ((String) -> Unit)? = null,
     onUpdateMermaidTitle: ((String, String) -> Unit)? = null,
     onUpdateMermaidCode: ((String, String) -> Unit)? = null,
+    onUpdateCodeBlockCode: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     focusedBlockId: String?,
     selectionStart: Int,
@@ -900,6 +906,13 @@ private fun DocumentBlockList(
                         onUpdateTitle = { title -> onUpdateMermaidTitle?.invoke(block.id, title) },
                         onUpdateCode = { code -> onUpdateMermaidCode?.invoke(block.id, code) },
                         onOpenFullscreen = { onOpenMermaidFullscreen?.invoke(block) }
+                    )
+                }
+                is EditorBlock.CodeBlock -> {
+                    CodeBlockCard(
+                        block = block,
+                        isEditable = isEditable,
+                        onUpdateCode = { code -> onUpdateCodeBlockCode?.invoke(block.id, code) }
                     )
                 }
             }

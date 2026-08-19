@@ -271,7 +271,7 @@ class NoteDocumentTest {
     @Test
     fun basicBlockTypesRoundTripWithDefaults() {
         val supportedTypes = BasicBlockType.entries
-            .filter { it != BasicBlockType.UNKNOWN && it != BasicBlockType.MERMAID }
+            .filter { it != BasicBlockType.UNKNOWN && it != BasicBlockType.MERMAID && it != BasicBlockType.CODE }
         val originalBlocks = supportedTypes.map { type -> type.createEmptyTextBlock() }
 
         val restoredBlocks = NoteDocument(blocks = originalBlocks)
@@ -352,5 +352,46 @@ class NoteDocumentTest {
         assertEquals("mermaid-test-1", restoredBlock.id)
         assertEquals(customCode, restoredBlock.code)
         assertEquals(customTitle, restoredBlock.title)
+    }
+
+    @Test
+    fun testCodeBlockSerializationAndDeserialization() {
+        val customCode = "fun main() {\n    println(\"Hello, Kotlin!\")\n}"
+        val originalDoc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.CodeBlock(
+                    id = "code-test-1",
+                    language = "Kotlin",
+                    code = customCode
+                )
+            )
+        )
+
+        val jsonString = originalDoc.toJsonString()
+        val restoredDoc = NoteDocument.fromContent(jsonString)
+
+        assertEquals(1, restoredDoc.blocks.size)
+        val restoredBlock = restoredDoc.blocks[0] as EditorBlock.CodeBlock
+        assertEquals("code-test-1", restoredBlock.id)
+        assertEquals("Kotlin", restoredBlock.language)
+        assertEquals(customCode, restoredBlock.code)
+    }
+
+    @Test
+    fun testCodeBlockMarkdownAndPlainTextExport() {
+        val doc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.CodeBlock(
+                    id = "code-export-1",
+                    language = "Kotlin",
+                    code = "fun main() {}"
+                )
+            )
+        )
+
+        val markdown = doc.toMarkdown()
+        assertTrue(markdown.contains("```kotlin"))
+        assertTrue(markdown.contains("fun main() {}"))
+        assertEquals("fun main() {}", doc.toPlainText())
     }
 }

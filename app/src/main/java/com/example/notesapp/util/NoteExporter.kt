@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.text.Layout
@@ -133,6 +134,9 @@ class NoteExporter(private val context: Context) {
                 is EditorBlock.MermaidBlock -> {
                     renderMermaidBlock(block, renderer, textPaint)
                 }
+                is EditorBlock.CodeBlock -> {
+                    renderCodeBlock(block, renderer, textPaint, borderPaint)
+                }
                 is EditorBlock.Voice -> {
                     renderer.currentY += 10f
                 }
@@ -145,6 +149,61 @@ class NoteExporter(private val context: Context) {
             pdfDocument.close()
             outputStream.close()
         }
+    }
+
+    private fun renderCodeBlock(
+        block: EditorBlock.CodeBlock,
+        renderer: PdfRenderer,
+        textPaint: TextPaint,
+        borderPaint: Paint
+    ) {
+        textPaint.textSize = 12f
+        textPaint.isFakeBoldText = true
+        val language = block.language.ifBlank { "Code" }
+        val headerLayout = StaticLayout.Builder.obtain(
+            language,
+            0,
+            language.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(headerLayout.height + 10f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        headerLayout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += headerLayout.height + 6f
+
+        textPaint.textSize = 10f
+        textPaint.isFakeBoldText = false
+        textPaint.typeface = Typeface.MONOSPACE
+        val code = block.code.ifBlank { "// Enter code here..." }
+        val codeLayout = StaticLayout.Builder.obtain(
+            code,
+            0,
+            code.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        val boxHeight = codeLayout.height + 20f
+        renderer.ensureSpace(boxHeight + 10f)
+        renderer.canvas.drawRect(
+            margin,
+            renderer.currentY,
+            margin + contentWidth,
+            renderer.currentY + boxHeight,
+            borderPaint
+        )
+        renderer.canvas.save()
+        renderer.canvas.translate(margin + 10f, renderer.currentY + 10f)
+        codeLayout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += boxHeight + 10f
+        textPaint.typeface = Typeface.DEFAULT
     }
 
     private fun renderMermaidBlock(block: EditorBlock.MermaidBlock, renderer: PdfRenderer, textPaint: TextPaint) {

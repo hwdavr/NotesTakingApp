@@ -8,7 +8,7 @@ import org.junit.Test
 class BasicBlocksPanelTest {
 
     @Test
-    fun approvedTilesContainsExactlyElevenBasicBlockTypesInReadingOrder() {
+    fun approvedTilesContainsExactlyThirteenBlockTypesInReadingOrder() {
         val expectedTags = listOf(
             "basic_blocks_text",
             "basic_blocks_heading_1",
@@ -21,6 +21,7 @@ class BasicBlocksPanelTest {
             "basic_blocks_toggle_list",
             "basic_blocks_callout",
             "basic_blocks_quote",
+            "basic_blocks_code",
             "basic_blocks_mermaid"
         )
         val expectedTypes = listOf(
@@ -35,12 +36,29 @@ class BasicBlocksPanelTest {
             BasicBlockType.TOGGLE_LIST,
             BasicBlockType.CALLOUT,
             BasicBlockType.QUOTE,
+            BasicBlockType.CODE,
             BasicBlockType.MERMAID
         )
 
-        assertEquals(12, approvedBasicBlockTiles.size)
+        assertEquals(13, approvedBasicBlockTiles.size)
         assertEquals(expectedTags, approvedBasicBlockTiles.map { it.testTag })
         assertEquals(expectedTypes, approvedBasicBlockTiles.map { it.type })
+    }
+
+    @Test
+    fun testBasicAndAdvancedSectionHeadersAndCodeTile() {
+        val basicSection = basicBlocksSections.first { it.testTag == "basic_blocks_section_basic" }
+        val advancedSection = basicBlocksSections.first { it.testTag == "basic_blocks_section_advanced" }
+
+        assertEquals(11, basicSection.tiles.size)
+        assertTrue(basicSection.tiles.none { it.type == BasicBlockType.CODE })
+        assertTrue(basicSection.tiles.none { it.type == BasicBlockType.MERMAID })
+
+        assertEquals(
+            listOf(BasicBlockType.CODE, BasicBlockType.MERMAID),
+            advancedSection.tiles.map { it.type }
+        )
+        assertTrue(advancedSection.tiles.any { it.testTag == "basic_blocks_code" })
     }
 
     @Test

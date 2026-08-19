@@ -307,10 +307,10 @@ open class NoteEditorViewModel @Inject constructor(
         if (!uiStateInternal.value.isEditable) return false
 
         val current = uiStateInternal.value
-        val newBlock: EditorBlock = if (type == BasicBlockType.MERMAID) {
-            EditorBlock.MermaidBlock()
-        } else {
-            type.createEmptyTextBlock()
+        val newBlock: EditorBlock = when (type) {
+            BasicBlockType.MERMAID -> EditorBlock.MermaidBlock()
+            BasicBlockType.CODE -> EditorBlock.CodeBlock()
+            else -> type.createEmptyTextBlock()
         }
         val focusedIndex = current.focusedBlockId?.let { focusedId ->
             current.document.blocks.indexOfFirst { it.id == focusedId }.takeIf { it >= 0 }

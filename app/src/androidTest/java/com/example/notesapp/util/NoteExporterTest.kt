@@ -53,4 +53,34 @@ class NoteExporterTest {
         // Cleanup
         outputFile.delete()
     }
+
+    @Test
+    fun testExportToPdfWithCodeBlock() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val noteExporter = NoteExporter(context)
+        val content = NoteDocument(
+            blocks = listOf(
+                EditorBlock.CodeBlock(
+                    id = "b-code-pdf",
+                    language = "Kotlin",
+                    code = "fun main() {\n    println(\"Hello\")\n}"
+                )
+            )
+        ).toJsonString()
+        val note = Note(
+            id = "test-code-id",
+            title = "Code PDF Note",
+            content = content,
+            folderId = "folder-id",
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis()
+        )
+        val outputFile = File(context.cacheDir, "test_code_export.pdf")
+        val outputStream = FileOutputStream(outputFile)
+        noteExporter.exportToPdf(note, outputStream)
+        assertTrue("PDF file should exist", outputFile.exists())
+        assertTrue("PDF file should not be empty", outputFile.length() > 0)
+        // Cleanup
+        outputFile.delete()
+    }
 }
