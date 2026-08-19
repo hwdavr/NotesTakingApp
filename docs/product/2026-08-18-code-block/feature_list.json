@@ -85,83 +85,67 @@
           "notes": "Platform validation explicitly not required (standard Android framework APIs only)."
         }
       ],
-      "notes": "Foundational model, persistence, panel reorganization, and export delivered; visual verification is owned by final slice US-4. Re-delivered 2026-08-19 after a repository reset (clean build; all TC-US-1-01..04 re-verified exit 0). PDF export is exercised by the instrumented NoteExporterTest on the emulator because Robolectric cannot start a PdfDocument page."
+      "notes": "Foundational model, persistence, panel reorganization, and export delivered; visual verification is owned by final slice US-3. Re-delivered 2026-08-19 after a repository reset (clean build; all TC-US-1-01..04 re-verified exit 0). PDF export is exercised by the instrumented NoteExporterTest on the emulator because Robolectric cannot start a PdfDocument page."
     },
     {
       "id": "US-2",
       "priority": 2,
       "area": "editor",
-      "title": "Client-Side Syntax Highlighter & Line Number Engine",
-      "description": "Implement the lightweight on-device syntax highlighting engine and tokenizer supporting regex rules for Kotlin, Java, Python, JavaScript, TypeScript, HTML, CSS, JSON, SQL, Shell, C/C++, Rust, Go, and Plain Text, along with dynamic line count and gutter numbering calculation.",
+      "title": "Code Block Card UI, Syntax Highlighting, Line Numbers, Language Selection, Copy & Deletion",
+      "description": "Implement CodeBlockCard.kt elevated Material 3 card (#FFFFFF light, #1E1E1E dark, #E7E3F6 border, 12dp rounded corners) with a synchronized line-number gutter computed from code.lines().size, a real-time regex-based lexical syntax highlighter (CodeSyntaxHighlighter) for Kotlin, Java, Python, JavaScript, TypeScript, HTML, CSS, JSON, SQL, Shell/Bash, C/C++, Rust, Go, and Plain Text, a language selector chip with DropdownMenu, a 'Copy' icon button using ClipboardManager with visual feedback, a 'Delete' icon button for block removal, and a syntax-highlighted monospace editor wired to updateCodeBlock auto-save.",
       "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
-      "user_visible_behavior": "Monospace code snippets are styled with theme-appropriate syntax token coloring (keywords, strings, comments, numbers, types) and display synchronized line numbers.",
-      "affects_ui": false,
+      "user_visible_behavior": "Monospace code snippets are styled with theme-appropriate syntax token coloring (keywords, strings, comments, numbers, types) and display synchronized line numbers. Users can pick one of 14 languages from the card header dropdown, edit code with live highlighting and auto-save, copy the exact code to the clipboard with one tap, and delete the block.",
+      "affects_ui": true,
       "requires_visual_verification": false,
       "status": "not_started",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
-        "TC-US-2-03"
+        "TC-US-2-03",
+        "TC-US-2-04",
+        "TC-US-2-05",
+        "TC-US-2-06",
+        "TC-US-2-07"
       ],
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testSyntaxHighlightingForSupportedLanguages\"",
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testDynamicLineNumberCalculation\"",
-        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testPlainTextAndFallbackHandling\""
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testPlainTextAndFallbackHandling\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockLanguage\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockContent\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.CodeBlockCardTest#testCopyCodeToClipboard",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testDeleteCodeBlockFromDocument\""
       ],
       "evidence": [],
-      "notes": "Core syntax highlighting and line calculation engine."
+      "notes": "Merged from the former US-2 (syntax highlighter & line-number engine) and US-3 (card UI) after a re-slicing review: the engine alone was a horizontal slice with no user-visible consumer until the card existed. CodeSyntaxHighlighter remains a separate file with its own unit tests, but ships as part of this card slice."
     },
     {
       "id": "US-3",
       "priority": 3,
       "area": "editor",
-      "title": "Code Block Card UI, Language Selection, Copy Action & Deletion",
-      "description": "Implement CodeBlockCard.kt composable featuring elevated Material 3 card container (#FFFFFF light, #1E1E1E dark, #E7E3F6 border, 12dp rounded corners), language selector chip with DropdownMenu, 'Copy' icon button with ClipboardManager integration and visual feedback, 'Delete' icon button for block removal, line numbers gutter, and syntax-highlighted monospace text editor with auto-save.",
+      "title": "Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification",
+      "description": "Deliver CodeBlockScreenTest.kt and CodeBlockVisualFlowTest.kt connected instrumented tests verifying the full user journey (panel insertion, editing, language change, clipboard copying, block deletion) and read-only mode (editing disabled, copy enabled, delete hidden), plus in-test screenshot capture of the code block editor and the Basic Blocks panel for reference-anchor verification against approved design mockups.",
       "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
-      "user_visible_behavior": "Users can interact with the Code Block card in the editor, choose from 14 programming languages via dropdown, edit monospace code with live syntax coloring and line numbers, copy code with one tap, and delete the block.",
+      "user_visible_behavior": "In read-only notes, the Code Block renders syntax-highlighted code with line numbers and an active Copy action while editing is disabled and the Delete action is hidden. The completed flow is verified end-to-end against the approved design with runtime screenshots.",
       "affects_ui": true,
-      "requires_visual_verification": false,
+      "requires_visual_verification": true,
       "status": "not_started",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
         "TC-US-3-03",
-        "TC-US-3-04"
+        "TC-US-3-VIS-01",
+        "TC-US-3-VIS-02"
       ],
       "verification": [
-        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockLanguage\"",
-        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockContent\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.CodeBlockCardTest",
-        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testDeleteCodeBlockFromDocument\""
-      ],
-      "evidence": [],
-      "notes": "Interactive card component, actions, and ViewModel wiring."
-    },
-    {
-      "id": "US-4",
-      "priority": 4,
-      "area": "editor",
-      "title": "Connected UI Flows, Visual Verification & Acceptance Verification",
-      "description": "Deliver CodeBlockVisualFlowTest.kt connected instrumented UI tests verifying full user journey (panel insertion, editing, language change, clipboard copying, block deletion, read-only behavior) and capturing in-test visual evidence screenshots for reference-anchor verification.",
-      "ui_design": "docs/product/2026-08-18-code-block/design/mockup_code_block_editor.png",
-      "user_visible_behavior": "End-to-end verified Code Block experience with confirmed visual alignment against approved design mockups in both editable and read-only modes.",
-      "affects_ui": true,
-      "requires_visual_verification": true,
-      "status": "not_started",
-      "acceptance_test_ids": [
-        "TC-US-4-01",
-        "TC-US-4-02",
-        "TC-US-4-03",
-        "TC-US-4-VIS-01",
-        "TC-US-4-VIS-02"
-      ],
-      "verification": [
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testCodeBlockCardRenderingAndInteraction",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testBasicBlocksPanelAdvancedSectionRendering",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testReadOnlyCodeBlockBehavior",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureCodeBlockEditor && adb -s emulator-5554 pull /sdcard/Download/code_block_editor.png docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png && test -s docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureBasicBlocksPanelAdvanced && adb -s emulator-5554 pull /sdcard/Download/basic_blocks_panel_advanced.png docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png && test -s docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png"
       ],
       "evidence": [],
-      "notes": "Final visual verification and acceptance slice."
+      "notes": "Final read-only and visual-verification slice. Owns the sole requires_visual_verification=true gate and the TC-US-3-VIS screenshot rows."
     }
   ]
 }
