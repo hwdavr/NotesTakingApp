@@ -74,6 +74,19 @@ Semantic tokens are defined in `AppColors` (`LightAppColors` & `DarkAppColors`) 
 | `searchBackground` | `#EEEFF1` | `#2C2C2C` | Search field container background in light theme. |
 | `searchIcon` | `#8E959B` | `#B0B0B0` | Search field icon tint. |
 
+### Code Syntax Tokens
+
+Dedicated semantic tokens for the Note Editor Code Block syntax highlighter. Added with the code-block feature (US-2); all values live in `AppColors.kt` and are accessed via `LocalAppColors.current`.
+
+| Token | Light Hex | Dark Hex | Intended role |
+|-------|-----------|----------|---------------|
+| `codeKeyword` | `#7C6CF2` | `#C792EA` | Language keywords and literals (`fun`, `def`, `true`, `null`). |
+| `codeType` | `#00897B` | `#4DB6AC` | Built-in and user-declared type names (`Int`, `String`, `Vec`). |
+| `codeString` | `#16A34A` | `#A5D6A7` | String literals and template literals. |
+| `codeComment` | `#6B7280` | `#9E9E9E` | Line and block comments. |
+| `codeNumber` | `#E65100` | `#FFB74D` | Numeric literals. |
+| `codeOperator` | `#7B7694` | `#B0B0B0` | Operators and punctuation. |
+
 ### Gradients & Special Tokens
 
 | Token | Light Hex | Dark Hex | Intended role |

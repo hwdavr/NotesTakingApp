@@ -5,7 +5,7 @@
 **Source request**: Add code block to note editor with language selection, monospace editing, copy action, and advanced panel section  
 **Related spec**: `spec.md`  
 **Project design system**: `docs/product/design_system.md`  
-**Approved design-system exceptions**: None. All tokens, colors, typography, shapes, and touch targets strictly adhere to `docs/product/design_system.md`.  
+**Approved design-system exceptions**: One — the Code Block adds a dedicated `code*` syntax token family (`codeKeyword`, `codeType`, `codeString`, `codeComment`, `codeNumber`, `codeOperator`) to `AppColors.kt` and `docs/product/design_system.md` so syntax highlighting has an accessible, theme-adaptive palette instead of reusing unrelated semantic tokens. All other tokens, colors, typography, shapes, and touch targets strictly adhere to `docs/product/design_system.md`.  
 
 ---
 

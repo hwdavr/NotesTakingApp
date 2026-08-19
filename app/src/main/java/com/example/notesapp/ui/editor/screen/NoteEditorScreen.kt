@@ -246,7 +246,10 @@ fun NoteEditorScreen(
         onCancelManualMove = { viewModel.cancelCategorization(onBack) },
         onUpdateMermaidTitle = { blockId, title -> viewModel.updateMermaidBlock(blockId, title = title) },
         onUpdateMermaidCode = { blockId, code -> viewModel.updateMermaidBlock(blockId, code = code) },
-        onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) }
+        onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) },
+        onUpdateCodeBlockLanguage = { blockId, language ->
+            viewModel.updateCodeBlock(blockId, language = language)
+        }
     )
 }
 
@@ -305,6 +308,7 @@ fun NoteEditorScreenContent(
     onUpdateMermaidTitle: (blockId: String, title: String) -> Unit = { _, _ -> },
     onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockCode: (blockId: String, code: String) -> Unit = { _, _ -> },
+    onUpdateCodeBlockLanguage: (blockId: String, language: String) -> Unit = { _, _ -> },
     onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
@@ -516,6 +520,7 @@ fun NoteEditorScreenContent(
                             onUpdateMermaidTitle = onUpdateMermaidTitle,
                             onUpdateMermaidCode = onUpdateMermaidCode,
                             onUpdateCodeBlockCode = onUpdateCodeBlockCode,
+                            onUpdateCodeBlockLanguage = onUpdateCodeBlockLanguage,
                             onOpenMermaidFullscreen = { block ->
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
@@ -833,6 +838,7 @@ private fun DocumentBlockList(
     onUpdateMermaidTitle: ((String, String) -> Unit)? = null,
     onUpdateMermaidCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockCode: ((String, String) -> Unit)? = null,
+    onUpdateCodeBlockLanguage: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     focusedBlockId: String?,
     selectionStart: Int,
@@ -912,7 +918,11 @@ private fun DocumentBlockList(
                     CodeBlockCard(
                         block = block,
                         isEditable = isEditable,
-                        onUpdateCode = { code -> onUpdateCodeBlockCode?.invoke(block.id, code) }
+                        onUpdateCode = { code -> onUpdateCodeBlockCode?.invoke(block.id, code) },
+                        onUpdateLanguage = { language ->
+                            onUpdateCodeBlockLanguage?.invoke(block.id, language)
+                        },
+                        onDelete = { onDeleteBlock(block.id) }
                     )
                 }
             }

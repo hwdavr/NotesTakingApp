@@ -5,7 +5,7 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: `docs/product/2026-08-18-code-block/`
 - Standard verification path: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Current highest-priority unfinished feature: `US-2` (Client-Side Syntax Highlighter & Line Number Engine)
+- Current highest-priority unfinished feature: `US-3` (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification)
 - Current blocker: None
 
 ---
@@ -15,9 +15,8 @@
 | User Story | Priority | Title | Status | Verification Summary |
 |---|---|---|---|---|
 | US-1 | P1 | Document Block Model, Persistence & Basic Blocks Panel Insertion | passing | TC-US-1-01..04 all PASS (exit 0). CodeBlock model serialization, BasicBlocksPanel Basic/Advanced section headers, Code tile insertion, and Markdown/PDF export verified. Platform-evidence check PASS (not required, standard Android APIs). |
-| US-2 | P2 | Client-Side Syntax Highlighter & Line Number Engine | not_started | Lexical tokenizer unit tests across 14 languages and dynamic line numbering planned. |
-| US-3 | P3 | Code Block Card UI, Language Selection, Copy Action & Deletion | not_started | CodeBlockCard composable, language dropdown, clipboard copy, delete action, and auto-save planned. |
-| US-4 | P4 | Connected UI Flows, Visual Verification & Acceptance Verification | not_started | Connected visual flow tests and runtime screenshots against approved mockups planned. |
+| US-2 | P2 | Code Block Card UI, Syntax Highlighting, Line Numbers, Language Selection, Copy & Deletion | passing | TC-US-2-01..07 all PASS (exit 0). CodeSyntaxHighlighter tokenizer across 14 languages, dynamic line numbering, language/code update with auto-save, clipboard copy (instrumented on emulator-5554), and delete verified. Platform-evidence check PASS. |
+| US-3 | P3 | Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification | not_started | Read-only rendering, connected screen flows, and runtime screenshot verification against approved mockups planned. |
 
 ---
 
@@ -60,3 +59,17 @@
   - `./gradlew clean` removed stale `app/build` artifacts that produced phantom `CodeSyntaxHighlighterTest` failures; full unit suite green (389 tests).
   - ktlintCheck (fixed 1 import-ordering violation) and detekt both PASS.
 - Next best step: US-2 (Client-Side Syntax Highlighter & Line Number Engine).
+
+### Session 004 — US-2 Implementation (harness-generator)
+
+- Date: 2026-08-19
+- Goal: Implement US-2 (Code Block Card UI, Syntax Highlighting, Line Numbers, Language Selection, Copy & Deletion).
+- Completed:
+  - Stage 1 (Orient): Lifecycle check exit 0; selected US-2 from `feature_list.json` and set to `in_progress`; created `summary_US-2.md`.
+  - Stage 2 (Setup): `adb devices` showed `emulator-5554` online.
+  - Stage 3 (Verify Baseline): `./gradlew assembleDebug` and `./gradlew testDebugUnitTest` both exit 0.
+  - Stage 4 (Implement): Added pure `CodeSyntaxHighlighter` tokenizer + line engine, `CodeLanguage` catalog with localized labels, rewrote `CodeBlockCard` (language dropdown chip, copy button with checkmark feedback, delete action, line-number gutter, `VisualTransformation` highlighting, read-only rendering), added `code*` syntax tokens to `AppColors`, wired language/delete callbacks through `NoteEditorScreen`, and added localized strings. Updated `design_system.md` and `design.md` for the syntax token family.
+  - Stage 5 (Test): Added `CodeSyntaxHighlighterTest` (TC-US-2-01..03), three ViewModel integration tests (TC-US-2-04/05/07), and instrumented `CodeBlockCardTest` (TC-US-2-06 plus language/delete/read-only). Full unit suite green; instrumented class 4/4 on emulator-5554; `koverLog` 82.68%.
+  - Stage 6 (Code Quality Fix): `ktlintCheck`, `detekt`, `lintDebug`, and compose/localization/architecture checks all exit 0.
+  - Stage 7 (Update State): All 7 US-2 verification commands exit 0; platform-evidence check exit 0; transitioned US-2 to `passing` with evidence attached.
+- Next best step: US-3 (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification).

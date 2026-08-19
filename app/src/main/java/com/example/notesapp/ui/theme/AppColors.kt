@@ -64,7 +64,13 @@ data class AppColors(
     val sharedUsersCard: Color,
     val sharedUsersPrimary: Color,
     val sharedUsersTextPrimary: Color,
-    val sharedUsersTextSecondary: Color
+    val sharedUsersTextSecondary: Color,
+    val codeKeyword: Color,
+    val codeType: Color,
+    val codeString: Color,
+    val codeComment: Color,
+    val codeNumber: Color,
+    val codeOperator: Color
 ) {
     fun avatarPreset(index: Int): Color = when (index % 5) {
         0 -> avatarAccentPrimary
@@ -136,7 +142,13 @@ val LightAppColors = AppColors(
     sharedUsersCard = Color(0xFFF7FAFF),
     sharedUsersPrimary = Color(0xFF4C6FFF),
     sharedUsersTextPrimary = Color(0xFF1F2A44),
-    sharedUsersTextSecondary = Color(0xFF7281A7)
+    sharedUsersTextSecondary = Color(0xFF7281A7),
+    codeKeyword = Color(0xFF7C6CF2),
+    codeType = Color(0xFF00897B),
+    codeString = Color(0xFF16A34A),
+    codeComment = Color(0xFF6B7280),
+    codeNumber = Color(0xFFE65100),
+    codeOperator = Color(0xFF7B7694)
 )
 
 val DarkAppColors = AppColors(
@@ -200,7 +212,13 @@ val DarkAppColors = AppColors(
     sharedUsersCard = Color(0xFF1E1E1E),
     sharedUsersPrimary = Color(0xFF9B8CFF),
     sharedUsersTextPrimary = Color(0xFFE1E1E1),
-    sharedUsersTextSecondary = Color(0xFFB0B0B0)
+    sharedUsersTextSecondary = Color(0xFFB0B0B0),
+    codeKeyword = Color(0xFFC792EA),
+    codeType = Color(0xFF4DB6AC),
+    codeString = Color(0xFFA5D6A7),
+    codeComment = Color(0xFF9E9E9E),
+    codeNumber = Color(0xFFFFB74D),
+    codeOperator = Color(0xFFB0B0B0)
 )
 
 val LocalAppColors = compositionLocalOf { LightAppColors }

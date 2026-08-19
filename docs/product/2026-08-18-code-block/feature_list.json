@@ -97,7 +97,7 @@
       "user_visible_behavior": "Monospace code snippets are styled with theme-appropriate syntax token coloring (keywords, strings, comments, numbers, types) and display synchronized line numbers. Users can pick one of 14 languages from the card header dropdown, edit code with live highlighting and auto-save, copy the exact code to the clipboard with one tap, and delete the block.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -116,7 +116,72 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.CodeBlockCardTest#testCopyCodeToClipboard",
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testDeleteCodeBlockFromDocument\""
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-2-01",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testSyntaxHighlightingForSupportedLanguages\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Kotlin, Python, and JSON snippets are tokenized into Keyword, String, Comment, and Number tokens at the expected character ranges."
+        },
+        {
+          "test_id": "TC-US-2-02",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testDynamicLineNumberCalculation\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Line count equals newline count + 1; gutter sequence is 1..lineCount including the empty single-line case."
+        },
+        {
+          "test_id": "TC-US-2-03",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest.testPlainTextAndFallbackHandling\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Empty input returns no tokens; Plain Text and unknown languages fall back to a single plain-text token without errors."
+        },
+        {
+          "test_id": "TC-US-2-04",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockLanguage\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "updateCodeBlock(blockId, language = \"Python\") updates the document block language and auto-saves it."
+        },
+        {
+          "test_id": "TC-US-2-05",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testUpdateCodeBlockContent\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "updateCodeBlock(blockId, code = newCode) updates the code content and persists it on auto-save."
+        },
+        {
+          "test_id": "TC-US-2-06",
+          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.components.CodeBlockCardTest#testCopyCodeToClipboard",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Instrumented CodeBlockCardTest copies the exact code string to the system clipboard on emulator-5554."
+        },
+        {
+          "test_id": "TC-US-2-07",
+          "command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testDeleteCodeBlockFromDocument\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "deleteBlock removes the CodeBlock from the document and auto-saves the updated content."
+        },
+        {
+          "test_id": "platform-evidence",
+          "command": "bash harness/scripts/check-platform-evidence.sh \"docs/product/2026-08-18-code-block\" --evaluate --slice \"US-2\"",
+          "exit_code": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Platform validation explicitly not required (standard Android framework APIs only)."
+        }
+      ],
       "notes": "Merged from the former US-2 (syntax highlighter & line-number engine) and US-3 (card UI) after a re-slicing review: the engine alone was a horizontal slice with no user-visible consumer until the card existed. CodeSyntaxHighlighter remains a separate file with its own unit tests, but ships as part of this card slice."
     },
     {

@@ -19,6 +19,7 @@ import io.mockk.mockk
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -419,6 +420,164 @@ class NoteEditorViewModelIntegrationTest : BaseViewModelIntegrationTest() {
         val savedContent = fakeNoteDao.getNoteById(noteId)?.content
         assertTrue(!savedContent.isNullOrBlank())
         assertTrue(savedContent!!.contains("\"type\":\"code\""))
+    }
+
+    @Test
+    fun testUpdateCodeBlockLanguage() = runTest {
+        val noteId = "code-lang-note"
+        val content = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "b1", children = listOf(RichText(""))),
+                EditorBlock.CodeBlock(id = "code-1", language = "Plain Text", code = "fun main() {}")
+            )
+        ).toJsonString()
+        val syncResponse = noteListSyncResponse(noteId, content)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"$noteId","version":2,"updatedAt":"2026-08-19T10:00:01Z"}""")
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+
+        insertNoteEntity(noteId, content)
+        createAndLoadViewModel(noteId)
+
+        viewModel.updateCodeBlock("code-1", language = "Python")
+
+        val state = viewModel.uiState.value
+        val block = state.document.blocks.filterIsInstance<EditorBlock.CodeBlock>().first()
+        assertEquals("Python", block.language)
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+        waitUntil { fakeNoteDao.getNoteById(noteId)?.content?.contains("\"language\":\"Python\"") == true }
+    }
+
+    @Test
+    fun testUpdateCodeBlockContent() = runTest {
+        val noteId = "code-content-note"
+        val content = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "b1", children = listOf(RichText(""))),
+                EditorBlock.CodeBlock(id = "code-1", language = "Kotlin", code = "")
+            )
+        ).toJsonString()
+        val syncResponse = noteListSyncResponse(noteId, content)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"$noteId","version":2,"updatedAt":"2026-08-19T10:00:01Z"}""")
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+
+        insertNoteEntity(noteId, content)
+        createAndLoadViewModel(noteId)
+
+        val newCode = "fun greet() {\n    println(\"Hi\")\n}"
+        viewModel.updateCodeBlock("code-1", code = newCode)
+
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.CodeBlock>().first()
+        assertEquals(newCode, block.code)
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+        waitUntil {
+            fakeNoteDao.getNoteById(noteId)?.content?.let { saved ->
+                NoteDocument.fromContent(saved).blocks.filterIsInstance<EditorBlock.CodeBlock>()
+                    .firstOrNull()?.code == newCode
+            } == true
+        }
+    }
+
+    @Test
+    fun testDeleteCodeBlockFromDocument() = runTest {
+        val noteId = "code-delete-note"
+        val content = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(id = "b1", children = listOf(RichText("Keep me"))),
+                EditorBlock.CodeBlock(id = "code-1", language = "Kotlin", code = "fun main() {}")
+            )
+        ).toJsonString()
+        val syncResponse = noteListSyncResponse(noteId, content)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("""{"id":"$noteId","version":2,"updatedAt":"2026-08-19T10:00:01Z"}""")
+        )
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(syncResponse))
+
+        insertNoteEntity(noteId, content)
+        createAndLoadViewModel(noteId)
+
+        viewModel.deleteBlock("code-1")
+
+        val remaining = viewModel.uiState.value.document.blocks
+        assertTrue(remaining.none { it is EditorBlock.CodeBlock })
+        assertTrue(remaining.any { it is EditorBlock.TextBlock })
+
+        advanceTimeBy(3000)
+        advanceUntilIdle()
+        waitUntil {
+            fakeNoteDao.getNoteById(noteId)?.content?.let { saved ->
+                NoteDocument.fromContent(saved).blocks.none { it is EditorBlock.CodeBlock }
+            } == true
+        }
+    }
+
+    private suspend fun insertNoteEntity(noteId: String, content: String) {
+        fakeNoteDao.insert(
+            NoteEntity(
+                id = noteId,
+                folderId = null,
+                title = "Code Test Note",
+                content = content,
+                sortKey = "b0",
+                version = 1,
+                deviceId = "test_device",
+                lastSyncedVersion = 1,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    private suspend fun TestScope.createAndLoadViewModel(noteId: String) {
+        viewModel = NoteEditorViewModel(
+            noteRepository,
+            folderRepository,
+            testSummaryUseCase(),
+            testCategorizeUseCase(),
+            mockk<DeleteVoiceNoteAudioUseCase>(relaxed = true),
+            mockk<DeleteVoiceNoteBlockUseCase>(relaxed = true)
+        )
+        viewModel.load(noteId)
+        advanceUntilIdle()
+        waitUntil { viewModel.uiState.value.isLoaded }
+    }
+
+    private fun noteListSyncResponse(noteId: String, content: String): String {
+        val escapedContent = content.replace("\\", "\\\\").replace("\"", "\\\"")
+        return """
+            [
+              {
+                "id": "$noteId",
+                "userId": "auth0|abc123",
+                "type": "note",
+                "parentId": null,
+                "name": "Code Test Note",
+                "content": "$escapedContent",
+                "sortKey": "b0",
+                "version": 1,
+                "deviceId": "test_device",
+                "lastSyncedVersion": 1,
+                "createdAt": "2026-08-19T10:00:00Z",
+                "updatedAt": "2026-08-19T10:00:00Z"
+              }
+            ]
+        """.trimIndent()
     }
 
     private fun testSummaryUseCase(): SummarizeNoteUseCase = SummarizeNoteUseCase(

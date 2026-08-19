@@ -2,26 +2,27 @@
 
 ## Verified Now
 
-- What is currently working: `EditorBlock.CodeBlock` model with `type: "code"` JSON round-trip, `BasicBlockType.CODE`, Basic Blocks panel "Basic"/"Advanced" sections with a Code tile under Advanced, `insertBasicBlock(BasicBlockType.CODE)` focus-aware insertion with auto-save, Markdown fenced-block export, PDF monospace code box, and a monospace `CodeBlockCard` editor wired into the note editor.
-- What verification actually ran: TC-US-1-01..04 (all exit 0), `check-platform-evidence.sh --slice "US-1"` (exit 0), `connectedDebugAndroidTest` on `com.example.notesapp.util.NoteExporterTest` (2/2), `ktlintCheck` and `detekt` (PASS), full `testDebugUnitTest` after `./gradlew clean` (389 tests green), `assembleDebug` (green), `installDebug` (installed on emulator-5554).
+- What is currently working: US-2 delivered. `CodeSyntaxHighlighter` tokenizes Kotlin, Java, Python, JavaScript, TypeScript, HTML, CSS, JSON, SQL, Shell, C/C++, Rust, Go, and Plain Text into keyword/type/string/comment/number/operator tokens with dynamic line counting; `CodeBlockCard` renders the elevated card with a language selector dropdown, synchronized line-number gutter, real-time syntax-highlighted monospace editor, copy-to-clipboard with checkmark feedback, delete action, and read-only highlighted rendering.
+- What verification actually ran: TC-US-2-01..07 (all exit 0), `check-platform-evidence.sh --slice "US-2"` (exit 0), instrumented `CodeBlockCardTest` 4/4 on emulator-5554, `ktlintCheck` + `detekt` + `lintDebug` PASS, compose/localization/architecture checks PASS, full `testDebugUnitTest` green, `koverLog` 82.68%.
 
 ## Changed This Session
 
-- Code or behavior added: CodeBlock document block + persistence, BasicBlocksPanel section reorg + Code tile, CodeBlockCard composable, `updateCodeBlock` ViewModel extension, Markdown/PDF export, strings, and US-1 tests (JVM + one instrumented PDF export test).
-- Infrastructure or harness changes: `./gradlew clean` removed stale `app/build` artifacts left by the pre-reset state (they produced phantom `CodeSyntaxHighlighterTest` NoClassDefFoundError failures).
+- Code or behavior added: `CodeSyntaxHighlighter.kt`, `CodeLanguage.kt`, full `CodeBlockCard.kt` rewrite (language dropdown, copy/delete actions, line-number gutter, syntax highlighting via `VisualTransformation`, read-only mode), `code*` syntax tokens in `AppColors.kt`, `NoteEditorScreen.kt` language/delete wiring, and localized strings.
+- Tests added: `CodeSyntaxHighlighterTest.kt` (3), three `NoteEditorViewModelIntegrationTest` methods (update language, update content, delete), and instrumented `CodeBlockCardTest.kt` (4).
+- Documentation: `design_system.md` gained a Code Syntax Tokens section; `design.md` documents the one approved exception; `feature_list.json`, `progress.md`, `summary_US-2.md`, and `product.md` updated.
 
 ## Broken Or Unverified
 
-- Known defect: None for US-1.
-- Unverified path: `CodeSyntaxHighlighter` and line-number engine are intentionally not delivered yet (US-2). `CodeBlockCard` has no syntax highlighting, line-number gutter, language dropdown, copy button, or delete button yet.
-- Risk for the next session: Do not trust stale `app/build` output; a clean build is required after the reset. `PdfDocument` cannot run under Robolectric — PDF export must be verified with the instrumented `NoteExporterTest`.
+- Known defect: None for US-2.
+- Unverified path: US-3 read-only screen flows and visual verification (screenshots against mockups) are intentionally not delivered yet.
+- Risk for the next session: The transient copy "checkmark" feedback relies on a 1.5s `LaunchedEffect` delay; the instrumented test asserts the deterministic clipboard result, not the transient icon state, to avoid test-clock flakiness.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-2 (Client-Side Syntax Highlighter & Line Number Engine).
-- Why it is next: US-1 is passing; US-2 is the next `not_started` slice and provides the lexical engine + line numbering that US-3/US-4 render and verify.
-- What counts as passing: TC-US-2-01..03 (syntax highlighting for supported languages, dynamic line numbering, plain-text/empty fallback) exit 0, plus ktlint/detekt clean and platform-evidence check.
-- What must not change during that step: the `type: "code"` JSON schema, the `BasicBlockType.CODE` storage value `"code"`, and the Basic/Advanced panel section structure.
+- Highest-priority unfinished feature: US-3 (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification).
+- Why it is next: US-1 and US-2 are passing; US-3 owns the sole `requires_visual_verification=true` gate and the connected end-to-end journey plus runtime screenshots.
+- What counts as passing: TC-US-3-01..03 and TC-US-3-VIS-01..02 exit 0, plus the visual-evidence contract check for the screenshot rows.
+- What must not change during that step: the `type: "code"` JSON schema, the `BasicBlockType.CODE` storage value `"code"`, the Basic/Advanced panel section structure, and the `CodeSyntaxHighlighter` token contract used by the card.
 
 ## Commands
 
