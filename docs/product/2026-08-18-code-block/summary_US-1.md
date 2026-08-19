@@ -19,9 +19,9 @@
 | 4 — Implement | ✅ | `EditorBlock.CodeBlock` + JSON serialization (`NoteDocument.kt`), `BasicBlockType.CODE`, `BasicBlocksPanel` Basic/Advanced sections + Code tile, `insertBasicBlock(CODE)`, `NoteEditorCodeActions.kt`, `CodeBlockCard.kt`, `NoteExporter.kt` PDF code-box rendering, screen wiring + strings. |
 | 5 — Test | ✅ | TC-US-1-01..04 all exit 0; platform-evidence check `--slice "US-1"` exit 0; instrumented `NoteExporterTest#testExportToPdfWithCodeBlock` passed 2/2 on emulator-5554. |
 | 6 — Code Quality Fix | ✅ | `./gradlew ktlintCheck` (fixed 1 import-ordering violation) + `./gradlew detekt` both PASS. |
-| 7 — Update State | ✅ | `feature_list.json` US-1 evidence refreshed; `progress.md` updated; committed. |
-| 8 — Clean Exit | ✅ | Clean-state checklist verified; `session-handoff.md` updated. |
-| 9 — Install App | ✅ | `./gradlew installDebug` succeeded on emulator-5554. |
+| 7 — Update State | ✅ | `feature_list.json` US-1 evidence refreshed; `progress.md` updated; committed as `4f3dc57`; lifecycle check exit 0. |
+| 8 — Clean Exit | ✅ | Clean-state checklist verified; `session-handoff.md` written. |
+| 9 — Install App | ✅ | `./gradlew installDebug` succeeded on emulator-5554 (`Medium_Phone(AVD) - 13`). |
 
 ## Verification Commands
 
