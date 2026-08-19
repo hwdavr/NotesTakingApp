@@ -194,7 +194,7 @@
       "user_visible_behavior": "In read-only notes, the Code Block renders syntax-highlighted code with line numbers and an active Copy action while editing is disabled and the Delete action is hidden. The completed flow is verified end-to-end against the approved design with runtime screenshots.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
@@ -203,13 +203,52 @@
         "TC-US-3-VIS-02"
       ],
       "verification": [
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testCodeBlockCardRenderingAndInteraction",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testBasicBlocksPanelAdvancedSectionRendering",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testReadOnlyCodeBlockBehavior",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureCodeBlockEditor && adb -s emulator-5554 pull /sdcard/Download/code_block_editor.png docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png && test -s docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureBasicBlocksPanelAdvanced && adb -s emulator-5554 pull /sdcard/Download/basic_blocks_panel_advanced.png docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png && test -s docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-3-01",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testCodeBlockCardRenderingAndInteraction",
+          "exit_status": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Connected editor flow renders the Code Block card, changes language, edits code, copies the exact current code, and removes the block."
+        },
+        {
+          "test_id": "TC-US-3-02",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testBasicBlocksPanelAdvancedSectionRendering",
+          "exit_status": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Connected editor flow opens the Basic Blocks panel, scrolls to Advanced, exposes the Code tile, and verifies insertion callback plus panel collapse."
+        },
+        {
+          "test_id": "TC-US-3-03",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest#testReadOnlyCodeBlockBehavior",
+          "exit_status": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "Read-only connected flow keeps highlighted code, line numbers, and clipboard copy while disabling language selection and hiding editing/deletion controls."
+        },
+        {
+          "test_id": "TC-US-3-VIS-01",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureCodeBlockEditor && adb -s emulator-5554 pull /sdcard/Download/code_block_editor.png docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png && test -s docs/product/2026-08-18-code-block/visual_evidence/code_block_editor.png",
+          "exit_status": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "In-test active-window screenshot was captured and pulled as a non-empty 65467-byte PNG; bounds assertions passed."
+        },
+        {
+          "test_id": "TC-US-3-VIS-02",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockVisualFlowTest#captureBasicBlocksPanelAdvanced && adb -s emulator-5554 pull /sdcard/Download/basic_blocks_panel_advanced.png docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png && test -s docs/product/2026-08-18-code-block/visual_evidence/basic_blocks_panel_advanced.png",
+          "exit_status": 0,
+          "result": "PASS",
+          "timestamp": "2026-08-19",
+          "notes": "In-test active-window screenshot was captured and pulled as a non-empty 89794-byte PNG; panel bounds assertions passed."
+        }
+      ],
       "notes": "Final read-only and visual-verification slice. Owns the sole requires_visual_verification=true gate and the TC-US-3-VIS screenshot rows."
     }
   ]

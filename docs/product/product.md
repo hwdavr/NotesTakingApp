@@ -52,7 +52,7 @@ Lifecycle rules:
 | voice-notes-audio-transcripts | Voice Notes & Audio Transcripts | [docs/product/2026-08-14-voice-notes/](2026-08-14-voice-notes/) | To be human reviewed | 2026-08-15 | Fix pass `f0d28d0` plus v4 transcription-finalization and v5 acknowledged-note durability fixes applied; stale or temporarily absent item lists no longer erase a saved voice document before editor reload. Test-review residuals and unavailable API runtimes remain documented for human review. |
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
 | mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be human reviewed | 2026-08-18 | Fix pass applied; re-verification evidence attached; 1/1 findings fixed. |
-| code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | In Progress | 2026-08-19 | US-1 (model, persistence & panel insertion) PASSING. US-2 (card UI, syntax highlighting, line numbers, language selection, copy & deletion) PASSING — TC-US-2-01..07 verified, platform-evidence PASS. US-3 (read-only & visual verification) remains not_started. |
+| code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | To be reviewed | 2026-08-19 | US-1, US-2, and US-3 passing. US-3 read-only connected flows and both in-test visual captures pass; TC-US-3-01..03 and TC-US-3-VIS-01..02 verified on emulator-5554, with visual-evidence and lifecycle gates passing. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -83,6 +83,7 @@ Lifecycle rules:
 | Mermaid fullscreen viewer & visual verification (US-4) | ✅ Slice done | FullscreenDiagramViewerDialog with edge-to-edge canvas, zoom controls (+, -, 100%, Fit to Screen), code copy to clipboard, SVG export/sharing, connected UI test suite (TC-US-4-01..03), 3 state-verifying screenshots, and reference anchor proof. |
 | Code block model, persistence & panel insertion (US-1) | ✅ Slice done | `EditorBlock.CodeBlock(id, language, code)` with backward-compatible `type: "code"` JSON serialization, `BasicBlockType.CODE` mapping, `BasicBlocksPanel` Basic/Advanced section reorganization with Code tile under Advanced, `insertBasicBlock(BasicBlockType.CODE)` focus-aware insertion with auto-save, Markdown fenced code block export (```<language>\n<code>\n```), and PDF monospace box export path. TC-US-1-01..04 PASS. |
 | Code block card, syntax highlighting & actions (US-2) | ✅ Slice done | Elevated Material 3 card with a 14-language selector dropdown, synchronized line-number gutter, real-time regex-based `CodeSyntaxHighlighter`, one-tap clipboard copy with checkmark feedback, delete action with auto-save, and read-only highlighted rendering. TC-US-2-01..07 PASS. |
+| Code block read-only flows & visual verification (US-3) | ✅ Slice done | Connected editor coverage verifies editable interaction, Advanced panel insertion, and read-only copy/disabled controls; in-test screenshots and concrete bounds evidence are recorded for the Code Block card and Advanced Basic Blocks panel. TC-US-3-01..03 and TC-US-3-VIS-01..02 PASS. |
 
 ### ✅ Folder & Collection Management
 
@@ -165,7 +166,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete |
+| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, and visual evidence |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |

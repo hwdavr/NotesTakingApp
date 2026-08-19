@@ -5,7 +5,7 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: `docs/product/2026-08-18-code-block/`
 - Standard verification path: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Current highest-priority unfinished feature: `US-3` (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification)
+- Current highest-priority unfinished feature: None; US-1, US-2, and US-3 are all passing and the workspace is awaiting review.
 - Current blocker: None
 
 ---
@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | US-1 | P1 | Document Block Model, Persistence & Basic Blocks Panel Insertion | passing | TC-US-1-01..04 all PASS (exit 0). CodeBlock model serialization, BasicBlocksPanel Basic/Advanced section headers, Code tile insertion, and Markdown/PDF export verified. Platform-evidence check PASS (not required, standard Android APIs). |
 | US-2 | P2 | Code Block Card UI, Syntax Highlighting, Line Numbers, Language Selection, Copy & Deletion | passing | TC-US-2-01..07 all PASS (exit 0). CodeSyntaxHighlighter tokenizer across 14 languages, dynamic line numbering, language/code update with auto-save, clipboard copy (instrumented on emulator-5554), and delete verified. Platform-evidence check PASS. |
-| US-3 | P3 | Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification | not_started | Read-only rendering, connected screen flows, and runtime screenshot verification against approved mockups planned. |
+| US-3 | P3 | Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification | passing | TC-US-3-01..03 and TC-US-3-VIS-01..02 all PASS on emulator-5554; visual-evidence contract and bounds report pass. |
 
 ---
 
@@ -73,3 +73,23 @@
   - Stage 6 (Code Quality Fix): `ktlintCheck`, `detekt`, `lintDebug`, and compose/localization/architecture checks all exit 0.
   - Stage 7 (Update State): All 7 US-2 verification commands exit 0; platform-evidence check exit 0; transitioned US-2 to `passing` with evidence attached.
 - Next best step: US-3 (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification).
+
+### Session 005 — US-3 Orientation (harness-generator)
+
+- Date: 2026-08-19
+- Goal: Start US-3, the final code-block slice owning read-only connected flows and visual verification.
+- Completed:
+  - Validated the lifecycle tracker (exit 0) and confirmed US-1/US-2 passing with US-3 as the only unfinished slice.
+  - Read the approved spec, design, sprint contract, platform matrix, prior summary, session handoff, design system, and relevant visual-evidence knowledge artifacts.
+  - Set US-3 to `in_progress` and created `summary_US-3.md` as the active slice record.
+- Next best step: Run emulator setup and baseline build/unit verification before implementing the connected screen and visual-flow tests.
+
+### Session 006 — US-3 Clean Exit (harness-generator)
+
+- Date: 2026-08-19
+- Goal: Finish US-3 and leave the code-block feature ready for review.
+- Completed:
+  - Recorded all five US-3 acceptance/visual evidence entries and transitioned US-3 to `passing`.
+  - Updated `product.md` and moved the code-block tracker row to `To be reviewed`; lifecycle check reports 0 features in progress.
+  - Created the clean-state checklist and final session handoff; installed the debug build on emulator-5554.
+- Final state: All code-block slices pass; independent evaluator review is the next lifecycle stage.

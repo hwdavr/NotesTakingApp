@@ -455,7 +455,10 @@ fun NoteEditorScreenContent(
                     }
                 }
                 Surface(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .testTag("note_editor_content"),
                     color = colors.surface,
                     shape = RoundedCornerShape(8.dp)
                 ) {

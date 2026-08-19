@@ -1,31 +1,56 @@
-# Session Handoff
+# Session Handoff — Code Block US-3 Complete
 
 ## Verified Now
 
-- What is currently working: US-2 delivered. `CodeSyntaxHighlighter` tokenizes Kotlin, Java, Python, JavaScript, TypeScript, HTML, CSS, JSON, SQL, Shell, C/C++, Rust, Go, and Plain Text into keyword/type/string/comment/number/operator tokens with dynamic line counting; `CodeBlockCard` renders the elevated card with a language selector dropdown, synchronized line-number gutter, real-time syntax-highlighted monospace editor, copy-to-clipboard with checkmark feedback, delete action, and read-only highlighted rendering.
-- What verification actually ran: TC-US-2-01..07 (all exit 0), `check-platform-evidence.sh --slice "US-2"` (exit 0), instrumented `CodeBlockCardTest` 4/4 on emulator-5554, `ktlintCheck` + `detekt` + `lintDebug` PASS, compose/localization/architecture checks PASS, full `testDebugUnitTest` green, `koverLog` 82.68%.
+- What is currently working:
+  - US-1 model, persistence, panel insertion, and export behavior remains passing.
+  - US-2 Code Block card behavior remains passing: 14-language selection, monospace syntax highlighting, line numbers, clipboard copy, delete, and read-only card rendering.
+  - US-3 connected editor coverage verifies editable interaction, Advanced panel insertion/collapse, and read-only rendering with active copy, disabled language selection, hidden delete, and no editable field.
+  - Runtime visual evidence exists for the Code Block editor and Advanced Basic Blocks panel, with measured reference-anchor relationships.
+- What verification actually ran:
+  - `./gradlew assembleDebug` -> PASS (exit 0)
+  - `./gradlew testDebugUnitTest` -> PASS (exit 0)
+  - `./gradlew koverLog` -> PASS (82.6775% application line coverage)
+  - `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest` -> PASS (3/3)
+  - `...CodeBlockVisualFlowTest#captureCodeBlockEditor` plus `adb pull` -> PASS; 65,467-byte PNG
+  - `...CodeBlockVisualFlowTest#captureBasicBlocksPanelAdvanced` plus `adb pull` -> PASS; 89,794-byte PNG
+  - `bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-18-code-block --evaluate` -> PASS
+  - `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-08-18-code-block --evaluate` -> PASS
+  - `./gradlew ktlintCheck detekt lintDebug` -> PASS
+  - `bash harness/scripts/check-compose-rules.sh` -> PASS
+  - `bash harness/scripts/check-localization-rules.sh` -> PASS
+  - `bash harness/scripts/check-architecture-rules.sh` -> PASS
+  - `bash harness/scripts/check-feature-lifecycle.sh` -> PASS (0 features in progress)
+  - `./gradlew installDebug` -> PASS on `emulator-5554`
 
 ## Changed This Session
 
-- Code or behavior added: `CodeSyntaxHighlighter.kt`, `CodeLanguage.kt`, full `CodeBlockCard.kt` rewrite (language dropdown, copy/delete actions, line-number gutter, syntax highlighting via `VisualTransformation`, read-only mode), `code*` syntax tokens in `AppColors.kt`, `NoteEditorScreen.kt` language/delete wiring, and localized strings.
-- Tests added: `CodeSyntaxHighlighterTest.kt` (3), three `NoteEditorViewModelIntegrationTest` methods (update language, update content, delete), and instrumented `CodeBlockCardTest.kt` (4).
-- Documentation: `design_system.md` gained a Code Syntax Tokens section; `design.md` documents the one approved exception; `feature_list.json`, `progress.md`, `summary_US-2.md`, and `product.md` updated.
+- Code or behavior added:
+  - Added `CodeBlockScreenTest.kt` for the production `NoteEditorScreenContent` connected flows.
+  - Added `CodeBlockVisualFlowTest.kt` with in-test active-window screenshot capture and density-independent bounds assertions.
+  - Added the `note_editor_content` visual anchor tag to the existing editor content surface.
+- Infrastructure or harness changes:
+  - Added `visual_evidence/reference-anchor-verification.md` and pulled the two runtime PNGs into the stable feature workspace.
+  - Updated `feature_list.json`, `progress.md`, `summary_US-3.md`, `product.md`, and the clean-state checklist.
+  - No harness submodule changes were made; the pre-existing `.harness` pointer modification was left untouched.
 
 ## Broken Or Unverified
 
-- Known defect: None for US-2.
-- Unverified path: US-3 read-only screen flows and visual verification (screenshots against mockups) are intentionally not delivered yet.
-- Risk for the next session: The transient copy "checkmark" feedback relies on a 1.5s `LaunchedEffect` delay; the instrumented test asserts the deterministic clipboard result, not the transient icon state, to avoid test-clock flakiness.
+- Known defect: None found in the US-3 scope.
+- Unverified path: No code-block path remains unverified for the generator acceptance scope. Independent evaluator review and human approval remain pending by lifecycle design.
+- Risk for the next session: The feature workspace is `To be reviewed`; do not transition it to `To be human reviewed` from the generator workflow. Reviewers should inspect both captured PNGs against the approved mockups.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-3 (Read-Only Mode, Connected UI Flows, Visual Verification & Acceptance Verification).
-- Why it is next: US-1 and US-2 are passing; US-3 owns the sole `requires_visual_verification=true` gate and the connected end-to-end journey plus runtime screenshots.
-- What counts as passing: TC-US-3-01..03 and TC-US-3-VIS-01..02 exit 0, plus the visual-evidence contract check for the screenshot rows.
-- What must not change during that step: the `type: "code"` JSON schema, the `BasicBlockType.CODE` storage value `"code"`, the Basic/Advanced panel section structure, and the `CodeSyntaxHighlighter` token contract used by the card.
+- Highest-priority unfinished feature: None inside the code-block workspace; US-1, US-2, and US-3 are all `passing`.
+- Why it is next: The generator has completed the final implementation slice and moved the tracker to `To be reviewed` for evaluator review.
+- What counts as passing: Evaluator review must confirm the evidence and score the feature before any human-review transition.
+- What must not change during that step: `type: "code"` JSON persistence, `BasicBlockType.CODE` value `"code"`, Basic/Advanced panel structure, read-only copy/delete behavior, and the visual-evidence contract.
 
 ## Commands
 
-- Startup: `docs/product/2026-08-18-code-block/`
-- Verification: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Focused debug command: `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.components.CodeSyntaxHighlighterTest"`
+- Startup: `bash harness/scripts/check-feature-lifecycle.sh`
+- Verification: `./gradlew testDebugUnitTest && env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`
+- Focused debug command: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.CodeBlockScreenTest`
+- Visual evidence: `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-08-18-code-block --evaluate`
+- Install Debug Build to Device: `./gradlew installDebug`
