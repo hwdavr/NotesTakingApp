@@ -5,7 +5,7 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: `docs/product/2026-08-18-code-block/`
 - Standard verification path: `./gradlew testDebugUnitTest && ./gradlew connectedDebugAndroidTest`
-- Current highest-priority unfinished feature: None; US-1, US-2, and US-3 are all passing and the workspace is awaiting review.
+- Current highest-priority unfinished feature: None; US-1, US-2, and US-3 are all passing. Evaluator fix pass resolved all 4 findings; feature is `To be human reviewed`.
 - Current blocker: None
 
 ---
@@ -93,3 +93,16 @@
   - Updated `product.md` and moved the code-block tracker row to `To be reviewed`; lifecycle check reports 0 features in progress.
   - Created the clean-state checklist and final session handoff; installed the debug build on emulator-5554.
 - Final state: All code-block slices pass; independent evaluator review is the next lifecycle stage.
+
+### Session 007 — Evaluator Fix Pass (harness-fix)
+
+- Date: 2026-08-20
+- Goal: Resolve the 4 evaluator findings after the review scored 4.5/5 (`Revise`).
+- Completed:
+  - F-1: Rewrote `platform-capability-matrix.md` — removed obsolete `TC-US-4-xx` refs, fixed non-existent test-method reference, updated runtime rows to `Passing`.
+  - F-2: Strengthened instrumented `NoteExporterTest#testExportToPdfWithCodeBlock` to back-render the PDF via `PdfRenderer` and assert page count + non-blank content.
+  - F-3: Fixed the stale `CodeBlockPdfExportTest` comment in JVM `NoteExporterTest.kt`.
+  - F-4: Documented the non-throwing Compose ClipboardManager as a non-goal and demoted orientation state to a known limitation in `spec.md`; added `CodeSyntaxHighlighterTest#testVeryLongLineHandling` and `#testLargeCodeSnippetTokenization`.
+  - Re-verified: JVM suite, koverLog 82.6775%, ktlint/detekt/lint, 11/11 instrumented tests, platform + visual contracts — all exit 0.
+  - Transitioned the tracker `To be fixed` → `To be human reviewed`; updated reports with per-finding fix statuses.
+- Next best step: Human review.

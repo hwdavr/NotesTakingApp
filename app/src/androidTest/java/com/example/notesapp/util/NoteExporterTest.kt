@@ -1,5 +1,8 @@
 package com.example.notesapp.util
 
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.domain.note.Note
@@ -76,11 +79,41 @@ class NoteExporterTest {
             updatedAt = System.currentTimeMillis()
         )
         val outputFile = File(context.cacheDir, "test_code_export.pdf")
-        val outputStream = FileOutputStream(outputFile)
-        noteExporter.exportToPdf(note, outputStream)
+        FileOutputStream(outputFile).use { noteExporter.exportToPdf(note, it) }
         assertTrue("PDF file should exist", outputFile.exists())
         assertTrue("PDF file should not be empty", outputFile.length() > 0)
+
+        // Render the produced PDF back to a bitmap to prove the code section actually
+        // renders (title + language header + bordered monospace code), not just that a
+        // non-empty byte stream was written.
+        ParcelFileDescriptor.open(outputFile, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+            val pdfRenderer = PdfRenderer(descriptor)
+            try {
+                assertTrue("PDF should contain at least one page", pdfRenderer.pageCount > 0)
+                val page = pdfRenderer.openPage(0)
+                try {
+                    val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                    try {
+                        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                        assertTrue("PDF page should contain rendered code content", bitmap.hasNonBlankPixels())
+                    } finally {
+                        bitmap.recycle()
+                    }
+                } finally {
+                    page.close()
+                }
+            } finally {
+                pdfRenderer.close()
+            }
+        }
+
         // Cleanup
         outputFile.delete()
+    }
+
+    private fun Bitmap.hasNonBlankPixels(): Boolean {
+        val pixels = IntArray(width * height)
+        getPixels(pixels, 0, width, 0, 0, width, height)
+        return pixels.any { (it and 0x00FFFFFF) != 0x00FFFFFF }
     }
 }

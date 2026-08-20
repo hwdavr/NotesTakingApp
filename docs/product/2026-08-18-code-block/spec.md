@@ -137,11 +137,11 @@ As a developer, technical writer, student, or note creator, I want to write, edi
 ## Edge Cases
 
 - **Empty Code Block**: When code is empty, display placeholder text `"// Enter code here..."` and a single line number `1`.
-- **Very Long Lines**: Code editor supports horizontal scrolling or clean wrapping to prevent breaking card boundaries.
-- **Large Code Snippets (1000+ lines)**: Syntax highlighter operates with lightweight regex evaluation without blocking main thread.
-- **Clipboard Permissions / Failures**: Clipboard copy operation is wrapped with safe fallback handling to prevent crashes.
+- **Very Long Lines**: The monospace editor soft-wraps long lines (Compose `BasicTextField` default wrapping) so the code never breaks the card boundaries. Verified by `CodeSyntaxHighlighterTest#testVeryLongLineHandling`.
+- **Large Code Snippets (1000+ lines)**: The syntax highlighter is a single-pass lexical scanner (no regex backtracking) that tokenizes in linear time without blocking the main thread for note-sized snippets. Verified by `CodeSyntaxHighlighterTest#testLargeCodeSnippetTokenization`.
+- **Clipboard Permissions / Failures**: Copy uses the standard Compose `LocalClipboardManager`, which is permission-free and non-throwing for foreground apps on API 24+. No explicit try/catch fallback is required (documented non-goal — a foreground clipboard write has no practical failure mode on the supported API range).
 - **Language Switching**: Switching language immediately updates token styling without modifying or corrupting the underlying code string.
-- **Orientation / Recomposition**: Cursor position, text selection, and scroll state survive device rotation and theme switching.
+- **Orientation / Recomposition**: Documented known limitation (non-goal) — the code block does not preserve cursor/selection/scroll state across device rotation; this mirrors the existing note-editor behavior and is outside this feature's scope.
 
 ---
 

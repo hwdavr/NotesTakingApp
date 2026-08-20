@@ -64,6 +64,52 @@ class CodeSyntaxHighlighterTest {
         assertTrue(CodeSyntaxHighlighter.lineCount("abc") > 0)
     }
 
+    @Test
+    fun testVeryLongLineHandling() {
+        val longLine = "val " + (1..200).joinToString(" + ") + " // a very long single line"
+        val tokens = CodeSyntaxHighlighter.tokenize(longLine, "kotlin")
+
+        // A single very long line is still one line with one gutter entry.
+        assertEquals(1, CodeSyntaxHighlighter.lineCount(longLine))
+        assertEquals(listOf(1), CodeSyntaxHighlighter.lineNumbers(longLine).toList())
+
+        // The tokenizer covers the entire input without gaps or out-of-bounds ranges.
+        assertEquals(0, tokens.first().start)
+        assertEquals(longLine.length, tokens.last().endExclusive)
+        assertTrue(tokens.any { it.type == CodeTokenType.KEYWORD })
+        assertTrue(tokens.any { it.type == CodeTokenType.COMMENT })
+    }
+
+    @Test
+    fun testLargeCodeSnippetTokenization() {
+        val code = buildString {
+            repeat(1000) { i ->
+                if (i > 0) append('\n')
+                append("val value")
+                append(i)
+                append(" = ")
+                append(i)
+                append(" // comment")
+            }
+        }
+
+        assertEquals(1000, CodeSyntaxHighlighter.lineCount(code))
+        val tokens = CodeSyntaxHighlighter.tokenize(code, "kotlin")
+
+        // Each of the 1000 lines contributes one keyword, one number, and one comment.
+        assertEquals(1000, tokens.count { it.type == CodeTokenType.KEYWORD })
+        assertEquals(1000, tokens.count { it.type == CodeTokenType.NUMBER })
+        assertEquals(1000, tokens.count { it.type == CodeTokenType.COMMENT })
+
+        // Tokens are contiguous and cover the whole snippet in source order.
+        var cursor = 0
+        for (token in tokens) {
+            assertEquals(cursor, token.start)
+            cursor = token.endExclusive
+        }
+        assertEquals(code.length, cursor)
+    }
+
     private fun tokenTexts(code: String, tokens: List<CodeToken>, type: CodeTokenType): List<String> =
         tokens.filter { it.type == type }.map { code.substring(it.start, it.endExclusive) }
 }

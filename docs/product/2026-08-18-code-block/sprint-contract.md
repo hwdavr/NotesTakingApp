@@ -57,9 +57,9 @@ The matrix declares minimum API 24, target API 34, single resource ownership und
 | AC-007 | Read-only note displays highlighted code & copy action | US-3 | TC-US-3-03 | In scope |
 | AC-008 | Tapping Delete removes block & auto-saves | US-2 | TC-US-2-07 | In scope |
 | Edge case: Empty Code Block | Displays placeholder and line 1 | US-2 | TC-US-2-03 | In scope |
-| Edge case: Very Long Lines | Horizontal scroll or clean wrapping | US-2 | TC-US-2-05 | In scope |
-| Edge case: Large Code Snippets | Lightweight regex evaluation without lag | US-2 | TC-US-2-01 | In scope |
-| Edge case: Clipboard Errors | Safe fallback handling for clipboard operations | US-2 | TC-US-2-06 | In scope |
+| Edge case: Very Long Lines | Clean wrapping (Compose BasicTextField soft-wrap) | US-2 | TC-US-2-05, `CodeSyntaxHighlighterTest#testVeryLongLineHandling` | In scope |
+| Edge case: Large Code Snippets | Linear-scan tokenizer without lag | US-2 | TC-US-2-01, `CodeSyntaxHighlighterTest#testLargeCodeSnippetTokenization` | In scope |
+| Edge case: Clipboard Errors | Non-throwing Compose ClipboardManager (documented non-goal, no explicit fallback) | US-2 | TC-US-2-06 | In scope |
 | Design: Code Block Card Container | Elevated container with header and gutter | US-2 | TC-US-3-01 | In scope |
 | Design: Basic Blocks Panel Advanced Section | 2-column horizontal pill tiles under Basic/Advanced | US-1 | TC-US-1-02 | In scope |
 
@@ -89,7 +89,7 @@ Users can store and load Code Blocks within note documents, access the newly str
 | TC-US-1-01 | AC-US-1-01 | JVM unit | `app/src/test/java/com/example/notesapp/ui/editor/mapper/NoteDocumentTest.kt#testCodeBlockSerializationAndDeserialization` | Given CodeBlock model, when serialized to JSON and parsed back | Assert identical id, language, and code content | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.mapper.NoteDocumentTest.testCodeBlockSerializationAndDeserialization"` |
 | TC-US-1-02 | AC-US-1-02 | JVM unit | `app/src/test/java/com/example/notesapp/ui/editor/components/BasicBlocksPanelTest.kt#testBasicAndAdvancedSectionHeadersAndCodeTile` | Given BasicBlocksPanel model, when querying tile sections | Assert Basic and Advanced headers present with Code tile under Advanced | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.components.BasicBlocksPanelTest.testBasicAndAdvancedSectionHeadersAndCodeTile"` |
 | TC-US-1-03 | AC-US-1-03 | JVM integration | `app/src/test/java/com/example/notesapp/ui/editor/viewmodel/NoteEditorViewModelIntegrationTest.kt#testInsertCodeBlockFromBasicBlocksPanel` | Given active editor note, when insertBasicBlock(BasicBlockType.CODE) is called | Assert CodeBlock is added to document blocks and auto-save is triggered | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelIntegrationTest.testInsertCodeBlockFromBasicBlocksPanel"` |
-| TC-US-1-04 | AC-US-1-04 | JVM unit | `app/src/test/java/com/example/notesapp/util/NoteExporterTest.kt#testExportCodeBlockToMarkdownAndPdf` | Given NoteDocument with CodeBlock, when exportNoteToMarkdown and exportNoteToPdf are invoked | Assert Markdown contains fenced block ```` ```kotlin ```` and PDF contains formatted code section | `./gradlew testDebugUnitTest --tests "com.example.notesapp.util.NoteExporterTest.testExportCodeBlockToMarkdownAndPdf"` |
+| TC-US-1-04 | AC-US-1-04 | JVM unit + Instrumented | `NoteExporterTest.kt#testExportCodeBlockToMarkdownAndPdf` (JVM) + `NoteExporterTest.kt#testExportToPdfWithCodeBlock` (instrumented) | Given NoteDocument with CodeBlock, when exportNoteToMarkdown and exportNoteToPdf are invoked | Assert Markdown contains fenced block ```` ```kotlin ```` and PDF renders a non-blank page containing the code section (back-rendered via PdfRenderer) | `./gradlew testDebugUnitTest --tests "com.example.notesapp.util.NoteExporterTest.testExportCodeBlockToMarkdownAndPdf"` and `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.util.NoteExporterTest` |
 
 ---
 

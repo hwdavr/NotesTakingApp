@@ -226,6 +226,7 @@ class NoteExporterTest {
         assertTrue(markdown.contains("println(\"Hello\")"))
 
         // PdfDocument requires the real Android runtime (Robolectric cannot start a page).
-        // The PDF export path is exercised by CodeBlockPdfExportTest on the emulator.
+        // The PDF export path (including rendered code content) is exercised by the
+        // instrumented NoteExporterTest#testExportToPdfWithCodeBlock on the emulator.
     }
 }

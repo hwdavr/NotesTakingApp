@@ -1,6 +1,6 @@
 {
   "project": "NotesTakingApp",
-  "last_updated": "2026-08-19",
+  "last_updated": "2026-08-20",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -74,7 +74,7 @@
           "exit_code": 0,
           "result": "PASS",
           "timestamp": "2026-08-19",
-          "notes": "Markdown export contains fenced code block with language identifier; PDF export path verified via instrumented tests."
+          "notes": "Markdown export contains fenced code block with language identifier; PDF export back-rendered via PdfRenderer and asserted non-blank (strengthened in fix pass)."
         },
         {
           "test_id": "platform-evidence",
@@ -85,7 +85,7 @@
           "notes": "Platform validation explicitly not required (standard Android framework APIs only)."
         }
       ],
-      "notes": "Foundational model, persistence, panel reorganization, and export delivered; visual verification is owned by final slice US-3. Re-delivered 2026-08-19 after a repository reset (clean build; all TC-US-1-01..04 re-verified exit 0). PDF export is exercised by the instrumented NoteExporterTest on the emulator because Robolectric cannot start a PdfDocument page."
+      "notes": "Foundational model, persistence, panel reorganization, and export delivered; visual verification is owned by final slice US-3. Re-delivered 2026-08-19 after a repository reset (clean build; all TC-US-1-01..04 re-verified exit 0). PDF export is exercised by the instrumented NoteExporterTest on the emulator because Robolectric cannot start a PdfDocument page. Fix pass (2026-08-20): PDF assertion strengthened to back-render the page and assert non-blank content."
     },
     {
       "id": "US-2",
@@ -182,7 +182,7 @@
           "notes": "Platform validation explicitly not required (standard Android framework APIs only)."
         }
       ],
-      "notes": "Merged from the former US-2 (syntax highlighter & line-number engine) and US-3 (card UI) after a re-slicing review: the engine alone was a horizontal slice with no user-visible consumer until the card existed. CodeSyntaxHighlighter remains a separate file with its own unit tests, but ships as part of this card slice."
+      "notes": "Merged from the former US-2 (syntax highlighter & line-number engine) and US-3 (card UI) after a re-slicing review: the engine alone was a horizontal slice with no user-visible consumer until the card existed. CodeSyntaxHighlighter remains a separate file with its own unit tests, but ships as part of this card slice. Fix pass (2026-08-20): added testVeryLongLineHandling and testLargeCodeSnippetTokenization to cover the long-line and 1000+ line edge cases."
     },
     {
       "id": "US-3",
