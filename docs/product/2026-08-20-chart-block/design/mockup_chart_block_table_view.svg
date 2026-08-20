@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800">
+  <rect width="360" height="800" fill="#F8F7FF"/>
+  <rect x="16" y="24" width="328" height="96" rx="12" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <rect x="28" y="42" width="58" height="30" rx="15" fill="#F1EEFF"/>
+  <path d="M42 52h10M42 57h10M42 62h10" stroke="#7C6CF2" stroke-width="2" stroke-linecap="round"/>
+  <text x="57" y="62" font-family="sans-serif" font-size="10" font-weight="600" fill="#7C6CF2">View</text>
+  <text x="98" y="62" font-family="sans-serif" font-size="16" font-weight="700" fill="#191627">Monthly sales</text>
+  <rect x="266" y="42" width="66" height="30" rx="15" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <path d="M280 52h12M280 57h12M280 62h12" stroke="#7C6CF2" stroke-width="2" stroke-linecap="round"/>
+  <text x="296" y="62" font-family="sans-serif" font-size="10" font-weight="600" fill="#7C6CF2">Options</text>
+  <text x="20" y="154" font-family="sans-serif" font-size="12" font-weight="600" fill="#7B7694">Chart data · Revenue selected</text>
+  <text x="20" y="176" font-family="sans-serif" font-size="11" fill="#A0A6AC">Add columns to compare measures; choose one in Options.</text>
+  <rect x="16" y="196" width="328" height="324" rx="8" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <rect x="16" y="196" width="328" height="48" rx="8" fill="#F1EEFF"/>
+  <line x1="126" y1="196" x2="126" y2="520" stroke="#E7E3F6"/>
+  <line x1="220" y1="196" x2="220" y2="520" stroke="#E7E3F6"/>
+  <line x1="284" y1="196" x2="284" y2="520" stroke="#E7E3F6"/>
+  <line x1="16" y1="244" x2="344" y2="244" stroke="#E7E3F6"/>
+  <line x1="16" y1="299" x2="344" y2="299" stroke="#E7E3F6"/>
+  <line x1="16" y1="354" x2="344" y2="354" stroke="#E7E3F6"/>
+  <line x1="16" y1="409" x2="344" y2="409" stroke="#E7E3F6"/>
+  <line x1="16" y1="464" x2="344" y2="464" stroke="#E7E3F6"/>
+  <text x="28" y="226" font-family="sans-serif" font-size="11" font-weight="700" fill="#191627">Category</text>
+  <text x="140" y="226" font-family="sans-serif" font-size="11" font-weight="700" fill="#191627">Revenue</text>
+  <text x="232" y="226" font-family="sans-serif" font-size="11" font-weight="700" fill="#191627">Cost</text>
+  <text x="296" y="226" font-family="sans-serif" font-size="11" font-weight="700" fill="#191627">Tax</text>
+  <text x="28" y="278" font-family="sans-serif" font-size="12" fill="#191627">January</text>
+  <text x="140" y="278" font-family="sans-serif" font-size="12" fill="#191627">120</text>
+  <text x="232" y="278" font-family="sans-serif" font-size="12" fill="#191627">80</text>
+  <text x="296" y="278" font-family="sans-serif" font-size="12" fill="#191627">20</text>
+  <text x="28" y="333" font-family="sans-serif" font-size="12" fill="#191627">February</text>
+  <rect x="130" y="308" width="84" height="38" rx="4" fill="#F0F4FF" stroke="#7C6CF2"/>
+  <text x="140" y="333" font-family="sans-serif" font-size="12" fill="#191627">200</text>
+  <text x="232" y="333" font-family="sans-serif" font-size="12" fill="#191627">110</text>
+  <text x="296" y="333" font-family="sans-serif" font-size="12" fill="#191627">30</text>
+  <text x="28" y="388" font-family="sans-serif" font-size="12" fill="#191627">March</text>
+  <text x="140" y="388" font-family="sans-serif" font-size="12" fill="#191627">150</text>
+  <text x="232" y="388" font-family="sans-serif" font-size="12" fill="#191627">95</text>
+  <text x="296" y="388" font-family="sans-serif" font-size="12" fill="#191627">25</text>
+  <text x="28" y="443" font-family="sans-serif" font-size="12" fill="#191627">April</text>
+  <text x="140" y="443" font-family="sans-serif" font-size="12" fill="#A0A6AC">invalid</text>
+  <text x="232" y="443" font-family="sans-serif" font-size="12" fill="#191627">100</text>
+  <text x="296" y="443" font-family="sans-serif" font-size="12" fill="#191627">—</text>
+  <text x="28" y="498" font-family="sans-serif" font-size="12" fill="#191627">May</text>
+  <text x="140" y="498" font-family="sans-serif" font-size="12" fill="#191627">175</text>
+  <text x="232" y="498" font-family="sans-serif" font-size="12" fill="#191627">100</text>
+  <text x="296" y="498" font-family="sans-serif" font-size="12" fill="#191627">28</text>
+  <rect x="16" y="548" width="156" height="52" rx="10" fill="#F1EEFF" stroke="#E7E3F6"/>
+  <text x="38" y="580" font-family="sans-serif" font-size="13" font-weight="600" fill="#7C6CF2">+ Add row</text>
+  <rect x="188" y="548" width="156" height="52" rx="10" fill="#F1EEFF" stroke="#E7E3F6"/>
+  <text x="210" y="580" font-family="sans-serif" font-size="13" font-weight="600" fill="#7C6CF2">+ Add column</text>
+  <rect x="16" y="640" width="328" height="92" rx="12" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <text x="32" y="670" font-family="sans-serif" font-size="12" font-weight="700" fill="#191627">Live chart data</text>
+  <text x="32" y="696" font-family="sans-serif" font-size="12" fill="#7B7694">The selected column updates the chart immediately.</text>
+  <text x="32" y="716" font-family="sans-serif" font-size="12" fill="#7B7694">View and Options open bottom sheets.</text>
+</svg>

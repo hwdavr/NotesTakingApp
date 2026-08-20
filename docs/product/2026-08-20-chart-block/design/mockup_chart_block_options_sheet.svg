@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="800" viewBox="0 0 360 800">
+  <rect width="360" height="800" fill="#F8F7FF"/>
+  <rect x="16" y="48" width="328" height="410" rx="12" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <rect x="28" y="66" width="58" height="32" rx="16" fill="#F1EEFF"/>
+  <text x="42" y="87" font-family="sans-serif" font-size="10" font-weight="600" fill="#7C6CF2">Options</text>
+  <text x="104" y="88" font-family="sans-serif" font-size="16" font-weight="700" fill="#191627">Monthly sales</text>
+  <rect x="28" y="120" width="304" height="300" rx="8" fill="#F0F4FF"/>
+  <text x="100" y="270" font-family="sans-serif" font-size="14" fill="#7B7694">Chart preview behind sheet</text>
+  <rect x="0" y="440" width="360" height="360" rx="16" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <text x="24" y="484" font-family="sans-serif" font-size="20" font-weight="700" fill="#191627">Chart options</text>
+  <text x="24" y="512" font-family="sans-serif" font-size="12" fill="#7B7694">Choose the data column to plot.</text>
+  <rect x="16" y="536" width="328" height="56" rx="10" fill="#F1EEFF"/>
+  <circle cx="42" cy="564" r="12" fill="#7C6CF2"/>
+  <circle cx="42" cy="564" r="5" fill="#FFFFFF"/>
+  <text x="70" y="570" font-family="sans-serif" font-size="15" font-weight="600" fill="#191627">Revenue</text>
+  <rect x="16" y="604" width="328" height="56" rx="10" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <circle cx="42" cy="632" r="12" fill="#FFFFFF" stroke="#7B7694"/>
+  <text x="70" y="638" font-family="sans-serif" font-size="15" font-weight="600" fill="#191627">Cost</text>
+  <rect x="16" y="672" width="328" height="56" rx="10" fill="#FFFFFF" stroke="#E7E3F6"/>
+  <circle cx="42" cy="700" r="12" fill="#FFFFFF" stroke="#7B7694"/>
+  <text x="70" y="706" font-family="sans-serif" font-size="15" font-weight="600" fill="#191627">Tax</text>
+  <text x="24" y="760" font-family="sans-serif" font-size="12" fill="#A0A6AC">Selection updates the chart immediately.</text>
+</svg>

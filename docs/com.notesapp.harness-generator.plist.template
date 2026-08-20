@@ -3,12 +3,13 @@
 <!--
   launchd plist: run harness/scripts/auto-harness-generator.sh every hour.
 
-  The script tries codex first; if codex token/quota is exhausted, falls back
-  to agy. When there is no pending task, it exits 2 without launching anything,
+  The script tries Freebuff first for interactive runs (with GPT-5.6 Luna
+  selected); headless runs prefer codex and fall back to agy. When there is no
+  pending task, it exits 2 without launching anything,
   so this scheduler is cheap to run on a quiet repo.
 
   Available scripts (edit the <string> below to choose):
-    auto-harness-generator.sh  — codex first, agy fallback (default)
+    auto-harness-generator.sh  — Freebuff first, codex/agy fallback (default)
     agy-harness-generator.sh   — agy only
     codex-harness-generator.sh — codex only
 

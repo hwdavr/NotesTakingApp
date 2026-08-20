@@ -53,6 +53,7 @@ Lifecycle rules:
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
 | mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be human reviewed | 2026-08-18 | Fix pass applied; re-verification evidence attached; 1/1 findings fixed. |
 | code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | To be reviewed | 2026-08-19 | US-1, US-2, and US-3 passing. US-3 read-only connected flows and both in-test visual captures pass; TC-US-3-01..03 and TC-US-3-VIS-01..02 verified on emulator-5554, with visual-evidence and lifecycle gates passing. |
+| chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | Awaiting implementation approval | 2026-08-20 | Specification and design approved. Slice plan adds ChartBlock persistence/insertion/conversion, local chart rendering and selection, editable Data view with two-level Options sheets, and Markdown ZIP/PDF export. |
 <!-- HARNESS_TRACKER_END -->
 
 ---

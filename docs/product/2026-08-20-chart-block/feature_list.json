@@ -1,0 +1,145 @@
+{
+  "project": "NotesTakingApp",
+  "last_updated": "2026-08-20",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_requires_acceptance_test_evidence": true,
+    "do_not_skip_verification": true
+  },
+  "status_legend": {
+    "not_started": "Work has not begun.",
+    "in_progress": "The feature is the current active task.",
+    "blocked": "Work cannot continue until a documented blocker is resolved.",
+    "passing": "Required verification has passed and evidence is recorded."
+  },
+  "platform_validation": {
+    "required": true,
+    "capability_matrix": "platform-capability-matrix.md",
+    "unsupported_environment_policy": "fail_loudly",
+    "real_boundary_test_required": true,
+    "real_boundary_test_ids": [
+      "TC-US-4-PLATFORM"
+    ],
+    "real_boundary_test_files": [
+      "app/src/androidTest/java/com/example/notesapp/ui/editor/chart/ChartPlatformBoundaryTest.kt"
+    ],
+    "real_boundary_test_signal": "AndroidCanvas|PdfDocument|Bitmap|connectedDebugAndroidTest"
+  },
+  "features": [
+    {
+      "id": "US-1",
+      "priority": 1,
+      "area": "editor-chart-block",
+      "title": "Create, convert, persist, and render chart blocks",
+      "description": "Add EditorBlock.ChartBlock with stable block ID, chart type, title, table rows, stable column IDs, selected column ID, and backward-compatible type:'chart' JSON. Add Bar chart, Line chart, and Pie chart insertion tiles to the Advanced Basic Blocks panel and in-place Table Options conversion. Validate the selected Compose chart library in a risk-first adapter spike, then implement the app-owned chart model and renderer boundary with a deterministic preview for all three chart types. Wire insertion, conversion, title edits, selected-column defaults, and persistence through the existing NoteEditorViewModel auto-save path and preserve unknown legacy blocks.",
+      "ui_design": "docs/product/2026-08-20-chart-block/design/mockup_chart_block_preview.png",
+      "user_visible_behavior": "An author can insert Bar, Line, or Pie chart from Advanced Basic Blocks, convert a focused table in place, see a chart card with Chart/Data and Options controls, and reload the note without losing chart type, title, table data, column IDs, or selected column.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "in_progress",
+      "acceptance_test_ids": [
+        "TC-US-1-01",
+        "TC-US-1-02",
+        "TC-US-1-03",
+        "TC-US-1-04",
+        "TC-US-1-05"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorChartBlockIntegrationTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartCreationFlowTest"
+      ],
+      "evidence": [],
+      "notes": "Risk-first slice. The chart-library compatibility spike must prove Bar, Line, Pie, click hit targets, tooltip anchors, API 24 rendering, and bitmap output before dependency finalization. Visual verification belongs to US-4."
+    },
+    {
+      "id": "US-2",
+      "priority": 2,
+      "area": "editor-chart-data",
+      "title": "Edit chart data and choose the plotted column",
+      "description": "Implement the chart Data view using the existing table editing operations over the ChartBlock-owned rows. Preserve the first category column and at least one candidate data column, generate stable IDs for inserted columns, guard protected deletions, filter invalid numeric cells and unusable rows, and recompute chart data immediately. Add the matching chart-view card controls and two-level Options flow: first-level Options has Data column, Add row, and Add column rows; Data column opens the second-level single-selection sheet. Add localized strings, stable test tags, accessibility semantics, and read-only disabling for these controls.",
+      "ui_design": "docs/product/2026-08-20-chart-block/design/mockup_chart_block_table_view.png",
+      "user_visible_behavior": "An author can switch from Chart to Data, edit cells, add rows and columns through Options, choose Revenue/Cost/Tax or another candidate column in the second-level sheet, and see the selected chart series update without changing table values.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-2-01",
+        "TC-US-2-02",
+        "TC-US-2-03",
+        "TC-US-2-04",
+        "TC-US-2-05",
+        "TC-US-2-06"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.chart.ChartDataMapperTest\"",
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorChartDataIntegrationTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartDataFlowTest"
+      ],
+      "evidence": [],
+      "notes": "The inline Data view intentionally contains no Add row/Add column buttons. Those actions are exposed as rows in the first-level Options sheet. The second-level Data column sheet contains only candidate-column selection."
+    },
+    {
+      "id": "US-3",
+      "priority": 3,
+      "area": "editor-chart-interaction",
+      "title": "Select chart data and inspect read-only charts",
+      "description": "Complete chart interaction behavior for Bar, Line, and Pie: selectable bars, points, and slices; selected visual state; localized category/column/value callout; dismissal without data mutation; empty and render-error recovery; light/dark semantic colors; and read-only note behavior. Read-only notes keep Chart/Data and Options inspection available while disabling edits, Add row/Add column, chart creation/conversion, selection persistence, and destructive actions. Keep transient view, sheet, tooltip, and selected-datum state out of persisted JSON.",
+      "ui_design": "docs/product/2026-08-20-chart-block/design/mockup_chart_block_preview.png",
+      "user_visible_behavior": "A user can tap a chart datum to see its category and value, dismiss the callout, inspect the Data view and two-level Options flow in a read-only note, and see localized empty/error states without losing the underlying table.",
+      "affects_ui": true,
+      "requires_visual_verification": false,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-3-01",
+        "TC-US-3-02",
+        "TC-US-3-03",
+        "TC-US-3-04",
+        "TC-US-3-05"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.chart.ChartSelectionReducerTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest"
+      ],
+      "evidence": [],
+      "notes": "Intermediate UI slice. The final visual owner is US-4, which captures Chart, Data, both sheet levels, selected datum, empty/error, read-only, and dark-theme states."
+    },
+    {
+      "id": "US-4",
+      "priority": 4,
+      "area": "editor-chart-export",
+      "title": "Export charts and verify the complete visual flow",
+      "description": "Extend the existing Markdown and PDF export paths for ChartBlock. Markdown export produces the approved ZIP package containing the note Markdown, a Markdown table for each chart, and relative sibling PNG assets when rendering succeeds, with a table/error fallback when it fails. PDF export draws the chart bitmap with title at document position and falls back to the owned table representation when no non-empty image is available. Add the real Android Canvas/Bitmap/PdfDocument boundary test, complete localization/accessibility/theme/configuration behavior, and the dedicated visual-flow instrumented test with in-test screenshots for the final chart states.",
+      "ui_design": "docs/product/2026-08-20-chart-block/design/mockup_chart_block_preview.png",
+      "user_visible_behavior": "A user can export notes containing charts to a Markdown ZIP or PDF, inspect chart assets and table fallbacks, and use the complete chart/Data/options flow in light and dark themes, including empty, selected, read-only, and error states.",
+      "affects_ui": true,
+      "requires_visual_verification": true,
+      "status": "not_started",
+      "acceptance_test_ids": [
+        "TC-US-4-01",
+        "TC-US-4-02",
+        "TC-US-4-03",
+        "TC-US-4-04",
+        "TC-US-4-05",
+        "TC-US-4-PLATFORM",
+        "TC-US-4-VIS-01",
+        "TC-US-4-VIS-02",
+        "TC-US-4-VIS-03",
+        "TC-US-4-VIS-04",
+        "TC-US-4-VIS-05"
+      ],
+      "verification": [
+        "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterChartTest\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartPlatformBoundaryTest",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureChartPreviewState && adb -s emulator-5554 pull /sdcard/Download/chart_preview.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureDataViewState && adb -s emulator-5554 pull /sdcard/Download/chart_data_view.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureEmptyAndSelectedStates && adb -s emulator-5554 pull /sdcard/Download/chart_empty_selected.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureReadOnlyDarkState && adb -s emulator-5554 pull /sdcard/Download/chart_read_only_dark.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\""
+      ],
+      "evidence": [],
+      "notes": "Sole visual-verification owner. Visual evidence must be captured from active test rendering, never from a post-test external screencap. TC-US-4-PLATFORM owns the real Android Canvas/PdfDocument boundary."
+    }
+  ]
+}
