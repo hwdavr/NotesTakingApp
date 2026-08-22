@@ -15,7 +15,7 @@
 | Test | ✅ Complete | 2026-08-23 03:41 +08 | All TC-US-2-01..06 exact commands passed individually; the post-refactor full JVM suite passed with 412 tests, 0 failures/errors/skips; the post-refactor full emulator suite passed with 158 tests, 0 failures/skips; Kover passed at 80.9356%. Evidence: `feature_list.json` — `"status": "passing"` with 11 evidence entries; `connectedDebugAndroidTest` — `Finished 158 tests on Medium_Phone(AVD) - 13` / `BUILD SUCCESSFUL`. |
 | Code Quality Fix | ✅ Complete | 2026-08-23 03:32 +08 | `assembleDebug`, `ktlintCheck`, `detekt`, and `lintDebug` passed; Compose, localization, and architecture rule scripts reported 0 violations; no new suppressions were added. Evidence: `./gradlew detekt` — `BUILD SUCCESSFUL`; `bash harness/scripts/check-architecture-rules.sh` — `All architecture rules passed — 0 violations`. |
 | Finalize & Exit | ✅ Complete | 2026-08-23 03:41 +08 | Revalidated every approved US-2 acceptance command individually, attached command/exit evidence, marked US-2 `passing`, updated progress/product/handoff artifacts, and lifecycle validation remained green. Evidence: `docs/product/2026-08-20-chart-block/feature_list.json` — `"status": "passing"`; `bash harness/scripts/check-feature-lifecycle.sh` — `Feature lifecycle tracker valid: 7 feature(s), 1 in progress.` |
-| Install App To Device | ⏳ Pending | | |
+| Install App To Device | ✅ Complete | 2026-08-23 03:43 +08 | `./gradlew installDebug` installed `app-debug.apk` on `emulator-5554` (`Medium_Phone(AVD) - 13`); exit 0 and 1 device installed. Evidence: Gradle output — `Installed on 1 device.` / `BUILD SUCCESSFUL`. |
 | Stage 9 | ⚠️ Undefined | 2026-08-23 02:41 +08 | The checked-in `harness-generator.md` defines Stages 1–8 only; no Stage 9 behavior was found. No behavior was invented. |
 
 ## Scope And Acceptance Evidence
@@ -43,7 +43,7 @@
 
 ## Open Items
 
-- Complete Stage 8 debug installation.
+- US-3 and US-4 remain the next slices; this US-2 workspace is complete and installed for manual review.
 - US-4 remains the owner of the declared real platform boundary test; the US-2 slice check passed with the required deferral.
 - Resolved gate failures with targeted fixes and at most three attempts per failing gate item. The initial coverage result was 79.4142%; focused chart action-dispatch tests and the final refactor run raised it to 80.9356%, and a full-runtime regression run restored the missing `rich_document_blocks` stable tag.
 - The missing runtime Skill tool and undefined workflow Stage 9 remain documented process/tooling gaps.

@@ -3,12 +3,12 @@
 ## Verified Now
 
 - What is currently working: US-1 creates Bar, Line, and Pie ChartBlocks; converts focused tables in place; persists chart JSON with stable IDs and selected-column fallback; renders deterministic local bitmap previews; and US-2 provides an editable Chart/Data flow, localized two-level Options, stable selected-column updates, protected row/column operations, and auto-save/reload persistence.
-- What verification actually ran: `assembleDebug`, full `testDebugUnitTest` (412 tests), `koverLog` (80.9356%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture gates, exact TC-US-2-01..06 commands, full connected `connectedDebugAndroidTest` (158 tests) on `emulator-5554`, and the US-2 platform-evidence evaluation.
+- What verification actually ran: `assembleDebug`, full `testDebugUnitTest` (412 tests), `koverLog` (80.9356%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture gates, exact TC-US-2-01..06 commands, full connected `connectedDebugAndroidTest` (158 tests) on `emulator-5554`, the US-2 platform-evidence evaluation, and `installDebug`; the debug APK is installed on `emulator-5554`.
 
 ## Changed This Session
 
 - Code or behavior added: ChartBlock table normalization and stable-column mapper, chart cell/row/column mutation dispatcher, Chart/Data and two-level Options UI, protected operation sheets, localized resources, accessibility/test semantics, and JVM/Android acceptance tests.
-- Infrastructure or harness changes: Marked US-2 `passing` with evidence in `feature_list.json`, updated product capability/tracker/roadmap records, progress log, summary, and this handoff. No harness source changes.
+- Infrastructure or harness changes: Marked US-2 `passing` with evidence in `feature_list.json`, updated product capability/tracker/roadmap records, progress log, summary, and this handoff. Commit `fee730b` contains the implementation and handoff artifacts; no harness source changes.
 
 ## Broken Or Unverified
 
@@ -26,5 +26,5 @@
 ## Commands
 
 - Startup: Existing Note Editor → Advanced Basic Blocks or focused Table Options.
-- Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, `bash harness/scripts/check-compose-rules.sh`, `bash harness/scripts/check-localization-rules.sh`, `bash harness/scripts/check-architecture-rules.sh`, and `bash harness/scripts/check-feature-lifecycle.sh`.
+- Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, `bash harness/scripts/check-compose-rules.sh`, `bash harness/scripts/check-localization-rules.sh`, `bash harness/scripts/check-architecture-rules.sh`, `bash harness/scripts/check-feature-lifecycle.sh`, and `./gradlew installDebug`.
 - Focused debug command: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartDataFlowTest`.

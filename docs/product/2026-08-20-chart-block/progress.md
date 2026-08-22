@@ -38,8 +38,8 @@
 - Date: 2026-08-23
 - Goal: Implement US-2 — edit chart data and choose the plotted column.
 - Completed: Added the normalized editable chart table, stable selected-column mapping, localized Chart/Data and two-level Options UI, row/column operation sheets with protected invariants, production ViewModel mutation dispatch, auto-save/reload coverage, and stable accessibility/test semantics.
-- Verification run: `assembleDebug`, `testDebugUnitTest` (412 tests), `koverLog` (80.9356%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rules, full `connectedDebugAndroidTest` (158 tests), and the US-2 platform-evidence evaluation all passed.
+- Verification run: `assembleDebug`, `testDebugUnitTest` (412 tests), `koverLog` (80.9356%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rules, full `connectedDebugAndroidTest` (158 tests), the US-2 platform-evidence evaluation, and `installDebug` all passed; the debug APK is installed on `emulator-5554`.
 - Evidence captured: `summary_US-2.md`, `feature_list.json` acceptance evidence, `ChartDataFlowTest`, `ChartDataMapperTest`, `ChartColumnSelectionTest`, and `NoteEditorChartDataIntegrationTest`.
-- Commits: Pending finalization of this session.
+- Commits: `fee730b` (`feat(chart): edit chart data and select plotted column`).
 - Known risk or unresolved issue: US-4 remains the owner of the real Canvas/PdfDocument boundary and final visual verification. The runtime Skill tool was unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both gaps are documented in `summary_US-2.md`.
 - Next best step: Implement US-3 interaction and read-only chart behavior without changing the approved US-2 persistence or two-level Options contract.
