@@ -1,6 +1,8 @@
 .gradle/
 /local.properties
 /.idea/
+/.freebuff/
+/.trae-html-share-packages/
 /build/
 /app/build/
 /docs/changes/
