@@ -27,6 +27,7 @@ object ChartBitmapRenderer {
         block: EditorBlock.ChartBlock,
         width: Int = DEFAULT_WIDTH,
         height: Int = DEFAULT_HEIGHT,
+        selectedPointIndex: Int? = null,
         colors: ChartBitmapColors = ChartBitmapColors(
             background = android.graphics.Color.WHITE,
             primary = android.graphics.Color.rgb(124, 108, 242),
@@ -36,11 +37,25 @@ object ChartBitmapRenderer {
     ): Bitmap {
         require(width > 0 && height > 0) { "Chart bitmap dimensions must be positive" }
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        draw(Canvas(bitmap), ChartTableParser.parse(block), width.toFloat(), height.toFloat(), colors)
+        draw(
+            canvas = Canvas(bitmap),
+            data = ChartTableParser.parse(block),
+            width = width.toFloat(),
+            height = height.toFloat(),
+            colors = colors,
+            selectedPointIndex = selectedPointIndex
+        )
         return bitmap
     }
 
-    fun draw(canvas: Canvas, data: ChartData, width: Float, height: Float, colors: ChartBitmapColors) {
+    fun draw(
+        canvas: Canvas,
+        data: ChartData,
+        width: Float,
+        height: Float,
+        colors: ChartBitmapColors,
+        selectedPointIndex: Int? = null
+    ) {
         val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
         val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
@@ -63,7 +78,8 @@ object ChartBitmapRenderer {
                 colors,
                 fillPaint,
                 strokePaint,
-                textPaint
+                textPaint,
+                selectedPointIndex
             )
             ChartType.LINE -> drawLine(
                 canvas,
@@ -73,7 +89,8 @@ object ChartBitmapRenderer {
                 colors,
                 fillPaint,
                 strokePaint,
-                textPaint
+                textPaint,
+                selectedPointIndex
             )
             ChartType.PIE -> drawPie(
                 canvas,
@@ -82,7 +99,8 @@ object ChartBitmapRenderer {
                 height,
                 colors,
                 fillPaint,
-                textPaint
+                textPaint,
+                selectedPointIndex
             )
         }
     }
@@ -95,7 +113,8 @@ object ChartBitmapRenderer {
         colors: ChartBitmapColors,
         fillPaint: Paint,
         strokePaint: Paint,
-        textPaint: Paint
+        textPaint: Paint,
+        selectedPointIndex: Int?
     ) {
         val chart = chartBounds(width, height)
         val maxValue = max(1f, data.points.maxOf { it.value })
@@ -107,6 +126,11 @@ object ChartBitmapRenderer {
             val top = chart.bottom - chart.height() * (point.value / maxValue)
             fillPaint.color = colors.primary
             canvas.drawRoundRect(RectF(left, top, left + barWidth, chart.bottom), 8f, 8f, fillPaint)
+            if (index == selectedPointIndex) {
+                strokePaint.color = colors.text
+                strokePaint.strokeWidth = 3f
+                canvas.drawRoundRect(RectF(left, top, left + barWidth, chart.bottom), 8f, 8f, strokePaint)
+            }
             textPaint.color = colors.text
             canvas.drawText(point.value.cleanNumber(), left + barWidth / 2f, top - 8f, textPaint)
             canvas.drawText(point.category, left + barWidth / 2f, chart.bottom + 28f, textPaint)
@@ -121,7 +145,8 @@ object ChartBitmapRenderer {
         colors: ChartBitmapColors,
         fillPaint: Paint,
         strokePaint: Paint,
-        textPaint: Paint
+        textPaint: Paint,
+        selectedPointIndex: Int?
     ) {
         val chart = chartBounds(width, height)
         val maxValue = max(1f, data.points.maxOf { it.value })
@@ -141,6 +166,11 @@ object ChartBitmapRenderer {
             val y = chart.bottom - chart.height() * (point.value / maxValue)
             fillPaint.color = colors.primary
             canvas.drawCircle(x, y, 8f, fillPaint)
+            if (index == selectedPointIndex) {
+                strokePaint.color = colors.text
+                strokePaint.strokeWidth = 3f
+                canvas.drawCircle(x, y, 13f, strokePaint)
+            }
             textPaint.color = colors.text
             canvas.drawText(point.category, x, chart.bottom + 28f, textPaint)
         }
@@ -153,7 +183,8 @@ object ChartBitmapRenderer {
         height: Float,
         colors: ChartBitmapColors,
         fillPaint: Paint,
-        textPaint: Paint
+        textPaint: Paint,
+        selectedPointIndex: Int?
     ) {
         val total = data.points.sumOf { it.value.toDouble() }.toFloat()
         if (total <= 0f) return
@@ -171,10 +202,23 @@ object ChartBitmapRenderer {
             val sweep = point.value / total * 360f
             fillPaint.color = if (index % 2 == 0) colors.primary else lighten(colors.primary)
             canvas.drawArc(bounds, startAngle, sweep, true, fillPaint)
+            if (index == selectedPointIndex) {
+                textPaint.color = colors.text
+                strokePaintForSelection(canvas, bounds, startAngle, sweep, colors.text)
+            }
             startAngle += sweep
         }
         textPaint.color = colors.text
         canvas.drawText(data.title, centerX, height - 24f, textPaint)
+    }
+
+    private fun strokePaintForSelection(canvas: Canvas, bounds: RectF, startAngle: Float, sweep: Float, color: Int) {
+        val selectionPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.STROKE
+            strokeWidth = 4f
+        }
+        canvas.drawArc(bounds, startAngle, sweep, true, selectionPaint)
     }
 
     private fun drawGrid(

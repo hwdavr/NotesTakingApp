@@ -496,6 +496,8 @@
     <string name="editor_chart_data_empty_hint">Add a category and numeric value to create the chart.</string>
     <string name="editor_chart_data_cell_description">Chart data row %1$d, column %2$d</string>
     <string name="editor_chart_read_only_action_description">This chart is read-only.</string>
+    <string name="editor_chart_read_only_option_description">%1$s. This chart is read-only.</string>
+    <string name="editor_chart_read_only_cell_description">%1$s. This chart is read-only.</string>
     <string name="editor_chart_protected_category_column">The category column cannot be deleted.</string>
     <string name="editor_chart_protected_data_column">Keep at least one data column.</string>
     <string name="editor_chart_column_fallback">Column %d</string>
@@ -505,8 +507,13 @@
     <string name="editor_chart_type_pie">Pie chart</string>
     <string name="editor_chart_empty_message">Add valid numeric data to see the chart.</string>
     <string name="editor_chart_empty_hint">Use the Data view to enter chart values.</string>
+    <string name="editor_chart_render_error_message">Chart unavailable; review the table data.</string>
+    <string name="editor_chart_render_error_hint">Use the Data view to correct chart data and try again.</string>
     <string name="editor_chart_plot_description">%1$s chart titled %2$s with %3$d data points</string>
     <string name="editor_chart_delete_description">Delete chart</string>
     <string name="editor_chart_datum_description">Data point %1$s, value %2$s</string>
+    <string name="editor_chart_datum_selected_description">Selected</string>
+    <string name="editor_chart_datum_selected_content_description">%1$s. %2$s.</string>
     <string name="editor_chart_tooltip">%1$s · %2$s · %3$s</string>
+    <string name="editor_chart_tooltip_dismiss_description">Dismiss chart data callout</string>
 </resources>

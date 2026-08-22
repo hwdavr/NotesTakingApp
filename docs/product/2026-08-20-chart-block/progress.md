@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → Basic Blocks or focused Table Options.
 - Standard verification path: JVM tests, connected Android tests on `emulator-5554`, quality gates, platform evidence gate, and final visual evidence contract.
-- Current highest-priority unfinished feature: US-3 — Select chart data and inspect read-only charts.
-- Current blocker: None. US-1 and US-2 implementation, test, quality, state, and install gates are green; US-3 and US-4 remain.
+- Current highest-priority unfinished feature: US-4 — Export charts and verify the complete visual flow.
+- Current blocker: None. US-1, US-2, and US-3 implementation, test, quality, state, platform-contract, and install gates are green; US-4 remains.
 
 ## Session Log
 
@@ -43,3 +43,14 @@
 - Commits: `fee730b` (`feat(chart): edit chart data and select plotted column`).
 - Known risk or unresolved issue: US-4 remains the owner of the real Canvas/PdfDocument boundary and final visual verification. The runtime Skill tool was unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both gaps are documented in `summary_US-2.md`.
 - Next best step: Implement US-3 interaction and read-only chart behavior without changing the approved US-2 persistence or two-level Options contract.
+
+### Session 004
+
+- Date: 2026-08-23
+- Goal: Implement US-3 — select chart data and inspect read-only charts — through the harness-generator pipeline.
+- Completed: Added reducer-backed transient selection/sheet state, selected Bar/Line/Pie bitmap visuals, localized dismissible datum callouts, empty/render-error recovery copy, read-only Chart/Data/Options inspection guards, and dark-theme/large-text/RTL semantics. Refactored the chart card into focused composables to satisfy Detekt without suppressions.
+- Verification run: Exact TC-US-3-01..05 commands passed on `emulator-5554`; active slice commands passed; full JVM suite passed with 418 tests and no failures/errors/skips; full connected suite passed 161/161; `koverLog` reported 80.6291%; `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, custom Compose/localization/architecture/assertion checks, platform-evidence evaluation, and `installDebug` all passed.
+- Evidence captured: `summary_US-3.md`, `feature_list.json` acceptance evidence, `ChartSelectionReducerTest`, `ChartStateReducerTest`, and `ChartInteractionFlowTest`.
+- Commits: US-3 scoped implementation commit created in this session.
+- Known risk or unresolved issue: US-4 remains the owner of the real Canvas/PdfDocument boundary, export fallback behavior, and final visual-verification evidence. The runtime Skill tool was unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both limitations are documented in `summary_US-3.md`.
+- Next best step: Implement US-4 export and final visual/platform verification without changing the passing US-1/US-2/US-3 ChartBlock persistence and interaction contracts.

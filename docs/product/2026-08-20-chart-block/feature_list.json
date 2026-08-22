@@ -111,7 +111,7 @@
       "user_visible_behavior": "A user can tap a chart datum to see its category and value, dismiss the callout, inspect the Data view and two-level Options flow in a read-only note, and see localized empty/error states without losing the underlying table.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
@@ -123,7 +123,19 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.chart.ChartSelectionReducerTest\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest"
       ],
-      "evidence": [],
+      "evidence": [
+        "TC-US-3-01: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest#testDatumSelectionShowsAndDismissesCalloutForAllTypes — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
+        "TC-US-3-02: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartStateReducerTest.testEmptyAndRenderErrorStatesKeepRecoveryControls — exit 0; JVM reducer test passed.",
+        "TC-US-3-03: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest#testReadOnlyChartKeepsInspectionAndDisablesMutations — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
+        "TC-US-3-04: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartStateReducerTest.testTransientSelectionAndSheetDismissalDoesNotMutateBlock — exit 0; JVM reducer test passed.",
+        "TC-US-3-05: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest#testDarkThemeLargeTextAndRtlChartSemantics — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
+        "Active slice verification: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartSelectionReducerTest — exit 0; and env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest — 3/3 tests passed.",
+        "Full JVM verification: ./gradlew testDebugUnitTest — 418 tests, 0 failures, 0 errors, 0 skipped.",
+        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 161 tests, 0 failures, 0 skipped.",
+        "Coverage: ./gradlew koverLog — application line coverage 80.6291% (required >= 80%).",
+        "Quality: ./gradlew assembleDebug ktlintCheck detekt lintDebug plus Compose/localization/architecture/assertion-quality checks — all passed with 0 violations.",
+        "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-3 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
+      ],
       "notes": "Intermediate UI slice. The final visual owner is US-4, which captures Chart, Data, both sheet levels, selected datum, empty/error, read-only, and dark-theme states."
     },
     {
