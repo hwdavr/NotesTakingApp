@@ -22,6 +22,7 @@ import com.example.notesapp.ui.editor.mapper.basicBlockType
 import com.example.notesapp.ui.editor.mapper.createEmptyTextBlock
 import com.example.notesapp.ui.editor.mapper.mergeAdjacentWithSameMarks
 import com.example.notesapp.ui.editor.mapper.newBlockId
+import com.example.notesapp.ui.editor.mapper.normalized
 import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
@@ -390,10 +391,11 @@ open class NoteEditorViewModel @Inject constructor(
         if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.ChartBlock) return@updateBlock block
+            val normalizedBlock = block.normalized()
             val nextSelectedColumnId = selectedColumnId
-                ?.takeIf { it in block.columnIds.drop(1) }
-                ?: block.selectedColumnId
-            block.copy(
+                ?.takeIf { it in normalizedBlock.columnIds.drop(1) }
+                ?: normalizedBlock.selectedColumnId
+            normalizedBlock.copy(
                 title = title ?: block.title,
                 selectedColumnId = nextSelectedColumnId
             )
@@ -404,14 +406,21 @@ open class NoteEditorViewModel @Inject constructor(
         if (!uiStateInternal.value.isEditable) return
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.ChartBlock) return@updateBlock block
-            if (rowIndex !in block.rows.indices || columnIndex !in block.columnIds.indices) return@updateBlock block
-            block.copy(
-                rows = block.rows.mapIndexed { currentRowIndex, row ->
+            val normalizedBlock = block.normalized()
+            if (rowIndex !in normalizedBlock.rows.indices || columnIndex !in normalizedBlock.columnIds.indices) {
+                return@updateBlock normalizedBlock
+            }
+            normalizedBlock.copy(
+                rows = normalizedBlock.rows.mapIndexed { currentRowIndex, row ->
                     if (currentRowIndex != rowIndex) {
                         row
                     } else {
                         row.mapIndexed { currentColumnIndex, cell ->
-                            if (currentColumnIndex == columnIndex) listOf(RichText(value.replace("\n", " "))) else cell
+                            if (currentColumnIndex == columnIndex) {
+                                listOf(RichText(value.replace("\n", " ")))
+                            } else {
+                                cell
+                            }
                         }
                     }
                 }

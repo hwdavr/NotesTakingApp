@@ -149,6 +149,7 @@ import com.example.notesapp.ui.editor.mapper.basicBlockType
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
+import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
@@ -156,9 +157,12 @@ import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteSummaryUiState
+import com.example.notesapp.ui.editor.viewmodel.addChartColumn
+import com.example.notesapp.ui.editor.viewmodel.addChartRow
 import com.example.notesapp.ui.editor.viewmodel.addImageBlock
 import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
+import com.example.notesapp.ui.editor.viewmodel.onChartTableAction
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
@@ -239,6 +243,9 @@ fun NoteEditorScreen(
         onChartSelectedColumnChange = { blockId, columnId ->
             viewModel.updateChart(blockId, selectedColumnId = columnId)
         },
+        onChartAddRow = { blockId -> viewModel.addChartRow(blockId) },
+        onChartAddColumn = { blockId -> viewModel.addChartColumn(blockId) },
+        onChartTableAction = viewModel::onChartTableAction,
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
@@ -297,6 +304,11 @@ fun NoteEditorScreenContent(
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onChartCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit = { _, _, _, _ -> },
     onChartSelectedColumnChange: (blockId: String, columnId: String) -> Unit = { _, _ -> },
+    onChartAddRow: (blockId: String) -> Boolean = { false },
+    onChartAddColumn: (blockId: String) -> Boolean = { false },
+    onChartTableAction: (ChartTableAction) -> Unit = { action ->
+        error("NoteEditorScreenContent requires an onChartTableAction callback; received $action")
+    },
     onFolderSelected: (String?) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -516,22 +528,21 @@ fun NoteEditorScreenContent(
                             enabled = state.isEditable
                         )
                         DocumentBlockList(
-                            blocks = state.document.blocks,
-                            isEditable = state.isEditable,
-                            onTextBlockChange = onTextBlockChange,
-                            onToggleCheckboxChecked = onToggleCheckboxChecked,
+                            blocks = state.document.blocks, isEditable = state.isEditable,
+                            onTextBlockChange = onTextBlockChange, onToggleCheckboxChecked = onToggleCheckboxChecked,
                             onToggleToggleExpanded = onToggleToggleExpanded,
-                            onImageChange = onImageChange,
-                            onTableCellChange = onTableCellChange,
-                            onChartCellChange = onChartCellChange,
-                            onChartSelectedColumnChange = onChartSelectedColumnChange,
-                            focusedTableCells = state.focusedTableCells,
-                            onTableAction = onTableAction,
-                            onBlockFocused = onBlockFocused,
-                            onSelectionChange = onSelectionChange,
+                            onImageChange = onImageChange, onTableCellChange = onTableCellChange,
+                            chartCallbacks = ChartBlockCallbacks(
+                                onCellChange = onChartCellChange,
+                                onSelectedColumnChange = onChartSelectedColumnChange,
+                                onAddRow = onChartAddRow,
+                                onAddColumn = onChartAddColumn,
+                                onTableAction = onChartTableAction
+                            ),
+                            focusedTableCells = state.focusedTableCells, onTableAction = onTableAction,
+                            onBlockFocused = onBlockFocused, onSelectionChange = onSelectionChange,
                             onDeleteBlock = onDeleteBlock,
-                            onDeleteVoiceAudio = onDeleteVoiceAudio,
-                            onUpdateMermaidTitle = onUpdateMermaidTitle,
+                            onDeleteVoiceAudio = onDeleteVoiceAudio, onUpdateMermaidTitle = onUpdateMermaidTitle,
                             onUpdateMermaidCode = onUpdateMermaidCode,
                             onUpdateCodeBlockCode = onUpdateCodeBlockCode,
                             onUpdateCodeBlockLanguage = onUpdateCodeBlockLanguage,
@@ -540,8 +551,7 @@ fun NoteEditorScreenContent(
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
                             },
-                            focusedBlockId = state.focusedBlockId,
-                            selectionStart = state.selectionStart,
+                            focusedBlockId = state.focusedBlockId, selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
                             tableFocusResetTrigger = tableFocusResetTrigger,
                             focusLastBlockTrigger = focusLastBlockTrigger
@@ -844,8 +854,7 @@ private fun DocumentBlockList(
     onToggleToggleExpanded: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onChartCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit,
-    onChartSelectedColumnChange: (blockId: String, columnId: String) -> Unit,
+    chartCallbacks: ChartBlockCallbacks,
     focusedTableCells: Map<String, TableFocusTarget>,
     onTableAction: (TableHandleAction) -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -876,7 +885,7 @@ private fun DocumentBlockList(
             }
         }
     }
-    Column {
+    Column(modifier = Modifier.testTag("rich_document_blocks")) {
         for (block in blocks) {
             when (block) {
                 is EditorBlock.TextBlock -> {
@@ -948,10 +957,15 @@ private fun DocumentBlockList(
                         block = block,
                         isEditable = isEditable,
                         onUpdateTitle = { title -> onUpdateChartTitle?.invoke(block.id, title) },
-                        onUpdateCell = { row, column, value -> onChartCellChange(block.id, row, column, value) },
-                        onSelectedColumnChange = { columnId ->
-                            onChartSelectedColumnChange(block.id, columnId)
+                        onUpdateCell = { row, column, value ->
+                            chartCallbacks.onCellChange(block.id, row, column, value)
                         },
+                        onSelectedColumnChange = { columnId ->
+                            chartCallbacks.onSelectedColumnChange(block.id, columnId)
+                        },
+                        onAddRow = { chartCallbacks.onAddRow(block.id) },
+                        onAddColumn = { chartCallbacks.onAddColumn(block.id) },
+                        onTableAction = chartCallbacks.onTableAction,
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
@@ -959,6 +973,14 @@ private fun DocumentBlockList(
         }
     }
 }
+
+private data class ChartBlockCallbacks(
+    val onCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit,
+    val onSelectedColumnChange: (blockId: String, columnId: String) -> Unit,
+    val onAddRow: (blockId: String) -> Boolean,
+    val onAddColumn: (blockId: String) -> Boolean,
+    val onTableAction: (ChartTableAction) -> Unit
+)
 
 @Composable
 private fun TextDocumentBlock(

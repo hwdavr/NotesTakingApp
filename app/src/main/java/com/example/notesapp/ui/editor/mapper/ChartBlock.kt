@@ -1,7 +1,5 @@
 package com.example.notesapp.ui.editor.mapper
 
-import kotlin.math.max
-
 enum class ChartType(val storageValue: String) {
     BAR("bar"),
     LINE("line"),
@@ -21,48 +19,88 @@ data class ChartPoint(
 data class ChartData(
     val chartType: ChartType,
     val title: String,
-    val selectedColumnId: String?,
-    val selectedColumnLabel: String,
+    val selectedColumnId: String,
+    val selectedColumnIndex: Int,
+    val selectedColumnHeader: String?,
     val points: List<ChartPoint>
+)
+
+data class ChartColumnOption(
+    val id: String,
+    val index: Int,
+    val fallbackPosition: Int
 )
 
 object ChartTableParser {
     fun parse(block: EditorBlock.ChartBlock): ChartData {
-        val columnIds = block.columnIds.normalizedFor(block.rows)
-        val selectedColumnId = block.selectedColumnId.takeIf { it in columnIds.drop(1) }
-        val selectedColumnIndex = columnIds.indexOf(selectedColumnId).takeIf { it > 0 } ?: -1
-        val selectedColumnLabel = block.rows.firstOrNull()
+        val normalizedBlock = block.normalized()
+        val columnIds = normalizedBlock.columnIds
+        val selectedColumnId = normalizedBlock.selectedColumnId
+        val selectedColumnIndex = columnIds.indexOf(selectedColumnId).takeIf { it > 0 } ?: 1
+        val selectedColumnHeader = normalizedBlock.rows.firstOrNull()
             ?.getOrNull(selectedColumnIndex)
             ?.cellText()
             ?.ifBlank { null }
-            ?: positionalColumnLabel(selectedColumnIndex, columnIds.size)
         val points = if (selectedColumnIndex < 1) {
             emptyList()
         } else {
-            block.rows.drop(1).mapIndexedNotNull { offset, row ->
+            normalizedBlock.rows.drop(1).mapIndexedNotNull { offset, row ->
                 val category = row.getOrNull(0).cellText().orEmpty().trim()
                 val valueText = row.getOrNull(selectedColumnIndex).cellText().orEmpty().trim()
                 val value = valueText.toFloatOrNull()
-                if (category.isBlank() || value == null) {
+                if (category.isBlank() || value == null || !value.isFinite()) {
                     null
                 } else {
                     ChartPoint(category = category, value = value, rowIndex = offset + 1)
                 }
-            }.filter { point -> block.chartType != ChartType.PIE || point.value > 0f }
+            }.filter { point -> normalizedBlock.chartType != ChartType.PIE || point.value > 0f }
         }
         return ChartData(
-            chartType = block.chartType,
-            title = block.title.ifBlank { DEFAULT_CHART_TITLE },
+            chartType = normalizedBlock.chartType,
+            title = normalizedBlock.title.ifBlank { DEFAULT_CHART_TITLE },
             selectedColumnId = selectedColumnId,
-            selectedColumnLabel = selectedColumnLabel,
+            selectedColumnIndex = selectedColumnIndex,
+            selectedColumnHeader = selectedColumnHeader,
             points = points
         )
     }
+}
 
-    fun positionalColumnLabel(columnIndex: Int, columnCount: Int): String {
-        val safeIndex = if (columnIndex > 0) columnIndex else max(1, columnCount - 1)
-        return "Column ${safeIndex + 1}"
+fun EditorBlock.ChartBlock.normalized(): EditorBlock.ChartBlock {
+    val columnCount = maxOf(2, columnIds.size, rows.maxOfOrNull { it.size } ?: 0)
+    val normalizedColumnIds = normalizedColumnIds(columnIds, columnCount)
+    val normalizedRows = (rows.ifEmpty { defaultChartRowsForParser() }).map { row ->
+        (0 until columnCount).map { index -> row.getOrNull(index) ?: emptyChartCell() }
     }
+    return copy(
+        rows = normalizedRows,
+        columnIds = normalizedColumnIds,
+        selectedColumnId = selectedColumnId.takeIf { it in normalizedColumnIds.drop(1) }
+            ?: normalizedColumnIds[1]
+    )
+}
+
+fun EditorBlock.ChartBlock.columnOptions(): List<ChartColumnOption> = normalized().columnIds
+    .drop(1)
+    .mapIndexed { offset, id ->
+        ChartColumnOption(
+            id = id,
+            index = offset + 1,
+            fallbackPosition = offset + 2
+        )
+    }
+
+fun EditorBlock.ChartBlock.selectedDataColumnId(): String = normalized().selectedColumnId
+
+fun EditorBlock.ChartBlock.nextColumnId(): String {
+    val existing = normalized().columnIds.toSet()
+    var suffix = existing.size + 1
+    var candidate = "c_column_$suffix"
+    while (candidate in existing) {
+        suffix += 1
+        candidate = "c_column_$suffix"
+    }
+    return candidate
 }
 
 fun EditorBlock.TableBlock.toChartBlock(chartType: ChartType): EditorBlock.ChartBlock {
@@ -95,13 +133,26 @@ fun EditorBlock.ChartBlock.toMarkdown(): String {
     return "### $title (${chartType.storageValue})\n\n![$title]($imagePath)\n\n| $header |\n| $divider |\n$body"
 }
 
-private fun List<String>.normalizedFor(rows: List<List<List<RichText>>>): List<String> {
-    val count = maxOf(2, size, rows.maxOfOrNull { it.size } ?: 0)
-    return (0 until count).map { index ->
-        getOrNull(index)?.ifBlank { null } ?: if (index == 0) "c_category" else "c_column_${index + 1}"
+private fun normalizedColumnIds(source: List<String>, columnCount: Int): List<String> {
+    val used = mutableSetOf<String>()
+    return (0 until columnCount).map { index ->
+        val fallback = if (index == 0) "c_category" else "c_column_${index + 1}"
+        var candidate = source.getOrNull(index)?.trim().orEmpty().ifBlank { fallback }
+        var suffix = index + 1
+        while (!used.add(candidate)) {
+            suffix += 1
+            candidate = if (index == 0) "c_category_$suffix" else "c_column_$suffix"
+        }
+        candidate
     }
 }
 
 private fun List<RichText>?.cellText(): String = this.orEmpty().joinToString("") { it.text }
 
 private fun emptyTableRowForChart(columnCount: Int): List<List<RichText>> = List(columnCount) { listOf(RichText("")) }
+
+private fun emptyChartCell(): List<RichText> = listOf(RichText(""))
+
+private fun defaultChartRowsForParser(): List<List<List<RichText>>> = listOf(
+    listOf(listOf(RichText("Category")), listOf(RichText("Value")))
+)

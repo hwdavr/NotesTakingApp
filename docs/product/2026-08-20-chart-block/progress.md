@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → Basic Blocks or focused Table Options.
 - Standard verification path: JVM tests, connected Android tests on `emulator-5554`, quality gates, platform evidence gate, and final visual evidence contract.
-- Current highest-priority unfinished feature: US-1 — Create, convert, persist, and render chart blocks.
-- Current blocker: None. US-1 implementation, test, quality, state, and install gates are green; US-2 through US-4 remain.
+- Current highest-priority unfinished feature: US-3 — Select chart data and inspect read-only charts.
+- Current blocker: None. US-1 and US-2 implementation, test, quality, state, and install gates are green; US-3 and US-4 remain.
 
 ## Session Log
 
@@ -32,3 +32,14 @@
 - Commits: `b721c55` (`feat: add chart block foundation`).
 - Known risk or unresolved issue: Workflow prompt asks for Stage 9, but `harness-generator.md` defines only Stages 1–8; no behavior was inferred for an undefined stage. The runtime Skill tool was unavailable, so repository skill instructions were followed as a documented fallback.
 - Next best step: Continue with US-2 — edit chart data and choose the plotted column, preserving the passing US-1 evidence and JSON contract. The debug build is installed on `emulator-5554`.
+
+### Session 003
+
+- Date: 2026-08-23
+- Goal: Implement US-2 — edit chart data and choose the plotted column.
+- Completed: Added the normalized editable chart table, stable selected-column mapping, localized Chart/Data and two-level Options UI, row/column operation sheets with protected invariants, production ViewModel mutation dispatch, auto-save/reload coverage, and stable accessibility/test semantics.
+- Verification run: `assembleDebug`, `testDebugUnitTest` (412 tests), `koverLog` (80.9356%), `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture rules, full `connectedDebugAndroidTest` (158 tests), and the US-2 platform-evidence evaluation all passed.
+- Evidence captured: `summary_US-2.md`, `feature_list.json` acceptance evidence, `ChartDataFlowTest`, `ChartDataMapperTest`, `ChartColumnSelectionTest`, and `NoteEditorChartDataIntegrationTest`.
+- Commits: Pending finalization of this session.
+- Known risk or unresolved issue: US-4 remains the owner of the real Canvas/PdfDocument boundary and final visual verification. The runtime Skill tool was unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both gaps are documented in `summary_US-2.md`.
+- Next best step: Implement US-3 interaction and read-only chart behavior without changing the approved US-2 persistence or two-level Options contract.

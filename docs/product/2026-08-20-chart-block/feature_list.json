@@ -72,7 +72,7 @@
       "user_visible_behavior": "An author can switch from Chart to Data, edit cells, add rows and columns through Options, choose Revenue/Cost/Tax or another candidate column in the second-level sheet, and see the selected chart series update without changing table values.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -86,7 +86,19 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorChartDataIntegrationTest\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartDataFlowTest"
       ],
-      "evidence": [],
+      "evidence": [
+        "TC-US-2-01: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartDataFlowTest#testCurrentViewSwitchesBetweenChartAndData — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
+        "TC-US-2-02: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartDataFlowTest#testOptionsOpensDataColumnSecondLevelAndSelectsColumn — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
+        "TC-US-2-03: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.viewmodel.NoteEditorChartDataIntegrationTest.testOptionsRowActionsAndProtectedColumnInvariants — exit 0; JVM integration test passed.",
+        "TC-US-2-04: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartDataMapperTest.testSelectedColumnMappingSkipsInvalidPairs — exit 0; JVM unit test passed.",
+        "TC-US-2-05: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.viewmodel.NoteEditorChartDataIntegrationTest.testChartEditsAndSelectionReloadFromAutoSave — exit 0; JVM integration test passed.",
+        "TC-US-2-06: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartColumnSelectionTest.testFallbackAndLabelsUseStableIds — exit 0; JVM unit test passed.",
+        "Full JVM verification: ./gradlew testDebugUnitTest — 412 tests, 0 failures, 0 errors, 0 skipped.",
+        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 158 tests, 0 failures, 0 skipped.",
+        "Coverage: ./gradlew koverLog — application line coverage 80.9356% (required >= 80%).",
+        "Quality: assembleDebug, ktlintCheck, detekt, lintDebug, Compose/localization/architecture checks — all passed with 0 violations.",
+        "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-2 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
+      ],
       "notes": "The inline Data view intentionally contains no Add row/Add column buttons. Those actions are exposed as rows in the first-level Options sheet. The second-level Data column sheet contains only candidate-column selection."
     },
     {

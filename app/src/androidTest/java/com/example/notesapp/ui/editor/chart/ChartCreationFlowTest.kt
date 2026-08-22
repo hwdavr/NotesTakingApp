@@ -8,6 +8,7 @@ import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +31,10 @@ class ChartCreationFlowTest {
                         onUpdateTitle = {},
                         onUpdateCell = { _, _, _ -> },
                         onSelectedColumnChange = {},
-                        onDelete = {}
+                        onDelete = {},
+                        onAddRow = {},
+                        onAddColumn = {},
+                        onTableAction = { _: ChartTableAction -> }
                     )
                 }
             }

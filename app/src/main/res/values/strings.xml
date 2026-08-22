@@ -485,6 +485,19 @@
     <string name="editor_chart_options_description">Chart options</string>
     <string name="editor_chart_options_icon_description">Open chart options</string>
     <string name="editor_chart_options_title">Chart options</string>
+    <string name="editor_chart_options_data_column">Data column</string>
+    <string name="editor_chart_options_add_row">Add row</string>
+    <string name="editor_chart_options_add_column">Add column</string>
+    <string name="editor_chart_data_column_title">Data column</string>
+    <string name="editor_chart_data_column_supporting_text">Choose the data column to plot</string>
+    <string name="editor_chart_data_column_back_description">Back to chart options</string>
+    <string name="editor_chart_no_data_columns">Add a data column in the table view to create a chart.</string>
+    <string name="editor_chart_data_hint">The chart uses %1$s; invalid numeric cells are skipped.</string>
+    <string name="editor_chart_data_empty_hint">Add a category and numeric value to create the chart.</string>
+    <string name="editor_chart_data_cell_description">Chart data row %1$d, column %2$d</string>
+    <string name="editor_chart_read_only_action_description">This chart is read-only.</string>
+    <string name="editor_chart_protected_category_column">The category column cannot be deleted.</string>
+    <string name="editor_chart_protected_data_column">Keep at least one data column.</string>
     <string name="editor_chart_column_fallback">Column %d</string>
     <string name="editor_chart_title_placeholder">Chart</string>
     <string name="editor_chart_type_bar">Bar chart</string>
@@ -495,5 +508,5 @@
     <string name="editor_chart_plot_description">%1$s chart titled %2$s with %3$d data points</string>
     <string name="editor_chart_delete_description">Delete chart</string>
     <string name="editor_chart_datum_description">Data point %1$s, value %2$s</string>
-    <string name="editor_chart_tooltip">%1$s · %2$s</string>
+    <string name="editor_chart_tooltip">%1$s · %2$s · %3$s</string>
 </resources>
