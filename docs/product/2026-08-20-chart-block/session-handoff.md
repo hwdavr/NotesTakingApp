@@ -14,13 +14,13 @@
 
 - Known defect: None found in the US-4 scope.
 - Unverified path: Direct API 24 and API 34 emulator runs were not available; the required API24+ behavior and target-34 build are evidenced on the connected API33 runtime.
-- Risk for the next session: Do not change the approved ChartBlock JSON, stable column IDs/selection fallback, two-level Options contract, or visual evidence paths while completing finalize/install. The `.harness` submodule has a deliberate gate-source edit that must be committed or explicitly handed off.
+- Risk for the next session: Do not change the approved ChartBlock JSON, stable column IDs/selection fallback, two-level Options contract, or visual evidence paths during Evaluator review. The `.harness` gate-source compatibility fix is committed separately at `b2796ca`.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: Commit the scoped changes and hand off the feature at tracker status `To be reviewed`.
-- Why it is next: All product behavior and slice evidence are passing; only final runtime/install/repository handoff gates remain before Evaluator review.
-- What counts as passing: Full connected suite has exited 0 with no skips/failures, install succeeds on `emulator-5554`, lifecycle remains valid, all US-4 evidence gates pass, and the commit contains only scoped application/docs plus the justified harness gate fix.
+- Highest-priority unfinished feature: Evaluator review of the committed US-4 implementation at tracker status `To be reviewed`.
+- Why it is next: All product behavior, runtime, install, documentation, and slice evidence gates are passing; Generator work is complete.
+- What counts as passing: Already satisfied by `OK (168 tests)`, successful install on `emulator-5554`, valid lifecycle, passing US-4 evidence gates, outer commit `5d5c8d3`, and harness commit `b2796ca`.
 - What must not change during that step: Preserve the five contract screenshot paths, `reference-anchor-verification.md` table shape, structured evidence objects, and the `To be reviewed` tracker status. Never move the tracker directly to `To be human reviewed`.
 
 ## Commands

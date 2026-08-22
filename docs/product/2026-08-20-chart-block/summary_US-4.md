@@ -2,7 +2,7 @@
 
 **Type**: feature
 **Started**: 2026-08-23 05:11 +08
-**Status**: In Progress
+**Status**: To be reviewed
 
 ## Stage Progress
 
@@ -14,7 +14,7 @@
 | Implement | ✅ Complete | 2026-08-23 05:46 +08 | Chart Markdown ZIP/PDF export, chart-aware SAF format selection, localized fallback strings, ViewModel chart detection, and production/JVM/instrumented test paths were implemented. Evidence: `./gradlew assembleDebug` — `BUILD SUCCESSFUL`. |
 | Test | ✅ Complete | 2026-08-23 05:49 +08 | Focused exporter tests, the real Android boundary test, the aggregate visual command, and the five active visual-flow methods passed; full connected regression passed 168/168 with 0 skips/failures; `koverLog` reported 82.0053% application line coverage. Evidence: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest` — `OK (168 tests)` / `INSTRUMENTATION_CODE: -1`. |
 | Code Quality Fix | ✅ Complete | 2026-08-23 05:46 +08 | Ktlint formatting was fixed in touched imports/helpers; Ktlint, Detekt, Android Lint, and Compose/localization/architecture checks pass with no violations or suppressions. Evidence: `./gradlew ktlintCheck` — `BUILD SUCCESSFUL`; `./gradlew detekt` — `BUILD SUCCESSFUL`. |
-| Finalize & Exit | ✅ Complete | 2026-08-23 05:51 +08 | Final evidence, product tracker, progress, checklist, handoff, no-slice platform check, visual contract check, and lifecycle check are complete; scoped changes are ready for commit. Evidence: `bash harness/scripts/check-feature-lifecycle.sh` — `Feature lifecycle tracker valid: 7 feature(s), 0 in progress.` |
+| Finalize & Exit | ✅ Complete | 2026-08-23 05:52 +08 | Final evidence, product tracker, progress, checklist, handoff, no-slice platform check, visual contract check, lifecycle check, and scoped commits are complete. Evidence: outer commit `5d5c8d3`; harness submodule commit `b2796ca`. |
 | Install App To Device | ✅ Complete | 2026-08-23 05:51 +08 | Debug APK installed on the required emulator. Evidence: `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` — `Installed on 1 device.` |
 | Stage 9 | ⚠️ Undefined | 2026-08-23 | The checked-in `harness-generator.md` defines Stages 1–8 only; no Stage 9 behavior is specified, so no behavior is inferred. |
 
@@ -58,6 +58,6 @@
 
 ## Open Items
 
-- Commit the scoped implementation and hand off to Evaluator review.
+- The generator stages are complete; the feature is intentionally left `To be reviewed` for Evaluator scoring.
 - The runtime Skill tool is unavailable in this environment; checked-in skill contracts were followed manually as a documented fallback.
 - The checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; no behavior was inferred for the undefined stage.

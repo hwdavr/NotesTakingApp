@@ -28,4 +28,4 @@
 | 24 | Harness compatibility fix | Harness | PASS | Platform evidence gate now type-guards legacy string evidence while requiring structured active-slice evidence. |
 | 25 | Session handoff | Documentation | PASS | `session-handoff.md` records the verified runtime, remaining API-level caveat, exact commands, and evaluator handoff. |
 | 26 | Debug installation | Device | PASS | `env ANDROID_SERIAL=emulator-5554 ./gradlew installDebug` reported `Installed on 1 device.` |
-| 27 | Git state ownership | Repository | IN PROGRESS | Scoped diff is reviewed; commit the app/docs changes and the justified `.harness` gate-source update next. |
+| 27 | Git state ownership | Repository | PASS | Outer commit `5d5c8d3` and `.harness` submodule commit `b2796ca` contain the scoped implementation and gate compatibility fix. |
