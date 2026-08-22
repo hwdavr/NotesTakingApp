@@ -54,3 +54,14 @@
 - Commits: US-3 scoped implementation commit created in this session.
 - Known risk or unresolved issue: US-4 remains the owner of the real Canvas/PdfDocument boundary, export fallback behavior, and final visual-verification evidence. The runtime Skill tool was unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both limitations are documented in `summary_US-3.md`.
 - Next best step: Implement US-4 export and final visual/platform verification without changing the passing US-1/US-2/US-3 ChartBlock persistence and interaction contracts.
+
+### Session 005
+
+- Date: 2026-08-23
+- Goal: Implement US-4 — export charts and verify the complete visual flow — through the harness-generator pipeline.
+- Completed: Added Markdown ZIP chart packages with sanitized relative PNG assets and localized table fallback, PDF chart bitmap placement with table fallback, chart-aware export-screen MIME/filename selection, the real Android Canvas/Bitmap/PdfDocument/PdfRenderer boundary test, and active-window visual-flow captures for Chart, Data, Options, empty/selected, and dark read-only states.
+- Verification run: Focused US-4 JVM tests, `assembleDebug`, full `testDebugUnitTest`, `koverLog` at 82.0053%, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture checks, slice platform evidence, visual evidence contract, and exact boundary/visual commands passed. A full `connectedDebugAndroidTest` run is still being recorded on `emulator-5554` before final commit/install.
+- Evidence captured: `summary_US-4.md`, structured `feature_list.json` US-4 evidence, `platform-capability-matrix.md`, `visual_evidence/reference-anchor-verification.md`, five required screenshots, and supplemental `chart_empty_state.png`.
+- Commits: Pending final connected-suite result, install, and scoped commit.
+- Known risk or unresolved issue: Direct API24/API34 emulator runs are unavailable; API33 Android runtime evidence covers the API24+ path and targetSdk34 build. The runtime Skill tool is unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both limitations are documented in the US-4 summary/handoff.
+- Next best step: Record full connected results, run `./gradlew installDebug`, review/commit the scoped app/docs changes plus the justified platform-gate compatibility fix, and hand off at tracker status `To be reviewed`.

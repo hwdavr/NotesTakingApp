@@ -148,7 +148,7 @@
       "user_visible_behavior": "A user can export notes containing charts to a Markdown ZIP or PDF, inspect chart assets and table fallbacks, and use the complete chart/Data/options flow in light and dark themes, including empty, selected, read-only, and error states.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-4-01",
         "TC-US-4-02",
@@ -171,7 +171,85 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureEmptyAndSelectedStates && adb -s emulator-5554 pull /sdcard/Download/chart_empty_selected.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureReadOnlyDarkState && adb -s emulator-5554 pull /sdcard/Download/chart_read_only_dark.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\""
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-4-01",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterChartTest.testMarkdownChartExportProducesZipPackage\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "Focused JVM export test passed; ZIP contained note.md, chart table data, relative PNG link, and PNG asset."
+        },
+        {
+          "test_id": "TC-US-4-02",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterChartTest.testPdfChartExportUsesBitmapAndTableFallback\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "Focused JVM exporter test passed; shared production bitmap path returned a valid image and an invalid fixture selected the table fallback path."
+        },
+        {
+          "test_id": "TC-US-4-03",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.util.NoteExporterChartTest.testChartExportFailurePreservesDataAndReportsLocalizedFallback\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "Focused JVM fallback test passed; localized fallback was emitted, table data remained readable, and no broken PNG link was produced."
+        },
+        {
+          "test_id": "TC-US-4-04",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartPlatformBoundaryTest#testProductionCanvasBitmapAndPdfDocumentBoundary",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; production Bitmap/Canvas rendering and PdfRenderer validation completed."
+        },
+        {
+          "test_id": "TC-US-4-05",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureCompletedChartVisualStates",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented aggregate visual-flow baseline test passed on Medium_Phone (AVD) API 33."
+        },
+        {
+          "test_id": "TC-US-4-PLATFORM",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartPlatformBoundaryTest#testProductionCanvasBitmapAndPdfDocumentBoundary",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 real Android boundary test passed on Medium_Phone (AVD) API 33; Bitmap, Canvas, PdfDocument export, and PdfRenderer output were non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-01",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureChartPreviewState && adb -s emulator-5554 pull /sdcard/Download/chart_preview.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active-rendering screenshot pulled and non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-02",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureDataViewState && adb -s emulator-5554 pull /sdcard/Download/chart_data_view.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active-rendering screenshot pulled and non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-03",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active-rendering screenshot pulled and non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-04",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureEmptyAndSelectedStates && adb -s emulator-5554 pull /sdcard/Download/chart_empty_selected.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; empty-state and selected-datum assertions ran in the active window, selected-state screenshot pulled and non-empty; supplemental chart_empty_state.png was also captured."
+        },
+        {
+          "test_id": "TC-US-4-VIS-05",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureReadOnlyDarkState && adb -s emulator-5554 pull /sdcard/Download/chart_read_only_dark.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active-rendering dark read-only screenshot pulled and non-empty."
+        }
+      ],
       "notes": "Sole visual-verification owner. Visual evidence must be captured from active test rendering, never from a post-test external screencap. TC-US-4-PLATFORM owns the real Android Canvas/PdfDocument boundary."
     }
   ]

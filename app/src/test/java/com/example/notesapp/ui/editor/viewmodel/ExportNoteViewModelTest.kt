@@ -5,6 +5,8 @@ import android.content.Context
 import android.net.Uri
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.util.NoteExporter
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -56,6 +58,24 @@ class ExportNoteViewModelTest {
         viewModel.loadNote("n1")
 
         assertEquals(note, viewModel.uiState.value.note)
+    }
+
+    @Test
+    fun `loadNote marks chart notes for package export`() = runTest {
+        val note = Note(
+            id = "chart-note",
+            title = "Chart note",
+            content = NoteDocument(
+                blocks = listOf(EditorBlock.ChartBlock(id = "chart-1"))
+            ).toJsonString(),
+            createdAt = 0L,
+            updatedAt = 0L
+        )
+        coEvery { noteRepository.getNoteById("chart-note") } returns note
+
+        viewModel.loadNote("chart-note")
+
+        assertTrue(viewModel.uiState.value.hasChart)
     }
 
     @Test

@@ -121,16 +121,31 @@ fun EditorBlock.TableBlock.toChartBlock(chartType: ChartType): EditorBlock.Chart
     )
 }
 
-fun EditorBlock.ChartBlock.toMarkdown(): String {
+fun EditorBlock.ChartBlock.toMarkdown(includeImage: Boolean = true, imageFailureMessage: String = ""): String {
     val chartData = ChartTableParser.parse(this)
     val header = rows.firstOrNull().orEmpty().take(columnIds.size).joinToString(" | ") { it.cellText() }
     val divider = columnIds.joinToString(" | ") { "---" }
     val body = rows.drop(1).joinToString("\n") { row ->
         "| " + columnIds.indices.joinToString(" | ") { index -> row.getOrNull(index).cellText() } + " |"
     }
-    val imagePath = "assets/chart_$id.png"
     val title = chartData.title
-    return "### $title (${chartType.storageValue})\n\n![$title]($imagePath)\n\n| $header |\n| $divider |\n$body"
+    val sections = buildList {
+        add("### $title (${chartType.storageValue})")
+        if (includeImage) {
+            add("![$title](${chartAssetPath(id)})")
+        } else if (imageFailureMessage.isNotBlank()) {
+            add("> $imageFailureMessage")
+        }
+        add("| $header |\n| $divider |\n$body")
+    }
+    return sections.joinToString("\n\n")
+}
+
+fun chartAssetPath(blockId: String): String {
+    val safeId = blockId.filter { character ->
+        character.isLetterOrDigit() || character == '.' || character == '_' || character == '-'
+    }.ifBlank { "block" }
+    return "assets/chart_$safeId.png"
 }
 
 private fun normalizedColumnIds(source: List<String>, columnCount: Int): List<String> {

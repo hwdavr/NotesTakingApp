@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.notesapp.di.IoDispatcher
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteRepository
+import com.example.notesapp.ui.editor.mapper.EditorBlock
+import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.util.NoteExporter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +26,7 @@ enum class ExportFormat {
 }
 data class ExportUiState(
     val note: Note? = null,
+    val hasChart: Boolean = false,
     val selectedFormat: ExportFormat = ExportFormat.Markdown,
     val isExporting: Boolean = false,
     val exportSuccess: Boolean = false,
@@ -42,7 +45,10 @@ class ExportNoteViewModel @Inject constructor(
     fun loadNote(noteId: String) {
         viewModelScope.launch {
             val note = noteRepository.getNoteById(noteId)
-            _uiState.value = _uiState.value.copy(note = note)
+            val hasChart = note?.let { loadedNote ->
+                NoteDocument.fromContent(loadedNote.content).blocks.any { block -> block is EditorBlock.ChartBlock }
+            } == true
+            _uiState.value = _uiState.value.copy(note = note, hasChart = hasChart)
         }
     }
     fun selectFormat(format: ExportFormat) {

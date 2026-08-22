@@ -54,7 +54,7 @@ Lifecycle rules:
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
 | mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be human reviewed | 2026-08-18 | Fix pass applied; re-verification evidence attached; 1/1 findings fixed. |
 | code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | To be human reviewed | 2026-08-20 | Fix pass applied; re-verification evidence attached; 4/4 findings fixed. Strengthened PDF assertion (PdfRenderer back-render), corrected stale platform matrix, fixed stale test comment, added large-snippet/long-line tests + documented clipboard/orientation non-goals. JVM suite, koverLog 82.68%, ktlint/detekt/lint, and 11/11 instrumented tests pass. |
-| chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | In Progress | 2026-08-23 | US-1, US-2, and US-3 passing: ChartBlock persistence, insertion/conversion, local Bar/Line/Pie rendering, editable data table, protected row/column operations, selected-column options, datum callouts, and read-only inspection semantics are evidenced. US-4 export/platform/visual verification remains. |
+| chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | To be reviewed | 2026-08-23 | US-1 through US-4 passing: ChartBlock persistence, insertion/conversion, local Bar/Line/Pie rendering, editable data, protected operations, selected-column options, datum callouts, read-only inspection, Markdown ZIP/PDF export with fallbacks, real Android boundary evidence, and complete visual-flow screenshots are recorded. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -74,9 +74,10 @@ Lifecycle rules:
 | Basic blocks compact & accessible experience (US-3) | ✅ Slice done | Capped panel height min(280 dp, 40% usable height), 48 dp baseline tile targets, vertical scrolling through Quote, inner BackHandler dismissal, read-only trigger visibility/disabled state, light/dark theme support, accessibility semantics, and verified top/scrolled visual anchor proof. |
 | Basic blocks auto-collapse on outside interaction (US-4) | ✅ Slice done | Open Basic blocks panel collapses on outside tap (editor content or non-trigger toolbar controls) without block insertion, focus change, or document mutation; trigger toggle and tile insertion contracts preserved. |
 | Table structure operations (US-1) | ✅ Slice done | Backward-compatible `fitToWidth` JSON, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, read-only guards, and existing auto-save persistence. |
-| Chart block foundation (US-1) | ✅ Slice done | Backward-compatible ChartBlock JSON with stable IDs and selected-column fallback, Bar/Line/Pie insertion and focused-table conversion, local bitmap rendering, chart card Chart/Data/Options shell, title/data persistence callbacks, localized accessibility semantics, and acceptance coverage. Remaining export, platform-boundary, and final visual verification are tracked in US-4. |
+| Chart block foundation (US-1) | ✅ Slice done | Backward-compatible ChartBlock JSON with stable IDs and selected-column fallback, Bar/Line/Pie insertion and focused-table conversion, local bitmap rendering, chart card Chart/Data/Options shell, title/data persistence callbacks, localized accessibility semantics, and acceptance coverage. |
 | Chart block data editing (US-2) | ✅ Slice done | Editable ChartBlock-owned table with stable column selection, localized two-level Options flow, Add row/Add column and row/column operation sheets, protected category/last-data-column invariants, invalid-value filtering, auto-save/reload, and JVM plus connected acceptance coverage. |
 | Chart block interaction and read-only inspection (US-3) | ✅ Slice done | Bar/Line/Pie datum targets expose selected visual state and localized dismissible callouts; empty/render-error states retain recovery guidance; Chart/Data/Options inspection remains available in read-only notes while mutations and destructive actions are disabled, with dark-theme, large-text, RTL, JVM, and connected acceptance coverage. |
+| Chart block export and visual verification (US-4) | ✅ Slice done | Markdown chart notes export as ZIP packages with relative PNG assets and table fallbacks; PDF export draws production chart bitmaps with localized table fallback; the real Android Canvas/Bitmap/PdfDocument boundary and complete Chart/Data/Options, empty, selected, and dark read-only visual flow are evidenced. |
 | Focused table handles and option sheets (US-2) | ✅ Slice done | Editable table focus reveals localized column, row, and table-options handles; accessible Material 3 sheets retain the focused target, keep Delete last, and hide safely for read-only or outside focus. |
 | Complete table-handle editing flow (US-3) | ✅ Slice done | Production table actions update and dismiss sheets immediately, preserve targets across focus changes, isolate multiple tables, persist after reload, and include approved focused/editor, column-sheet, row-sheet, and table-sheet runtime captures. |
 | Emoji insertion foundation (US-1) | ✅ Slice done | Existing editor control opens a localized picker for editable notes, inserts Unicode at the cursor/range or a new paragraph, and stays disabled for read-only notes. |
@@ -129,8 +130,8 @@ Lifecycle rules:
 
 | Feature | Status | Notes |
 |---|---|---|
-| Export Formats | ✅ Done | Export notes to plain text, Markdown (.md), and PDF formats under `Documents/NotesTakingApp/`. |
-| Export Screen | ✅ Done | Dedicated export destination screen with preview and share target options. |
+| Export Formats | ✅ Done | Export notes to plain text, Markdown (.md), Markdown chart packages (.zip), and PDF formats under `Documents/NotesTakingApp/`; chart exports include relative PNG assets and localized table fallbacks. |
+| Export Screen | ✅ Done | Dedicated export destination screen with Markdown/PDF format selection, chart-aware ZIP naming and MIME type, preview, and share target options. |
 
 ### ✅ Security & Onboarding
 
@@ -155,7 +156,7 @@ Lifecycle rules:
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 - **Basic Blocks Panel**: ✅ Implemented (awaiting evaluation review) — document block compatibility, inline catalog insertion, compact scrollable panel geometry, accessibility, and visual reference proof delivered.
-- **Chart Blocks**: 🚧 US-1 through US-3 implemented — chart block persistence, insertion/conversion, local Bar/Line/Pie rendering, editable data tables, protected row/column operations, selected-column options, datum callouts, empty/error recovery, and read-only inspection are delivered; export, platform-boundary, and final visual verification remain in US-4.
+- **Chart Blocks**: ✅ Delivered — chart block persistence, insertion/conversion, local Bar/Line/Pie rendering, editable data tables, protected row/column operations, selected-column options, datum callouts, empty/error recovery, read-only inspection, Markdown ZIP/PDF export, real Android boundary verification, and final visual-flow evidence are complete and awaiting evaluation review.
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -172,11 +173,11 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, ChartBlock US-1 foundation, US-2 data editing, and US-3 interaction/read-only inspection, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, and visual evidence |
+| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, and visual evidence |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
-| **Export & Export UI** | ✅ Shipped | Text, Markdown, PDF export screens |
+| **Export & Export UI** | ✅ Shipped | Text, Markdown, chart Markdown ZIP packages, PDF export screens, relative chart assets, and localized table fallbacks |
 | **App Shell & Theme** | ✅ Shipped | M3 theme, bottom bar navigation, light/dark mode |
 | **Voice Notes** | ✅ Shipped | Private recording, PCM source-fed progressive transcription/fallback with API-33 formatting request and stop-time partial finalization, centered recorder waveform, Home/editor entry points, acknowledgement-first Room persistence with stale/missing-list protection, inline VoiceNote playback, editable transcripts, local cleanup, AAC/OPUS settings, storage totals, and fix-pass Light Theme evidence; residual production-route/API runtime gaps are documented |
 

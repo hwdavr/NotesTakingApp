@@ -13,15 +13,23 @@ import android.net.Uri
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import com.example.notesapp.R
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.chart.ChartBitmapColors
 import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
+import com.example.notesapp.ui.editor.mapper.ChartTableParser
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.basicBlockType
+import com.example.notesapp.ui.editor.mapper.chartAssetPath
 import com.example.notesapp.ui.editor.mapper.headingLevel
+import com.example.notesapp.ui.editor.mapper.normalized
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
+import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class NoteExporter(private val context: Context) {
     private val pageWidth = 595
@@ -30,9 +38,30 @@ class NoteExporter(private val context: Context) {
     private val contentWidth = pageWidth - 2 * margin
     fun exportToMarkdown(note: Note, outputStream: OutputStream) {
         val document = NoteDocument.fromContent(note.content)
-        val markdown = "# ${note.title}\n\n${document.toMarkdown()}"
-        outputStream.use {
-            it.write(markdown.toByteArray())
+        val chartBlocks = document.blocks.filterIsInstance<EditorBlock.ChartBlock>()
+        if (chartBlocks.isEmpty()) {
+            val markdown = "# ${note.title}\n\n${document.toMarkdown()}"
+            outputStream.use { stream ->
+                stream.write(markdown.toByteArray(StandardCharsets.UTF_8))
+            }
+            return
+        }
+
+        val renderedAssets = chartBlocks.associate { block ->
+            block.id to chartBitmapForExport(block, width = contentWidth.toInt(), height = 240)?.let(::encodePng)
+        }
+        val imageAvailability = renderedAssets.mapValues { (_, bytes) -> bytes != null }
+        val markdown = "# ${note.title}\n\n${document.toMarkdown(
+            chartImageAvailability = imageAvailability,
+            chartImageFailureMessage = context.getString(R.string.chart_export_fallback_message)
+        )}"
+        ZipOutputStream(outputStream).use { archive ->
+            writeZipEntry(archive, "note.md", markdown.toByteArray(StandardCharsets.UTF_8))
+            chartBlocks.forEach { block ->
+                renderedAssets[block.id]?.let { bytes ->
+                    writeZipEntry(archive, chartAssetPath(block.id), bytes)
+                }
+            }
         }
     }
     fun exportToPdf(note: Note, outputStream: OutputStream) {
@@ -268,19 +297,7 @@ class NoteExporter(private val context: Context) {
         titleLayout.draw(renderer.canvas)
         renderer.canvas.restore()
         renderer.currentY += titleLayout.height + 8f
-        val bitmap = runCatching {
-            ChartBitmapRenderer.render(
-                block = block,
-                width = contentWidth.toInt().coerceAtLeast(1),
-                height = 240,
-                colors = ChartBitmapColors(
-                    background = Color.WHITE,
-                    primary = Color.rgb(124, 108, 242),
-                    text = Color.BLACK,
-                    grid = Color.LTGRAY
-                )
-            )
-        }.getOrNull()
+        val bitmap = chartBitmapForExport(block, width = contentWidth.toInt(), height = 240)
         if (bitmap != null && bitmap.width > 0 && bitmap.height > 0) {
             renderer.ensureSpace(bitmap.height.toFloat() + 16f)
             renderer.canvas.drawBitmap(
@@ -291,13 +308,68 @@ class NoteExporter(private val context: Context) {
             )
             renderer.currentY += bitmap.height + 16f
         } else {
+            renderChartFallbackMessage(renderer, textPaint)
             renderTable(
-                EditorBlock.TableBlock(id = block.id, rows = block.rows),
+                EditorBlock.TableBlock(id = block.id, rows = block.normalized().rows),
                 renderer,
                 textPaint,
                 borderPaint
             )
         }
+    }
+
+    private fun renderChartFallbackMessage(renderer: PdfRenderer, textPaint: TextPaint) {
+        val message = context.getString(R.string.chart_export_fallback_message)
+        textPaint.textSize = 11f
+        textPaint.isFakeBoldText = false
+        textPaint.color = Color.DKGRAY
+        val layout = StaticLayout.Builder.obtain(
+            message,
+            0,
+            message.length,
+            textPaint,
+            contentWidth.toInt()
+        )
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(layout.height + 8f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        layout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += layout.height + 8f
+        textPaint.color = Color.BLACK
+    }
+
+    internal fun chartBitmapForExport(block: EditorBlock.ChartBlock, width: Int, height: Int): Bitmap? {
+        if (ChartTableParser.parse(block).points.isEmpty()) return null
+        return runCatching {
+            ChartBitmapRenderer.render(
+                block = block,
+                width = width.coerceAtLeast(1),
+                height = height.coerceAtLeast(1),
+                colors = ChartBitmapColors(
+                    background = Color.WHITE,
+                    primary = Color.rgb(124, 108, 242),
+                    text = Color.BLACK,
+                    grid = Color.LTGRAY
+                )
+            )
+        }.getOrNull()
+    }
+
+    private fun encodePng(bitmap: Bitmap): ByteArray? {
+        return ByteArrayOutputStream().use { buffer ->
+            val compressed = bitmap.compress(Bitmap.CompressFormat.PNG, 100, buffer)
+            bitmap.recycle()
+            if (compressed) buffer.toByteArray() else null
+        }
+    }
+
+    private fun writeZipEntry(archive: ZipOutputStream, path: String, bytes: ByteArray) {
+        archive.putNextEntry(ZipEntry(path))
+        archive.write(bytes)
+        archive.closeEntry()
     }
 
     private fun renderTextBlock(block: EditorBlock.TextBlock, renderer: PdfRenderer, textPaint: TextPaint) {

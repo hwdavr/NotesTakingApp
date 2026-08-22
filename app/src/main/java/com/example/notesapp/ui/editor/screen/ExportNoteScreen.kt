@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.editor.screen
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -69,6 +70,7 @@ fun ExportNoteScreen(
     val successMessage = stringResource(R.string.export_success)
     val errorMessage = stringResource(R.string.export_error)
     val colors = LocalAppColors.current
+    val hasChart = state.hasChart
     LaunchedEffect(noteId) {
         viewModel.loadNote(noteId)
     }
@@ -84,14 +86,21 @@ fun ExportNoteScreen(
             viewModel.resetStatus()
         }
     }
-    // SAF Launcher
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument(
-            if (state.selectedFormat == ExportFormat.Markdown) "text/markdown" else "application/pdf"
-        )
-    ) { uri ->
+    val onDocumentCreated: (Uri?) -> Unit = { uri ->
         uri?.let { viewModel.exportToUri(it) }
     }
+    val markdownLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/markdown"),
+        onResult = onDocumentCreated
+    )
+    val markdownPackageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/zip"),
+        onResult = onDocumentCreated
+    )
+    val pdfLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf"),
+        onResult = onDocumentCreated
+    )
     Scaffold(
         modifier = Modifier.padding(parentPadding),
         topBar = {
@@ -142,7 +151,9 @@ fun ExportNoteScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 FormatOption(
-                    title = stringResource(R.string.export_markdown),
+                    title = stringResource(
+                        if (hasChart) R.string.export_markdown_package else R.string.export_markdown
+                    ),
                     icon = Icons.Outlined.Description,
                     selected = state.selectedFormat == ExportFormat.Markdown,
                     onClick = { viewModel.selectFormat(ExportFormat.Markdown) }
@@ -157,9 +168,18 @@ fun ExportNoteScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        val extension = if (state.selectedFormat == ExportFormat.Markdown) ".md" else ".pdf"
+                        val extension = when {
+                            state.selectedFormat == ExportFormat.Markdown && hasChart -> ".zip"
+                            state.selectedFormat == ExportFormat.Markdown -> ".md"
+                            else -> ".pdf"
+                        }
                         val filename = (note.title.ifBlank { "note" }) + extension
-                        launcher.launch(filename)
+                        when {
+                            state.selectedFormat == ExportFormat.Markdown && hasChart ->
+                                markdownPackageLauncher.launch(filename)
+                            state.selectedFormat == ExportFormat.Markdown -> markdownLauncher.launch(filename)
+                            else -> pdfLauncher.launch(filename)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

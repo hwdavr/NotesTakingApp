@@ -52,7 +52,10 @@ data class NoteDocument(
             is EditorBlock.Voice -> ""
         }
     }.trim()
-    fun toMarkdown(): String = blocks.joinToString("\n\n") { block ->
+    fun toMarkdown(
+        chartImageAvailability: Map<String, Boolean> = emptyMap(),
+        chartImageFailureMessage: String = ""
+    ): String = blocks.joinToString("\n\n") { block ->
         when (block) {
             is EditorBlock.TextBlock -> {
                 val blockType = block.basicBlockType()
@@ -101,7 +104,10 @@ data class NoteDocument(
             is EditorBlock.CodeBlock -> {
                 "```${codeBlockLanguageSlug(block.language)}\n${block.code}\n```"
             }
-            is EditorBlock.ChartBlock -> block.toMarkdown()
+            is EditorBlock.ChartBlock -> block.toMarkdown(
+                includeImage = chartImageAvailability[block.id] != false,
+                imageFailureMessage = chartImageFailureMessage
+            )
             is EditorBlock.Voice -> ""
         }
     }.trim()

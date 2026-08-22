@@ -2,29 +2,29 @@
 
 ## Verified Now
 
-- What is currently working: US-1 creates and persists Bar, Line, and Pie ChartBlocks and converts focused tables; US-2 provides editable Chart/Data views, stable selected-column mapping, localized two-level Options, and protected row/column operations; US-3 provides transient Bar/Line/Pie datum selection with localized dismissible callouts, empty/render-error recovery, and read-only Chart/Data/Options inspection with mutations disabled.
-- What verification actually ran: Exact TC-US-3-01..05 commands passed on `emulator-5554` / Medium_Phone API 33; active US-3 verification commands passed; full `testDebugUnitTest` passed with 418 tests; full `connectedDebugAndroidTest` passed with 161 tests and no skips/failures; `koverLog` reported 80.6291%; `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture/assertion-quality gates, slice platform evidence, and `installDebug` all exited 0. The debug APK is installed on `emulator-5554`.
+- What is currently working: US-4 exports chart notes as Markdown ZIP packages with `note.md`, relative PNG assets, and table fallbacks; PDF export uses the production chart bitmap path with localized table fallback. Stable Markdown/ZIP/PDF SAF launchers and chart-aware filenames are wired through the export screen.
+- What verification actually ran: Focused JVM exporter tests, the export ViewModel chart-detection test, the real `ChartPlatformBoundaryTest`, the aggregate visual command, all five exact visual capture commands, `koverLog` at 82.0053%, `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture scripts, platform evidence, visual evidence contracts, and lifecycle checks passed. The full connected suite completed `OK (168 tests)` with 0 skipped/failures on `emulator-5554`; `installDebug` reported `Installed on 1 device.`
 
 ## Changed This Session
 
-- Code or behavior added: Reducer-backed `ChartInteractionState`, selected chart bitmap visuals, semantic datum hit targets, localized tooltip/dismissal and recovery states, read-only action semantics, and JVM/instrumented acceptance tests.
-- Infrastructure or harness changes: Marked US-3 `passing` with objective evidence in `feature_list.json`; updated `product.md`, `progress.md`, `summary_US-3.md`, and `clean-state-checklist.md`. Refactored `ChartBlockCard` into focused composables to resolve a Detekt long-method finding; no harness source changes. Commit is created at the end of this session.
+- Code or behavior added: ChartBlock Markdown ZIP packaging, sanitized relative chart asset paths, localized image-failure fallback, PDF chart bitmap/table fallback, chart-aware export UI state and stable SAF MIME contracts, real Android Canvas/Bitmap/PdfDocument/PdfRenderer boundary coverage, and active-window visual-flow screenshots with measured bounds assertions.
+- Infrastructure or harness changes: Updated US-4 structured evidence, API33 runtime matrix evidence, reference-anchor report, product capability/tracker documentation, summary/checklist/handoff artifacts, and the platform evidence gate’s compatibility guard for legacy string evidence. The runtime Skill tool was unavailable; checked-in skill contracts were followed manually and documented.
 
 ## Broken Or Unverified
 
-- Known defect: None found in the US-3 scope.
-- Unverified path: US-4 Markdown/PDF export completeness, the real Canvas/PdfDocument platform boundary, and the final visual-flow screenshots remain unimplemented/unverified.
-- Risk for the next session: The overall feature workspace stays `In Progress` until US-4 passes. US-3 deliberately does not own the real platform boundary; its platform-evidence check correctly defers to US-4.
+- Known defect: None found in the US-4 scope.
+- Unverified path: Direct API 24 and API 34 emulator runs were not available; the required API24+ behavior and target-34 build are evidenced on the connected API33 runtime.
+- Risk for the next session: Do not change the approved ChartBlock JSON, stable column IDs/selection fallback, two-level Options contract, or visual evidence paths while completing finalize/install. The `.harness` submodule has a deliberate gate-source edit that must be committed or explicitly handed off.
 
 ## Next Best Step
 
-- Highest-priority unfinished feature: US-4 — Export charts and verify the complete visual flow.
-- Why it is next: US-1 through US-3 now cover persisted chart data, editing, selected-datum inspection, and read-only behavior; US-4 owns export fallbacks, the real Android boundary, and final visual evidence.
-- What counts as passing: Every approved US-4 acceptance command, real `ChartPlatformBoundaryTest`, five visual captures with reference-anchor evidence, quality/coverage gates, and no-slice platform evidence all pass and are recorded in `feature_list.json`.
-- What must not change during that step: Preserve ChartBlock JSON shape, stable column IDs and selected-column fallback, the two-level Options contract, transient-only US-3 interaction state, localized semantics, design-system tokens, and the passing US-1/US-2/US-3 evidence.
+- Highest-priority unfinished feature: Commit the scoped changes and hand off the feature at tracker status `To be reviewed`.
+- Why it is next: All product behavior and slice evidence are passing; only final runtime/install/repository handoff gates remain before Evaluator review.
+- What counts as passing: Full connected suite has exited 0 with no skips/failures, install succeeds on `emulator-5554`, lifecycle remains valid, all US-4 evidence gates pass, and the commit contains only scoped application/docs plus the justified harness gate fix.
+- What must not change during that step: Preserve the five contract screenshot paths, `reference-anchor-verification.md` table shape, structured evidence objects, and the `To be reviewed` tracker status. Never move the tracker directly to `To be human reviewed`.
 
 ## Commands
 
-- Startup: Existing Note Editor → Advanced Basic Blocks or focused Table Options.
-- Verification: `./gradlew testDebugUnitTest`, `./gradlew koverLog`, `./gradlew ktlintCheck`, `./gradlew detekt`, `./gradlew lintDebug`, `bash harness/scripts/check-compose-rules.sh`, `bash harness/scripts/check-localization-rules.sh`, `bash harness/scripts/check-architecture-rules.sh`, `bash harness/scripts/check-feature-lifecycle.sh`, and `./gradlew installDebug`.
-- Focused debug command: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest`.
+- Startup: `adb devices`; existing Note Editor → Advanced Basic Blocks or focused Table Options.
+- Verification: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest`; `./gradlew testDebugUnitTest`; `./gradlew koverLog`; `./gradlew assembleDebug`; `./gradlew ktlintCheck`; `./gradlew detekt`; `./gradlew lintDebug`; `bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate`; `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-08-20-chart-block --evaluate`; `bash harness/scripts/check-feature-lifecycle.sh`; `./gradlew installDebug`.
+- Focused debug command: `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartPlatformBoundaryTest#testProductionCanvasBitmapAndPdfDocumentBoundary`.

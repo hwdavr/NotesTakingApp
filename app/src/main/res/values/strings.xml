@@ -323,10 +323,12 @@
     <string name="export_title">Export Note</string>
     <string name="export_format_label">Select Format</string>
     <string name="export_markdown">Markdown (.md)</string>
+    <string name="export_markdown_package">Markdown package (.zip)</string>
     <string name="export_pdf">PDF (.pdf)</string>
     <string name="export_button">Export</string>
     <string name="export_success">Note exported successfully!</string>
     <string name="export_error">Failed to export note.</string>
+    <string name="chart_export_fallback_message">Chart image unavailable; table data exported instead.</string>
     <string name="smart_categorization_dialog_title">Smart Categorization</string>
     <string name="smart_categorization_dialog_text">This is the suggested folder to put the new note. Are you OK to move it there, or keep it at root folder?</string>
     <string name="smart_categorization_ok_button">OK</string>
