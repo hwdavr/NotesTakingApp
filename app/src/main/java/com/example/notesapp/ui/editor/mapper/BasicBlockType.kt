@@ -14,6 +14,9 @@ enum class BasicBlockType(val storageValue: String) {
     QUOTE("quote"),
     MERMAID("mermaid"),
     CODE("code"),
+    BAR_CHART("chart_bar"),
+    LINE_CHART("chart_line"),
+    PIE_CHART("chart_pie"),
     UNKNOWN("");
 
     companion object {

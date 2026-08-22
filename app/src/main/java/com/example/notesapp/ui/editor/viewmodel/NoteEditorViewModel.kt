@@ -14,6 +14,7 @@ import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
+import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
@@ -25,6 +26,7 @@ import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
+import com.example.notesapp.ui.editor.mapper.toChartBlock
 import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -301,8 +303,6 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
 
-    fun createBasicBlock(type: BasicBlockType): EditorBlock.TextBlock = type.createEmptyTextBlock()
-
     fun insertBasicBlock(type: BasicBlockType): Boolean {
         if (!uiStateInternal.value.isEditable) return false
 
@@ -310,6 +310,9 @@ open class NoteEditorViewModel @Inject constructor(
         val newBlock: EditorBlock = when (type) {
             BasicBlockType.MERMAID -> EditorBlock.MermaidBlock()
             BasicBlockType.CODE -> EditorBlock.CodeBlock()
+            BasicBlockType.BAR_CHART -> EditorBlock.ChartBlock(chartType = ChartType.BAR)
+            BasicBlockType.LINE_CHART -> EditorBlock.ChartBlock(chartType = ChartType.LINE)
+            BasicBlockType.PIE_CHART -> EditorBlock.ChartBlock(chartType = ChartType.PIE)
             else -> type.createEmptyTextBlock()
         }
         val focusedIndex = current.focusedBlockId?.let { focusedId ->
@@ -381,6 +384,55 @@ open class NoteEditorViewModel @Inject constructor(
                 }
             )
         }
+    }
+
+    fun updateChart(blockId: String, title: String? = null, selectedColumnId: String? = null) {
+        if (!uiStateInternal.value.isEditable) return
+        updateBlock(blockId) { block ->
+            if (block !is EditorBlock.ChartBlock) return@updateBlock block
+            val nextSelectedColumnId = selectedColumnId
+                ?.takeIf { it in block.columnIds.drop(1) }
+                ?: block.selectedColumnId
+            block.copy(
+                title = title ?: block.title,
+                selectedColumnId = nextSelectedColumnId
+            )
+        }
+    }
+
+    fun updateChartCell(blockId: String, rowIndex: Int, columnIndex: Int, value: String) {
+        if (!uiStateInternal.value.isEditable) return
+        updateBlock(blockId) { block ->
+            if (block !is EditorBlock.ChartBlock) return@updateBlock block
+            if (rowIndex !in block.rows.indices || columnIndex !in block.columnIds.indices) return@updateBlock block
+            block.copy(
+                rows = block.rows.mapIndexed { currentRowIndex, row ->
+                    if (currentRowIndex != rowIndex) {
+                        row
+                    } else {
+                        row.mapIndexed { currentColumnIndex, cell ->
+                            if (currentColumnIndex == columnIndex) listOf(RichText(value.replace("\n", " "))) else cell
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    fun convertTableToChart(blockId: String, chartType: ChartType): Boolean {
+        if (!uiStateInternal.value.isEditable) return false
+        val current = uiStateInternal.value
+        val index = current.document.blocks.indexOfFirst { it.id == blockId }
+        val table = current.document.blocks.getOrNull(index) as? EditorBlock.TableBlock ?: return false
+        val chart = table.toChartBlock(chartType)
+        val updatedBlocks = current.document.blocks.toMutableList().apply { this[index] = chart }
+        uiStateInternal.value = current.copy(
+            document = current.document.copy(blocks = updatedBlocks),
+            focusedBlockId = chart.id,
+            focusedTableCells = current.focusedTableCells - blockId
+        )
+        scheduleAutoSave()
+        return true
     }
 
     fun onFolderSelected(folderId: String?) {
@@ -683,6 +735,7 @@ fun NoteEditorViewModel.onTableAction(action: TableHandleAction) {
         is TableHandleAction.DuplicateTable -> duplicateTable(action.blockId)
         is TableHandleAction.DeleteTable -> deleteTable(action.blockId)
         is TableHandleAction.ToggleTableFitToWidth -> toggleTableFitToWidth(action.blockId)
+        is TableHandleAction.ConvertToChart -> convertTableToChart(action.blockId, action.chartType)
     }
 }
 

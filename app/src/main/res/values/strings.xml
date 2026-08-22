@@ -148,6 +148,9 @@
     <string name="table_duplicate">Duplicate table</string>
     <string name="table_fit_to_width">Fit to width</string>
     <string name="table_delete">Delete table</string>
+    <string name="table_convert_bar_chart">Convert to Bar chart</string>
+    <string name="table_convert_line_chart">Convert to Line chart</string>
+    <string name="table_convert_pie_chart">Convert to Pie chart</string>
     <string name="editor_format_text_style">Aa</string>
     <string name="editor_mention_action">@</string>
     <string name="editor_underline_action">U</string>
@@ -470,4 +473,27 @@
     <string name="mermaid_zoom_out">Zoom out</string>
     <string name="mermaid_fit_to_screen">Fit to Screen</string>
     <string name="mermaid_reset_zoom">Reset Zoom</string>
+    <string name="basic_blocks_bar_chart_label">Bar chart</string>
+    <string name="basic_blocks_bar_chart_description">Insert Bar chart</string>
+    <string name="basic_blocks_line_chart_label">Line chart</string>
+    <string name="basic_blocks_line_chart_description">Insert Line chart</string>
+    <string name="basic_blocks_pie_chart_label">Pie chart</string>
+    <string name="basic_blocks_pie_chart_description">Insert Pie chart</string>
+    <string name="editor_chart_view_chart">Chart</string>
+    <string name="editor_chart_view_data">Data</string>
+    <string name="editor_chart_view_sheet_title">View</string>
+    <string name="editor_chart_options_description">Chart options</string>
+    <string name="editor_chart_options_icon_description">Open chart options</string>
+    <string name="editor_chart_options_title">Chart options</string>
+    <string name="editor_chart_column_fallback">Column %d</string>
+    <string name="editor_chart_title_placeholder">Chart</string>
+    <string name="editor_chart_type_bar">Bar chart</string>
+    <string name="editor_chart_type_line">Line chart</string>
+    <string name="editor_chart_type_pie">Pie chart</string>
+    <string name="editor_chart_empty_message">Add valid numeric data to see the chart.</string>
+    <string name="editor_chart_empty_hint">Use the Data view to enter chart values.</string>
+    <string name="editor_chart_plot_description">%1$s chart titled %2$s with %3$d data points</string>
+    <string name="editor_chart_delete_description">Delete chart</string>
+    <string name="editor_chart_datum_description">Data point %1$s, value %2$s</string>
+    <string name="editor_chart_tooltip">%1$s · %2$s</string>
 </resources>

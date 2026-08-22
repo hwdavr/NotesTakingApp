@@ -14,6 +14,8 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.editor.chart.ChartBitmapColors
+import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
@@ -137,6 +139,9 @@ class NoteExporter(private val context: Context) {
                 is EditorBlock.CodeBlock -> {
                     renderCodeBlock(block, renderer, textPaint, borderPaint)
                 }
+                is EditorBlock.ChartBlock -> {
+                    renderChartBlock(block, renderer, textPaint, borderPaint)
+                }
                 is EditorBlock.Voice -> {
                     renderer.currentY += 10f
                 }
@@ -243,6 +248,56 @@ class NoteExporter(private val context: Context) {
         codeLayout.draw(renderer.canvas)
         renderer.canvas.restore()
         renderer.currentY += codeLayout.height + 15f
+    }
+
+    private fun renderChartBlock(
+        block: EditorBlock.ChartBlock,
+        renderer: PdfRenderer,
+        textPaint: TextPaint,
+        borderPaint: Paint
+    ) {
+        textPaint.textSize = 14f
+        textPaint.isFakeBoldText = true
+        val title = block.title.ifBlank { "Chart" }
+        val titleLayout = StaticLayout.Builder.obtain(title, 0, title.length, textPaint, contentWidth.toInt())
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(titleLayout.height + 10f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        titleLayout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += titleLayout.height + 8f
+        val bitmap = runCatching {
+            ChartBitmapRenderer.render(
+                block = block,
+                width = contentWidth.toInt().coerceAtLeast(1),
+                height = 240,
+                colors = ChartBitmapColors(
+                    background = Color.WHITE,
+                    primary = Color.rgb(124, 108, 242),
+                    text = Color.BLACK,
+                    grid = Color.LTGRAY
+                )
+            )
+        }.getOrNull()
+        if (bitmap != null && bitmap.width > 0 && bitmap.height > 0) {
+            renderer.ensureSpace(bitmap.height.toFloat() + 16f)
+            renderer.canvas.drawBitmap(
+                bitmap,
+                null,
+                RectF(margin, renderer.currentY, margin + contentWidth, renderer.currentY + bitmap.height),
+                Paint(Paint.ANTI_ALIAS_FLAG)
+            )
+            renderer.currentY += bitmap.height + 16f
+        } else {
+            renderTable(
+                EditorBlock.TableBlock(id = block.id, rows = block.rows),
+                renderer,
+                textPaint,
+                borderPaint
+            )
+        }
     }
 
     private fun renderTextBlock(block: EditorBlock.TextBlock, renderer: PdfRenderer, textPaint: TextPaint) {

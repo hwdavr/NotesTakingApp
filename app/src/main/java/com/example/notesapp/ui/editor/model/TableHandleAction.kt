@@ -1,5 +1,7 @@
 package com.example.notesapp.ui.editor.model
 
+import com.example.notesapp.ui.editor.mapper.ChartType
+
 data class TableFocusTarget(
     val rowIndex: Int,
     val columnIndex: Int
@@ -72,5 +74,10 @@ sealed interface TableHandleAction {
 
     data class ToggleTableFitToWidth(
         override val blockId: String
+    ) : TableHandleAction
+
+    data class ConvertToChart(
+        override val blockId: String,
+        val chartType: ChartType
     ) : TableHandleAction
 }

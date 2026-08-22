@@ -3,6 +3,7 @@
 **Platform**: Android (Kotlin · Jetpack Compose · Material 3 · Room · Hilt)
 **Minimum SDK**: Android 7.0 (API 24) / Target SDK 34
 **Privacy**: 100% on-device note storage in local Room database with optional AI note summarization (Gemini Nano) and sharing capabilities.
+**Last updated**: 2026-08-23
 
 ---
 
@@ -53,7 +54,7 @@ Lifecycle rules:
 | table-handles | Table Column & Row Handles | [docs/product/2026-08-16-table-handles/](2026-08-16-table-handles/) | To be human reviewed | 2026-08-16 | Fix pass applied; approved v2-based UI polish anchors the column, row, and Table options visuals to the grid borders and shortens only the Table options height. 9/9 findings fixed; JVM, 116/116 connected UI, visual, quality, platform, coverage (84.027%), and lifecycle gates pass. |
 | mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be human reviewed | 2026-08-18 | Fix pass applied; re-verification evidence attached; 1/1 findings fixed. |
 | code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | To be human reviewed | 2026-08-20 | Fix pass applied; re-verification evidence attached; 4/4 findings fixed. Strengthened PDF assertion (PdfRenderer back-render), corrected stale platform matrix, fixed stale test comment, added large-snippet/long-line tests + documented clipboard/orientation non-goals. JVM suite, koverLog 82.68%, ktlint/detekt/lint, and 11/11 instrumented tests pass. |
-| chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | Awaiting implementation approval | 2026-08-20 | Specification and design approved. Slice plan adds ChartBlock persistence/insertion/conversion, local chart rendering and selection, editable Data view with two-level Options sheets, and Markdown ZIP/PDF export. |
+| chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | In Progress | 2026-08-23 | US-1 passing: ChartBlock persistence, insertion/conversion, local Bar/Line/Pie rendering, and acceptance evidence recorded. US-2 data editing, US-3 interaction/read-only states, and US-4 export/platform/visual verification remain. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -73,6 +74,7 @@ Lifecycle rules:
 | Basic blocks compact & accessible experience (US-3) | ✅ Slice done | Capped panel height min(280 dp, 40% usable height), 48 dp baseline tile targets, vertical scrolling through Quote, inner BackHandler dismissal, read-only trigger visibility/disabled state, light/dark theme support, accessibility semantics, and verified top/scrolled visual anchor proof. |
 | Basic blocks auto-collapse on outside interaction (US-4) | ✅ Slice done | Open Basic blocks panel collapses on outside tap (editor content or non-trigger toolbar controls) without block insertion, focus change, or document mutation; trigger toggle and tile insertion contracts preserved. |
 | Table structure operations (US-1) | ✅ Slice done | Backward-compatible `fitToWidth` JSON, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, read-only guards, and existing auto-save persistence. |
+| Chart block foundation (US-1) | ✅ Slice done | Backward-compatible ChartBlock JSON with stable IDs and selected-column fallback, Bar/Line/Pie insertion and focused-table conversion, local bitmap rendering, chart card Chart/Data/Options shell, title/data persistence callbacks, localized accessibility semantics, and acceptance coverage. Remaining chart data editing, interaction/read-only behavior, export, and final visual verification are tracked in US-2 through US-4. |
 | Focused table handles and option sheets (US-2) | ✅ Slice done | Editable table focus reveals localized column, row, and table-options handles; accessible Material 3 sheets retain the focused target, keep Delete last, and hide safely for read-only or outside focus. |
 | Complete table-handle editing flow (US-3) | ✅ Slice done | Production table actions update and dismiss sheets immediately, preserve targets across focus changes, isolate multiple tables, persist after reload, and include approved focused/editor, column-sheet, row-sheet, and table-sheet runtime captures. |
 | Emoji insertion foundation (US-1) | ✅ Slice done | Existing editor control opens a localized picker for editable notes, inserts Unicode at the cursor/range or a new paragraph, and stays disabled for read-only notes. |
@@ -151,6 +153,7 @@ Lifecycle rules:
 - **Image & File Attachments**: Attach photos, diagrams, and PDF files to notes with inline preview.
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 - **Basic Blocks Panel**: ✅ Implemented (awaiting evaluation review) — document block compatibility, inline catalog insertion, compact scrollable panel geometry, accessibility, and visual reference proof delivered.
+- **Chart Blocks**: 🚧 US-1 implemented — chart block persistence, insertion/conversion, and local Bar/Line/Pie rendering are delivered; data editing, interactions, export, platform-boundary, and final visual verification remain planned slices.
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -167,7 +170,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, and visual evidence |
+| **Note Editor** | 🟢 Complete (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, ChartBlock US-1 foundation, Mermaid diagram preview & fullscreen interactive viewer, and code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, and visual evidence |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |

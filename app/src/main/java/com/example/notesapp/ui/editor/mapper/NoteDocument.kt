@@ -19,6 +19,7 @@ const val DEFAULT_MERMAID_CODE = """graph TD
     B -->|Yes| C[Result 1]
     B -->|No| D[Result 2]"""
 const val DEFAULT_CODE_BLOCK_LANGUAGE = "Plain Text"
+const val DEFAULT_CHART_TITLE = "Chart"
 
 private const val DOCUMENT_VERSION = 1
 data class NoteDocument(
@@ -45,6 +46,9 @@ data class NoteDocument(
             }
             is EditorBlock.MermaidBlock -> listOf(block.title, block.code).filter { it.isNotBlank() }.joinToString("\n")
             is EditorBlock.CodeBlock -> block.code
+            is EditorBlock.ChartBlock -> block.rows.joinToString("\n") { row ->
+                row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
+            }
             is EditorBlock.Voice -> ""
         }
     }.trim()
@@ -97,6 +101,7 @@ data class NoteDocument(
             is EditorBlock.CodeBlock -> {
                 "```${codeBlockLanguageSlug(block.language)}\n${block.code}\n```"
             }
+            is EditorBlock.ChartBlock -> block.toMarkdown()
             is EditorBlock.Voice -> ""
         }
     }.trim()
@@ -159,6 +164,14 @@ sealed class EditorBlock {
         override val id: String = newBlockId(),
         val language: String = DEFAULT_CODE_BLOCK_LANGUAGE,
         val code: String = ""
+    ) : EditorBlock()
+    data class ChartBlock(
+        override val id: String = newBlockId(),
+        val chartType: ChartType = ChartType.BAR,
+        val title: String = DEFAULT_CHART_TITLE,
+        val rows: List<List<List<RichText>>> = defaultChartRows(),
+        val columnIds: List<String> = defaultChartColumnIds(),
+        val selectedColumnId: String = defaultChartColumnIds().last()
     ) : EditorBlock()
     data class Voice(
         val blockId: String,
@@ -313,6 +326,14 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("type", "code")
         .put("language", language)
         .put("code", code)
+    is EditorBlock.ChartBlock -> JSONObject()
+        .put("id", id)
+        .put("type", "chart")
+        .put("chartType", chartType.storageValue)
+        .put("title", title)
+        .put("columnIds", JSONArray().also { ids -> columnIds.forEach(ids::put) })
+        .put("selectedColumnId", selectedColumnId)
+        .put("rows", rows.toRowsJson())
     is EditorBlock.Voice -> JSONObject()
         .put("id", id)
         .put("blockId", blockId)
@@ -349,6 +370,22 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
             language = optString("language", DEFAULT_CODE_BLOCK_LANGUAGE).ifBlank { DEFAULT_CODE_BLOCK_LANGUAGE },
             code = optString("code", "")
         )
+        "chart" -> {
+            val rows = optJSONArray("rows").toRows()
+            val columnIds = optJSONArray("columnIds").toStringList()
+            val normalizedColumnIds = normalizeChartColumnIds(columnIds, rows)
+            EditorBlock.ChartBlock(
+                id = id,
+                chartType = ChartType.fromStorageValue(optString("chartType")),
+                title = optString("title", DEFAULT_CHART_TITLE).ifBlank { DEFAULT_CHART_TITLE },
+                rows = normalizeChartRows(rows, normalizedColumnIds.size),
+                columnIds = normalizedColumnIds,
+                selectedColumnId = resolveSelectedChartColumn(
+                    selectedColumnId = optString("selectedColumnId"),
+                    columnIds = normalizedColumnIds
+                )
+            )
+        }
         "voice" -> EditorBlock.Voice(
             blockId = optString("blockId", id),
             audioFilePath = if (isNull("audioFilePath")) null else optString("audioFilePath").ifBlank { null },
@@ -437,6 +474,41 @@ private fun defaultTableRows(): List<List<List<RichText>>> = listOf(
     listOf(listOf(RichText("Name")), listOf(RichText("Age"))),
     listOf(listOf(RichText("")), listOf(RichText("")))
 )
+
+private fun defaultChartRows(): List<List<List<RichText>>> = listOf(
+    listOf(listOf(RichText("Category")), listOf(RichText("Value")))
+)
+
+private fun defaultChartColumnIds(): List<String> = listOf("c_category", "c_value")
+
+private fun normalizeChartColumnIds(columnIds: List<String>, rows: List<List<List<RichText>>>): List<String> {
+    val columnCount = maxOf(2, columnIds.size, rows.maxOfOrNull { it.size } ?: 0)
+    val existing = columnIds.mapIndexed { index, value ->
+        value.ifBlank { "c_column_${index + 1}" }
+    }
+    return (0 until columnCount).map { index ->
+        existing.getOrNull(index) ?: if (index == 0) "c_category" else "c_column_${index + 1}"
+    }.distinct().let { ids ->
+        if (ids.size >= columnCount) {
+            ids.take(
+                columnCount
+            )
+        } else {
+            ids + (ids.size until columnCount).map { "c_column_${it + 1}" }
+        }
+    }
+}
+
+private fun normalizeChartRows(rows: List<List<List<RichText>>>, columnCount: Int): List<List<List<RichText>>> {
+    val sourceRows = rows.ifEmpty { defaultChartRows() }
+    return sourceRows.map { row ->
+        (0 until columnCount).map { index -> row.getOrNull(index) ?: listOf(RichText("")) }
+    }
+}
+
+private fun resolveSelectedChartColumn(selectedColumnId: String, columnIds: List<String>): String {
+    return selectedColumnId.takeIf { it in columnIds.drop(1) } ?: columnIds.getOrElse(1) { "c_value" }
+}
 
 fun List<RichText>.splitAtOffsets(offsets: List<Int>): List<RichText> {
     val result = mutableListOf<RichText>()

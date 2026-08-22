@@ -133,6 +133,7 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
+import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.components.CodeBlockCard
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
@@ -234,6 +235,10 @@ fun NoteEditorScreen(
         onEmojiSkinToneRequested = emojiPickerViewModel::onSkinToneRequested,
         onEmojiSkinToneDismissed = emojiPickerViewModel::onSkinToneDismissed,
         onTableCellChange = viewModel::updateTableCell,
+        onChartCellChange = viewModel::updateChartCell,
+        onChartSelectedColumnChange = { blockId, columnId ->
+            viewModel.updateChart(blockId, selectedColumnId = columnId)
+        },
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
@@ -249,7 +254,8 @@ fun NoteEditorScreen(
         onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) },
         onUpdateCodeBlockLanguage = { blockId, language ->
             viewModel.updateCodeBlock(blockId, language = language)
-        }
+        },
+        onUpdateChartTitle = { blockId, title -> viewModel.updateChart(blockId, title = title) }
     )
 }
 
@@ -289,6 +295,8 @@ fun NoteEditorScreenContent(
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onChartCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit = { _, _, _, _ -> },
+    onChartSelectedColumnChange: (blockId: String, columnId: String) -> Unit = { _, _ -> },
     onFolderSelected: (String?) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -309,6 +317,7 @@ fun NoteEditorScreenContent(
     onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockLanguage: (blockId: String, language: String) -> Unit = { _, _ -> },
+    onUpdateChartTitle: (blockId: String, title: String) -> Unit = { _, _ -> },
     onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
@@ -514,6 +523,8 @@ fun NoteEditorScreenContent(
                             onToggleToggleExpanded = onToggleToggleExpanded,
                             onImageChange = onImageChange,
                             onTableCellChange = onTableCellChange,
+                            onChartCellChange = onChartCellChange,
+                            onChartSelectedColumnChange = onChartSelectedColumnChange,
                             focusedTableCells = state.focusedTableCells,
                             onTableAction = onTableAction,
                             onBlockFocused = onBlockFocused,
@@ -524,6 +535,7 @@ fun NoteEditorScreenContent(
                             onUpdateMermaidCode = onUpdateMermaidCode,
                             onUpdateCodeBlockCode = onUpdateCodeBlockCode,
                             onUpdateCodeBlockLanguage = onUpdateCodeBlockLanguage,
+                            onUpdateChartTitle = onUpdateChartTitle,
                             onOpenMermaidFullscreen = { block ->
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
@@ -832,6 +844,8 @@ private fun DocumentBlockList(
     onToggleToggleExpanded: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
+    onChartCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit,
+    onChartSelectedColumnChange: (blockId: String, columnId: String) -> Unit,
     focusedTableCells: Map<String, TableFocusTarget>,
     onTableAction: (TableHandleAction) -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -842,6 +856,7 @@ private fun DocumentBlockList(
     onUpdateMermaidCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockLanguage: ((String, String) -> Unit)? = null,
+    onUpdateChartTitle: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     focusedBlockId: String?,
     selectionStart: Int,
@@ -862,7 +877,7 @@ private fun DocumentBlockList(
         }
     }
     Column {
-        blocks.forEach { block ->
+        for (block in blocks) {
             when (block) {
                 is EditorBlock.TextBlock -> {
                     val requester = focusRequesters.getOrPut(block.id) { FocusRequester() }
@@ -924,6 +939,18 @@ private fun DocumentBlockList(
                         onUpdateCode = { code -> onUpdateCodeBlockCode?.invoke(block.id, code) },
                         onUpdateLanguage = { language ->
                             onUpdateCodeBlockLanguage?.invoke(block.id, language)
+                        },
+                        onDelete = { onDeleteBlock(block.id) }
+                    )
+                }
+                is EditorBlock.ChartBlock -> {
+                    ChartBlockCard(
+                        block = block,
+                        isEditable = isEditable,
+                        onUpdateTitle = { title -> onUpdateChartTitle?.invoke(block.id, title) },
+                        onUpdateCell = { row, column, value -> onChartCellChange(block.id, row, column, value) },
+                        onSelectedColumnChange = { columnId ->
+                            onChartSelectedColumnChange(block.id, columnId)
                         },
                         onDelete = { onDeleteBlock(block.id) }
                     )

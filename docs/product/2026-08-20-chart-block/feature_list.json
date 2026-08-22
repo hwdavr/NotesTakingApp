@@ -1,6 +1,6 @@
 {
   "project": "NotesTakingApp",
-  "last_updated": "2026-08-20",
+  "last_updated": "2026-08-23",
   "rules": {
     "single_active_feature": true,
     "passing_requires_evidence": true,
@@ -37,7 +37,7 @@
       "user_visible_behavior": "An author can insert Bar, Line, or Pie chart from Advanced Basic Blocks, convert a focused table in place, see a chart card with Chart/Data and Options controls, and reload the note without losing chart type, title, table data, column IDs, or selected column.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "in_progress",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-1-01",
         "TC-US-1-02",
@@ -53,7 +53,13 @@
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorChartBlockIntegrationTest\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartCreationFlowTest"
       ],
-      "evidence": [],
+      "evidence": [
+        "TC-US-1-01/02/03/04/06/07/08: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest and NoteEditorChartBlockIntegrationTest — exit 0.",
+        "TC-US-1-05: ./gradlew ktlintCheck detekt — exit 0; Android Lint and repository Compose/localization/architecture gates also exit 0.",
+        "TC-US-1-08: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartCreationFlowTest — 1 test passed on Medium_Phone (AVD) API 33.",
+        "Coverage: ./gradlew :app:koverLog — application line coverage 80.0728% (required >= 80%).",
+        "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-1 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
+      ],
       "notes": "Risk-first slice. The chart-library compatibility spike must prove Bar, Line, Pie, click hit targets, tooltip anchors, API 24 rendering, and bitmap output before dependency finalization. Visual verification belongs to US-4."
     },
     {

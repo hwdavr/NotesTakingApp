@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.OpenInFull
+import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesapp.R
+import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import com.example.notesapp.ui.theme.LocalAppColors
 
@@ -177,6 +181,33 @@ fun TableOptionsSheet(blockId: String, onDismiss: () -> Unit, onAction: (TableHa
                 testTag = "table_fit_to_width",
                 onClick = {
                     onAction(TableHandleAction.ToggleTableFitToWidth(blockId))
+                    onDismiss()
+                }
+            ),
+            TableSheetAction(
+                labelRes = R.string.table_convert_bar_chart,
+                icon = Icons.Outlined.BarChart,
+                testTag = "table_convert_bar_chart",
+                onClick = {
+                    onAction(TableHandleAction.ConvertToChart(blockId, ChartType.BAR))
+                    onDismiss()
+                }
+            ),
+            TableSheetAction(
+                labelRes = R.string.table_convert_line_chart,
+                icon = Icons.AutoMirrored.Outlined.ShowChart,
+                testTag = "table_convert_line_chart",
+                onClick = {
+                    onAction(TableHandleAction.ConvertToChart(blockId, ChartType.LINE))
+                    onDismiss()
+                }
+            ),
+            TableSheetAction(
+                labelRes = R.string.table_convert_pie_chart,
+                icon = Icons.Outlined.PieChart,
+                testTag = "table_convert_pie_chart",
+                onClick = {
+                    onAction(TableHandleAction.ConvertToChart(blockId, ChartType.PIE))
                     onDismiss()
                 }
             ),

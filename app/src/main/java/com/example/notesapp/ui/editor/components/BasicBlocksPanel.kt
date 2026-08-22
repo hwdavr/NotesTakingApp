@@ -24,12 +24,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Notes
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.outlined.AutoAwesomeMosaic
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatQuote
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material.icons.outlined.Title
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -215,6 +218,27 @@ private val advancedBlockTiles = listOf(
         descriptionRes = R.string.basic_blocks_mermaid_description,
         testTag = "basic_blocks_mermaid",
         icon = Icons.Outlined.AutoAwesomeMosaic
+    ),
+    BasicBlockTileItem(
+        type = BasicBlockType.BAR_CHART,
+        labelRes = R.string.basic_blocks_bar_chart_label,
+        descriptionRes = R.string.basic_blocks_bar_chart_description,
+        testTag = "basic_blocks_bar_chart",
+        icon = Icons.Outlined.BarChart
+    ),
+    BasicBlockTileItem(
+        type = BasicBlockType.LINE_CHART,
+        labelRes = R.string.basic_blocks_line_chart_label,
+        descriptionRes = R.string.basic_blocks_line_chart_description,
+        testTag = "basic_blocks_line_chart",
+        icon = Icons.AutoMirrored.Outlined.ShowChart
+    ),
+    BasicBlockTileItem(
+        type = BasicBlockType.PIE_CHART,
+        labelRes = R.string.basic_blocks_pie_chart_label,
+        descriptionRes = R.string.basic_blocks_pie_chart_description,
+        testTag = "basic_blocks_pie_chart",
+        icon = Icons.Outlined.PieChart
     )
 )
 
