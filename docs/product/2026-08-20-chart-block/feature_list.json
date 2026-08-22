@@ -43,7 +43,10 @@
         "TC-US-1-02",
         "TC-US-1-03",
         "TC-US-1-04",
-        "TC-US-1-05"
+        "TC-US-1-05",
+        "TC-US-1-06",
+        "TC-US-1-07",
+        "TC-US-1-08"
       ],
       "verification": [
         "./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest\"",

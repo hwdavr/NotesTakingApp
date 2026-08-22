@@ -35,7 +35,7 @@ See `platform-capability-matrix.md`. This feature is platform-bound because the 
 | Source requirement | Requirement summary | Primary user story | Primary acceptance test | Handling |
 |---|---|---|---|---|
 | FR-001 | ChartBlock stores ID, type, title, rows, column IDs, selected column | US-1 | TC-US-1-01 | In scope |
-| FR-002 | Chart JSON is backward-compatible and preserves unknown blocks | US-1 | TC-US-1-01 | In scope |
+| FR-002 | Chart JSON is backward-compatible; unknown chartType/selectedColumn fallback and legacy blocks preserved | US-1 | TC-US-1-01, TC-US-1-06, TC-US-1-07, TC-US-1-08 | In scope |
 | FR-003 | Advanced panel has localized Bar/Line/Pie actions and tags | US-1 | TC-US-1-02 | In scope |
 | FR-004 | Basic insertion creates Category/Value chart after focus or at end | US-1 | TC-US-1-02 | In scope |
 | FR-005 | Table Options converts table in place and preserves data/order | US-1 | TC-US-1-03 | In scope |
@@ -63,6 +63,9 @@ See `platform-capability-matrix.md`. This feature is platform-bound because the 
 | AC-010 | Markdown ZIP contains note, chart tables, PNGs, relative links | US-4 | TC-US-4-01 | In scope |
 | AC-011 | PDF contains chart title and non-empty chart image | US-4 | TC-US-4-02 | In scope |
 | AC-012 | Light/dark API 24+ runtime remains readable and functional | US-4 | TC-US-4-04 | In scope |
+| AC-013 | Unknown `chartType` falls back to Bar and preserves table content | US-1 | TC-US-1-06 | In scope |
+| AC-014 | Missing/invalid `selectedColumnId` selects the first data column | US-1 | TC-US-1-07 | In scope |
+| AC-015 | Legacy `TableBlock` remains readable and unconverted | US-1 | TC-US-1-08 | In scope |
 | Edge: header-only/blank rows | Editable table remains and empty state is shown | US-3 | TC-US-3-02 | In scope |
 | Edge: blank category | Row is retained but omitted from plot | US-3 | TC-US-3-02 | In scope |
 | Edge: negative/all-zero Pie | Non-positive slices are ignored; empty state if none remain | US-3 | TC-US-3-02 | In scope |
@@ -95,6 +98,9 @@ An author inserts a Bar, Line, or Pie chart from Advanced Basic Blocks or conver
 3. **AC-US-1-03 Given** a focused table, **When** a chart conversion is chosen, **Then** the table is replaced in place with preserved rows/order and the first data column selected.
 4. **AC-US-1-04 Given** chart data for each chart type, **When** the production adapter renders it offline, **Then** a non-empty chart surface and selectable datum targets are available on API 24+.
 5. **AC-US-1-05 Given** a new chart foundation, **When** code is reviewed and tested, **Then** UI/presentation/domain/data boundaries and localized interactive tags are maintained.
+6. **AC-US-1-06 Given** chart JSON with an unknown `chartType`, **When** it is deserialized, **Then** the chart falls back to Bar and the readable table content is preserved.
+7. **AC-US-1-07 Given** chart JSON with a missing or invalid `selectedColumnId`, **When** it is deserialized, **Then** the first data column is selected.
+8. **AC-US-1-08 Given** a note containing a legacy `TableBlock`, **When** it is deserialized, **Then** the table remains readable and is not converted into a chart.
 
 **Acceptance Test Cases**:
 
@@ -105,6 +111,9 @@ An author inserts a Bar, Line, or Pie chart from Advanced Basic Blocks or conver
 | TC-US-1-03 | AC-US-1-03 | JVM integration | `app/src/test/java/com/example/notesapp/ui/editor/viewmodel/NoteEditorChartBlockIntegrationTest.kt#testConvertTableInPlacePreservesRowsAndOrder` | Focus a table and invoke production conversion action | Assert one ChartBlock occupies the original index with source rows/columns and first data selected | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorChartBlockIntegrationTest.testConvertTableInPlacePreservesRowsAndOrder"` |
 | TC-US-1-04 | AC-US-1-04 | Instrumented UI | `app/src/androidTest/java/com/example/notesapp/ui/editor/chart/ChartCreationFlowTest.kt#testAllChartTypesRenderOfflineAndExposeDatumTargets` | Render deterministic local fixtures through production chart adapter | Assert Bar/Line/Pie surfaces are non-empty and hit targets expose selection callbacks with network disabled | `env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartCreationFlowTest#testAllChartTypesRenderOfflineAndExposeDatumTargets` |
 | TC-US-1-05 | AC-US-1-05 | JVM quality | Architecture and localization checks over changed production files | Run project quality gates after slice implementation | Assert no forbidden layer imports, no hardcoded interactive strings, and stable tags exist | `./gradlew ktlintCheck detekt` |
+| TC-US-1-06 | AC-US-1-06 | JVM unit | `app/src/test/java/com/example/notesapp/ui/editor/mapper/NoteDocumentChartBlockTest.kt#testUnknownChartTypeFallsBackToBar` | Parse chart JSON containing an unknown `chartType` value | Assert the chart deserializes as Bar and the owned table rows remain intact | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest.testUnknownChartTypeFallsBackToBar"` |
+| TC-US-1-07 | AC-US-1-07 | JVM unit | `app/src/test/java/com/example/notesapp/ui/editor/mapper/NoteDocumentChartBlockTest.kt#testMissingOrInvalidSelectedColumnFallsBackToFirstDataColumn` | Parse chart JSON with a missing `selectedColumnId` and with a deleted/invalid ID | Assert both deserialize to the first data column selected | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest.testMissingOrInvalidSelectedColumnFallsBackToFirstDataColumn"` |
+| TC-US-1-08 | AC-US-1-08 | JVM unit | `app/src/test/java/com/example/notesapp/ui/editor/mapper/NoteDocumentChartBlockTest.kt#testLegacyTableBlockRemainsReadableAndUnconverted` | Parse a note containing a legacy `TableBlock` alongside a chart | Assert the legacy table is readable and is not converted into a ChartBlock | `./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest.testLegacyTableBlockRemainsReadableAndUnconverted"` |
 
 ### US-2: Edit chart data and choose the plotted column (Priority: P2)
 

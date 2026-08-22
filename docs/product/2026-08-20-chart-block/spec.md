@@ -114,6 +114,9 @@ As a note author, I want to turn tabular data into a Bar, Line, or Pie chart and
 - **AC-010**: Given a note containing charts, when Markdown export is selected, then a ZIP is produced containing the Markdown note, a table for each chart, each referenced chart PNG, and valid relative image links.
 - **AC-011**: Given a note containing a chart, when PDF export is selected, then the PDF contains the chart title and a non-empty rendered chart image at the correct document position.
 - **AC-012**: Given light or dark theme and a supported API 24+ device, when a chart is rendered, a bottom sheet is opened, and a datum is selected, then colors, labels, selection, tooltip, controls, and sheet semantics remain readable and functional without network access.
+- **AC-013**: Given chart JSON with an unknown `chartType` value, when the block is deserialized, then the chart falls back to Bar while preserving the readable table content.
+- **AC-014**: Given chart JSON with a missing or invalid `selectedColumnId`, when the block is deserialized, then the first data column is selected.
+- **AC-015**: Given a note containing a legacy `TableBlock`, when the note is deserialized, then the table remains readable and unconverted.
 
 ## Data And Persistence
 
@@ -216,7 +219,7 @@ All questions have been clarified with the user.
 
 | Requirement | Design Section | Acceptance Criteria |
 |---|---|---|
-| FR-001–FR-002 | Chart block model and persistence | AC-009 |
+| FR-001–FR-002 | Chart block model and persistence | AC-009, AC-013, AC-014, AC-015 |
 | FR-003–FR-005 | Creation and conversion surfaces | AC-001, AC-002 |
 | FR-006–FR-007 | View and options bottom sheets | AC-003, AC-004 |
 | FR-008–FR-010 | Variable table and data mapping | AC-005, AC-006 |
