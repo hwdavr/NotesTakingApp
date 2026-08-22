@@ -189,4 +189,4 @@ Lifecycle rules:
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
 
-*Document last updated: 2026-08-19*
+*Document last updated: 2026-08-23*
