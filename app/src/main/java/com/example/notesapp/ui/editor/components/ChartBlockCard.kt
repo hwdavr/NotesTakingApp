@@ -11,20 +11,22 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -58,6 +60,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -72,6 +75,9 @@ import com.example.notesapp.R
 import com.example.notesapp.ui.editor.chart.ChartBitmapColors
 import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
 import com.example.notesapp.ui.editor.chart.ChartInteractionState
+import com.example.notesapp.ui.editor.chart.ChartNumericDomain
+import com.example.notesapp.ui.editor.chart.ChartRenderGeometry
+import com.example.notesapp.ui.editor.chart.ChartRenderRect
 import com.example.notesapp.ui.editor.chart.ChartRenderState
 import com.example.notesapp.ui.editor.chart.ChartSelectionEvent
 import com.example.notesapp.ui.editor.chart.ChartSelectionReducer
@@ -79,18 +85,19 @@ import com.example.notesapp.ui.editor.chart.ChartSheet
 import com.example.notesapp.ui.editor.mapper.ChartColumnOption
 import com.example.notesapp.ui.editor.mapper.ChartData
 import com.example.notesapp.ui.editor.mapper.ChartPoint
-import com.example.notesapp.ui.editor.mapper.ChartTableParser
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
-import com.example.notesapp.ui.editor.mapper.columnOptions
-import com.example.notesapp.ui.editor.mapper.normalized
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.theme.LocalAppColors
+import kotlin.math.max
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ChartBlockCard(
-    block: EditorBlock.ChartBlock,
+    model: ChartBlockCardModel,
     isEditable: Boolean,
     onUpdateTitle: (String) -> Unit,
     onUpdateCell: (rowIndex: Int, columnIndex: Int, value: String) -> Unit,
@@ -98,26 +105,30 @@ fun ChartBlockCard(
     onDelete: () -> Unit,
     onAddRow: () -> Unit,
     onAddColumn: () -> Unit,
-    onTableAction: (ChartTableAction) -> Unit
+    onTableAction: (ChartTableAction) -> Unit,
+    bitmapRenderer: (EditorBlock.ChartBlock, Int?, ChartBitmapColors) -> Result<Bitmap> = ::renderChartBitmap
 ) {
     val colors = LocalAppColors.current
-    val normalizedBlock = remember(block) { block.normalized() }
-    val chartData = remember(normalizedBlock) { ChartTableParser.parse(normalizedBlock) }
-    var isDataView by rememberSaveable(block.id) { mutableStateOf(false) }
-    var interactionState by remember(block.id) { mutableStateOf(ChartInteractionState()) }
-    val bitmapResult = remember(
+    val normalizedBlock = model.block
+    val chartData = model.chartData
+    val blockTag = chartTag("editor_chart_block", normalizedBlock.id)
+    var isDataView by rememberSaveable(normalizedBlock.id) { mutableStateOf(false) }
+    var interactionState by remember(normalizedBlock.id) { mutableStateOf(ChartInteractionState()) }
+    var bitmapResult by remember(normalizedBlock.id) { mutableStateOf<Result<Bitmap>?>(null) }
+    LaunchedEffect(
         normalizedBlock,
         interactionState.selectedPointIndex,
-        colors.background,
+        colors.surface,
         colors.primary,
         colors.textPrimary,
-        colors.divider
+        colors.divider,
+        bitmapRenderer
     ) {
-        runCatching {
-            ChartBitmapRenderer.render(
-                block = normalizedBlock,
-                selectedPointIndex = interactionState.selectedPointIndex,
-                colors = ChartBitmapColors(
+        bitmapResult = withContext(Dispatchers.Default) {
+            bitmapRenderer(
+                normalizedBlock,
+                interactionState.selectedPointIndex,
+                ChartBitmapColors(
                     background = colors.surface.toArgb(),
                     primary = colors.primary.toArgb(),
                     text = colors.textPrimary.toArgb(),
@@ -126,17 +137,18 @@ fun ChartBlockCard(
             )
         }
     }
-    LaunchedEffect(bitmapResult.isSuccess, chartData.points.size) {
+    LaunchedEffect(bitmapResult, chartData.points.size) {
+        val result = bitmapResult ?: return@LaunchedEffect
         interactionState = ChartSelectionReducer.reduce(
             interactionState,
-            if (bitmapResult.isSuccess) {
+            if (result.isSuccess) {
                 ChartSelectionEvent.Rendered(chartData.points.size)
             } else {
                 ChartSelectionEvent.RenderFailed
             }
         )
     }
-    val bitmap = bitmapResult.getOrNull()
+    val bitmap = bitmapResult?.getOrNull()
     val selectedPointIndex = interactionState.selectedPointIndex
     val typeLabel = stringResource(chartTypeLabel(normalizedBlock.chartType))
     val selectedColumnLabel = chartData.selectedColumnHeader
@@ -158,7 +170,7 @@ fun ChartBlockCard(
             .border(BorderStroke(1.dp, colors.border), RoundedCornerShape(12.dp))
             .background(colors.surface, RoundedCornerShape(12.dp))
             .padding(12.dp)
-            .testTag("editor_chart_block"),
+            .testTag(blockTag),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
@@ -175,7 +187,7 @@ fun ChartBlockCard(
                 },
                 modifier = Modifier
                     .heightIn(min = 48.dp)
-                    .testTag("editor_chart_view_cta")
+                    .testTag(chartTag("editor_chart_view_cta", normalizedBlock.id))
                     .semantics {
                         role = Role.Button
                         contentDescription = viewLabel
@@ -191,7 +203,7 @@ fun ChartBlockCard(
                     onValueChange = onUpdateTitle,
                     modifier = Modifier
                         .weight(1f)
-                        .testTag("editor_chart_title"),
+                        .testTag(chartTag("editor_chart_title", normalizedBlock.id)),
                     textStyle = MaterialTheme.typography.titleLarge.copy(
                         color = colors.textPrimary,
                         fontWeight = FontWeight.SemiBold,
@@ -221,7 +233,7 @@ fun ChartBlockCard(
                     text = chartData.title,
                     modifier = Modifier
                         .weight(1f)
-                        .testTag("editor_chart_title"),
+                        .testTag(chartTag("editor_chart_title", normalizedBlock.id)),
                     color = colors.textPrimary,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
@@ -237,7 +249,7 @@ fun ChartBlockCard(
                 },
                 modifier = Modifier
                     .size(48.dp)
-                    .testTag("editor_chart_options_cta")
+                    .testTag(chartTag("editor_chart_options_cta", normalizedBlock.id))
                     .semantics { contentDescription = optionsDescription }
             ) {
                 Icon(
@@ -250,7 +262,7 @@ fun ChartBlockCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag("editor_chart_type"),
+                .testTag(chartTag("editor_chart_type", normalizedBlock.id)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -260,7 +272,7 @@ fun ChartBlockCard(
             Spacer(Modifier.width(8.dp))
             Text(
                 text = selectedColumnLabel,
-                modifier = Modifier.testTag("editor_chart_selected_column"),
+                modifier = Modifier.testTag(chartTag("editor_chart_selected_column", normalizedBlock.id)),
                 color = colors.primary,
                 fontSize = 13.sp
             )
@@ -272,7 +284,7 @@ fun ChartBlockCard(
                 isEditable = isEditable,
                 onUpdateCell = onUpdateCell,
                 onTableAction = onTableAction,
-                modifier = Modifier.testTag("editor_chart_table_view")
+                modifier = Modifier.testTag(chartTag("editor_chart_table_view", normalizedBlock.id))
             )
         } else {
             ChartBlockPlot(
@@ -281,6 +293,7 @@ fun ChartBlockCard(
                 bitmap = bitmap,
                 selectedPointIndex = selectedPointIndex,
                 selectedColumnLabel = selectedColumnLabel,
+                blockId = normalizedBlock.id,
                 plotDescription = plotDescription,
                 onDatumTapped = { index ->
                     interactionState = ChartSelectionReducer.reduce(
@@ -302,7 +315,7 @@ fun ChartBlockCard(
                 modifier = Modifier
                     .align(Alignment.End)
                     .size(48.dp)
-                    .testTag("editor_chart_delete")
+                    .testTag(chartTag("editor_chart_delete", normalizedBlock.id))
             ) {
                 Icon(
                     Icons.Outlined.Close,
@@ -315,6 +328,7 @@ fun ChartBlockCard(
     ChartSheetHost(
         openSheet = interactionState.openSheet,
         block = normalizedBlock,
+        columnOptions = model.columnOptions,
         isEditable = isEditable,
         isDataView = isDataView,
         onSelectView = { nextDataView ->
@@ -372,6 +386,7 @@ private fun ChartBlockPlot(
     renderState: ChartRenderState,
     bitmap: Bitmap?,
     selectedPointIndex: Int?,
+    blockId: String,
     selectedColumnLabel: String,
     plotDescription: String,
     onDatumTapped: (Int) -> Unit,
@@ -381,12 +396,12 @@ private fun ChartBlockPlot(
         modifier = Modifier
             .fillMaxWidth()
             .height(260.dp)
-            .testTag("editor_chart_plot")
+            .testTag(chartTag("editor_chart_plot", blockId))
             .semantics { contentDescription = plotDescription },
         contentAlignment = Alignment.Center
     ) {
         if (renderState == ChartRenderState.ERROR || bitmap == null) {
-            ChartRenderError()
+            ChartRenderError(blockId)
         } else {
             Image(
                 bitmap = bitmap.asImageBitmap(),
@@ -395,11 +410,12 @@ private fun ChartBlockPlot(
             )
         }
         if (renderState == ChartRenderState.EMPTY) {
-            ChartEmptyState()
+            ChartEmptyState(blockId)
         }
         if (chartData.points.isNotEmpty() && bitmap != null) {
             ChartDatumTargets(
                 chartData = chartData,
+                blockId = blockId,
                 selectedPointIndex = selectedPointIndex,
                 onDatumTapped = onDatumTapped
             )
@@ -407,6 +423,7 @@ private fun ChartBlockPlot(
         chartData.points.getOrNull(selectedPointIndex ?: -1)?.let { point ->
             ChartTooltip(
                 point = point,
+                blockId = blockId,
                 selectedColumnLabel = selectedColumnLabel,
                 alignmentModifier = Modifier.align(Alignment.TopCenter),
                 onDismiss = onTooltipDismissed
@@ -416,13 +433,13 @@ private fun ChartBlockPlot(
 }
 
 @Composable
-private fun ChartRenderError() {
+private fun ChartRenderError(blockId: String) {
     val colors = LocalAppColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             stringResource(R.string.editor_chart_render_error_message),
             color = colors.textSecondary,
-            modifier = Modifier.testTag("editor_chart_error")
+            modifier = Modifier.testTag(chartTag("editor_chart_error", blockId))
         )
         Text(
             stringResource(R.string.editor_chart_render_error_hint),
@@ -433,11 +450,11 @@ private fun ChartRenderError() {
 }
 
 @Composable
-private fun ChartEmptyState() {
+private fun ChartEmptyState(blockId: String) {
     val colors = LocalAppColors.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.testTag("editor_chart_empty")
+        modifier = Modifier.testTag(chartTag("editor_chart_empty", blockId))
     ) {
         Text(
             stringResource(R.string.editor_chart_empty_message),
@@ -452,14 +469,23 @@ private fun ChartEmptyState() {
 }
 
 @Composable
-private fun ChartDatumTargets(chartData: ChartData, selectedPointIndex: Int?, onDatumTapped: (Int) -> Unit) {
-    Row(
+private fun ChartDatumTargets(
+    chartData: ChartData,
+    blockId: String,
+    selectedPointIndex: Int?,
+    onDatumTapped: (Int) -> Unit
+) {
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(0.dp)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
+        val density = LocalDensity.current
+        val width = constraints.maxWidth.toFloat()
+        val height = constraints.maxHeight.toFloat()
+        val domain = ChartRenderGeometry.valueDomain(chartData.points)
         chartData.points.forEachIndexed { index, point ->
+            val target = datumTarget(chartData, point, index, width, height, domain)
             val pointDescription = stringResource(
                 R.string.editor_chart_datum_description,
                 point.category,
@@ -476,10 +502,16 @@ private fun ChartDatumTargets(chartData: ChartData, selectedPointIndex: Int?, on
             }
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
+                    .offset(
+                        x = with(density) { target.left.toDp() },
+                        y = with(density) { target.top.toDp() }
+                    )
+                    .size(
+                        width = with(density) { target.width.toDp() },
+                        height = with(density) { target.height.toDp() }
+                    )
                     .clickable { onDatumTapped(index) }
-                    .testTag("editor_chart_datum_target")
+                    .testTag(chartTag("editor_chart_datum_target_${point.rowIndex}", blockId))
                     .semantics {
                         role = Role.Button
                         contentDescription = semanticsDescription
@@ -492,6 +524,7 @@ private fun ChartDatumTargets(chartData: ChartData, selectedPointIndex: Int?, on
 @Composable
 private fun ChartTooltip(
     point: ChartPoint,
+    blockId: String,
     selectedColumnLabel: String,
     alignmentModifier: Modifier,
     onDismiss: () -> Unit
@@ -503,29 +536,33 @@ private fun ChartTooltip(
         selectedColumnLabel,
         point.value.toString()
     )
-    Text(
-        text = tooltipText,
+    Row(
         modifier = alignmentModifier
             .background(colors.surface, RoundedCornerShape(8.dp))
             .border(1.dp, colors.border, RoundedCornerShape(8.dp))
-            .padding(start = 10.dp, top = 6.dp, bottom = 6.dp)
-            .testTag("editor_chart_tooltip")
+            .padding(start = 10.dp, top = 4.dp, end = 4.dp, bottom = 4.dp)
+            .testTag(chartTag("editor_chart_tooltip", blockId))
             .semantics { contentDescription = tooltipText },
-        color = colors.textPrimary,
-        style = MaterialTheme.typography.bodySmall
-    )
-    IconButton(
-        onClick = onDismiss,
-        modifier = alignmentModifier
-            .padding(start = 128.dp)
-            .size(40.dp)
-            .testTag("editor_chart_tooltip_dismiss")
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Icon(
-            Icons.Outlined.Close,
-            contentDescription = stringResource(R.string.editor_chart_tooltip_dismiss_description),
-            tint = colors.textSecondary
+        Text(
+            text = tooltipText,
+            color = colors.textPrimary,
+            style = MaterialTheme.typography.bodySmall
         )
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .size(48.dp)
+                .testTag(chartTag("editor_chart_tooltip_dismiss", blockId))
+        ) {
+            Icon(
+                Icons.Outlined.Close,
+                contentDescription = stringResource(R.string.editor_chart_tooltip_dismiss_description),
+                tint = colors.textSecondary
+            )
+        }
     }
 }
 
@@ -533,6 +570,7 @@ private fun ChartTooltip(
 private fun ChartSheetHost(
     openSheet: ChartSheet,
     block: EditorBlock.ChartBlock,
+    columnOptions: List<ChartColumnOption>,
     isEditable: Boolean,
     isDataView: Boolean,
     onSelectView: (Boolean) -> Unit,
@@ -545,12 +583,14 @@ private fun ChartSheetHost(
 ) {
     when (openSheet) {
         ChartSheet.VIEW -> ChartViewSheet(
+            blockId = block.id,
             isDataView = isDataView,
             onSelect = onSelectView,
             onDismiss = onDismiss
         )
 
         ChartSheet.OPTIONS -> ChartOptionsSheet(
+            blockId = block.id,
             isEditable = isEditable,
             onOpenDataColumn = onOpenDataColumn,
             onAddRow = onAddRow,
@@ -560,6 +600,7 @@ private fun ChartSheetHost(
 
         ChartSheet.DATA_COLUMN -> ChartDataColumnSheet(
             block = block,
+            columnOptions = columnOptions,
             isEditable = isEditable,
             onSelectColumn = onSelectColumn,
             onBack = onBack,
@@ -595,19 +636,28 @@ private fun ChartDataTable(
             text = stringResource(R.string.editor_chart_data_hint, selectedColumnLabel),
             color = colors.textSecondary,
             fontSize = 13.sp,
-            modifier = Modifier.testTag("editor_chart_data_hint")
+            modifier = Modifier.testTag(chartTag("editor_chart_data_hint", block.id))
         )
         Spacer(Modifier.height(4.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState())
+                .heightIn(max = 360.dp)
                 .border(1.dp, colors.border, RoundedCornerShape(8.dp))
-                .testTag("editor_chart_data_grid")
+                .testTag(chartTag("editor_chart_data_grid", block.id))
         ) {
             Column {
                 if (handlesVisible) {
-                    Row(modifier = Modifier.height(48.dp)) {
+                    val columnOptionsTag = chartTag(
+                        "editor_chart_column_options_${block.columnIds[targetCell?.columnIndex ?: 0]}",
+                        block.id
+                    )
+                    Row(
+                        modifier = Modifier
+                            .height(48.dp)
+                    ) {
                         Spacer(Modifier.width(48.dp))
                         for (columnId in block.columnIds) {
                             if (columnId == block.columnIds[targetCell?.columnIndex ?: -1]) {
@@ -615,7 +665,7 @@ private fun ChartDataTable(
                                     onClick = { activeSheet = ChartTableHandleSheet.Column },
                                     modifier = Modifier
                                         .size(48.dp)
-                                        .testTag("editor_chart_column_options")
+                                        .testTag(columnOptionsTag)
                                         .semantics {
                                             contentDescription = columnHandleDescription
                                         }
@@ -634,13 +684,22 @@ private fun ChartDataTable(
                 }
                 block.rows.forEachIndexed { rowIndex, row ->
                     if (rowIndex > 0) HorizontalDivider(color = colors.divider)
-                    Row(modifier = Modifier.heightIn(min = 48.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .height(48.dp)
+                            .testTag(chartTag("editor_chart_data_row_$rowIndex", block.id))
+                    ) {
                         if (handlesVisible && rowIndex == targetCell?.rowIndex) {
                             IconButton(
                                 onClick = { activeSheet = ChartTableHandleSheet.Row },
                                 modifier = Modifier
                                     .size(48.dp)
-                                    .testTag("editor_chart_row_options")
+                                    .testTag(
+                                        chartTag(
+                                            "editor_chart_row_options_${targetCell?.rowIndex ?: rowIndex}",
+                                            block.id
+                                        )
+                                    )
                                     .semantics {
                                         contentDescription = rowHandleDescription
                                     }
@@ -676,7 +735,7 @@ private fun ChartDataTable(
                             Box(
                                 modifier = Modifier
                                     .width(128.dp)
-                                    .heightIn(min = 48.dp)
+                                    .height(48.dp)
                                     .background(
                                         if (targetCell == cellTarget) {
                                             colors.primary.copy(alpha = 0.08f)
@@ -693,14 +752,19 @@ private fun ChartDataTable(
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .heightIn(min = 48.dp)
+                                        .height(48.dp)
                                         .onFocusChanged { focusState ->
                                             if (focusState.isFocused && isEditable) {
                                                 focusedCell = cellTarget
                                                 gridHasFocus = true
                                             }
                                         }
-                                        .testTag("editor_chart_data_cell")
+                                        .testTag(
+                                            chartTag(
+                                                "editor_chart_data_cell_${block.columnIds[columnIndex]}",
+                                                block.id
+                                            )
+                                        )
                                         .semantics {
                                             contentDescription = cellDescription
                                         }
@@ -723,7 +787,7 @@ private fun ChartDataTable(
                 fontSize = 12.sp,
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .testTag("editor_chart_data_empty_hint")
+                    .testTag(chartTag("editor_chart_data_empty_hint", block.id))
             )
         }
     }
@@ -784,7 +848,7 @@ private fun ChartColumnOperationsSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
-        modifier = Modifier.testTag("editor_chart_column_options_sheet")
+        modifier = Modifier.testTag(chartTag("editor_chart_column_options_sheet", block.id))
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
@@ -795,7 +859,7 @@ private fun ChartColumnOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_insert_column_left),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_insert_column_left",
+                testTag = chartTag("editor_chart_insert_column_left", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.InsertColumnLeft(block.id, columnIndex))
@@ -805,7 +869,7 @@ private fun ChartColumnOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_insert_column_right),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_insert_column_right",
+                testTag = chartTag("editor_chart_insert_column_right", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.InsertColumnRight(block.id, columnIndex))
@@ -815,7 +879,7 @@ private fun ChartColumnOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_clear_column),
                 icon = Icons.Outlined.Close,
-                testTag = "editor_chart_clear_column",
+                testTag = chartTag("editor_chart_clear_column", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.ClearColumn(block.id, columnIndex))
@@ -825,7 +889,7 @@ private fun ChartColumnOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_delete_column),
                 icon = Icons.Outlined.Close,
-                testTag = "editor_chart_delete_column",
+                testTag = chartTag("editor_chart_delete_column", block.id),
                 enabled = canDelete,
                 onClick = {
                     onAction(ChartTableAction.DeleteColumn(block.id, columnIndex))
@@ -863,7 +927,7 @@ private fun ChartRowOperationsSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
-        modifier = Modifier.testTag("editor_chart_row_options_sheet")
+        modifier = Modifier.testTag(chartTag("editor_chart_row_options_sheet", block.id))
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
@@ -874,7 +938,7 @@ private fun ChartRowOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_insert_row_above),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_insert_row_above",
+                testTag = chartTag("editor_chart_insert_row_above", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.InsertRowAbove(block.id, rowIndex))
@@ -884,7 +948,7 @@ private fun ChartRowOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_insert_row_below),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_insert_row_below",
+                testTag = chartTag("editor_chart_insert_row_below", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.InsertRowBelow(block.id, rowIndex))
@@ -894,7 +958,7 @@ private fun ChartRowOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_clear_row),
                 icon = Icons.Outlined.Close,
-                testTag = "editor_chart_clear_row",
+                testTag = chartTag("editor_chart_clear_row", block.id),
                 enabled = true,
                 onClick = {
                     onAction(ChartTableAction.ClearRow(block.id, rowIndex))
@@ -904,7 +968,7 @@ private fun ChartRowOperationsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.table_delete_row),
                 icon = Icons.Outlined.Close,
-                testTag = "editor_chart_delete_row",
+                testTag = chartTag("editor_chart_delete_row", block.id),
                 enabled = canDelete,
                 onClick = {
                     onAction(ChartTableAction.DeleteRow(block.id, rowIndex))
@@ -916,13 +980,13 @@ private fun ChartRowOperationsSheet(
 }
 
 @Composable
-private fun ChartViewSheet(isDataView: Boolean, onSelect: (Boolean) -> Unit, onDismiss: () -> Unit) {
+private fun ChartViewSheet(blockId: String, isDataView: Boolean, onSelect: (Boolean) -> Unit, onDismiss: () -> Unit) {
     val colors = LocalAppColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
-        modifier = Modifier.testTag("editor_chart_view_sheet")
+        modifier = Modifier.testTag(chartTag("editor_chart_view_sheet", blockId))
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
@@ -933,13 +997,15 @@ private fun ChartViewSheet(isDataView: Boolean, onSelect: (Boolean) -> Unit, onD
             ChartSheetChoice(
                 label = stringResource(R.string.editor_chart_view_chart),
                 selected = !isDataView,
-                testTag = "editor_chart_view_option_chart",
+                testTag = chartTag("editor_chart_view_option_chart", blockId),
+                selectorTag = chartTag("editor_chart_view_option_chart_selector", blockId),
                 onClick = { onSelect(false) }
             )
             ChartSheetChoice(
                 label = stringResource(R.string.editor_chart_view_data),
                 selected = isDataView,
-                testTag = "editor_chart_view_option_data",
+                testTag = chartTag("editor_chart_view_option_data", blockId),
+                selectorTag = chartTag("editor_chart_view_option_data_selector", blockId),
                 onClick = { onSelect(true) }
             )
         }
@@ -948,6 +1014,7 @@ private fun ChartViewSheet(isDataView: Boolean, onSelect: (Boolean) -> Unit, onD
 
 @Composable
 private fun ChartOptionsSheet(
+    blockId: String,
     isEditable: Boolean,
     onOpenDataColumn: () -> Unit,
     onAddRow: () -> Unit,
@@ -959,7 +1026,7 @@ private fun ChartOptionsSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
-        modifier = Modifier.testTag("editor_chart_options_sheet")
+        modifier = Modifier.testTag(chartTag("editor_chart_options_sheet", blockId))
     ) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
@@ -970,14 +1037,14 @@ private fun ChartOptionsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.editor_chart_options_data_column),
                 icon = Icons.Outlined.BarChart,
-                testTag = "editor_chart_option_data_column",
+                testTag = chartTag("editor_chart_option_data_column", blockId),
                 enabled = true,
                 onClick = onOpenDataColumn
             )
             ChartOptionActionRow(
                 label = stringResource(R.string.editor_chart_options_add_row),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_add_row",
+                testTag = chartTag("editor_chart_add_row", blockId),
                 enabled = isEditable,
                 disabledDescription = stringResource(
                     R.string.editor_chart_read_only_action_description
@@ -987,7 +1054,7 @@ private fun ChartOptionsSheet(
             ChartOptionActionRow(
                 label = stringResource(R.string.editor_chart_options_add_column),
                 icon = Icons.Outlined.Add,
-                testTag = "editor_chart_add_column",
+                testTag = chartTag("editor_chart_add_column", blockId),
                 enabled = isEditable,
                 disabledDescription = stringResource(
                     R.string.editor_chart_read_only_action_description
@@ -1001,20 +1068,19 @@ private fun ChartOptionsSheet(
 @Composable
 private fun ChartDataColumnSheet(
     block: EditorBlock.ChartBlock,
+    columnOptions: List<ChartColumnOption>,
     isEditable: Boolean,
     onSelectColumn: (String) -> Unit,
     onBack: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val colors = LocalAppColors.current
-    val normalizedBlock = remember(block) { block.normalized() }
-    val options = remember(normalizedBlock) { normalizedBlock.columnOptions() }
     val backDescription = stringResource(R.string.editor_chart_data_column_back_description)
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = colors.surface,
-        modifier = Modifier.testTag("editor_chart_data_column_sheet")
+        modifier = Modifier.testTag(chartTag("editor_chart_data_column_sheet", block.id))
     ) {
         Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
             Row(
@@ -1025,7 +1091,7 @@ private fun ChartDataColumnSheet(
                     onClick = onBack,
                     modifier = Modifier
                         .size(48.dp)
-                        .testTag("editor_chart_data_column_back")
+                        .testTag(chartTag("editor_chart_data_column_back", block.id))
                         .semantics {
                             contentDescription = backDescription
                         }
@@ -1043,18 +1109,18 @@ private fun ChartDataColumnSheet(
                 color = colors.textSecondary,
                 modifier = Modifier
                     .padding(start = 8.dp, bottom = 8.dp)
-                    .testTag("editor_chart_sheet_supporting_text")
+                    .testTag(chartTag("editor_chart_sheet_supporting_text", block.id))
             )
-            if (options.isEmpty()) {
+            if (columnOptions.isEmpty()) {
                 Text(
                     stringResource(R.string.editor_chart_no_data_columns),
                     color = colors.textSecondary,
-                    modifier = Modifier.testTag("editor_chart_no_data_columns")
+                    modifier = Modifier.testTag(chartTag("editor_chart_no_data_columns", block.id))
                 )
             } else {
-                for (option in options) {
+                for (option in columnOptions) {
                     ChartColumnChoice(
-                        block = normalizedBlock,
+                        block = block,
                         option = option,
                         isEditable = isEditable,
                         onClick = { onSelectColumn(option.id) }
@@ -1084,7 +1150,7 @@ private fun ChartColumnChoice(
             .fillMaxWidth()
             .heightIn(min = 56.dp)
             .clickable(enabled = isEditable, role = Role.RadioButton, onClick = onClick)
-            .testTag("editor_chart_option_column")
+            .testTag(chartTag("editor_chart_option_column_${option.id}", block.id))
             .semantics {
                 role = Role.RadioButton
                 contentDescription = optionDescription
@@ -1094,7 +1160,9 @@ private fun ChartColumnChoice(
         RadioButton(
             selected = option.id == block.selectedColumnId,
             onClick = if (isEditable) onClick else null,
-            modifier = Modifier.testTag("editor_chart_option_column_selector")
+            modifier = Modifier.testTag(
+                chartTag("editor_chart_option_column_selector_${option.id}", block.id)
+            )
         )
         Text(label, color = colors.textPrimary)
     }
@@ -1145,7 +1213,13 @@ private fun ChartOptionActionRow(
 }
 
 @Composable
-private fun ChartSheetChoice(label: String, selected: Boolean, testTag: String, onClick: () -> Unit) {
+private fun ChartSheetChoice(
+    label: String,
+    selected: Boolean,
+    testTag: String,
+    selectorTag: String,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1158,7 +1232,13 @@ private fun ChartSheetChoice(label: String, selected: Boolean, testTag: String, 
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = selected, onClick = onClick)
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            modifier = Modifier
+                .testTag(selectorTag)
+                .semantics { contentDescription = label }
+        )
         Text(label)
     }
 }
@@ -1176,6 +1256,62 @@ private fun chartColumnLabel(block: EditorBlock.ChartBlock, option: ChartColumnO
 }
 
 private fun cellText(cell: List<RichText>?): String = cell.orEmpty().joinToString("") { it.text }
+
+private fun chartTag(prefix: String, blockId: String): String = "${prefix}_$blockId"
+
+private fun renderChartBitmap(
+    block: EditorBlock.ChartBlock,
+    selectedPointIndex: Int?,
+    colors: ChartBitmapColors
+): Result<Bitmap> = runCatching {
+    ChartBitmapRenderer.render(
+        block = block,
+        selectedPointIndex = selectedPointIndex,
+        colors = colors
+    )
+}
+
+private fun datumTarget(
+    chartData: ChartData,
+    point: ChartPoint,
+    index: Int,
+    width: Float,
+    height: Float,
+    domain: ChartNumericDomain
+): ChartRenderRect {
+    val rawTarget = when (chartData.chartType) {
+        ChartType.BAR -> ChartRenderGeometry.barRect(
+            point = point,
+            pointIndex = index,
+            pointCount = chartData.points.size,
+            width = width,
+            height = height,
+            domain = domain
+        )
+
+        ChartType.LINE -> {
+            val position = ChartRenderGeometry.linePoint(
+                point = point,
+                pointIndex = index,
+                pointCount = chartData.points.size,
+                width = width,
+                height = height,
+                domain = domain
+            )
+            ChartRenderRect(position.x, position.y, position.x, position.y)
+        }
+
+        ChartType.PIE -> {
+            val position = ChartRenderGeometry.piePoint(index, chartData.points, width, height)
+            ChartRenderRect(position.x, position.y, position.x, position.y)
+        }
+    }
+    val targetWidth = max(48f, rawTarget.width)
+    val targetHeight = max(48f, rawTarget.height)
+    val left = (rawTarget.centerX - targetWidth / 2f).coerceIn(0f, (width - targetWidth).coerceAtLeast(0f))
+    val top = (rawTarget.centerY - targetHeight / 2f).coerceIn(0f, (height - targetHeight).coerceAtLeast(0f))
+    return ChartRenderRect(left, top, left + targetWidth, top + targetHeight)
+}
 
 private fun chartTypeLabel(chartType: ChartType): Int = when (chartType) {
     ChartType.BAR -> R.string.editor_chart_type_bar

@@ -6,12 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -19,6 +22,7 @@ import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -165,6 +169,76 @@ class NoteEditorBasicBlocksSheetTest {
         composeRule.onNodeWithTag("basic_blocks_heading_1").performClick()
 
         assertEquals(listOf(BasicBlockType.HEADING_1), insertedTypes)
+        composeRule.onNodeWithTag("basic_blocks_panel").assertDoesNotExist()
+    }
+
+    @Test
+    fun advancedChartTilesExposeLocalizedActionsAndMinimumTouchTargets() {
+        val insertedTypes = mutableListOf<BasicBlockType>()
+        val state = NoteEditorUiState(
+            noteId = "chart-panel-note",
+            isLoaded = true,
+            isEditable = true
+        )
+
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = state.noteId,
+                state = state,
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onInsertBasicBlock = { type ->
+                    insertedTypes += type
+                    true
+                },
+                onAddImage = {},
+                onEmojiSelected = {},
+                onEmojiQueryChange = {},
+                onEmojiClearQuery = {},
+                onEmojiCategorySelected = {},
+                onEmojiSkinToneRequested = {},
+                onEmojiSkinToneDismissed = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {}
+            )
+        }
+
+        composeRule.onNodeWithTag("editor_basic_blocks_trigger").performClick()
+        composeRule.onNodeWithTag("basic_blocks_grid")
+            .performScrollToNode(hasTestTag("basic_blocks_bar_chart"))
+
+        listOf(
+            "basic_blocks_bar_chart" to "Insert Bar chart",
+            "basic_blocks_line_chart" to "Insert Line chart",
+            "basic_blocks_pie_chart" to "Insert Pie chart"
+        ).forEach { (tag, description) ->
+            composeRule.onNodeWithTag("basic_blocks_grid").performScrollToNode(hasTestTag(tag))
+            val tile = composeRule.onNodeWithTag(tag)
+            tile.assertIsDisplayed()
+            composeRule.onNodeWithContentDescription(description).assertIsDisplayed()
+            assertTrue(tile.getUnclippedBoundsInRoot().height.value >= 48f)
+        }
+
+        composeRule.onNodeWithTag("basic_blocks_pie_chart").performClick()
+        assertEquals(listOf(BasicBlockType.PIE_CHART), insertedTypes)
         composeRule.onNodeWithTag("basic_blocks_panel").assertDoesNotExist()
     }
 

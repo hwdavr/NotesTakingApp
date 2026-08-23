@@ -18,6 +18,7 @@ import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Rule
@@ -35,7 +36,7 @@ class ChartInteractionFlowTest {
             NotesTakingAppTheme {
                 listOf(ChartType.BAR, ChartType.LINE, ChartType.PIE).forEach { chartType ->
                     ChartBlockCard(
-                        block = chartBlock(chartType),
+                        model = ChartBlockCardModel.from(chartBlock(chartType)),
                         isEditable = true,
                         onUpdateTitle = {},
                         onUpdateCell = { _, _, _ -> },
@@ -49,15 +50,15 @@ class ChartInteractionFlowTest {
             }
         }
 
-        composeRule.onAllNodesWithTag("editor_chart_datum_target").assertCountEquals(9)
-        listOf(0, 3, 6).forEach { targetIndex ->
-            composeRule.onAllNodesWithTag("editor_chart_datum_target")
-                .get(targetIndex)
-                .performClick()
-            composeRule.onAllNodesWithTag("editor_chart_tooltip").assertCountEquals(1)
+        listOf(ChartType.BAR, ChartType.LINE, ChartType.PIE).forEach { chartType ->
+            val blockId = "chart-interaction-${chartType.storageValue}"
+            composeRule.onAllNodesWithTag("editor_chart_datum_target_1_$blockId").assertCountEquals(1)
+            composeRule.onAllNodesWithTag("editor_chart_datum_target_1_$blockId").get(0).performClick()
+            composeRule.onAllNodesWithTag("editor_chart_tooltip_$blockId").assertCountEquals(1)
             composeRule.onNodeWithContentDescription("A · Value · 10.0").assertIsDisplayed()
-            composeRule.onNodeWithTag("editor_chart_tooltip_dismiss").performClick()
-            composeRule.onAllNodesWithTag("editor_chart_tooltip").assertCountEquals(0)
+            composeRule.onNodeWithContentDescription("Data point A, value 10.0. Selected.").assertIsDisplayed()
+            composeRule.onNodeWithTag("editor_chart_tooltip_dismiss_$blockId").performClick()
+            composeRule.onAllNodesWithTag("editor_chart_tooltip_$blockId").assertCountEquals(0)
         }
     }
 
@@ -66,11 +67,13 @@ class ChartInteractionFlowTest {
         composeRule.setContent {
             NotesTakingAppTheme {
                 ChartBlockCard(
-                    block = chartBlock(ChartType.BAR).copy(
-                        columnIds = listOf("category", "value", "cost"),
-                        rows = listOf(
-                            row("Category", "Value", "Cost"),
-                            row("A", "10", "8")
+                    model = ChartBlockCardModel.from(
+                        chartBlock(ChartType.BAR).copy(
+                            columnIds = listOf("category", "value", "cost"),
+                            rows = listOf(
+                                row("Category", "Value", "Cost"),
+                                row("A", "10", "8")
+                            )
                         )
                     ),
                     isEditable = false,
@@ -85,25 +88,30 @@ class ChartInteractionFlowTest {
             }
         }
 
-        composeRule.onNodeWithTag("editor_chart_view_cta").performClick()
-        composeRule.onNodeWithTag("editor_chart_view_option_data").performClick()
-        composeRule.onNodeWithTag("editor_chart_data_grid").assertIsDisplayed()
-        composeRule.onAllNodesWithTag("editor_chart_data_cell").assertCountEquals(6)
-        composeRule.onNodeWithTag("editor_chart_view_cta").performClick()
-        composeRule.onNodeWithTag("editor_chart_view_option_chart").performClick()
+        val readOnlyId = "chart-interaction-bar"
+        composeRule.onNodeWithTag("editor_chart_view_cta_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_option_data_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_data_grid_$readOnlyId").assertIsDisplayed()
+        listOf("category", "value", "cost").forEach { columnId ->
+            composeRule.onAllNodesWithTag("editor_chart_data_cell_${columnId}_$readOnlyId")
+                .assertCountEquals(2)
+        }
+        composeRule.onNodeWithTag("editor_chart_view_cta_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_option_chart_$readOnlyId").performClick()
 
-        composeRule.onNodeWithTag("editor_chart_options_cta").performClick()
-        composeRule.onNodeWithTag("editor_chart_option_data_column").performClick()
-        composeRule.onNodeWithTag("editor_chart_data_column_sheet").assertIsDisplayed()
-        composeRule.onAllNodesWithTag("editor_chart_option_column").assertCountEquals(2)
-        composeRule.onAllNodesWithTag("editor_chart_option_column").get(0).assertIsNotEnabled()
-        composeRule.onAllNodesWithTag("editor_chart_option_column").get(1).assertIsNotEnabled()
-        composeRule.onNodeWithTag("editor_chart_data_column_back").performClick()
-        composeRule.onNodeWithTag("editor_chart_add_row").assertIsNotEnabled()
-        composeRule.onNodeWithTag("editor_chart_add_column").assertIsNotEnabled()
-        composeRule.onNodeWithTag("editor_chart_options_sheet").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_options_cta").assertIsDisplayed()
-        composeRule.onAllNodesWithTag("editor_chart_delete").assertCountEquals(0)
+        composeRule.onNodeWithTag("editor_chart_options_cta_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_option_data_column_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_data_column_sheet_$readOnlyId").assertIsDisplayed()
+        listOf("value", "cost").forEach { columnId ->
+            composeRule.onNodeWithTag("editor_chart_option_column_${columnId}_$readOnlyId")
+                .assertIsNotEnabled()
+        }
+        composeRule.onNodeWithTag("editor_chart_data_column_back_$readOnlyId").performClick()
+        composeRule.onNodeWithTag("editor_chart_add_row_$readOnlyId").assertIsNotEnabled()
+        composeRule.onNodeWithTag("editor_chart_add_column_$readOnlyId").assertIsNotEnabled()
+        composeRule.onNodeWithTag("editor_chart_options_sheet_$readOnlyId").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_options_cta_$readOnlyId").assertIsDisplayed()
+        composeRule.onAllNodesWithTag("editor_chart_delete_$readOnlyId").assertCountEquals(0)
     }
 
     @Test
@@ -115,7 +123,7 @@ class ChartInteractionFlowTest {
                     LocalDensity provides Density(1f, 1.3f)
                 ) {
                     ChartBlockCard(
-                        block = chartBlock(ChartType.LINE),
+                        model = ChartBlockCardModel.from(chartBlock(ChartType.LINE)),
                         isEditable = false,
                         onUpdateTitle = {},
                         onUpdateCell = { _, _, _ -> },
@@ -129,9 +137,10 @@ class ChartInteractionFlowTest {
             }
         }
 
-        composeRule.onNodeWithTag("editor_chart_view_cta").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_options_cta").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_plot").assertIsDisplayed()
+        val blockId = "chart-interaction-line"
+        composeRule.onNodeWithTag("editor_chart_view_cta_$blockId").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_options_cta_$blockId").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_plot_$blockId").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Chart options").assertIsDisplayed()
     }
 

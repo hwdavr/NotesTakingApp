@@ -11,7 +11,7 @@ class NoteDocumentChartBlockTest {
             {
               "version": 1,
               "blocks": [
-                {"id":"chart-1","type":"chart","chartType":"line","title":"Sales","columnIds":["category","revenue"],"selectedColumnId":"revenue","rows":[[[{"text":"Month"}],[{"text":"Revenue"}]],[[{"text":"Jan"}],[{"text":"10"}]]]},
+                {"id":"chart-1","type":"chart","chartType":"line","title":"Sales","columnIds":["category","revenue"],"selectedColumnId":"revenue","rows":[[[{"text":"Month"}],[{"text":"Revenue"}]],[[{"text":"Jan"}],[{"text":"10","marks":["bold"]}]]]},
                 {"id":"legacy-1","type":"legacy_widget","text":"Readable legacy content"}
               ]
             }
@@ -19,12 +19,28 @@ class NoteDocumentChartBlockTest {
 
         val document = NoteDocument.fromContent(content)
         val chart = document.blocks[0] as EditorBlock.ChartBlock
-        val restored = NoteDocument.fromContent(document.toJsonString())
+        val serialized = document.toJsonString()
+        val restored = NoteDocument.fromContent(serialized)
+        val restoredChart = restored.blocks[0] as EditorBlock.ChartBlock
 
+        assertEquals("chart-1", chart.id)
         assertEquals(ChartType.LINE, chart.chartType)
+        assertEquals("Sales", chart.title)
         assertEquals("revenue", chart.selectedColumnId)
         assertEquals(listOf("category", "revenue"), chart.columnIds)
-        assertEquals("10", (restored.blocks[0] as EditorBlock.ChartBlock).rows[1][1].joinToString("") { it.text })
+        assertTrue(serialized.contains("\"chartType\":\"line\""))
+        assertTrue(serialized.contains("\"id\":\"chart-1\""))
+        assertTrue(serialized.contains("\"title\":\"Sales\""))
+        assertTrue(serialized.contains("\"columnIds\":[\"category\",\"revenue\"]"))
+        assertTrue(serialized.contains("\"selectedColumnId\":\"revenue\""))
+        assertEquals("chart-1", restoredChart.id)
+        assertEquals(ChartType.LINE, restoredChart.chartType)
+        assertEquals("Sales", restoredChart.title)
+        assertEquals(listOf("category", "revenue"), restoredChart.columnIds)
+        assertEquals("revenue", restoredChart.selectedColumnId)
+        assertEquals(chart.rows, restoredChart.rows)
+        assertEquals("10", restoredChart.rows[1][1].joinToString("") { it.text })
+        assertEquals(listOf("bold"), restoredChart.rows[1][1].single().marks)
         assertTrue(restored.toPlainText().contains("Readable legacy content"))
     }
 

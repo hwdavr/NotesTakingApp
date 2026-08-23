@@ -1,0 +1,118 @@
+{
+  "version": "1",
+  "reference_design": "design/mockup_chart_block_preview.png",
+  "build_and_static_checks": {
+    "assembleDebug": "PASS",
+    "lintDebug": "PASS",
+    "ktlintCheck": "PASS"
+  },
+  "instrumented_tests": {
+    "passed": "16",
+    "total": "16"
+  },
+  "normalization": {
+    "reference_resolution": "1024×1536 design pixels",
+    "reference_density": "design asset; normalized to logical card coordinates",
+    "runtime_resolution": "1080×2400 pixels",
+    "runtime_density": "2.625x (420 dpi)",
+    "logical_space": "411×914 dp-equivalent",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+  "scope": {
+    "type": "partial",
+    "area_of_interest": "Chart card header, plot, Data grid, Options sheet, Data column sheet, empty state, selected tooltip, and read-only dark state",
+    "rationale": "The chart-block design and sprint contract define these chart-card states as the visual owner for US-4.",
+    "in_scope_regions": [
+      "chart_card_header",
+      "chart_plot",
+      "chart_data_grid",
+      "chart_options_sheet",
+      "chart_data_column_sheet",
+      "chart_empty_and_selected",
+      "chart_read_only_dark"
+    ],
+    "out_of_scope_regions": ["system_status_bar", "system_navigation_bar", "unmodified_editor_shell"]
+  },
+  "regression_checks": [
+    {
+      "region": "system_status_bar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "system_navigation_bar",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    },
+    {
+      "region": "unmodified_editor_shell",
+      "exists": true,
+      "not_clipped": true,
+      "no_layout_shift": true,
+      "result": "PASS"
+    }
+  ],
+  "region_decomposition": [
+    { "region": "chart_card_header", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 0, "y_end": 112 } },
+    { "region": "chart_plot", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 112, "y_end": 372 } },
+    { "region": "chart_data_grid", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 112, "y_end": 472 } },
+    { "region": "chart_options_sheet", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 560, "y_end": 914 } },
+    { "region": "chart_data_column_sheet", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 600, "y_end": 914 } }
+  ],
+  "structural_verification": {
+    "tolerances": { "position_dp": 4, "size_percent": 5, "spacing_dp": 4 },
+    "checks": [
+      { "region": "chart_card_header", "element": "Chart/Data CTA", "property": "size", "expected": "minimum 48dp height", "actual": "48dp minimum asserted on emulator", "within_tolerance": true, "result": "PASS" },
+      { "region": "chart_card_header", "element": "Options CTA", "property": "size", "expected": "minimum 48dp square", "actual": "48dp square asserted on emulator", "within_tolerance": true, "result": "PASS" },
+      { "region": "chart_data_grid", "element": "Data grid", "property": "clipping", "expected": "rows visible in a bounded scroll container", "actual": "January/120/80 visible; height ≤360dp asserted", "within_tolerance": true, "result": "PASS" },
+      { "region": "chart_options_sheet", "element": "Main option rows", "property": "visibility", "expected": "Data column, Add row, Add column", "actual": "all three rows visible in captured first-level sheet", "within_tolerance": true, "result": "PASS" },
+      { "region": "chart_data_column_sheet", "element": "Column choices", "property": "visibility", "expected": "Revenue and Cost choices", "actual": "both stable-ID choices visible in captured second-level sheet", "within_tolerance": true, "result": "PASS" },
+      { "region": "chart_empty_and_selected", "element": "Tooltip dismiss", "property": "size", "expected": "minimum 48dp", "actual": "48dp target asserted and contained within tooltip row", "within_tolerance": true, "result": "PASS" }
+    ]
+  },
+  "dynamic_content_masking": [
+    { "region": "chart_plot", "rationale": "Chart bars, labels, and selected datum are fixture data and are evaluated for structure rather than pixel identity." },
+    { "region": "chart_data_grid", "rationale": "Cell values are deterministic fixture content but may vary with selected-column state." },
+    { "region": "system_status_bar", "rationale": "Clock and connectivity indicators are runtime-owned." }
+  ],
+  "perceptual_comparison": [
+    { "region": "chart_card_header", "confidence": "high", "notes": "Runtime header preserves the approved centered title field, current-view CTA, type/column label, and compact Options control." },
+    { "region": "chart_plot", "confidence": "high", "notes": "Runtime plot is populated, includes labels and a zero-inclusive grid, and selected bars receive a visible outline." },
+    { "region": "chart_data_grid", "confidence": "high", "notes": "Runtime grid now shows fixture rows at compact 48dp heights instead of an oversized blank region." },
+    { "region": "chart_options_sheet", "confidence": "high", "notes": "First-level capture visibly contains the three required action rows." },
+    { "region": "chart_data_column_sheet", "confidence": "high", "notes": "Second-level capture visibly contains back navigation, supporting text, and two radio choices." },
+    { "region": "chart_empty_and_selected", "confidence": "high", "notes": "Empty state retains recovery CTAs; selected state shows a contained tooltip row with a 48dp dismiss control." },
+    { "region": "chart_read_only_dark", "confidence": "high", "notes": "Dark read-only capture retains inspection and removes destructive mutation controls." }
+  ],
+  "defect_classification": [
+    { "id": 1, "region": "chart_data_grid", "severity": "major", "description": "Data grid previously appeared blank and oversized.", "suggested_fix": "Bound the scroll container and use fixed 48dp data rows.", "status": "fixed" },
+    { "id": 2, "region": "chart_options_sheet", "severity": "major", "description": "First-level Options evidence was missing.", "suggested_fix": "Capture first-level and second-level sheets separately.", "status": "fixed" },
+    { "id": 3, "region": "chart_empty_and_selected", "severity": "major", "description": "Tooltip dismiss target previously overlapped the tooltip.", "suggested_fix": "Place the dismiss control inside a measured row with a 48dp target.", "status": "fixed" },
+    { "id": 4, "region": "chart_plot", "severity": "major", "description": "Negative values previously lacked a zero baseline.", "suggested_fix": "Use a zero-inclusive numeric domain for Bar and Line geometry.", "status": "fixed" },
+    { "id": 5, "region": "chart_card_header", "severity": "major", "description": "Chart controls previously used generic tags and nested controls lacked tags.", "suggested_fix": "Scope tags with persisted block/column/row IDs and tag nested selectors.", "status": "fixed" }
+  ],
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "Chart card and all declared chart visual states",
+    "issues": [],
+    "regression_summary": {
+      "system_status_bar": "PASS — exists, visible, and excluded from feature comparison",
+      "system_navigation_bar": "PASS — exists, visible, and excluded from feature comparison",
+      "unmodified_editor_shell": "PASS — chart-only visual owner tested at content level"
+    }
+  },
+  "design_deviations": [],
+  "verdict": {
+    "result": "PASS",
+    "reason": "The six captured chart states and deterministic structural checks pass against the approved chart-card design; no critical or unresolved major visual findings remain.",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -16,6 +17,7 @@ import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Rule
@@ -31,33 +33,39 @@ class ChartDataFlowTest {
     fun testCurrentViewSwitchesBetweenChartAndData() {
         setChartContent()
 
-        composeRule.onNodeWithTag("editor_chart_plot").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_view_cta").performClick()
-        composeRule.onNodeWithTag("editor_chart_view_sheet").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_view_option_data").performClick()
+        composeRule.onNodeWithTag("editor_chart_plot_chart-flow").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_view_cta_chart-flow").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_sheet_chart-flow").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_view_option_data_chart-flow").performClick()
 
-        composeRule.onNodeWithTag("editor_chart_table_view").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_data_grid").assertIsDisplayed()
-        composeRule.onAllNodesWithTag("editor_chart_plot").assertCountEquals(0)
-        composeRule.onNodeWithTag("editor_chart_view_cta").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_options_cta").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_table_view_chart-flow").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_data_grid_chart-flow").assertIsDisplayed()
+        composeRule.onAllNodesWithTag("editor_chart_plot_chart-flow").assertCountEquals(0)
+        composeRule.onNodeWithTag("editor_chart_view_cta_chart-flow").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_options_cta_chart-flow").assertIsDisplayed()
     }
 
     @Test
     fun testOptionsOpensDataColumnSecondLevelAndSelectsColumn() {
         setChartContent(initialBlock = chartBlockWithMultipleColumns())
 
-        composeRule.onNodeWithTag("editor_chart_options_cta").performClick()
-        composeRule.onNodeWithTag("editor_chart_options_sheet").assertIsDisplayed()
-        composeRule.onNodeWithTag("editor_chart_option_data_column").performClick()
-        composeRule.onNodeWithTag("editor_chart_data_column_sheet").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_options_cta_chart-flow").performClick()
+        composeRule.onNodeWithTag("editor_chart_options_sheet_chart-flow").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_option_data_column_chart-flow").performClick()
+        composeRule.onNodeWithTag("editor_chart_data_column_sheet_chart-flow").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Cost").performClick()
 
-        composeRule.onAllNodesWithTag("editor_chart_data_column_sheet").assertCountEquals(0)
-        composeRule.onAllNodesWithTag("editor_chart_options_sheet").assertCountEquals(0)
-        composeRule.onNodeWithText("Cost").assertIsDisplayed()
-        composeRule.onAllNodesWithTag("editor_chart_data_grid").assertCountEquals(0)
-        composeRule.onNodeWithTag("editor_chart_plot").assertIsDisplayed()
+        composeRule.onAllNodesWithTag("editor_chart_data_column_sheet_chart-flow").assertCountEquals(0)
+        composeRule.onAllNodesWithTag("editor_chart_options_sheet_chart-flow").assertCountEquals(0)
+        composeRule.onNodeWithTag("editor_chart_selected_column_chart-flow").assertTextEquals("Cost")
+        composeRule.onAllNodesWithTag("editor_chart_data_grid_chart-flow").assertCountEquals(0)
+        composeRule.onNodeWithTag("editor_chart_plot_chart-flow").assertIsDisplayed()
+
+        composeRule.onNodeWithTag("editor_chart_view_cta_chart-flow").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_option_data_chart-flow").performClick()
+        composeRule.onNodeWithText("January").assertIsDisplayed()
+        composeRule.onNodeWithText("120").assertIsDisplayed()
+        composeRule.onNodeWithText("80").assertIsDisplayed()
     }
 
     private fun setChartContent(initialBlock: EditorBlock.ChartBlock = chartBlock()) {
@@ -65,7 +73,7 @@ class ChartDataFlowTest {
         composeRule.setContent {
             NotesTakingAppTheme {
                 ChartBlockCard(
-                    block = currentBlock,
+                    model = ChartBlockCardModel.from(currentBlock),
                     isEditable = true,
                     onUpdateTitle = { value -> currentBlock = currentBlock.copy(title = value) },
                     onUpdateCell = { rowIndex, columnIndex, value ->

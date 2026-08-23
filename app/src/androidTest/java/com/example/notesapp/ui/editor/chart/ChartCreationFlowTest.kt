@@ -1,13 +1,16 @@
 package com.example.notesapp.ui.editor.chart
 
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Rule
@@ -26,7 +29,7 @@ class ChartCreationFlowTest {
             NotesTakingAppTheme {
                 chartTypes.forEach { chartType ->
                     ChartBlockCard(
-                        block = chartBlock(chartType),
+                        model = ChartBlockCardModel.from(chartBlock(chartType)),
                         isEditable = false,
                         onUpdateTitle = {},
                         onUpdateCell = { _, _, _ -> },
@@ -40,8 +43,16 @@ class ChartCreationFlowTest {
             }
         }
 
-        composeRule.onAllNodesWithTag("editor_chart_plot").assertCountEquals(3)
-        composeRule.onAllNodesWithTag("editor_chart_datum_target").assertCountEquals(9)
+        composeRule.waitForIdle()
+        chartTypes.forEach { chartType ->
+            val blockId = chartType.storageValue
+            composeRule.onNodeWithTag("editor_chart_plot_$blockId").assertIsDisplayed()
+            composeRule.onAllNodesWithTag("editor_chart_plot_$blockId").assertCountEquals(1)
+            listOf(1, 2, 3).forEach { rowIndex ->
+                composeRule.onAllNodesWithTag("editor_chart_datum_target_${rowIndex}_$blockId")
+                    .assertCountEquals(1)
+            }
+        }
     }
 
     private fun chartBlock(chartType: ChartType): EditorBlock.ChartBlock = EditorBlock.ChartBlock(

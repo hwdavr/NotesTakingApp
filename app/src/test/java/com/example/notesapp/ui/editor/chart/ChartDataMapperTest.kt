@@ -4,6 +4,7 @@ import com.example.notesapp.ui.editor.mapper.ChartTableParser
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.normalized
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -62,6 +63,64 @@ class ChartDataMapperTest {
         )
 
         assertEquals(listOf("C"), ChartTableParser.parse(chart).points.map { it.category })
+    }
+
+    @Test
+    fun headerOnlyAndBlankRowsRemainEmptyWithoutDiscardingTheTableShape() {
+        val chart = EditorBlock.ChartBlock(
+            chartType = ChartType.LINE,
+            columnIds = listOf("category", "value"),
+            selectedColumnId = "value",
+            rows = listOf(
+                row("Category", "Value"),
+                row("", ""),
+                row(" ", "not-a-number")
+            )
+        )
+
+        val parsed = ChartTableParser.parse(chart)
+
+        assertEquals(emptyList<Any>(), parsed.points)
+        assertEquals(3, chart.normalized().rows.size)
+        assertEquals(listOf("category", "value"), chart.normalized().columnIds)
+    }
+
+    @Test
+    fun allZeroBarAndLineValuesKeepTheirRowsWhilePieBecomesEmpty() {
+        val rows = listOf(row("Category", "Value"), row("A", "0"), row("B", "0"))
+        val bar = EditorBlock.ChartBlock(
+            chartType = ChartType.BAR,
+            columnIds = listOf("category", "value"),
+            selectedColumnId = "value",
+            rows = rows
+        )
+        val line = bar.copy(chartType = ChartType.LINE)
+        val pie = bar.copy(chartType = ChartType.PIE)
+
+        assertEquals(listOf(0f, 0f), ChartTableParser.parse(bar).points.map { it.value })
+        assertEquals(listOf(0f, 0f), ChartTableParser.parse(line).points.map { it.value })
+        assertEquals(emptyList<Any>(), ChartTableParser.parse(pie).points)
+    }
+
+    @Test
+    fun duplicateColumnIdsBecomeStableAndLargeTablesKeepAllValidPoints() {
+        val rows = buildList {
+            add(row("Category", "Revenue", "Cost"))
+            repeat(200) { index -> add(row("Row $index", "${index + 1}", "${index + 2}")) }
+        }
+        val chart = EditorBlock.ChartBlock(
+            chartType = ChartType.BAR,
+            columnIds = listOf("category", "value", "value"),
+            selectedColumnId = "value",
+            rows = rows
+        )
+
+        val normalized = chart.normalized()
+        val parsed = ChartTableParser.parse(chart)
+
+        assertEquals(listOf("category", "value", "c_column_4"), normalized.columnIds)
+        assertEquals(200, parsed.points.size)
+        assertEquals("Row 199", parsed.points.last().category)
     }
 
     private fun row(vararg values: String): List<List<RichText>> = values.map { value -> listOf(RichText(value)) }

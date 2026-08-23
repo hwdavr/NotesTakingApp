@@ -9,7 +9,6 @@ import com.example.notesapp.ui.editor.mapper.ChartData
 import com.example.notesapp.ui.editor.mapper.ChartTableParser
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
-import kotlin.math.max
 import kotlin.math.min
 
 data class ChartBitmapColors(
@@ -117,23 +116,28 @@ object ChartBitmapRenderer {
         selectedPointIndex: Int?
     ) {
         val chart = chartBounds(width, height)
-        val maxValue = max(1f, data.points.maxOf { it.value })
-        drawGrid(canvas, chart, maxValue, colors, strokePaint, textPaint)
-        val slot = chart.width() / data.points.size
-        val barWidth = slot * 0.58f
+        val domain = ChartRenderGeometry.valueDomain(data.points)
+        drawGrid(canvas, chart, domain, colors, strokePaint, textPaint)
         data.points.forEachIndexed { index, point ->
-            val left = chart.left + slot * index + (slot - barWidth) / 2f
-            val top = chart.bottom - chart.height() * (point.value / maxValue)
+            val bar = ChartRenderGeometry.barRect(
+                point = point,
+                pointIndex = index,
+                pointCount = data.points.size,
+                width = width,
+                height = height,
+                domain = domain
+            )
             fillPaint.color = colors.primary
-            canvas.drawRoundRect(RectF(left, top, left + barWidth, chart.bottom), 8f, 8f, fillPaint)
+            canvas.drawRoundRect(RectF(bar.left, bar.top, bar.right, bar.bottom), 8f, 8f, fillPaint)
             if (index == selectedPointIndex) {
                 strokePaint.color = colors.text
                 strokePaint.strokeWidth = 3f
-                canvas.drawRoundRect(RectF(left, top, left + barWidth, chart.bottom), 8f, 8f, strokePaint)
+                canvas.drawRoundRect(RectF(bar.left, bar.top, bar.right, bar.bottom), 8f, 8f, strokePaint)
             }
             textPaint.color = colors.text
-            canvas.drawText(point.value.cleanNumber(), left + barWidth / 2f, top - 8f, textPaint)
-            canvas.drawText(point.category, left + barWidth / 2f, chart.bottom + 28f, textPaint)
+            val valueLabelY = if (point.value >= 0f) bar.top - 8f else bar.bottom + 18f
+            canvas.drawText(point.value.cleanNumber(), bar.centerX, valueLabelY, textPaint)
+            canvas.drawText(point.category, bar.centerX, chart.bottom + 28f, textPaint)
         }
     }
 
@@ -149,30 +153,41 @@ object ChartBitmapRenderer {
         selectedPointIndex: Int?
     ) {
         val chart = chartBounds(width, height)
-        val maxValue = max(1f, data.points.maxOf { it.value })
-        drawGrid(canvas, chart, maxValue, colors, strokePaint, textPaint)
+        val domain = ChartRenderGeometry.valueDomain(data.points)
+        drawGrid(canvas, chart, domain, colors, strokePaint, textPaint)
         val path = Path()
-        val xStep = chart.width() / max(1, data.points.lastIndex)
         data.points.forEachIndexed { index, point ->
-            val x = if (data.points.size == 1) chart.centerX() else chart.left + xStep * index
-            val y = chart.bottom - chart.height() * (point.value / maxValue)
-            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            val position = ChartRenderGeometry.linePoint(
+                point = point,
+                pointIndex = index,
+                pointCount = data.points.size,
+                width = width,
+                height = height,
+                domain = domain
+            )
+            if (index == 0) path.moveTo(position.x, position.y) else path.lineTo(position.x, position.y)
         }
         strokePaint.color = colors.primary
         strokePaint.strokeWidth = 5f
         canvas.drawPath(path, strokePaint)
         data.points.forEachIndexed { index, point ->
-            val x = if (data.points.size == 1) chart.centerX() else chart.left + xStep * index
-            val y = chart.bottom - chart.height() * (point.value / maxValue)
+            val position = ChartRenderGeometry.linePoint(
+                point = point,
+                pointIndex = index,
+                pointCount = data.points.size,
+                width = width,
+                height = height,
+                domain = domain
+            )
             fillPaint.color = colors.primary
-            canvas.drawCircle(x, y, 8f, fillPaint)
+            canvas.drawCircle(position.x, position.y, 8f, fillPaint)
             if (index == selectedPointIndex) {
                 strokePaint.color = colors.text
                 strokePaint.strokeWidth = 3f
-                canvas.drawCircle(x, y, 13f, strokePaint)
+                canvas.drawCircle(position.x, position.y, 13f, strokePaint)
             }
             textPaint.color = colors.text
-            canvas.drawText(point.category, x, chart.bottom + 28f, textPaint)
+            canvas.drawText(point.category, position.x, chart.bottom + 28f, textPaint)
         }
     }
 
@@ -224,7 +239,7 @@ object ChartBitmapRenderer {
     private fun drawGrid(
         canvas: Canvas,
         chart: RectF,
-        maxValue: Float,
+        domain: ChartNumericDomain,
         colors: ChartBitmapColors,
         strokePaint: Paint,
         textPaint: Paint
@@ -237,17 +252,16 @@ object ChartBitmapRenderer {
             val y = chart.bottom - chart.height() * fraction
             canvas.drawLine(chart.left, y, chart.right, y, strokePaint)
             textPaint.textAlign = Paint.Align.RIGHT
-            canvas.drawText((maxValue * fraction).cleanNumber(), chart.left - 8f, y + 6f, textPaint)
+            val value = domain.min + domain.range * fraction
+            canvas.drawText(value.cleanNumber(), chart.left - 8f, y + 6f, textPaint)
         }
         textPaint.textAlign = Paint.Align.CENTER
     }
 
-    private fun chartBounds(width: Float, height: Float): RectF = RectF(
-        64f,
-        24f,
-        max(65f, width - 24f),
-        max(66f, height - 64f)
-    )
+    private fun chartBounds(width: Float, height: Float): RectF {
+        val bounds = ChartRenderGeometry.chartBounds(width, height)
+        return RectF(bounds.left, bounds.top, bounds.right, bounds.bottom)
+    }
 
     private fun lighten(color: Int): Int {
         val red = (android.graphics.Color.red(color) + 255) / 2

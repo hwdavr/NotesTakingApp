@@ -13,6 +13,7 @@ import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.normalized
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -59,6 +60,7 @@ class NoteEditorChartDataIntegrationTest : BaseViewModelTest() {
         assertTrue(viewModel.addChartColumn(chartId))
         assertEquals(3, currentChart().columnIds.size)
         assertEquals("c_column_3", currentChart().columnIds.last())
+        assertEquals("c_value", currentChart().selectedColumnId)
 
         assertFalse(viewModel.deleteChartColumn(chartId, 0))
         assertTrue(viewModel.deleteChartColumn(chartId, 1))
@@ -80,7 +82,7 @@ class NoteEditorChartDataIntegrationTest : BaseViewModelTest() {
         )
         assertTrue(viewModel.addChartColumn("chart-data"))
         viewModel.updateChartCell("chart-data", rowIndex = 0, columnIndex = 2, value = "Tax")
-        viewModel.updateChart("chart-data", selectedColumnId = "c_column_3")
+        viewModel.updateChart("chart-data", title = "Updated sales", selectedColumnId = "c_column_3")
 
         advanceTimeBy(2_001)
         advanceUntilIdle()
@@ -92,6 +94,7 @@ class NoteEditorChartDataIntegrationTest : BaseViewModelTest() {
         assertEquals("125", cellText(persistedChart.rows[1][1]))
         assertEquals("Tax", cellText(persistedChart.rows[0][2]))
         assertEquals("c_column_3", persistedChart.selectedColumnId)
+        assertEquals("Updated sales", persistedChart.title)
 
         coEvery { noteRepository.getNoteById("chart-note") } returns persisted
         val reloaded = newViewModel()
@@ -102,6 +105,7 @@ class NoteEditorChartDataIntegrationTest : BaseViewModelTest() {
         assertEquals("c_column_3", restored.selectedColumnId)
         assertEquals("125", cellText(restored.rows[1][1]))
         assertEquals("Tax", cellText(restored.rows[0][2]))
+        assertEquals("Updated sales", restored.title)
     }
 
     @Test
@@ -124,6 +128,35 @@ class NoteEditorChartDataIntegrationTest : BaseViewModelTest() {
         assertTrue(currentChart().rows[1].all { cellText(it).isEmpty() })
         viewModel.onChartTableAction(ChartTableAction.DeleteRow(chartId, 1))
         assertEquals(3, currentChart().rows.size)
+    }
+
+    @Test
+    fun testInvalidChartSelectionAndCellCoordinatesPreserveChartData() {
+        val before = currentChart().normalized()
+
+        viewModel.updateChart("chart-data", selectedColumnId = "missing-column")
+        assertEquals(before.selectedColumnId, currentChart().selectedColumnId)
+
+        viewModel.updateChartCell(
+            blockId = "chart-data",
+            rowIndex = 99,
+            columnIndex = 99,
+            value = "ignored"
+        )
+        assertEquals(before.rows, currentChart().rows)
+
+        viewModel.updateChartCell(
+            blockId = "chart-data",
+            rowIndex = 1,
+            columnIndex = 1,
+            value = "line\nbreak"
+        )
+        assertEquals("line break", cellText(currentChart().rows[1][1]))
+
+        val beforeNonChart = viewModel.uiState.value.document
+        viewModel.updateChart("missing-block", title = "ignored")
+        viewModel.updateChartCell("missing-block", 0, 0, "ignored")
+        assertEquals(beforeNonChart, viewModel.uiState.value.document)
     }
 
     private fun newViewModel(): NoteEditorViewModel {

@@ -28,6 +28,7 @@ import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toChartBlock
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,6 +68,10 @@ data class NoteEditorUiState(
 ) {
     val content: String
         get() = document.toPlainText()
+
+    val chartCardModels: Map<String, ChartBlockCardModel>
+        get() = document.blocks.filterIsInstance<EditorBlock.ChartBlock>()
+            .associate { block -> block.id to ChartBlockCardModel.from(block) }
 }
 
 sealed interface NoteSummaryUiState {

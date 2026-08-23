@@ -149,6 +149,7 @@ import com.example.notesapp.ui.editor.mapper.basicBlockType
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
+import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.model.TableFocusTarget
@@ -239,13 +240,16 @@ fun NoteEditorScreen(
         onEmojiSkinToneRequested = emojiPickerViewModel::onSkinToneRequested,
         onEmojiSkinToneDismissed = emojiPickerViewModel::onSkinToneDismissed,
         onTableCellChange = viewModel::updateTableCell,
-        onChartCellChange = viewModel::updateChartCell,
-        onChartSelectedColumnChange = { blockId, columnId ->
-            viewModel.updateChart(blockId, selectedColumnId = columnId)
-        },
-        onChartAddRow = { blockId -> viewModel.addChartRow(blockId) },
-        onChartAddColumn = { blockId -> viewModel.addChartColumn(blockId) },
-        onChartTableAction = viewModel::onChartTableAction,
+        chartCallbacks = ChartBlockCallbacks(
+            onUpdateTitle = { blockId, title -> viewModel.updateChart(blockId, title = title) },
+            onCellChange = viewModel::updateChartCell,
+            onSelectedColumnChange = { blockId, columnId ->
+                viewModel.updateChart(blockId, selectedColumnId = columnId)
+            },
+            onAddRow = { blockId -> viewModel.addChartRow(blockId) },
+            onAddColumn = { blockId -> viewModel.addChartColumn(blockId) },
+            onTableAction = viewModel::onChartTableAction
+        ),
         onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
@@ -261,8 +265,7 @@ fun NoteEditorScreen(
         onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) },
         onUpdateCodeBlockLanguage = { blockId, language ->
             viewModel.updateCodeBlock(blockId, language = language)
-        },
-        onUpdateChartTitle = { blockId, title -> viewModel.updateChart(blockId, title = title) }
+        }
     )
 }
 
@@ -302,13 +305,7 @@ fun NoteEditorScreenContent(
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    onChartCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit = { _, _, _, _ -> },
-    onChartSelectedColumnChange: (blockId: String, columnId: String) -> Unit = { _, _ -> },
-    onChartAddRow: (blockId: String) -> Boolean = { false },
-    onChartAddColumn: (blockId: String) -> Boolean = { false },
-    onChartTableAction: (ChartTableAction) -> Unit = { action ->
-        error("NoteEditorScreenContent requires an onChartTableAction callback; received $action")
-    },
+    chartCallbacks: ChartBlockCallbacks? = null,
     onFolderSelected: (String?) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -329,7 +326,6 @@ fun NoteEditorScreenContent(
     onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockLanguage: (blockId: String, language: String) -> Unit = { _, _ -> },
-    onUpdateChartTitle: (blockId: String, title: String) -> Unit = { _, _ -> },
     onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
@@ -532,13 +528,8 @@ fun NoteEditorScreenContent(
                             onTextBlockChange = onTextBlockChange, onToggleCheckboxChecked = onToggleCheckboxChecked,
                             onToggleToggleExpanded = onToggleToggleExpanded,
                             onImageChange = onImageChange, onTableCellChange = onTableCellChange,
-                            chartCallbacks = ChartBlockCallbacks(
-                                onCellChange = onChartCellChange,
-                                onSelectedColumnChange = onChartSelectedColumnChange,
-                                onAddRow = onChartAddRow,
-                                onAddColumn = onChartAddColumn,
-                                onTableAction = onChartTableAction
-                            ),
+                            chartCards = state.chartCardModels,
+                            chartCallbacks = chartCallbacks,
                             focusedTableCells = state.focusedTableCells, onTableAction = onTableAction,
                             onBlockFocused = onBlockFocused, onSelectionChange = onSelectionChange,
                             onDeleteBlock = onDeleteBlock,
@@ -546,7 +537,6 @@ fun NoteEditorScreenContent(
                             onUpdateMermaidCode = onUpdateMermaidCode,
                             onUpdateCodeBlockCode = onUpdateCodeBlockCode,
                             onUpdateCodeBlockLanguage = onUpdateCodeBlockLanguage,
-                            onUpdateChartTitle = onUpdateChartTitle,
                             onOpenMermaidFullscreen = { block ->
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
@@ -854,7 +844,8 @@ private fun DocumentBlockList(
     onToggleToggleExpanded: (String) -> Unit,
     onImageChange: (blockId: String, url: String?, caption: String?) -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
-    chartCallbacks: ChartBlockCallbacks,
+    chartCards: Map<String, ChartBlockCardModel>,
+    chartCallbacks: ChartBlockCallbacks?,
     focusedTableCells: Map<String, TableFocusTarget>,
     onTableAction: (TableHandleAction) -> Unit,
     onBlockFocused: (String?) -> Unit,
@@ -865,7 +856,6 @@ private fun DocumentBlockList(
     onUpdateMermaidCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockLanguage: ((String, String) -> Unit)? = null,
-    onUpdateChartTitle: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     focusedBlockId: String?,
     selectionStart: Int,
@@ -953,19 +943,22 @@ private fun DocumentBlockList(
                     )
                 }
                 is EditorBlock.ChartBlock -> {
+                    val callbacks = requireNotNull(chartCallbacks) {
+                        "ChartBlockCallbacks are required when the document contains a chart block"
+                    }
                     ChartBlockCard(
-                        block = block,
+                        model = chartCards.getValue(block.id),
                         isEditable = isEditable,
-                        onUpdateTitle = { title -> onUpdateChartTitle?.invoke(block.id, title) },
+                        onUpdateTitle = { title -> callbacks.onUpdateTitle(block.id, title) },
                         onUpdateCell = { row, column, value ->
-                            chartCallbacks.onCellChange(block.id, row, column, value)
+                            callbacks.onCellChange(block.id, row, column, value)
                         },
                         onSelectedColumnChange = { columnId ->
-                            chartCallbacks.onSelectedColumnChange(block.id, columnId)
+                            callbacks.onSelectedColumnChange(block.id, columnId)
                         },
-                        onAddRow = { chartCallbacks.onAddRow(block.id) },
-                        onAddColumn = { chartCallbacks.onAddColumn(block.id) },
-                        onTableAction = chartCallbacks.onTableAction,
+                        onAddRow = { callbacks.onAddRow(block.id) },
+                        onAddColumn = { callbacks.onAddColumn(block.id) },
+                        onTableAction = callbacks.onTableAction,
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
@@ -974,7 +967,8 @@ private fun DocumentBlockList(
     }
 }
 
-private data class ChartBlockCallbacks(
+data class ChartBlockCallbacks(
+    val onUpdateTitle: (blockId: String, title: String) -> Unit,
     val onCellChange: (blockId: String, rowIndex: Int, columnIndex: Int, value: String) -> Unit,
     val onSelectedColumnChange: (blockId: String, columnId: String) -> Unit,
     val onAddRow: (blockId: String) -> Boolean,

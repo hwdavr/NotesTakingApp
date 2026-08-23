@@ -57,7 +57,7 @@
         "TC-US-1-01/02/03/04/06/07/08: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.mapper.NoteDocumentChartBlockTest and NoteEditorChartBlockIntegrationTest — exit 0.",
         "TC-US-1-05: ./gradlew ktlintCheck detekt — exit 0; Android Lint and repository Compose/localization/architecture gates also exit 0.",
         "TC-US-1-08: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartCreationFlowTest — 1 test passed on Medium_Phone (AVD) API 33.",
-        "Coverage: ./gradlew :app:koverLog — application line coverage 80.0728% (required >= 80%).",
+        "Coverage: ./gradlew clean koverLog --rerun-tasks — application line coverage 83.569% (required >= 80%).",
         "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-1 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
       ],
       "notes": "Risk-first slice. The chart-library compatibility spike must prove Bar, Line, Pie, click hit targets, tooltip anchors, API 24 rendering, and bitmap output before dependency finalization. Visual verification belongs to US-4."
@@ -93,9 +93,9 @@
         "TC-US-2-04: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartDataMapperTest.testSelectedColumnMappingSkipsInvalidPairs — exit 0; JVM unit test passed.",
         "TC-US-2-05: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.viewmodel.NoteEditorChartDataIntegrationTest.testChartEditsAndSelectionReloadFromAutoSave — exit 0; JVM integration test passed.",
         "TC-US-2-06: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartColumnSelectionTest.testFallbackAndLabelsUseStableIds — exit 0; JVM unit test passed.",
-        "Full JVM verification: ./gradlew testDebugUnitTest — 412 tests, 0 failures, 0 errors, 0 skipped.",
-        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 158 tests, 0 failures, 0 skipped.",
-        "Coverage: ./gradlew koverLog — application line coverage 80.9356% (required >= 80%).",
+        "Full JVM verification: ./gradlew testDebugUnitTest — 437 tests, 0 failures, 0 errors, 0 skipped.",
+        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 172 tests, 0 failures, 0 skipped.",
+        "Coverage: ./gradlew clean koverLog --rerun-tasks — application line coverage 83.569% (required >= 80%).",
         "Quality: assembleDebug, ktlintCheck, detekt, lintDebug, Compose/localization/architecture checks — all passed with 0 violations.",
         "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-2 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
       ],
@@ -130,9 +130,9 @@
         "TC-US-3-04: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartStateReducerTest.testTransientSelectionAndSheetDismissalDoesNotMutateBlock — exit 0; JVM reducer test passed.",
         "TC-US-3-05: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest#testDarkThemeLargeTextAndRtlChartSemantics — exit 0; 1 test passed on Medium_Phone (AVD) API 33.",
         "Active slice verification: ./gradlew testDebugUnitTest --tests com.example.notesapp.ui.editor.chart.ChartSelectionReducerTest — exit 0; and env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartInteractionFlowTest — 3/3 tests passed.",
-        "Full JVM verification: ./gradlew testDebugUnitTest — 418 tests, 0 failures, 0 errors, 0 skipped.",
-        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 161 tests, 0 failures, 0 skipped.",
-        "Coverage: ./gradlew koverLog — application line coverage 80.6291% (required >= 80%).",
+        "Full JVM verification: ./gradlew testDebugUnitTest — 437 tests, 0 failures, 0 errors, 0 skipped.",
+        "Full runtime verification: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest — 172 tests, 0 failures, 0 skipped.",
+        "Coverage: ./gradlew clean koverLog --rerun-tasks — application line coverage 83.569% (required >= 80%).",
         "Quality: ./gradlew assembleDebug ktlintCheck detekt lintDebug plus Compose/localization/architecture/assertion-quality checks — all passed with 0 violations.",
         "Platform evidence: bash harness/scripts/check-platform-evidence.sh docs/product/2026-08-20-chart-block --evaluate --slice US-3 — PASS; US-4 owns the declared real Canvas/PdfDocument boundary."
       ],
@@ -167,7 +167,7 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartPlatformBoundaryTest",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureChartPreviewState && adb -s emulator-5554 pull /sdcard/Download/chart_preview.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_preview.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureDataViewState && adb -s emulator-5554 pull /sdcard/Download/chart_data_view.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_view.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && adb -s emulator-5554 pull /sdcard/Download/chart_data_column_sheet.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_column_sheet.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_column_sheet.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureEmptyAndSelectedStates && adb -s emulator-5554 pull /sdcard/Download/chart_empty_selected.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_empty_selected.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureReadOnlyDarkState && adb -s emulator-5554 pull /sdcard/Download/chart_read_only_dark.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_read_only_dark.png\""
       ],
@@ -230,10 +230,10 @@
         },
         {
           "test_id": "TC-US-4-VIS-03",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\"",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.chart.ChartVisualFlowTest#captureOptionsSheetsState && adb -s emulator-5554 pull /sdcard/Download/chart_options_sheets.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && adb -s emulator-5554 pull /sdcard/Download/chart_data_column_sheet.png \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_column_sheet.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_options_sheets.png\" && test -s \"docs/product/2026-08-20-chart-block/visual_evidence/chart_data_column_sheet.png\"",
           "exit_status": 0,
           "result": "PASS",
-          "output": "1 instrumented visual test passed; active-rendering screenshot pulled and non-empty."
+          "output": "1 instrumented visual test passed; first-level Options and second-level Data column screenshots were pulled from active rendering and are non-empty."
         },
         {
           "test_id": "TC-US-4-VIS-04",

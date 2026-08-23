@@ -1,7 +1,10 @@
 package com.example.notesapp.util
 
+import android.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.editor.chart.ChartBitmapColors
+import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
 import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
@@ -71,6 +74,40 @@ class NoteExporterChartTest {
     }
 
     @Test
+    fun testJvmRendererProducesVisiblePixelsForEveryChartTypeAndSelection() {
+        val block = chartBlock(
+            rows = listOf(
+                row("Category", "Value"),
+                row("January", "120"),
+                row("February", "-40"),
+                row("March", "80")
+            ),
+            columnIds = listOf("category", "value"),
+            selectedColumnId = "value"
+        )
+        val colors = ChartBitmapColors(
+            background = Color.WHITE,
+            primary = Color.rgb(124, 108, 242),
+            text = Color.BLACK,
+            grid = Color.LTGRAY
+        )
+
+        listOf(ChartType.BAR, ChartType.LINE, ChartType.PIE).forEach { chartType ->
+            val bitmap = ChartBitmapRenderer.render(
+                block = block.copy(chartType = chartType),
+                width = 320,
+                height = 220,
+                selectedPointIndex = 1,
+                colors = colors
+            )
+            val pixels = IntArray(bitmap.width * bitmap.height)
+            bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+            assertTrue("$chartType should draw visible pixels", pixels.any { it != Color.WHITE })
+            bitmap.recycle()
+        }
+    }
+
+    @Test
     fun testChartExportFailurePreservesDataAndReportsLocalizedFallback() {
         val note = chartNote(
             rows = listOf(
@@ -94,6 +131,37 @@ class NoteExporterChartTest {
         assertTrue(markdown.contains("| January | not-a-number |"))
         assertTrue(chart.rows.last().last().first().text == "not-a-number")
         assertTrue(entries.keys.none { it.endsWith(".png") })
+    }
+
+    @Test
+    fun testMarkdownChartExportPackagesMultipleChartAssetsWithRelativeLinks() {
+        val first = chartBlock(
+            rows = listOf(row("Category", "Value"), row("January", "120")),
+            columnIds = listOf("category", "value"),
+            selectedColumnId = "value"
+        )
+        val second = first.copy(
+            id = "chart-export-2",
+            title = "Cost chart",
+            rows = listOf(row("Category", "Cost"), row("January", "80"))
+        )
+        val note = Note(
+            id = "multi-chart-note",
+            title = "Multiple charts",
+            content = NoteDocument(blocks = listOf(first, second)).toJsonString(),
+            createdAt = 1L,
+            updatedAt = 2L
+        )
+        val output = ByteArrayOutputStream()
+
+        exporter.exportToMarkdown(note, output)
+
+        val entries = unzip(output.toByteArray())
+        val markdown = entries.getValue("note.md").toString(Charsets.UTF_8)
+        assertTrue(markdown.contains("assets/chart_chart-export-1.png"))
+        assertTrue(markdown.contains("assets/chart_chart-export-2.png"))
+        assertTrue(entries[chartAssetPath(first.id)]?.isNotEmpty() == true)
+        assertTrue(entries[chartAssetPath(second.id)]?.isNotEmpty() == true)
     }
 
     private fun unzip(bytes: ByteArray): Map<String, ByteArray> {
