@@ -60,4 +60,4 @@
 ## Commits
 
 - `7545d61` — verified implementation, regression tests, contract/matrix updates, visual artifacts, and machine-checkable UI evidence.
-- Documentation/tracker fix-pass commit follows after report status and handoff updates.
+- `d12044e` — report statuses, summary/handoff/checklist, evaluator fix-pass records, and product tracker transition; `0f5a6e2` — Markdown whitespace normalization.
