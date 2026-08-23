@@ -238,6 +238,55 @@ class ChartVisualFlowTest {
     }
 
     @Test
+    fun emptyChartDataViewDoesNotCrashAndShowsRecoveryHint() {
+        // Regression for harness-retro-2026-08-23-chart-empty-data-view:
+        // switching an empty/header-only chart to Data view crashed with
+        // "infinite maximum height constraints" because heightIn(max) was
+        // applied after verticalScroll in ChartDataTable.
+        val blockState = mutableStateOf(
+            chartBlock().copy(
+                id = "reg-empty-hdr",
+                rows = listOf(row("Category", "Value"))
+            )
+        )
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                ChartBlockCard(
+                    model = ChartBlockCardModel.from(blockState.value),
+                    isEditable = true,
+                    onUpdateTitle = {},
+                    onUpdateCell = { _, _, _ -> },
+                    onSelectedColumnChange = {},
+                    onDelete = {},
+                    onAddRow = {},
+                    onAddColumn = {},
+                    onTableAction = { _: ChartTableAction -> }
+                )
+            }
+        }
+        composeRule.onNodeWithTag("editor_chart_view_cta_reg-empty-hdr").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_option_data_reg-empty-hdr").performClick()
+        composeRule.onNodeWithTag("editor_chart_table_view_reg-empty-hdr").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_data_grid_reg-empty-hdr").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_data_empty_hint_reg-empty-hdr").assertIsDisplayed()
+        assertDataLayout("reg-empty-hdr")
+
+        composeRule.runOnIdle {
+            blockState.value = chartBlock().copy(
+                id = "reg-empty-row",
+                rows = listOf(row("Category", "Value"), row("", ""))
+            )
+        }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("editor_chart_view_cta_reg-empty-row").performClick()
+        composeRule.onNodeWithTag("editor_chart_view_option_data_reg-empty-row").performClick()
+        composeRule.onNodeWithTag("editor_chart_table_view_reg-empty-row").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_data_grid_reg-empty-row").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_chart_data_hint_reg-empty-row").assertIsDisplayed()
+        assertDataLayout("reg-empty-row")
+    }
+
+    @Test
     fun largeDataViewRemainsBoundedAndScrollable() {
         val rows = buildList {
             add(row("Category", "Value"))

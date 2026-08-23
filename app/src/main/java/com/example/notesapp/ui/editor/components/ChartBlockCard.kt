@@ -642,9 +642,9 @@ private fun ChartDataTable(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(max = 360.dp)
                 .horizontalScroll(rememberScrollState())
                 .verticalScroll(rememberScrollState())
-                .heightIn(max = 360.dp)
                 .border(1.dp, colors.border, RoundedCornerShape(8.dp))
                 .testTag(chartTag("editor_chart_data_grid", block.id))
         ) {
