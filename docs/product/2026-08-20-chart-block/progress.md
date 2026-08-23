@@ -5,8 +5,8 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor → Basic Blocks or focused Table Options.
 - Standard verification path: JVM tests, connected Android tests on `emulator-5554`, quality gates, platform evidence gate, and final visual evidence contract.
-- Current highest-priority unfinished feature: US-4 — Export charts and verify the complete visual flow.
-- Current blocker: None. US-1, US-2, and US-3 implementation, test, quality, state, platform-contract, and install gates are green; US-4 remains.
+- Current highest-priority unfinished feature: Human review of the completed chart-block fix pass.
+- Current blocker: None in chart-block scope. All four slices remain passing; direct API24/API34 runtime images are documented as human-review environments under the fail-loudly policy.
 
 ## Session Log
 
@@ -65,3 +65,14 @@
 - Commits: `b2796ca` harness gate compatibility fix; `5d5c8d3` US-4 implementation, tests, evidence, and product documentation.
 - Known risk or unresolved issue: Direct API24/API34 emulator runs are unavailable; API33 Android runtime evidence covers the API24+ path and targetSdk34 build. The runtime Skill tool is unavailable, and the checked-in generator workflow defines Stages 1–8 while the task prompt requests Stage 9; both limitations are documented in the US-4 summary/handoff.
 - Next best step: Evaluator review and scoring; the tracker is intentionally `To be reviewed`, never directly `To be human reviewed`.
+
+### Session 006 — Harness Fix Mode
+
+- Date: 2026-08-23
+- Goal: Resolve every finding in the chart-block code review, test review, and visual review, then route the feature to human review.
+- Completed: Fixed Data grid sizing/values and large-table bounds, zero-inclusive negative Bar/Line geometry, real chart callback wiring, stable block/column/row tags and nested selector semantics, contained 48dp tooltip dismissal, geometry-aware datum targets, parser/model/render seams, complete JSON/insertion/conversion/auto-save/read-only/export coverage, fresh platform/PDF evidence, separate Options captures, and ui_verification.json.
+- Verification run: 437 JVM tests; clean Kover 83.569% application line coverage; 172/172 connected Android tests on API33; chart package 16/16; assembleDebug, ktlintCheck, detekt, lint, Compose/localization/architecture/assertion-quality checks, lifecycle, UI, visual, and platform evidence validators all passed.
+- Evidence captured: `summary_chart-block.md`, `code_review_chart-block.md` (16/16 fixed), `test_review_chart-block.md` (0 unresolved), `visual_evidence/evaluator-visual-verification.md` (VIS-01..04 fixed), `ui_verification.json`, updated platform matrix, and six active-rendering PNG artifacts.
+- Commits: `7545d61` contains the verified implementation/tests/evidence baseline; the documentation/tracker fix-pass commit follows.
+- Known risk or unresolved issue: Direct API24/API34 runtime execution is not available in this workspace; the capability matrix records the exact environment requirement and fail-loud policy. No chart-block finding remains unresolved.
+- Next best step: Human review at tracker status `To be human reviewed`.
