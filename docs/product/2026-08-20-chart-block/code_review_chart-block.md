@@ -2,8 +2,8 @@
 
 ## Review Summary
 
-**Feature / Bug**: Chart block creation, editing, rendering, interaction, persistence, and export  
-**Reviewer**: Evaluator agent  
+**Feature / Bug**: Chart block creation, editing, rendering, interaction, persistence, and export
+**Reviewer**: Evaluator agent
 **Date**: 2026-08-23
 
 **Recommendation**: ❌ Do not merge — revision is required. The feature has a broad implementation and green recorded/runtime evidence, but the negative-value renderer, callback defaults, test-tag contract, touch-target contract, and verification gaps prevent approval.
@@ -274,7 +274,7 @@ The feature modifies Compose UI files, so all rows are reviewed. The script pass
 
 ## Release Risk
 
-**Level**: high  
+**Level**: high
 **Reason**: The feature changes persisted document schema, editor interactions, rendering, and export. Runtime regression evidence is broad, but negative data rendering and the callback/tag/accessibility contract require correction before release.
 
 - Backward compatible: yes, subject to the documented parser fallbacks

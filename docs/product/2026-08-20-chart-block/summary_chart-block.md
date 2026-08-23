@@ -1,8 +1,8 @@
 # Change Summary — Chart block evaluator fix pass
 
-**Feature**: chart-block / Table to Chart Block  
-**Started**: 2026-08-23  
-**Mode**: Harness Fix  
+**Feature**: chart-block / Table to Chart Block
+**Started**: 2026-08-23
+**Mode**: Harness Fix
 **Status**: Complete — routed to human review
 
 ## Stage Progress

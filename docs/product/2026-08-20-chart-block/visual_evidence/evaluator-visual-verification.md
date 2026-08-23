@@ -1,8 +1,8 @@
 # Evaluator Visual Verification — chart-block
 
-**Date**: 2026-08-23  
-**Runtime**: `emulator-5554`, API 33, 1080×2400 px, physical density 420 dpi (approximately 411×914 dp), target SDK 34  
-**Locale/font scale**: English/default font scale; the emulator did not expose a non-default `font_scale` value  
+**Date**: 2026-08-23
+**Runtime**: `emulator-5554`, API 33, 1080×2400 px, physical density 420 dpi (approximately 411×914 dp), target SDK 34
+**Locale/font scale**: English/default font scale; the emulator did not expose a non-default `font_scale` value
 **Reference assets**: `design/mockup_chart_block_preview.png`, `mockup_chart_block_table_view.png`, `mockup_chart_block_options_sheet.png`, `mockup_chart_block_data_column_sheet.png`, and `mockup_chart_block_creation_panel.png`
 
 The runtime captures were produced inside `ChartVisualFlowTest` after `composeRule.waitForIdle()` with `uiAutomation.takeScreenshot()`, copied from `/sdcard/Download`, and freshly pulled during Stage 4. They were not post-test device screencaps.
