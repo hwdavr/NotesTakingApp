@@ -6,31 +6,43 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.notesapp.domain.voice.RecordingEntryPoint
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class VoiceEntryNavigationTest {
+class NavigationContractTest {
     @get:Rule
     val composeRule = createComposeRule()
 
     @Test
-    fun homeRecorderEntry_buildsEncodedRouteRegisteredByProductionGraph() {
+    fun givenExportRoute_whenGraphIsBuilt_thenNoteIdIsRequired() {
         val navController = mountProductionGraph()
-        val route = Destinations.VoiceRecorder.createRoute(
-            noteId = "voice_placeholder/one",
-            source = RecordingEntryPoint.HOME.name
-        )
 
-        assertNotNull(navController.graph.findNode(Destinations.VoiceRecorder.route))
-        assertEquals(
-            "voiceRecorder?noteId=voice_placeholder%2Fone&source=HOME&focusedBlockId=",
-            route
-        )
+        val noteIdArgument = navController.graph
+            .findNode(Destinations.ExportNote.route)
+            ?.arguments
+            ?.get("noteId")
+
+        assertNotNull(noteIdArgument)
+        assertFalse(noteIdArgument!!.isNullable)
+        assertNull(noteIdArgument.defaultValue)
+    }
+
+    @Test
+    fun givenMoveToRoute_whenGraphIsBuilt_thenItemArgumentsAreRequired() {
+        val navController = mountProductionGraph()
+
+        val arguments = navController.graph
+            .findNode(Destinations.MoveTo.route)
+            ?.arguments
+
+        assertNotNull(arguments)
+        assertNull(arguments!!["itemType"]?.defaultValue)
+        assertNull(arguments["itemId"]?.defaultValue)
     }
 
     private fun mountProductionGraph(): NavHostController {

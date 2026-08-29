@@ -41,7 +41,17 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
     val isLoggedIn by authManager.isLoggedIn.collectAsState()
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
-    val authRoutes = listOf(Destinations.Onboarding.route)
+    val authRoutes = setOf(Destinations.Onboarding.route)
+    val routesWithoutBottomBar = setOf(
+        Destinations.Editor.route,
+        Destinations.CollectionNotes.route,
+        Destinations.FolderDescription.route,
+        Destinations.MoveTo.route,
+        Destinations.SharedUsers.route,
+        Destinations.ManageAccess.route,
+        Destinations.ShareInvite.route,
+        Destinations.VoiceRecorder.route
+    )
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(isLoggedIn) {
@@ -57,14 +67,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         }
     }
     val showBottomBar = isLoggedIn &&
-        currentRoute?.startsWith("editor") != true &&
-        currentRoute?.startsWith("collectionNotes") != true &&
-        currentRoute?.startsWith("folderDescription") != true &&
-        currentRoute?.startsWith("moveTo") != true &&
-        currentRoute?.startsWith("sharedUsers") != true &&
-        currentRoute?.startsWith("manageAccess") != true &&
-        currentRoute?.startsWith("shareInvite") != true &&
-        currentRoute?.startsWith("voiceRecorder") != true &&
+        currentRoute !in routesWithoutBottomBar &&
         currentRoute !in authRoutes
     var authError by remember { mutableStateOf<String?>(null) }
     authError?.let { error ->

@@ -144,11 +144,9 @@ internal fun AppNavigationHost(
             arguments = listOf(
                 navArgument("itemType") {
                     type = NavType.StringType
-                    defaultValue = ""
                 },
                 navArgument("itemId") {
                     type = NavType.StringType
-                    defaultValue = ""
                 }
             )
         ) {
@@ -302,7 +300,6 @@ internal fun AppNavigationHost(
             arguments = listOf(
                 navArgument("noteId") {
                     type = NavType.StringType
-                    defaultValue = ""
                 }
             )
         ) { backStackEntry ->
@@ -318,7 +315,6 @@ internal fun AppNavigationHost(
             arguments = listOf(
                 navArgument("noteId") {
                     type = NavType.StringType
-                    defaultValue = ""
                 }
             )
         ) { backStackEntry ->
@@ -336,7 +332,6 @@ internal fun AppNavigationHost(
             arguments = listOf(
                 navArgument("noteId") {
                     type = NavType.StringType
-                    defaultValue = ""
                 }
             )
         ) { backStackEntry ->
@@ -352,7 +347,6 @@ internal fun AppNavigationHost(
             arguments = listOf(
                 navArgument("noteId") {
                     type = NavType.StringType
-                    defaultValue = ""
                 }
             )
         ) { backStackEntry ->
