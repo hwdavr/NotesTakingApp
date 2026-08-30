@@ -68,6 +68,7 @@ Provide a clean, elevated monospace code editing block inside the Note Editor wh
 | `CodeBlockLanguageItem_{lang}` | Individual language menu item | Normal, Selected | `editor_code_lang_item_{lang}` |
 | `CodeBlockCopyButton` | One-tap button to copy code content to clipboard | Default, Copied | `editor_code_copy_btn_{id}` |
 | `CodeBlockDeleteButton` | One-tap icon button to remove code block from note | Default, Hidden in ReadOnly | `editor_code_delete_btn_{id}` |
+| `CodeBlockReadOnlyIndicator` | Marks a code block as read-only when editing is unavailable | ReadOnly | `editor_code_readonly_{id}` |
 | `CodeBlockLineNumbers` | Left gutter displaying line numbers | Default | `editor_code_line_numbers_{id}` |
 | `CodeBlockTextEditor` | Monospace text field with syntax highlighting | Focused, Unfocused, ReadOnly | `editor_code_editor_{id}` |
 

@@ -62,6 +62,7 @@ Extend the existing Note Editor with an expressive text-insertion tool while pre
 | Results grid | Displays current local results efficiently | content, empty Recent, empty search | `emoji_picker_grid` |
 | Emoji cell | Inserts the default Unicode emoji | enabled, pressed, skin-tone eligible | `emoji_picker_item_<emoji-id>` |
 | Skin-tone selector | Chooses an eligible emoji’s exact variant | collapsed, expanded, selected | `emoji_skin_tone_selector_<emoji-id>` |
+| Skin-tone variant | Chooses one immutable catalog tone variant | enabled, selected | `emoji_skin_tone_variant_<emoji-id>_<tone-id>` |
 | Recent empty panel | Explains that selected emoji appear here | empty | `emoji_picker_recent_empty` |
 | Search empty panel | Reports no matching result and offers recovery | empty | `emoji_picker_search_empty` |
 
