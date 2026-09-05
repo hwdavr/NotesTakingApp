@@ -64,7 +64,8 @@ data class NoteEditorUiState(
     val isBackSyncing: Boolean = false,
     val recommendedFolder: Folder? = null,
     val showCategorizationDialog: Boolean = false,
-    val showCategorizationNoMatchDialog: Boolean = false
+    val showCategorizationNoMatchDialog: Boolean = false,
+    val formulaSheet: FormulaSheetUiState? = null
 ) {
     val content: String
         get() = document.toPlainText()
@@ -72,6 +73,16 @@ data class NoteEditorUiState(
     val chartCardModels: Map<String, ChartBlockCardModel>
         get() = document.blocks.filterIsInstance<EditorBlock.ChartBlock>()
             .associate { block -> block.id to ChartBlockCardModel.from(block) }
+}
+
+data class FormulaSheetUiState(
+    val source: String = "",
+    val editingBlockId: String? = null,
+    val editingInlineId: String? = null,
+    val hasValidationError: Boolean = false
+) {
+    val isEditing: Boolean
+        get() = editingBlockId != null && editingInlineId != null
 }
 
 sealed interface NoteSummaryUiState {
@@ -229,12 +240,21 @@ open class NoteEditorViewModel @Inject constructor(
                     trimmed.startsWith("- [x] ") ||
                     trimmed.startsWith("# ") ||
                     trimmed.startsWith("- ")
-                if (hasPrefix) {
+                val parsedBlock = if (hasPrefix) {
                     parseMarkdownTextBlock(id = block.id, text = value)
                 } else if (block.type != "paragraph") {
                     block.copy(children = parseInlineMarkdown(value))
                 } else {
                     parseMarkdownTextBlock(id = block.id, text = value)
+                }
+                if (block.children.any { it.isFormula }) {
+                    parsedBlock.copy(
+                        children = parsedBlock.children.replaceFormulaPlaceholders(
+                            formulas = block.children.filter { it.isFormula }
+                        ).children
+                    )
+                } else {
+                    parsedBlock
                 }
             } else {
                 block
@@ -987,6 +1007,8 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
             val blockType = block.basicBlockType()
             val isCheckbox = blockType == BasicBlockType.TODO_LIST
             val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
+            val formulas = block.children.filter { it.isFormula }
+            var formulaIndex = 0
             val newBlocks = lines.mapIndexed { index, line ->
                 val id = if (index == 0) block.id else newBlockId()
                 val type = if (isCheckbox) {
@@ -999,10 +1021,20 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
                 } else {
                     false
                 }
+                val parsedChildren = parseInlineMarkdown(line)
+                val replacement = if (formulas.isEmpty()) {
+                    FormulaPlaceholderReplacement(children = parsedChildren, nextFormulaIndex = formulaIndex)
+                } else {
+                    parsedChildren.replaceFormulaPlaceholders(
+                        formulas = formulas,
+                        startingFormulaIndex = formulaIndex
+                    )
+                }
+                formulaIndex = replacement.nextFormulaIndex
                 EditorBlock.TextBlock(
                     id = id,
                     type = type.storageValue,
-                    children = parseInlineMarkdown(line),
+                    children = replacement.children,
                     checked = checked,
                     isExpanded = if (blockType == BasicBlockType.TOGGLE_LIST && index == 0) {
                         block.isExpanded
@@ -1030,7 +1062,7 @@ private suspend fun MutableSet<Job>.cancelAndJoinAll() {
     }
 }
 
-private fun NoteEditorUiState.selectionRangeWithin(textLength: Int): Pair<Int, Int> {
+internal fun NoteEditorUiState.selectionRangeWithin(textLength: Int): Pair<Int, Int> {
     val start = selectionStart
     val end = selectionEnd
     return if (start in 0..textLength && end in 0..textLength) {

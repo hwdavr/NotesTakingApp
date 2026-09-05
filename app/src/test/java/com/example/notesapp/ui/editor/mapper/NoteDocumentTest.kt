@@ -394,4 +394,65 @@ class NoteDocumentTest {
         assertTrue(markdown.contains("fun main() {}"))
         assertEquals("fun main() {}", doc.toPlainText())
     }
+
+    @Test
+    fun formulaDocumentRoundTripAndMarkdownExport() {
+        val originalDoc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(
+                    id = "block_formula_1",
+                    children = listOf(
+                        RichText("Energy: "),
+                        RichText(
+                            text = INLINE_FORMULA_PLACEHOLDER,
+                            formulaSource = "E = mc^2",
+                            inlineId = "formula_atom_1"
+                        ),
+                        RichText(" (Einstein)")
+                    )
+                )
+            )
+        )
+
+        // 1. Serialization round-trip
+        val json = originalDoc.toJsonString()
+        val restoredDoc = NoteDocument.fromContent(json)
+        assertEquals(1, restoredDoc.blocks.size)
+        val restoredBlock = restoredDoc.blocks[0] as EditorBlock.TextBlock
+        assertEquals(3, restoredBlock.children.size)
+
+        val formulaChild = restoredBlock.children[1]
+        assertEquals(INLINE_FORMULA_PLACEHOLDER, formulaChild.text)
+        assertEquals("E = mc^2", formulaChild.formulaSource)
+        assertEquals("formula_atom_1", formulaChild.inlineId)
+        assertTrue(formulaChild.isFormula)
+
+        // 2. Backward compatibility with older JSON missing formula fields
+        val legacyJson = """
+            {
+              "version": 1,
+              "blocks": [
+                {
+                  "id": "b_legacy",
+                  "type": "paragraph",
+                  "children": [{ "text": "Legacy text", "marks": ["bold"] }]
+                }
+              ]
+            }
+        """.trimIndent()
+        val legacyDoc = NoteDocument.fromContent(legacyJson)
+        val legacyBlock = legacyDoc.blocks[0] as EditorBlock.TextBlock
+        assertEquals("Legacy text", legacyBlock.children[0].text)
+        assertEquals(null, legacyBlock.children[0].formulaSource)
+        assertEquals(null, legacyBlock.children[0].inlineId)
+        assertEquals(false, legacyBlock.children[0].isFormula)
+
+        // 3. Markdown export formats formula as $source$
+        val markdown = originalDoc.toMarkdown()
+        assertEquals("Energy: ${"$"}E = mc^2${"$"} (Einstein)", markdown)
+
+        // 4. Plain text export returns readable formula source
+        val plainText = originalDoc.toPlainText()
+        assertEquals("Energy: E = mc^2 (Einstein)", plainText)
+    }
 }

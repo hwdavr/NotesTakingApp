@@ -52,88 +52,14 @@
         "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.InlineFormulaRendererTest\""
       ],
       "evidence": [
-        {
-          "test_id": "TC-US-1-01",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionReplacesSelectionWithRenderedFormula",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionReplacesSelectionWithRenderedFormula",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: production Formula action replaced the selected range with one formula atom and preserved the editor flow.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-02",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionInsertsAtCollapsedCursor",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionInsertsAtCollapsedCursor",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: production Formula action inserted at the collapsed cursor and preserved neighboring text.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-03",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionAppendsAndFocusesWhenNoTextBlockIsFocused",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionAppendsAndFocusesWhenNoTextBlockIsFocused",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: production Formula action appended a paragraph, inserted the formula, and focused the new block.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-04",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#invalidFormulaStaysEditableWithoutChangingDocument",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#invalidFormulaStaysEditableWithoutChangingDocument",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: invalid source remained editable with localized validation feedback and the document was unchanged.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-05",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#tappingFormulaReopensSourceAndValidUpdatePersists",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#tappingFormulaReopensSourceAndValidUpdatePersists",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: tapping the formula reopened its source and a valid update preserved the same inline identity.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-06",
-          "command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#deletingInlineFormulaRemovesWholeFormulaAtom",
-          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#deletingInlineFormulaRemovesWholeFormulaAtom",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 1,
-          "result": "PASS: deleting through the formula placeholder removed the complete atom and left no raw source.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-07",
-          "command": "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentTest\"",
-          "executed_command": "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentTest\"",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 2,
-          "initial_failure": "Gradle wrapper cache lock access was denied by the sandbox; the identical command passed after cache access approval.",
-          "result": "PASS: formula JSON round-trip, stable inline identity, legacy JSON readability, plain-text source fallback, and Markdown export passed.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        },
-        {
-          "test_id": "TC-US-1-08",
-          "command": "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.InlineFormulaRendererTest\"",
-          "executed_command": "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.InlineFormulaRendererTest\"",
-          "exit_code": 0,
-          "exit_status": 0,
-          "attempts": 2,
-          "initial_failure": "Gradle wrapper cache lock access was denied by the sandbox; the identical command passed after cache access approval.",
-          "result": "PASS: fixed valid and invalid fixtures rendered deterministically offline for light/dark assertions.",
-          "timestamp": "2026-09-03T14:49:06+08:00"
-        }
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionReplacesSelectionWithRenderedFormula -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionInsertsAtCollapsedCursor -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#formulaActionAppendsAndFocusesWhenNoTextBlockIsFocused -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#invalidFormulaStaysEditableWithoutChangingDocument -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#tappingFormulaReopensSourceAndValidUpdatePersists -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetTest#deletingInlineFormulaRemovesWholeFormulaAtom -> PASSED (exit 0)",
+        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.mapper.NoteDocumentTest\" -> PASSED (exit 0)",
+        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.components.InlineFormulaRendererTest\" -> PASSED (exit 0)"
       ],
       "notes": "Vertical-slice proof: the already-reachable Formula action exposes a complete valid, invalid, edit, persistence, export, and delete journey after this slice alone. The highest-risk renderer and atomic document representation stay with their production consumer."
     },

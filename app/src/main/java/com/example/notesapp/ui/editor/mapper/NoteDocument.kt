@@ -1,13 +1,5 @@
 package com.example.notesapp.ui.editor.mapper
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import com.example.notesapp.domain.voice.AudioFormat
 import java.util.UUID
 import org.json.JSONArray
@@ -39,7 +31,7 @@ data class NoteDocument(
     }
     fun toPlainText(): String = blocks.joinToString("\n") { block ->
         when (block) {
-            is EditorBlock.TextBlock -> block.children.joinToString("") { it.text }
+            is EditorBlock.TextBlock -> block.children.joinToString("") { it.readableText() }
             is EditorBlock.ImageBlock -> listOf(block.url, block.caption).filter { it.isNotBlank() }.joinToString(" ")
             is EditorBlock.TableBlock -> block.rows.joinToString("\n") { row ->
                 row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
@@ -72,10 +64,13 @@ data class NoteDocument(
                     else -> ""
                 }
                 val content = block.children.joinToString("") { richText ->
-                    var text = richText.text
+                    var text = richText.formulaSource?.let { "\$${it}\$" } ?: richText.text
                     if ("bold" in richText.marks) text = "**$text**"
                     if ("italic" in richText.marks) text = "*$text*"
                     if ("code" in richText.marks) text = "`$text`"
+                    richText.linkTargetId?.takeIf { it.isNotBlank() }?.let { targetId ->
+                        text = "[$text](notesapp://note/$targetId)"
+                    }
                     text
                 }
                 if (blockType == BasicBlockType.TOGGLE_LIST) {
@@ -115,6 +110,35 @@ data class NoteDocument(
         if (blocks.any { it is EditorBlock.TextBlock }) return this
         return copy(blocks = listOf(EditorBlock.TextBlock()) + blocks)
     }
+
+    fun resolveLinks(activeTargetIds: Set<String>, deletedTargetIds: Set<String>): NoteDocument = copy(
+        blocks = blocks.map { block ->
+            when (block) {
+                is EditorBlock.TextBlock -> block.copy(
+                    children = block.children.resolveLinks(activeTargetIds, deletedTargetIds)
+                )
+                is EditorBlock.TableBlock -> block.copy(
+                    rows = block.rows.map { row ->
+                        row.map { cell ->
+                            cell.resolveLinks(activeTargetIds, deletedTargetIds)
+                        }
+                    }
+                )
+                else -> block
+            }
+        }
+    )
+
+    fun hasLinkAnnotations(): Boolean = blocks.any { block ->
+        when (block) {
+            is EditorBlock.TextBlock -> block.children.any { !it.linkTargetId.isNullOrBlank() }
+            is EditorBlock.TableBlock -> block.rows.any { row ->
+                row.any { cell -> cell.any { !it.linkTargetId.isNullOrBlank() } }
+            }
+            else -> false
+        }
+    }
+
     companion object {
         fun empty(): NoteDocument = NoteDocument()
         fun fromContent(content: String): NoteDocument {
@@ -196,8 +220,14 @@ sealed class EditorBlock {
 }
 data class RichText(
     val text: String,
-    val marks: List<String> = emptyList()
-)
+    val marks: List<String> = emptyList(),
+    val linkTargetId: String? = null,
+    val formulaSource: String? = null,
+    val inlineId: String? = null
+) {
+    val isFormula: Boolean
+        get() = !formulaSource.isNullOrBlank()
+}
 fun noteContentPreview(content: String): String = NoteDocument.fromContent(content).toPlainText().ifBlank { content }
 fun codeBlockLanguageSlug(language: String): String = when (language.trim().lowercase()) {
     "" -> ""
@@ -263,43 +293,6 @@ fun parseInlineMarkdown(text: String): List<RichText> {
     return result.filterNot { it.text.isEmpty() }.ifEmpty { listOf(RichText("")) }
 }
 fun EditorBlock.TextBlock.text(): String = children.joinToString("") { it.text }
-
-internal fun EditorBlock.TextBlock.toAnnotatedString(
-    codeBackground: Color,
-    transparentBackground: Color
-): AnnotatedString {
-    return buildAnnotatedString {
-        children.forEach { child ->
-            withStyle(
-                SpanStyle(
-                    fontWeight =
-                    if ("bold" in child.marks) {
-                        FontWeight.Bold
-                    } else {
-                        FontWeight.Normal
-                    },
-                    fontStyle =
-                    if ("italic" in child.marks) {
-                        FontStyle.Italic
-                    } else {
-                        FontStyle.Normal
-                    },
-                    textDecoration = when {
-                        "underline" in child.marks -> TextDecoration.Underline
-                        "strikethrough" in child.marks -> TextDecoration.LineThrough
-                        else -> null
-                    },
-                    background =
-                    if ("code" in child.marks) {
-                        codeBackground
-                    } else {
-                        transparentBackground
-                    }
-                )
-            ) { append(child.text) }
-        }
-    }
-}
 
 private fun EditorBlock.toJson(): JSONObject = when (this) {
     is EditorBlock.TextBlock -> JSONObject()
@@ -440,6 +433,17 @@ private fun List<RichText>.toRichTextJson(): JSONArray = JSONArray().also { arra
             JSONObject()
                 .put("text", richText.text)
                 .put("marks", JSONArray().also { marks -> richText.marks.forEach(marks::put) })
+                .also { json ->
+                    richText.linkTargetId?.takeIf { it.isNotBlank() }?.let { targetId ->
+                        json.put("linkTargetId", targetId)
+                    }
+                    richText.formulaSource?.takeIf { it.isNotBlank() }?.let { source ->
+                        json.put("formulaSource", source)
+                    }
+                    richText.inlineId?.takeIf { it.isNotBlank() }?.let { inlineId ->
+                        json.put("inlineId", inlineId)
+                    }
+                }
         )
     }
 }
@@ -449,7 +453,10 @@ private fun JSONArray?.toRichTextList(): List<RichText> {
         optJSONObject(index)?.let { json ->
             RichText(
                 text = json.optString("text"),
-                marks = json.optJSONArray("marks").toStringList()
+                marks = json.optJSONArray("marks").toStringList(),
+                linkTargetId = json.optString("linkTargetId").takeIf { it.isNotBlank() },
+                formulaSource = json.optString("formulaSource").takeIf { it.isNotBlank() },
+                inlineId = json.optString("inlineId").takeIf { it.isNotBlank() }
             )
         }
     }.ifEmpty { listOf(RichText("")) }
@@ -530,14 +537,20 @@ fun List<RichText>.splitAtOffsets(offsets: List<Int>): List<RichText> {
             val splitOffset = sortedOffsets[offsetIndex]
             val relativeSplit = splitOffset - currentOffset
             if (relativeSplit > childStart) {
-                result.add(RichText(child.text.substring(childStart, relativeSplit), child.marks))
+                result.add(
+                    child.copy(
+                        text = child.text.substring(childStart, relativeSplit),
+                        formulaSource = null,
+                        inlineId = null
+                    )
+                )
                 childStart = relativeSplit
             }
             offsetIndex++
         }
 
         if (childStart < childLength) {
-            result.add(RichText(child.text.substring(childStart), child.marks))
+            result.add(child.copy(text = child.text.substring(childStart)))
         }
         currentOffset += childLength
     }
@@ -550,8 +563,15 @@ fun List<RichText>.mergeAdjacentWithSameMarks(): List<RichText> {
     var current = first()
     for (i in 1 until size) {
         val next = get(i)
-        if (current.marks.sorted() == next.marks.sorted()) {
-            current = RichText(current.text + next.text, current.marks)
+        val mergeable = !current.isFormula && !next.isFormula &&
+            current.marks.sorted() == next.marks.sorted() &&
+            current.linkTargetId == next.linkTargetId
+        if (mergeable) {
+            current = RichText(
+                text = current.text + next.text,
+                marks = current.marks,
+                linkTargetId = current.linkTargetId
+            )
         } else {
             result.add(current)
             current = next
@@ -560,3 +580,100 @@ fun List<RichText>.mergeAdjacentWithSameMarks(): List<RichText> {
     result.add(current)
     return result.filterNot { it.text.isEmpty() }.ifEmpty { listOf(RichText("")) }
 }
+
+fun List<RichText>.applyLinkToRange(start: Int, end: Int, targetId: String?): List<RichText> {
+    val textLength = sumOf { it.text.length }
+    val rangeStart = minOf(start, end).coerceIn(0, textLength)
+    val rangeEnd = maxOf(start, end).coerceIn(0, textLength)
+    if (rangeStart == rangeEnd) return this
+
+    val splitChildren = splitAtOffsets(listOf(rangeStart, rangeEnd))
+    var currentOffset = 0
+    return splitChildren.map { child ->
+        val childStart = currentOffset
+        val childEnd = childStart + child.text.length
+        currentOffset = childEnd
+        if (childStart >= rangeStart && childEnd <= rangeEnd) {
+            child.copy(linkTargetId = targetId?.takeIf { it.isNotBlank() })
+        } else {
+            child
+        }
+    }.mergeAdjacentWithSameMarks()
+}
+
+fun List<RichText>.hasLinkInRange(start: Int, end: Int): Boolean {
+    val textLength = sumOf { it.text.length }
+    val rangeStart = minOf(start, end).coerceIn(0, textLength)
+    val rangeEnd = maxOf(start, end).coerceIn(0, textLength)
+    var currentOffset = 0
+    return any { child ->
+        val childStart = currentOffset
+        val childEnd = childStart + child.text.length
+        currentOffset = childEnd
+        val overlaps = if (rangeStart == rangeEnd) {
+            rangeStart in childStart until childEnd ||
+                (rangeStart == textLength && childEnd == textLength)
+        } else {
+            childStart < rangeEnd && childEnd > rangeStart
+        }
+        overlaps && !child.linkTargetId.isNullOrBlank()
+    }
+}
+
+fun List<RichText>.insertLinkedText(offset: Int, text: String, targetId: String): List<RichText> {
+    if (text.isEmpty() || targetId.isBlank()) return this
+    val insertionOffset = offset.coerceIn(0, sumOf { it.text.length })
+    val updatedChildren = mutableListOf<RichText>()
+    var currentOffset = 0
+    var inserted = false
+
+    for (child in this) {
+        val childStart = currentOffset
+        val childEnd = childStart + child.text.length
+        if (!inserted && insertionOffset in childStart..childEnd) {
+            val relativeOffset = (insertionOffset - childStart).coerceIn(0, child.text.length)
+            if (relativeOffset > 0) {
+                updatedChildren += child.copy(text = child.text.substring(0, relativeOffset))
+            }
+            updatedChildren += RichText(text = text, linkTargetId = targetId)
+            if (relativeOffset < child.text.length) {
+                updatedChildren += child.copy(text = child.text.substring(relativeOffset))
+            }
+            inserted = true
+        } else {
+            updatedChildren += child
+        }
+        currentOffset = childEnd
+    }
+
+    if (!inserted) {
+        updatedChildren += RichText(text = text, linkTargetId = targetId)
+    }
+    return updatedChildren.mergeAdjacentWithSameMarks()
+}
+
+fun List<RichText>.removeLinkAtOffset(offset: Int): List<RichText> {
+    if (isEmpty()) return this
+    val textLength = sumOf { it.text.length }
+    val targetOffset = offset.coerceIn(0, textLength)
+    var currentOffset = 0
+    return map { child ->
+        val childStart = currentOffset
+        val childEnd = childStart + child.text.length
+        currentOffset = childEnd
+        val containsOffset = targetOffset in childStart until childEnd ||
+            (targetOffset == textLength && childEnd == textLength)
+        if (containsOffset) child.copy(linkTargetId = null) else child
+    }.mergeAdjacentWithSameMarks()
+}
+
+private fun List<RichText>.resolveLinks(activeTargetIds: Set<String>, deletedTargetIds: Set<String>): List<RichText> =
+    flatMap { child ->
+        val targetId = child.linkTargetId
+        when {
+            targetId.isNullOrBlank() -> listOf(child)
+            targetId in deletedTargetIds -> emptyList()
+            targetId in activeTargetIds -> listOf(child)
+            else -> listOf(child.copy(linkTargetId = null))
+        }
+    }.mergeAdjacentWithSameMarks()

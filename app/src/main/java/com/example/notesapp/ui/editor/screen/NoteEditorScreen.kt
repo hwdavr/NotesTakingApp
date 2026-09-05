@@ -130,13 +130,11 @@ import coil.request.ImageRequest
 import com.example.notesapp.R
 import com.example.notesapp.domain.emoji.EmojiCategory
 import com.example.notesapp.domain.folder.Folder
-import com.example.notesapp.domain.note.Note
-import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
 import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.components.CodeBlockCard
-import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
+import com.example.notesapp.ui.editor.components.FormulaEditorSheet
 import com.example.notesapp.ui.editor.components.MermaidBlockCard
 import com.example.notesapp.ui.editor.components.TableColumnOptionsSheet
 import com.example.notesapp.ui.editor.components.TableOptionsSheet
@@ -146,6 +144,7 @@ import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.basicBlockType
+import com.example.notesapp.ui.editor.mapper.formulaAtCursor
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
 import com.example.notesapp.ui.editor.mapper.toAnnotatedString
@@ -162,11 +161,16 @@ import com.example.notesapp.ui.editor.viewmodel.addChartColumn
 import com.example.notesapp.ui.editor.viewmodel.addChartRow
 import com.example.notesapp.ui.editor.viewmodel.addImageBlock
 import com.example.notesapp.ui.editor.viewmodel.addTableBlock
+import com.example.notesapp.ui.editor.viewmodel.cancelFormula
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
 import com.example.notesapp.ui.editor.viewmodel.onChartTableAction
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
+import com.example.notesapp.ui.editor.viewmodel.openFormulaSheet
+import com.example.notesapp.ui.editor.viewmodel.openFormulaSheetForEdit
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
+import com.example.notesapp.ui.editor.viewmodel.submitFormula
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
+import com.example.notesapp.ui.editor.viewmodel.updateFormulaSource
 import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
 import com.example.notesapp.ui.theme.LocalAppColors
 
@@ -265,7 +269,12 @@ fun NoteEditorScreen(
         onUpdateCodeBlockCode = { blockId, code -> viewModel.updateCodeBlock(blockId, code = code) },
         onUpdateCodeBlockLanguage = { blockId, language ->
             viewModel.updateCodeBlock(blockId, language = language)
-        }
+        },
+        onOpenFormula = viewModel::openFormulaSheet,
+        onFormulaSourceChange = viewModel::updateFormulaSource,
+        onSubmitFormula = { viewModel.submitFormula() },
+        onCancelFormula = viewModel::cancelFormula,
+        onFormulaClick = viewModel::openFormulaSheetForEdit
     )
 }
 
@@ -326,7 +335,12 @@ fun NoteEditorScreenContent(
     onUpdateMermaidCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockCode: (blockId: String, code: String) -> Unit = { _, _ -> },
     onUpdateCodeBlockLanguage: (blockId: String, language: String) -> Unit = { _, _ -> },
-    onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {}
+    onOpenMermaidFullscreen: (EditorBlock.MermaidBlock) -> Unit = {},
+    onOpenFormula: () -> Unit = {},
+    onFormulaSourceChange: (String) -> Unit = {},
+    onSubmitFormula: () -> Unit = {},
+    onCancelFormula: () -> Unit = {},
+    onFormulaClick: (String, String) -> Unit = { _, _ -> }
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -541,6 +555,7 @@ fun NoteEditorScreenContent(
                                 activeFullscreenMermaidBlock = block
                                 onOpenMermaidFullscreen(block)
                             },
+                            onFormulaClick = onFormulaClick,
                             focusedBlockId = state.focusedBlockId, selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
                             tableFocusResetTrigger = tableFocusResetTrigger,
@@ -563,6 +578,7 @@ fun NoteEditorScreenContent(
                     onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
                 },
                 onToggleFormattingToolbar = onToggleFormattingToolbar,
+                onOpenFormula = onOpenFormula,
                 isBasicBlocksPanelOpen = showBasicBlocksPanel,
                 onToggleBasicBlocksPanel = {
                     if (state.isEditable) {
@@ -589,22 +605,8 @@ fun NoteEditorScreenContent(
             }
         }
         if (showNoteActionsSheet) {
-            val currentNote =
-                Note(
-                    id = state.noteId.orEmpty(),
-                    title = state.title,
-                    content = state.document.toJsonString(),
-                    folderId = state.folderId,
-                    sortKey = "",
-                    version = 0,
-                    deviceId = "",
-                    createdAt = state.createdAt,
-                    updatedAt = System.currentTimeMillis(),
-                    isFavorite = state.isFavorite,
-                    accessRole = if (state.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
-                )
-            EditorNoteActionsSheet(
-                note = currentNote,
+            NoteActionsSheetSection(
+                state = state,
                 onDismiss = { showNoteActionsSheet = false },
                 onAddToFavorites = {
                     onToggleFavorite()
@@ -653,6 +655,12 @@ fun NoteEditorScreenContent(
                 onDismiss = { showRenameDialog = false }
             )
         }
+        FormulaEditorSheet(
+            state = state.formulaSheet,
+            onSourceChange = onFormulaSourceChange,
+            onSubmit = onSubmitFormula,
+            onDismiss = onCancelFormula
+        )
         NoteEditorCategorizationOverlay(
             state = state,
             onConfirmCategorization = onConfirmCategorization,
@@ -857,6 +865,7 @@ private fun DocumentBlockList(
     onUpdateCodeBlockCode: ((String, String) -> Unit)? = null,
     onUpdateCodeBlockLanguage: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
+    onFormulaClick: (String, String) -> Unit = { _, _ -> },
     focusedBlockId: String?,
     selectionStart: Int,
     selectionEnd: Int,
@@ -889,6 +898,7 @@ private fun DocumentBlockList(
                         onFocus = { onBlockFocused(block.id) },
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
+                        onFormulaClick = onFormulaClick,
                         focusRequester = requester,
                         selectionStart = selectionStart,
                         selectionEnd = selectionEnd,
@@ -986,6 +996,7 @@ private fun TextDocumentBlock(
     onFocus: () -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
+    onFormulaClick: (String, String) -> Unit,
     focusRequester: FocusRequester,
     selectionStart: Int,
     selectionEnd: Int,
@@ -1055,6 +1066,7 @@ private fun TextDocumentBlock(
     }
 
     val blockType = block.basicBlockType()
+    val inlineFormulaDescription = stringResource(R.string.editor_inline_formula_description)
     val toggleContentDescription = stringResource(
         if (block.isExpanded) {
             R.string.editor_toggle_collapse_description
@@ -1105,6 +1117,11 @@ private fun TextDocumentBlock(
                 onTextFieldValueChange = { textFieldValue = it },
                 onTextChange = onChange,
                 onSelectionChange = onSelectionChange,
+                onFormulaClick = { position ->
+                    block.formulaAtCursor(position)?.inlineId?.let { inlineId ->
+                        onFormulaClick(block.id, inlineId)
+                    }
+                },
                 visualTransformation = visualTransformation,
                 focusRequester = focusRequester,
                 onFocus = onFocus,
@@ -1112,6 +1129,24 @@ private fun TextDocumentBlock(
                 blockType = blockType,
                 modifier = Modifier.weight(1f)
             )
+        }
+        block.children.filter { it.isFormula }.forEach { formula ->
+            formula.inlineId?.let { inlineId ->
+                Box(
+                    modifier = Modifier
+                        .size(1.dp)
+                        .testTag("editor_inline_formula_$inlineId")
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onFormulaClick(block.id, inlineId)
+                        }
+                        .semantics {
+                            contentDescription = inlineFormulaDescription
+                        }
+                )
+            }
         }
     }
 }
@@ -1221,6 +1256,7 @@ private object BasicBlockRenderer {
         onTextFieldValueChange: (TextFieldValue) -> Unit,
         onTextChange: (String) -> Unit,
         onSelectionChange: (Int, Int) -> Unit,
+        onFormulaClick: (Int) -> Unit,
         visualTransformation: VisualTransformation,
         focusRequester: FocusRequester,
         onFocus: () -> Unit,
@@ -1244,6 +1280,9 @@ private object BasicBlockRenderer {
                 }
                 if (selectionChanged) {
                     onSelectionChange(nextValue.selection.start, nextValue.selection.end)
+                    if (!textChanged && nextValue.selection.collapsed) {
+                        onFormulaClick(nextValue.selection.start)
+                    }
                 }
             },
             modifier = modifier
@@ -1866,6 +1905,7 @@ private fun EditorBottomBar(
     isCheckboxActive: Boolean,
     onToggleCheckbox: (String) -> Unit,
     onToggleMark: (String, String) -> Unit,
+    onOpenFormula: () -> Unit = {},
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
     onOpenEmojiPicker: () -> Unit,
@@ -1874,6 +1914,9 @@ private fun EditorBottomBar(
     isBasicBlocksPanelOpen: Boolean,
     onToggleBasicBlocksPanel: () -> Unit
 ) {
+    if (state.formulaSheet != null) {
+        return
+    }
     if (!state.isEditable) {
         ReadOnlyEmojiBottomBar()
         return
@@ -1883,6 +1926,7 @@ private fun EditorBottomBar(
             state = state,
             activeTextBlockId = activeTextBlockId,
             onToggleMark = onToggleMark,
+            onOpenFormula = onOpenFormula,
             onHideToolbar = onToggleFormattingToolbar
         )
     } else {
@@ -2140,6 +2184,7 @@ private fun FormattingBottomBar(
     state: NoteEditorUiState,
     activeTextBlockId: String?,
     onToggleMark: (String, String) -> Unit,
+    onOpenFormula: () -> Unit = {},
     onHideToolbar: () -> Unit
 ) {
     val colors = LocalAppColors.current
@@ -2244,10 +2289,18 @@ private fun FormattingBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { /* formula logic */ }) {
+            val formulaActionDescription = stringResource(R.string.editor_formula_action_description)
+            EditorBarButton(
+                onClick = onOpenFormula,
+                modifier = Modifier
+                    .testTag("editor_formula_action")
+                    .semantics {
+                        contentDescription = formulaActionDescription
+                    }
+            ) {
                 Text(
                     stringResource(R.string.editor_formula_action),
-                    color = colors.textSecondary,
+                    color = colors.textPrimary,
                     fontWeight = FontWeight.Bold
                 )
             }

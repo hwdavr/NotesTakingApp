@@ -17,6 +17,7 @@ import com.example.notesapp.R
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.chart.ChartBitmapColors
 import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
+import com.example.notesapp.ui.editor.components.InlineFormulaRenderer
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.ChartTableParser
 import com.example.notesapp.ui.editor.mapper.EditorBlock
@@ -373,7 +374,9 @@ class NoteExporter(private val context: Context) {
     }
 
     private fun renderTextBlock(block: EditorBlock.TextBlock, renderer: PdfRenderer, textPaint: TextPaint) {
-        val text = block.children.joinToString("") { it.text }
+        val text = block.children.joinToString("") { child ->
+            child.formulaSource?.let { InlineFormulaRenderer.render(it).displayText } ?: child.text
+        }
         if (text.isBlank()) {
             renderer.currentY += 10f
             return
@@ -462,7 +465,9 @@ class NoteExporter(private val context: Context) {
         for (row in rows) {
             // Calculate row height
             val layouts = row.map { cell ->
-                val cellText = cell.joinToString("") { it.text }
+                val cellText = cell.joinToString("") { child ->
+                    child.formulaSource?.let { InlineFormulaRenderer.render(it).displayText } ?: child.text
+                }
                 StaticLayout.Builder.obtain(
                     cellText,
                     0,
