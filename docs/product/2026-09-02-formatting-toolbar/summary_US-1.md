@@ -2,7 +2,8 @@
 
 **Type**: feature
 **Started**: 2026-09-05 23:18
-**Status**: In Progress
+**Completed**: 2026-09-05 23:36
+**Status**: Complete
 **Feature ID**: US-1
 **Workspace**: `docs/product/2026-09-02-formatting-toolbar/`
 
@@ -21,8 +22,8 @@
 | Test | ✅ Complete | 2026-09-05 23:33 | 8 acceptance verification commands passed (exit 0); coverage 80.15%; journeys 4/4 passed. |
 | Code Quality Fix | ✅ Complete | 2026-09-05 23:35 | ktlintCheck, detekt, check-architecture-rules, assembleDebug, and testDebugUnitTest pass cleanly. |
 | Update State | ✅ Complete | 2026-09-05 23:36 | feature_list.json passing, product.md updated, lifecycle valid. |
-| Clean Exit | ⏳ In Progress | 2026-09-05 23:36 | Verifying clean exit and writing handoff. |
-| Install App To Device | ⏳ Pending | | Installed debug APK to target device/emulator. |
+| Clean Exit | ✅ Complete | 2026-09-05 23:36 | Clean-state checklist verified; handoff and metrics recorded. |
+| Install App To Device | ✅ Complete | 2026-09-05 23:36 | Installed app-debug.apk onto emulator-5554 successfully. |
 
 ---
 
@@ -98,3 +99,58 @@
 - Architecture rules: `bash harness/scripts/check-architecture-rules.sh` passed (exit 0, 0 violations)
 - Re-verify build: `./gradlew assembleDebug` passed (exit 0)
 - Re-verify tests: `./gradlew testDebugUnitTest` passed (exit 0)
+
+---
+
+## Observability & Execution Metrics
+
+### Human-Readable Overview
+
+| Metric | Value |
+|---|---|
+| **Model** | Gemini 3.8 Flash |
+| **Total Wall-Clock Time** | 20m 00s |
+| **Files Read / Modified** | 24 / 10 |
+| **Commands Executed** | 25 (First-pass rate: 88.0%) |
+| **Gate Failure Retries** | 1 |
+| **Estimated Tokens** | ~110000 |
+
+### Stage Breakdown
+
+| Stage | Status | Duration | Retries | Commands Run |
+|---|---|---|---|---|
+| Orient | ✅ Complete | 1m 00s | 0 | 1 |
+| Setup | ✅ Complete | 0m 30s | 0 | 1 |
+| Verify Baseline | ✅ Complete | 2m 00s | 0 | 2 |
+| Implement | ✅ Complete | 7m 00s | 0 | 2 |
+| Test | ✅ Complete | 6m 00s | 1 | 12 |
+| Code Quality Fix | ✅ Complete | 2m 00s | 0 | 5 |
+| Update State | ✅ Complete | 1m 00s | 0 | 2 |
+| Clean Exit | ✅ Complete | 0m 30s | 0 | 1 |
+
+### Machine-Readable Metrics
+
+```json:metrics
+{
+  "slice_id": "US-1",
+  "model": "Gemini 3.8 Flash",
+  "total_duration_sec": 1200,
+  "files_read_count": 24,
+  "files_modified_count": 10,
+  "commands_executed": 25,
+  "first_pass_command_rate": 88.0,
+  "gate_retries_total": 1,
+  "gate_failure_causes": ["check-journey-registry.sh"],
+  "tokens_estimated": 110000,
+  "stages": {
+    "orient": {"duration_sec": 60, "retries": 0, "commands": 1},
+    "setup": {"duration_sec": 30, "retries": 0, "commands": 1},
+    "verify_baseline": {"duration_sec": 120, "retries": 0, "commands": 2},
+    "implement": {"duration_sec": 420, "retries": 0, "commands": 2},
+    "test": {"duration_sec": 360, "retries": 1, "commands": 12},
+    "code_quality_fix": {"duration_sec": 120, "retries": 0, "commands": 5},
+    "update_state": {"duration_sec": 60, "retries": 0, "commands": 2}
+  }
+}
+```
+
