@@ -5,8 +5,26 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor toolbar actions; no new entry point is introduced by planning.
 - Standard verification path: Slice-scoped commands in `sprint-contract.md`, followed by acceptance traceability, platform, visual, quality, and test-review gates.
-- Current highest-priority unfinished feature: `US-3` — Keep long formula previews usable above the keyboard.
-- Current state: `US-1` and `US-2` are passing and complete; `US-3` and `US-4` are not started.
+- Current highest-priority unfinished feature: `US-4` — Link text to existing notes and protect the completed toolbar contract.
+- Current state: `US-1`, `US-2`, and `US-3` are passing and complete; `US-4` is not started.
+
+## Session 005
+
+- Date: 2026-09-06
+- Goal: Implement and verify the approved US-3 responsive formula sheet slice.
+- Completed:
+  - Bounded formula preview with horizontal scrolling (`Modifier.horizontalScroll(rememberScrollState())`), min/max height bounds (`heightIn(min = 56.dp, max = 120.dp)`), and disabled soft wrap (`softWrap = false`).
+  - Added `.navigationBarsPadding().imePadding()` before `.heightIn(max = 620.dp).verticalScroll(rememberScrollState())` on the formula sheet container so the sheet stays open, bounded, and all actions (source, preview, Cancel, submit) remain reachable above the keyboard.
+  - Verified editor formatting toolbar is hidden when formula sheet is active.
+  - Normalized formula sheet submit button to exactly one text-only action ("Insert" or "Update") with no plus-icon variant.
+  - Implemented `NoteEditorFormulaSheetResponsiveTest.kt` covering TC-US-3-01, TC-US-3-02, and TC-US-3-03.
+- Verification run: All 3 declared US-3 acceptance tests passed; `assembleDebug`, full `testDebugUnitTest`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture/navigation checks, 80.46% line coverage (5345/6643), 4/4 journey registry checks, and slice-scoped platform evaluation passed.
+- Evidence captured: `docs/product/2026-09-02-formatting-toolbar/feature_list.json` US-3 evidence entries and `summary_US-3.md` stage record.
+- Commits: Pending clean-exit commit after handoff and install.
+- Files or artifacts updated: `FormulaEditorSheet.kt`, `NoteEditorFormulaSheetResponsiveTest.kt`, `feature_list.json`, `summary_US-3.md`, `progress.md`, `product.md`, and `session-handoff.md`.
+- Known risk or unresolved issue: US-4 (internal note linking, NoteLinkPicker, and final visual flow verification) remains pending.
+- Next best step: Start US-4 in a new generator session.
+
 
 ## Session 004
 

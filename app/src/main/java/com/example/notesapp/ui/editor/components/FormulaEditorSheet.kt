@@ -75,10 +75,10 @@ fun FormulaEditorSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 620.dp)
-                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .imePadding()
+                .heightIn(max = 620.dp)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -122,7 +122,7 @@ fun FormulaEditorSheet(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 56.dp)
+                    .heightIn(min = 56.dp, max = 120.dp)
                     .horizontalScroll(rememberScrollState())
                     .testTag("editor_formula_preview")
             ) {

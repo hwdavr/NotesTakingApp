@@ -122,7 +122,7 @@
       "user_visible_behavior": "A long formula remains horizontally scrollable inside a bounded preview, and the formula sheet remains open with its source, preview, Cancel, and Insert or Update actions usable above the keyboard. The formula dialog presents one consistent text-only insertion action.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-3-01",
         "TC-US-3-02",
@@ -133,7 +133,11 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetResponsiveTest#formulaSheetRemainsOpenAndActionsReachableAboveIme",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetResponsiveTest#formulaSheetUsesSingleTextOnlyInsertAction"
       ],
-      "evidence": [],
+      "evidence": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetResponsiveTest#longFormulaPreviewScrollsHorizontallyWithoutWrapping -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetResponsiveTest#formulaSheetRemainsOpenAndActionsReachableAboveIme -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormulaSheetResponsiveTest#formulaSheetUsesSingleTextOnlyInsertAction -> PASSED (exit 0)"
+      ],
       "notes": "Vertical-slice proof: after US-1, the already-reachable Formula action exposes the responsive long-preview and IME behavior without introducing a new caller. This slice is intentionally separate from formula data semantics so its bounded-layout contract can be verified directly."
     },
     {

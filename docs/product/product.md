@@ -55,7 +55,7 @@ Lifecycle rules:
 | mermaid-chart-preview | Mermaid Chart & Preview | [docs/product/2026-08-18-mermaid-chart-preview/](2026-08-18-mermaid-chart-preview/) | To be human reviewed | 2026-08-18 | Fix pass applied; re-verification evidence attached; 1/1 findings fixed. |
 | code-block | Code Block | [docs/product/2026-08-18-code-block/](2026-08-18-code-block/) | To be human reviewed | 2026-08-20 | Fix pass applied; re-verification evidence attached; 4/4 findings fixed. Strengthened PDF assertion (PdfRenderer back-render), corrected stale platform matrix, fixed stale test comment, added large-snippet/long-line tests + documented clipboard/orientation non-goals. JVM suite, koverLog 82.68%, ktlint/detekt/lint, and 11/11 instrumented tests pass. |
 | chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | To be human reviewed | 2026-08-23 | Fix pass applied; re-verification evidence attached; 16/16 code findings fixed and 0 unresolved test/visual findings. Fresh 437 JVM tests, 172/172 connected tests, clean Kover 83.569%, quality/evidence/lifecycle gates pass. API24/API34 direct runtimes remain explicitly documented human-review environments under fail-loudly policy. |
-| formatting-toolbar | Formatting Toolbar Completion | [docs/product/2026-09-02-formatting-toolbar/](2026-09-02-formatting-toolbar/) | In Progress | 2026-09-05 | US-1 and US-2 passing; US-3 (Keep long formula previews usable above the keyboard) pending. |
+| formatting-toolbar | Formatting Toolbar Completion | [docs/product/2026-09-02-formatting-toolbar/](2026-09-02-formatting-toolbar/) | In Progress | 2026-09-06 | US-1, US-2, and US-3 passing; US-4 (Link text to existing notes) pending. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -72,6 +72,7 @@ Lifecycle rules:
 | Document Block Structure | ✅ Done | Modular note document model for structured content blocks. |
 | Inline formula foundation (US-1) | ✅ Slice done | Existing Formula toolbar action now inserts valid offline-rendered formulas at a selection/cursor or appended paragraph, persists optional source and stable inline identity, reopens formulas for editing, removes formulas atomically, and exports source to Markdown/rendered text to PDF while preserving legacy JSON readability. |
 | Text selection & inline formatting (US-2) | ✅ Slice done | Direct Body reset action splits prefix/suffix text and clears marks on selected range; Bold, Italic, Underline, Strikethrough, and Code toggle marks over selection and toggle pending typing marks at a collapsed cursor for subsequently typed text; Enter preserves block styling and caret active marks on new lines; 56dp toolbar remains visible above IME. |
+| Responsive formula sheet (US-3) | ✅ Slice done | Bounded, non-wrapping, horizontally scrollable formula preview; formula sheet positioned above IME insets; editor bottom bar hidden when sheet open; normalized single text-only Insert/Update action. |
 | Basic document block compatibility (US-1) | ✅ Slice done | Stable paragraph, H1–H4, bulleted, numbered, to-do, Toggle, Callout, and Quote mappings preserve legacy/unknown readable content, Toggle state, auto-save/reload, and Markdown/PDF treatment. |
 | Basic blocks catalog insertion (US-2) | ✅ Slice done | Inline attached 2-column Basic blocks panel under unchanged 56 dp toolbar with 11 block actions (excluding Page), focus-aware insertion after focused block and append when no focus, empty defaults, auto-save, and single-tap collapse. |
 | Basic blocks compact & accessible experience (US-3) | ✅ Slice done | Capped panel height min(280 dp, 40% usable height), 48 dp baseline tile targets, vertical scrolling through Quote, inner BackHandler dismissal, read-only trigger visibility/disabled state, light/dark theme support, accessibility semantics, and verified top/scrolled visual anchor proof. |
@@ -176,7 +177,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟡 In progress (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), and selection & inline mark formatting (US-2); responsive formula-sheet hardening, links, and final toolbar visuals remain |
+| **Note Editor** | 🟡 In progress (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), selection & inline mark formatting (US-2), and responsive formula sheet (US-3); links and final toolbar visuals remain |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
@@ -194,4 +195,4 @@ Lifecycle rules:
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
 
-*Document last updated: 2026-09-05*
+*Document last updated: 2026-09-06*
