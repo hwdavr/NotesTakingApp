@@ -5,8 +5,20 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor toolbar actions; no new entry point is introduced by planning.
 - Standard verification path: Slice-scoped commands in `sprint-contract.md`, followed by acceptance traceability, platform, visual, quality, and test-review gates.
-- Current highest-priority unfinished feature: `US-2` — Reset selected text and inherit inline marks while typing.
-- Current state: `US-1` is passing and complete; the revised slice contract is awaiting implementation approval before US-2, US-3, and US-4 continue.
+- Current highest-priority unfinished feature: `US-3` — Keep long formula previews usable above the keyboard.
+- Current state: `US-1` and `US-2` are passing and complete; `US-3` and `US-4` are not started.
+
+## Session 004
+
+- Date: 2026-09-05
+- Goal: Implement and verify the approved US-2 inline formatting and text selection slice.
+- Completed: Implemented direct Body reset action (splits prefix/suffix, removes formatting on selection), collapsed cursor pending typing marks inheritance (`pendingTypingMarks`), range mark toggle on selection, Enter key newline inheritance of block style and caret inline marks, toolbar IME padding and visibility above keyboard, and updated `BasicTextField` `visualTransformation` for real pixel rendering.
+- Verification run: All 10 declared US-2 acceptance tests passed; `assembleDebug`, full `testDebugUnitTest`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture/navigation checks, 80.48% coverage (5346/6643), 4/4 journey registry checks, and slice-scoped platform evaluation passed.
+- Evidence captured: `docs/product/2026-09-02-formatting-toolbar/feature_list.json` US-2 evidence entries and `summary_US-2.md` stage record.
+- Commits: Pending clean-exit commit after handoff and install.
+- Files or artifacts updated: `NoteEditorScreen.kt`, `NoteEditorViewModel.kt`, `NoteEditorTextActions.kt`, `NoteDocument.kt`, `NoteDocumentFormatting.kt`, `NoteEditorSelectionFormattingTest.kt`, `feature_list.json`, `summary_US-2.md`, and this progress log.
+- Known risk or unresolved issue: US-3 (responsive formula sheet) and US-4 (internal note links) remain pending.
+- Next best step: Start US-3 in a new generator session.
 
 ## Session 001
 

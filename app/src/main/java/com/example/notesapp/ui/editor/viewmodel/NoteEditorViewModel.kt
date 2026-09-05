@@ -18,12 +18,13 @@ import com.example.notesapp.ui.editor.mapper.ChartType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.NoteDocument
 import com.example.notesapp.ui.editor.mapper.RichText
+import com.example.notesapp.ui.editor.mapper.applyTextDiff
 import com.example.notesapp.ui.editor.mapper.basicBlockType
 import com.example.notesapp.ui.editor.mapper.createEmptyTextBlock
+import com.example.notesapp.ui.editor.mapper.marksAtOffset
 import com.example.notesapp.ui.editor.mapper.mergeAdjacentWithSameMarks
 import com.example.notesapp.ui.editor.mapper.newBlockId
 import com.example.notesapp.ui.editor.mapper.normalized
-import com.example.notesapp.ui.editor.mapper.parseInlineMarkdown
 import com.example.notesapp.ui.editor.mapper.parseMarkdownTextBlock
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
@@ -65,7 +66,8 @@ data class NoteEditorUiState(
     val recommendedFolder: Folder? = null,
     val showCategorizationDialog: Boolean = false,
     val showCategorizationNoMatchDialog: Boolean = false,
-    val formulaSheet: FormulaSheetUiState? = null
+    val formulaSheet: FormulaSheetUiState? = null,
+    val pendingTypingMarks: Set<String> = emptySet()
 ) {
     val content: String
         get() = document.toPlainText()
@@ -233,6 +235,7 @@ open class NoteEditorViewModel @Inject constructor(
             splitTextBlock(blockId, value)
             return
         }
+        val state = uiStateInternal.value
         updateBlock(blockId) { block ->
             if (block is EditorBlock.TextBlock) {
                 val trimmed = value.trimStart()
@@ -240,21 +243,23 @@ open class NoteEditorViewModel @Inject constructor(
                     trimmed.startsWith("- [x] ") ||
                     trimmed.startsWith("# ") ||
                     trimmed.startsWith("- ")
-                val parsedBlock = if (hasPrefix) {
+                val updated = if (hasPrefix) {
                     parseMarkdownTextBlock(id = block.id, text = value)
-                } else if (block.type != "paragraph") {
-                    block.copy(children = parseInlineMarkdown(value))
                 } else {
-                    parseMarkdownTextBlock(id = block.id, text = value)
+                    val newChildren = block.children.applyTextDiff(
+                        newText = value,
+                        pendingMarks = state.pendingTypingMarks
+                    )
+                    block.copy(children = newChildren)
                 }
                 if (block.children.any { it.isFormula }) {
-                    parsedBlock.copy(
-                        children = parsedBlock.children.replaceFormulaPlaceholders(
+                    updated.copy(
+                        children = updated.children.replaceFormulaPlaceholders(
                             formulas = block.children.filter { it.isFormula }
                         ).children
                     )
                 } else {
-                    parsedBlock
+                    updated
                 }
             } else {
                 block
@@ -286,46 +291,57 @@ open class NoteEditorViewModel @Inject constructor(
         }
     }
     fun toggleBlockMark(blockId: String, mark: String) {
-        if (!uiStateInternal.value.isEditable) return
         val state = uiStateInternal.value
+        val focusedId = state.focusedBlockId
+        if (!state.isEditable || (focusedId != null && focusedId != blockId)) return
+        val block = state.document.blocks.find { it.id == blockId } as? EditorBlock.TextBlock ?: return
+        val text = block.text()
         val start = state.selectionStart
         val end = state.selectionEnd
-        updateBlock(blockId) { block ->
-            if (block !is EditorBlock.TextBlock) return@updateBlock block
-            val text = block.text()
-            if (start == end || start < 0 || end > text.length) {
-                // No selection: only selected text should be edited, so this is a no-op.
-                return@updateBlock block
+        if (start == end) {
+            val currentPending = state.pendingTypingMarks
+            val newPending = if (mark in currentPending) {
+                currentPending - mark
+            } else {
+                currentPending + mark
             }
-            // If there's a selection, modify children directly instead of using raw markers in text
-            val splitChildren = block.children.splitAtOffsets(listOf(start, end))
+            uiStateInternal.value = state.copy(pendingTypingMarks = newPending)
+        } else {
+            val selStart = minOf(start, end).coerceIn(0, text.length)
+            val selEnd = maxOf(start, end).coerceIn(0, text.length)
+            if (selStart < selEnd) {
+                updateBlock(blockId) { b ->
+                    if (b !is EditorBlock.TextBlock) return@updateBlock b
+                    val splitChildren = b.children.splitAtOffsets(listOf(selStart, selEnd))
 
-            var currentOffset = 0
-            val childrenWithOffsets = splitChildren.map { child ->
-                val childStart = currentOffset
-                val childEnd = currentOffset + child.text.length
-                currentOffset = childEnd
-                Triple(child, childStart, childEnd)
-            }
+                    var currentOffset = 0
+                    val childrenWithOffsets = splitChildren.map { child ->
+                        val childStart = currentOffset
+                        val childEnd = currentOffset + child.text.length
+                        currentOffset = childEnd
+                        Triple(child, childStart, childEnd)
+                    }
 
-            val selectionChildren = childrenWithOffsets.filter { (_, childStart, childEnd) ->
-                childStart >= start && childEnd <= end
-            }
+                    val selectionChildren = childrenWithOffsets.filter { (_, childStart, childEnd) ->
+                        childStart >= selStart && childEnd <= selEnd
+                    }
 
-            val hasMark = selectionChildren.any { (child, _, _) -> mark in child.marks }
+                    val hasMark = selectionChildren.any { (child, _, _) -> mark in child.marks }
 
-            val updatedChildren = childrenWithOffsets.map { (child, childStart, childEnd) ->
-                if (childStart >= start && childEnd <= end) {
-                    val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
-                    child.copy(marks = marks)
-                } else {
-                    child
+                    val updatedChildren = childrenWithOffsets.map { (child, childStart, childEnd) ->
+                        if (childStart >= selStart && childEnd <= selEnd) {
+                            val marks = if (hasMark) child.marks - mark else (child.marks + mark).distinct()
+                            child.copy(marks = marks)
+                        } else {
+                            child
+                        }
+                    }
+
+                    b.copy(
+                        children = updatedChildren.mergeAdjacentWithSameMarks()
+                    )
                 }
             }
-
-            block.copy(
-                children = updatedChildren.mergeAdjacentWithSameMarks()
-            )
         }
     }
 
@@ -1002,6 +1018,7 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
     val current = uiStateInternal.value
     val lines = value.split('\n')
     var nextFocusId: String? = null
+    var carriedMarks: Set<String> = emptySet()
     val updatedBlocks = current.document.blocks.flatMap { block ->
         if (block.id == blockId && block is EditorBlock.TextBlock) {
             val blockType = block.basicBlockType()
@@ -1009,6 +1026,15 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
             val isEmptyCheckbox = isCheckbox && block.text().trim().isEmpty()
             val formulas = block.children.filter { it.isFormula }
             var formulaIndex = 0
+
+            val splitOffset = lines[0].length
+            val effectiveMarks = if (current.pendingTypingMarks.isNotEmpty()) {
+                current.pendingTypingMarks
+            } else {
+                block.marksAtOffset(splitOffset).toSet()
+            }
+            carriedMarks = effectiveMarks
+
             val newBlocks = lines.mapIndexed { index, line ->
                 val id = if (index == 0) block.id else newBlockId()
                 val type = if (isCheckbox) {
@@ -1021,11 +1047,19 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
                 } else {
                     false
                 }
-                val parsedChildren = parseInlineMarkdown(line)
-                val replacement = if (formulas.isEmpty()) {
-                    FormulaPlaceholderReplacement(children = parsedChildren, nextFormulaIndex = formulaIndex)
+                val rawChildren = if (index == 0) {
+                    block.children.applyTextDiff(line)
                 } else {
-                    parsedChildren.replaceFormulaPlaceholders(
+                    if (line.isEmpty()) {
+                        listOf(RichText("", marks = effectiveMarks.toList()))
+                    } else {
+                        listOf(RichText(line, marks = effectiveMarks.toList()))
+                    }
+                }
+                val replacement = if (formulas.isEmpty()) {
+                    FormulaPlaceholderReplacement(children = rawChildren, nextFormulaIndex = formulaIndex)
+                } else {
+                    rawChildren.replaceFormulaPlaceholders(
                         formulas = formulas,
                         startingFormulaIndex = formulaIndex
                     )
@@ -1051,7 +1085,8 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
     }
     uiStateInternal.value = current.copy(
         document = current.document.copy(blocks = updatedBlocks),
-        focusedBlockId = nextFocusId ?: current.focusedBlockId
+        focusedBlockId = nextFocusId ?: current.focusedBlockId,
+        pendingTypingMarks = carriedMarks
     )
     scheduleAutoSave()
 }

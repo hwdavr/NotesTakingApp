@@ -455,4 +455,77 @@ class NoteDocumentTest {
         val plainText = originalDoc.toPlainText()
         assertEquals("Energy: E = mc^2 (Einstein)", plainText)
     }
+
+    @Test
+    fun `applyTextDiff applies pendingMarks to inserted text`() {
+        val original = listOf(RichText("Hello world"))
+        val updated = original.applyTextDiff("Hello beautiful world", pendingMarks = setOf("bold", "italic"))
+        assertEquals(3, updated.size)
+        assertEquals("Hello ", updated[0].text)
+        assertEquals(emptyList<String>(), updated[0].marks)
+        assertEquals("beautiful ", updated[1].text)
+        assertEquals(listOf("bold", "italic"), updated[1].marks)
+        assertEquals("world", updated[2].text)
+        assertEquals(emptyList<String>(), updated[2].marks)
+    }
+
+    @Test
+    fun `applyTextDiff handles deletion and append`() {
+        val original = listOf(
+            RichText("Hello ", marks = listOf("bold")),
+            RichText("world", marks = listOf("italic"))
+        )
+        val deleted = original.applyTextDiff("Hello ")
+        assertEquals(1, deleted.size)
+        assertEquals("Hello ", deleted[0].text)
+        assertEquals(listOf("bold"), deleted[0].marks)
+
+        val appended = deleted.applyTextDiff("Hello there", pendingMarks = setOf("code"))
+        assertEquals(2, appended.size)
+        assertEquals("there", appended[1].text)
+        assertEquals(listOf("code"), appended[1].marks)
+    }
+
+    @Test
+    fun `marksAtOffset returns marks from matching child span`() {
+        val block = EditorBlock.TextBlock(
+            children = listOf(
+                RichText("A", marks = listOf("bold")),
+                RichText("B", marks = listOf("italic")),
+                RichText("C", marks = listOf("code"))
+            )
+        )
+        assertEquals(listOf("bold"), block.marksAtOffset(0))
+        assertEquals(listOf("bold"), block.marksAtOffset(1))
+        assertEquals(listOf("italic"), block.marksAtOffset(2))
+        assertEquals(listOf("code"), block.marksAtOffset(3))
+        assertEquals(listOf("code"), block.marksAtOffset(10))
+    }
+
+    @Test
+    fun `toMarkdown formats headings lists quotes and toggle`() {
+        val doc = NoteDocument(
+            blocks = listOf(
+                EditorBlock.TextBlock(type = "heading_2", children = listOf(RichText("H2"))),
+                EditorBlock.TextBlock(type = "heading_3", children = listOf(RichText("H3"))),
+                EditorBlock.TextBlock(type = "heading_4", children = listOf(RichText("H4"))),
+                EditorBlock.TextBlock(type = "numbered", children = listOf(RichText("Num 1"))),
+                EditorBlock.TextBlock(type = "checkbox", checked = true, children = listOf(RichText("Done"))),
+                EditorBlock.TextBlock(type = "checkbox", checked = false, children = listOf(RichText("Todo"))),
+                EditorBlock.TextBlock(type = "callout", children = listOf(RichText("Note content"))),
+                EditorBlock.TextBlock(type = "quote", children = listOf(RichText("Quote content"))),
+                EditorBlock.TextBlock(type = "toggle", isExpanded = true, children = listOf(RichText("Toggle header")))
+            )
+        )
+        val md = doc.toMarkdown()
+        assertTrue(md.contains("## H2"))
+        assertTrue(md.contains("### H3"))
+        assertTrue(md.contains("#### H4"))
+        assertTrue(md.contains("1. Num 1"))
+        assertTrue(md.contains("- [x] Done"))
+        assertTrue(md.contains("- [ ] Todo"))
+        assertTrue(md.contains("> [!NOTE] Note content"))
+        assertTrue(md.contains("> Quote content"))
+        assertTrue(md.contains("<details open>"))
+    }
 }

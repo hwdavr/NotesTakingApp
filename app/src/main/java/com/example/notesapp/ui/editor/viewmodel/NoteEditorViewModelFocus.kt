@@ -1,5 +1,9 @@
 package com.example.notesapp.ui.editor.viewmodel
 
 fun NoteEditorViewModel.setFocusedBlock(blockId: String?) {
-    uiStateInternal.value = uiStateInternal.value.copy(focusedBlockId = blockId)
+    val current = uiStateInternal.value
+    uiStateInternal.value = current.copy(
+        focusedBlockId = blockId,
+        pendingTypingMarks = if (current.focusedBlockId != blockId) emptySet() else current.pendingTypingMarks
+    )
 }

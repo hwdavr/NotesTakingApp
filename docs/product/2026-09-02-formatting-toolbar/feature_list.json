@@ -73,7 +73,7 @@
       "user_visible_behavior": "An editor can reset selected text to plain body formatting, apply or remove each inline mark without disturbing other marks, and select Bold, Italic, Underline, Strikethrough, or Code at a cursor so following typed text inherits exactly the active marks. Pressing Enter at a focused collapsed cursor preserves the current line's block style and active inline marks on the new line while leaving the existing line unchanged. The formatting toolbar stays visible above the keyboard while editing.",
       "affects_ui": true,
       "requires_visual_verification": false,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -98,7 +98,18 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#formattingToolbarRemainsVisibleAboveIme",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#newLinePreservesCurrentFormatting"
       ],
-      "evidence": [],
+      "evidence": [
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#bodyActionRemovesAllFormattingFromSelectedText -> PASSED (exit 0)",
+        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModelTest\" -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#codeActionChangesOnlyTheSelectedRange -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#boldActionChangesOnlyTheSelectedRange -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#italicActionChangesOnlyTheSelectedRange -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#underlineActionChangesOnlyTheSelectedRange -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#strikethroughActionChangesOnlyTheSelectedRange -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#inlineMarksApplyToFollowingTypedTextAtCollapsedCursor -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#formattingToolbarRemainsVisibleAboveIme -> PASSED (exit 0)",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorSelectionFormattingTest#newLinePreservesCurrentFormatting -> PASSED (exit 0)"
+      ],
       "notes": "Vertical-slice proof: the existing formatting toolbar exposes every requested selection, collapsed-cursor inline-mark, and formatted-new-line outcome after this slice alone. Visual screenshots are owned by the final link slice."
     },
     {

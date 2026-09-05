@@ -108,9 +108,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.OffsetMapping
@@ -167,6 +169,7 @@ import com.example.notesapp.ui.editor.viewmodel.onChartTableAction
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.openFormulaSheet
 import com.example.notesapp.ui.editor.viewmodel.openFormulaSheetForEdit
+import com.example.notesapp.ui.editor.viewmodel.resetSelectedTextToBody
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.editor.viewmodel.submitFormula
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
@@ -227,6 +230,7 @@ fun NoteEditorScreen(
         onToggleCheckboxChecked = viewModel::toggleCheckboxChecked,
         onToggleToggleExpanded = { blockId -> viewModel.toggleToggleExpanded(blockId) },
         onToggleMark = viewModel::toggleBlockMark,
+        onResetBody = viewModel::resetSelectedTextToBody,
         onInsertBasicBlock = viewModel::insertBasicBlock,
         onAddImage = viewModel::addImageBlock,
         onImageChange = viewModel::updateImageBlock,
@@ -301,6 +305,7 @@ fun NoteEditorScreenContent(
         error("NoteEditorScreenContent requires an onToggleToggleExpanded callback for $blockId")
     },
     onToggleMark: (String, String) -> Unit,
+    onResetBody: (String) -> Unit = {},
     onInsertBasicBlock: (BasicBlockType) -> Boolean = { false },
     onAddParagraph: () -> Unit = {},
     onAddImage: () -> Unit,
@@ -571,6 +576,7 @@ fun NoteEditorScreenContent(
                 isCheckboxActive = isCheckboxActive,
                 onToggleCheckbox = onToggleCheckbox,
                 onToggleMark = onToggleMark,
+                onResetBody = onResetBody,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
                 onOpenEmojiPicker = { showEmojiPicker = true },
@@ -1269,6 +1275,7 @@ private object BasicBlockRenderer {
         BasicTextField(
             value = textFieldValue,
             readOnly = !isEditable,
+            visualTransformation = visualTransformation,
             onValueChange = { nextValue ->
                 val selectionChanged = textFieldValue.selection != nextValue.selection
                 val textChanged = textFieldValue.text != nextValue.text
@@ -1905,6 +1912,7 @@ private fun EditorBottomBar(
     isCheckboxActive: Boolean,
     onToggleCheckbox: (String) -> Unit,
     onToggleMark: (String, String) -> Unit,
+    onResetBody: (String) -> Unit = {},
     onOpenFormula: () -> Unit = {},
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
@@ -1925,6 +1933,7 @@ private fun EditorBottomBar(
         FormattingBottomBar(
             state = state,
             activeTextBlockId = activeTextBlockId,
+            onResetBody = onResetBody,
             onToggleMark = onToggleMark,
             onOpenFormula = onOpenFormula,
             onHideToolbar = onToggleFormattingToolbar
@@ -2183,6 +2192,7 @@ private fun EmojiInsertionControl(onOpenEmojiPicker: (() -> Unit)?, isEditable: 
 private fun FormattingBottomBar(
     state: NoteEditorUiState,
     activeTextBlockId: String?,
+    onResetBody: (String) -> Unit = {},
     onToggleMark: (String, String) -> Unit,
     onOpenFormula: () -> Unit = {},
     onHideToolbar: () -> Unit
@@ -2192,6 +2202,7 @@ private fun FormattingBottomBar(
     val isItalicActive = isMarkActive(state, "italic")
     val isUnderlineActive = isMarkActive(state, "underline")
     val isStrikethroughActive = isMarkActive(state, "strikethrough")
+    val isCodeActive = isMarkActive(state, "code")
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
@@ -2204,8 +2215,10 @@ private fun FormattingBottomBar(
     ) {
         item {
             EditorBarButton(
-                onClick = { /* Body click */ },
-                modifier = Modifier.padding(horizontal = 8.dp)
+                onClick = { activeTextBlockId?.let { onResetBody(it) } },
+                modifier = Modifier
+                    .testTag("editor_body_action")
+                    .padding(horizontal = 8.dp)
             ) {
                 Text(
                     stringResource(R.string.editor_format_body),
@@ -2218,7 +2231,9 @@ private fun FormattingBottomBar(
         item {
             EditorBarButton(
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } },
-                modifier = Modifier.testTag("editor_bold_action")
+                modifier = Modifier
+                    .testTag("editor_bold_action")
+                    .semantics { selected = isBoldActive }
             ) {
                 Text(
                     stringResource(R.string.editor_bold_action),
@@ -2231,7 +2246,9 @@ private fun FormattingBottomBar(
         item {
             EditorBarButton(
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } },
-                modifier = Modifier.testTag("editor_italic_action")
+                modifier = Modifier
+                    .testTag("editor_italic_action")
+                    .semantics { selected = isItalicActive }
             ) {
                 Text(
                     stringResource(R.string.editor_italic_action),
@@ -2245,7 +2262,9 @@ private fun FormattingBottomBar(
         item {
             EditorBarButton(
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "underline") } },
-                modifier = Modifier.testTag("editor_underline_action")
+                modifier = Modifier
+                    .testTag("editor_underline_action")
+                    .semantics { selected = isUnderlineActive }
             ) {
                 Text(
                     stringResource(R.string.editor_underline_action),
@@ -2259,7 +2278,9 @@ private fun FormattingBottomBar(
         item {
             EditorBarButton(
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "strikethrough") } },
-                modifier = Modifier.testTag("editor_strikethrough_action")
+                modifier = Modifier
+                    .testTag("editor_strikethrough_action")
+                    .semantics { selected = isStrikethroughActive }
             ) {
                 Text(
                     stringResource(R.string.editor_strikethrough_action),
@@ -2271,7 +2292,10 @@ private fun FormattingBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { /* link logic */ }) {
+            EditorBarButton(
+                onClick = { /* link logic */ },
+                modifier = Modifier.testTag("editor_link_action")
+            ) {
                 Icon(
                     Icons.Outlined.Link,
                     contentDescription = stringResource(R.string.editor_link_description),
@@ -2280,11 +2304,17 @@ private fun FormattingBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { /* code logic */ }) {
+            EditorBarButton(
+                onClick = { activeTextBlockId?.let { onToggleMark(it, "code") } },
+                modifier = Modifier
+                    .testTag("editor_code_action")
+                    .semantics { selected = isCodeActive }
+            ) {
                 Text(
                     stringResource(R.string.editor_code_action),
-                    color = colors.textPrimary,
-                    fontWeight = FontWeight.Bold
+                    color = if (isCodeActive) colors.primary else colors.textPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace
                 )
             }
         }
@@ -2327,18 +2357,23 @@ private fun isMarkActive(state: NoteEditorUiState, mark: String): Boolean {
     val start = state.selectionStart
     val end = state.selectionEnd
 
-    if (start == end || start < 0 || end > text.length) {
+    if (start == end) {
+        return mark in state.pendingTypingMarks
+    }
+    if (start < 0 || end > text.length) {
         return false
     }
 
-    val splitChildren = block.children.splitAtOffsets(listOf(start, end))
+    val selStart = minOf(start, end)
+    val selEnd = maxOf(start, end)
+    val splitChildren = block.children.splitAtOffsets(listOf(selStart, selEnd))
     var currentOffset = 0
     return splitChildren.any { child ->
         val childStart = currentOffset
         val childEnd = currentOffset + child.text.length
         currentOffset = childEnd
 
-        childStart >= start && childEnd <= end && mark in child.marks
+        childStart >= selStart && childEnd <= selEnd && mark in child.marks
     }
 }
 

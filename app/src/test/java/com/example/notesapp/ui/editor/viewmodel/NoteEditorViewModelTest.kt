@@ -1018,6 +1018,133 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
         assertEquals(initialBlocksCount, viewModel.uiState.value.document.blocks.size)
     }
 
+    @Test
+    fun bodyResetWithNoOrCrossBlockSelectionLeavesDocumentUnchanged() = runTest {
+        val block1 = EditorBlock.TextBlock(
+            id = "b1",
+            type = "heading_1",
+            children = listOf(RichText("Title", listOf("bold")))
+        )
+        val block2 = EditorBlock.TextBlock(
+            id = "b2",
+            type = "paragraph",
+            children = listOf(RichText("Paragraph", listOf("italic")))
+        )
+        val initialDoc = NoteDocument(blocks = listOf(block1, block2))
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "n1",
+            document = initialDoc,
+            focusedBlockId = "b1",
+            selectionStart = 2,
+            selectionEnd = 2,
+            pendingTypingMarks = setOf("underline"),
+            isLoaded = true,
+            isEditable = true
+        )
+
+        // 1. Collapsed selection (2, 2) on b1 leaves document unchanged
+        viewModel.resetSelectedTextToBody("b1")
+        assertEquals(initialDoc, viewModel.uiState.value.document)
+        assertEquals(2, viewModel.uiState.value.selectionStart)
+        assertEquals(2, viewModel.uiState.value.selectionEnd)
+        assertEquals(setOf("underline"), viewModel.uiState.value.pendingTypingMarks)
+
+        // 2. Unfocused block target ("b2" while focusedBlockId is "b1") leaves document unchanged
+        viewModel.updateSelection(0, 5)
+        viewModel.resetSelectedTextToBody("b2")
+        assertEquals(initialDoc, viewModel.uiState.value.document)
+
+        // 3. Out of bounds selection leaves document unchanged
+        viewModel.updateSelection(0, 100)
+        viewModel.resetSelectedTextToBody("b1")
+        assertEquals(initialDoc, viewModel.uiState.value.document)
+
+        // 4. Negative selection leaves document unchanged
+        viewModel.updateSelection(-1, -1)
+        viewModel.resetSelectedTextToBody("b1")
+        assertEquals(initialDoc, viewModel.uiState.value.document)
+
+        advanceUntilIdle()
+        coVerify(exactly = 0) { noteRepository.save(any()) }
+    }
+
+    @Test
+    fun `resetSelectedTextToBody on heading splits into prefix, body paragraph, and suffix`() = runTest {
+        val block = EditorBlock.TextBlock(
+            id = "b1",
+            type = "heading_1",
+            children = listOf(RichText("Prefix Target Suffix", listOf("bold")))
+        )
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "n1",
+            document = NoteDocument(blocks = listOf(block)),
+            focusedBlockId = "b1",
+            selectionStart = 7,
+            selectionEnd = 13,
+            isLoaded = true,
+            isEditable = true
+        )
+
+        viewModel.resetSelectedTextToBody("b1")
+
+        val blocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(3, blocks.size)
+        assertEquals("Prefix ", blocks[0].text())
+        assertEquals("heading_1", blocks[0].type)
+        assertEquals("Target", blocks[1].text())
+        assertEquals("paragraph", blocks[1].type)
+        assertTrue(blocks[1].children[0].marks.isEmpty())
+        assertEquals(" Suffix", blocks[2].text())
+        assertEquals("heading_1", blocks[2].type)
+    }
+
+    @Test
+    fun `toggleBlockMark at collapsed cursor toggles pending typing marks`() = runTest {
+        val block = EditorBlock.TextBlock(id = "b1", children = listOf(RichText("Text")))
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "n1",
+            document = NoteDocument(blocks = listOf(block)),
+            focusedBlockId = "b1",
+            selectionStart = 4,
+            selectionEnd = 4,
+            isLoaded = true,
+            isEditable = true
+        )
+
+        viewModel.toggleBlockMark("b1", "bold")
+        assertEquals(setOf("bold"), viewModel.uiState.value.pendingTypingMarks)
+
+        viewModel.toggleBlockMark("b1", "italic")
+        assertEquals(setOf("bold", "italic"), viewModel.uiState.value.pendingTypingMarks)
+
+        viewModel.toggleBlockMark("b1", "bold")
+        assertEquals(setOf("italic"), viewModel.uiState.value.pendingTypingMarks)
+    }
+
+    @Test
+    fun `onTextBlockChange applies pending typing marks to typed text`() = runTest {
+        val block = EditorBlock.TextBlock(id = "b1", children = listOf(RichText("Hello")))
+        viewModel.uiStateInternal.value = NoteEditorUiState(
+            noteId = "n1",
+            document = NoteDocument(blocks = listOf(block)),
+            focusedBlockId = "b1",
+            selectionStart = 5,
+            selectionEnd = 5,
+            pendingTypingMarks = setOf("code"),
+            isLoaded = true,
+            isEditable = true
+        )
+
+        viewModel.onTextBlockChange("b1", "Hello world")
+
+        val updated = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        assertEquals(2, updated.children.size)
+        assertEquals("Hello", updated.children[0].text)
+        assertEquals(emptyList<String>(), updated.children[0].marks)
+        assertEquals(" world", updated.children[1].text)
+        assertEquals(listOf("code"), updated.children[1].marks)
+    }
+
     private fun setEditorDocument(vararg blocks: EditorBlock, editable: Boolean = true) {
         viewModel.uiStateInternal.value = NoteEditorUiState(
             noteId = "table-note",

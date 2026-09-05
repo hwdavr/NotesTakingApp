@@ -523,64 +523,6 @@ private fun resolveSelectedChartColumn(selectedColumnId: String, columnIds: List
     return selectedColumnId.takeIf { it in columnIds.drop(1) } ?: columnIds.getOrElse(1) { "c_value" }
 }
 
-fun List<RichText>.splitAtOffsets(offsets: List<Int>): List<RichText> {
-    val result = mutableListOf<RichText>()
-    var currentOffset = 0
-    val sortedOffsets = offsets.filter { it > 0 }.distinct().sorted()
-    var offsetIndex = 0
-
-    for (child in this) {
-        val childLength = child.text.length
-        var childStart = 0
-
-        while (offsetIndex < sortedOffsets.size && sortedOffsets[offsetIndex] < currentOffset + childLength) {
-            val splitOffset = sortedOffsets[offsetIndex]
-            val relativeSplit = splitOffset - currentOffset
-            if (relativeSplit > childStart) {
-                result.add(
-                    child.copy(
-                        text = child.text.substring(childStart, relativeSplit),
-                        formulaSource = null,
-                        inlineId = null
-                    )
-                )
-                childStart = relativeSplit
-            }
-            offsetIndex++
-        }
-
-        if (childStart < childLength) {
-            result.add(child.copy(text = child.text.substring(childStart)))
-        }
-        currentOffset += childLength
-    }
-    return result
-}
-
-fun List<RichText>.mergeAdjacentWithSameMarks(): List<RichText> {
-    if (isEmpty()) return this
-    val result = mutableListOf<RichText>()
-    var current = first()
-    for (i in 1 until size) {
-        val next = get(i)
-        val mergeable = !current.isFormula && !next.isFormula &&
-            current.marks.sorted() == next.marks.sorted() &&
-            current.linkTargetId == next.linkTargetId
-        if (mergeable) {
-            current = RichText(
-                text = current.text + next.text,
-                marks = current.marks,
-                linkTargetId = current.linkTargetId
-            )
-        } else {
-            result.add(current)
-            current = next
-        }
-    }
-    result.add(current)
-    return result.filterNot { it.text.isEmpty() }.ifEmpty { listOf(RichText("")) }
-}
-
 fun List<RichText>.applyLinkToRange(start: Int, end: Int, targetId: String?): List<RichText> {
     val textLength = sumOf { it.text.length }
     val rangeStart = minOf(start, end).coerceIn(0, textLength)
