@@ -5,8 +5,28 @@
 - Repository root: `/Users/hwdavr/Projects/2026_NotesTakingApp/NotesTakingApp`
 - Standard startup path: Existing Note Editor toolbar actions; no new entry point is introduced by planning.
 - Standard verification path: Slice-scoped commands in `sprint-contract.md`, followed by acceptance traceability, platform, visual, quality, and test-review gates.
-- Current highest-priority unfinished feature: `US-4` — Link text to existing notes and protect the completed toolbar contract.
-- Current state: `US-1`, `US-2`, and `US-3` are passing and complete; `US-4` is not started.
+- Current highest-priority unfinished feature: None (All 4 vertical slices US-1, US-2, US-3, US-4 are passing).
+- Current state: All 4 slices (US-1..US-4) complete and passing; ready for evaluation review (`To be reviewed`).
+
+## Session 006
+
+- Date: 2026-09-06
+- Goal: Implement and verify the approved US-4 internal note links and visual flow verification slice.
+- Completed:
+  - Full-screen `NoteLinkPicker` route (`Destinations.NoteLinkPicker`) with candidate search, folder name subtitles ("No folder" fallback), touch targets $\ge 48\text{dp}$, caller exclusion, and "Remove link" action.
+  - Selected label preservation vs collapsed cursor/no block target title insertion.
+  - Links styled as primary-color underlined text with semantic `editor_note_link_$inlineId` testTag; tapping dispatches selection callback with target note ID.
+  - Cascading deletion: deleting linked note removes entire linked label and annotation; unresolvable annotations fall back to readable plain non-clickable text.
+  - Read-only protection: all 8 formatting controls visible, semantically disabled (`disabled()`), and inert.
+  - Unit test `NoteLinkPickerViewModelTest.kt` covering all ViewModel states, search filtering, and retry triggers.
+  - Extracted route handlers in `AppNavigationHost.kt` and formatting extension functions in `NoteEditorViewModelFormatting.kt` to satisfy Detekt rules.
+  - Captured all 7 required visual flow screenshots in `FormattingToolbarVisualFlowTest.kt` and promoted golden baselines.
+- Verification run: All 16 declared US-4 acceptance tests passed; `assembleDebug`, full `testDebugUnitTest`, `ktlintCheck`, `detekt`, `lintDebug`, Compose/localization/architecture/navigation checks, 80.45% line coverage (5470/6799), 4/4 journey registry checks, acceptance traceability, platform evaluation, and visual comparison passed with 0 violations.
+- Evidence captured: `docs/product/2026-09-02-formatting-toolbar/feature_list.json` US-4 evidence entries, golden baselines in `UX/golden-baselines/`, `reference-anchor-verification.md`, and `summary_US-4.md`.
+- Commits: Pending clean-exit commit.
+- Files or artifacts updated: `strings.xml`, `Destinations.kt`, `NoteLinkPickerViewModel.kt`, `NoteLinkPickerScreen.kt`, `NoteDocument.kt`, `NoteEditorViewModelFormatting.kt`, `NoteEditorScreen.kt`, `AppNavigationHost.kt`, `NoteLinkPickerViewModelTest.kt`, `feature_list.json`, `progress.md`, `product.md`, and `summary_US-4.md`.
+- Known risk or unresolved issue: None. Feature is ready for evaluator review.
+- Next best step: Complete clean exit checklist, session handoff, install app to connected emulator, and commit.
 
 ## Session 005
 

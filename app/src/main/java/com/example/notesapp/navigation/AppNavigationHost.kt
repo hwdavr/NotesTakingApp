@@ -2,8 +2,10 @@ package com.example.notesapp.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,6 +14,10 @@ import androidx.navigation.navArgument
 import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
+import com.example.notesapp.ui.editor.screen.NoteLinkPickerScreen
+import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.editor.viewmodel.onRemoveLinkSelected
+import com.example.notesapp.ui.editor.viewmodel.onTargetNoteSelected
 import com.example.notesapp.ui.folderdescription.screen.FolderDescriptionScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
@@ -223,6 +229,33 @@ internal fun AppNavigationHost(
             val voiceNoteSaved = backStackEntry.savedStateHandle
                 .getStateFlow(VOICE_NOTE_SAVED_KEY, false)
                 .collectAsStateWithLifecycle()
+            val selectedLinkTargetId = backStackEntry.savedStateHandle
+                .getStateFlow<String?>(NOTE_LINK_TARGET_ID_KEY, null)
+                .collectAsStateWithLifecycle()
+            val selectedLinkTargetTitle = backStackEntry.savedStateHandle
+                .getStateFlow<String?>(NOTE_LINK_TARGET_TITLE_KEY, null)
+                .collectAsStateWithLifecycle()
+            val removeLinkRequested = backStackEntry.savedStateHandle
+                .getStateFlow<Boolean>(NOTE_LINK_REMOVE_KEY, false)
+                .collectAsStateWithLifecycle()
+
+            val editorViewModel: NoteEditorViewModel = hiltViewModel()
+
+            LaunchedEffect(selectedLinkTargetId.value) {
+                selectedLinkTargetId.value?.let { targetId ->
+                    val title = selectedLinkTargetTitle.value.orEmpty()
+                    editorViewModel.onTargetNoteSelected(targetId, title)
+                    backStackEntry.savedStateHandle[NOTE_LINK_TARGET_ID_KEY] = null
+                    backStackEntry.savedStateHandle[NOTE_LINK_TARGET_TITLE_KEY] = null
+                }
+            }
+            LaunchedEffect(removeLinkRequested.value) {
+                if (removeLinkRequested.value) {
+                    editorViewModel.onRemoveLinkSelected()
+                    backStackEntry.savedStateHandle[NOTE_LINK_REMOVE_KEY] = false
+                }
+            }
+
             NoteEditorScreen(
                 parentPadding = innerPadding,
                 noteId = noteId,
@@ -250,9 +283,21 @@ internal fun AppNavigationHost(
                 onVoiceNoteSavedConsumed = {
                     backStackEntry.savedStateHandle[VOICE_NOTE_SAVED_KEY] = false
                 },
-                viewModel = hiltViewModel()
+                onOpenNoteLinkPicker = { callerNoteId, hasExistingLink ->
+                    navController.navigate(
+                        Destinations.NoteLinkPicker.createRoute(
+                            callerNoteId = callerNoteId,
+                            hasExistingLink = hasExistingLink
+                        )
+                    )
+                },
+                onOpenNoteLink = { targetNoteId ->
+                    navController.navigate(Destinations.Editor.createRoute(noteId = targetNoteId))
+                },
+                viewModel = editorViewModel
             )
         }
+        noteLinkPickerRoute(navController)
         composable(
             route = Destinations.VoiceRecorder.route,
             arguments = listOf(
@@ -295,69 +340,115 @@ internal fun AppNavigationHost(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(
-            route = Destinations.ExportNote.route,
-            arguments = listOf(
-                navArgument("noteId") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
-            ExportNoteScreen(
-                parentPadding = innerPadding,
-                noteId = noteId,
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable(
-            route = Destinations.SharedUsers.route,
-            arguments = listOf(
-                navArgument("noteId") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
-            SharedUsersScreen(
-                parentPadding = innerPadding,
-                noteId = noteId,
-                onBack = { navController.popBackStack() },
-                onManageAccess = { navController.navigate(Destinations.ManageAccess.createRoute(noteId)) },
-                onShareToNewUser = { navController.navigate(Destinations.ShareInvite.createRoute(noteId)) }
-            )
-        }
-        composable(
-            route = Destinations.ManageAccess.route,
-            arguments = listOf(
-                navArgument("noteId") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            ManageAccessScreen(
-                parentPadding = innerPadding,
-                noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
-                onBack = { navController.popBackStack() },
-                onConfirmSuccess = { navController.popBackStack() }
-            )
-        }
-        composable(
-            route = Destinations.ShareInvite.route,
-            arguments = listOf(
-                navArgument("noteId") {
-                    type = NavType.StringType
-                }
-            )
-        ) { backStackEntry ->
-            ShareInviteScreen(
-                parentPadding = innerPadding,
-                noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
-                onBack = { navController.popBackStack() },
-                onInviteSuccess = { navController.popBackStack() }
-            )
-        }
+        sharingRoutes(navController, innerPadding)
+    }
+}
+
+private fun NavGraphBuilder.noteLinkPickerRoute(navController: NavHostController) {
+    composable(
+        route = Destinations.NoteLinkPicker.route,
+        arguments = listOf(
+            navArgument("callerNoteId") {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument("hasExistingLink") {
+                type = NavType.BoolType
+                defaultValue = false
+            }
+        )
+    ) {
+        NoteLinkPickerScreen(
+            onBack = { navController.popBackStack() },
+            onSelectNote = { noteId, noteTitle ->
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    NOTE_LINK_TARGET_ID_KEY,
+                    noteId
+                )
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    NOTE_LINK_TARGET_TITLE_KEY,
+                    noteTitle
+                )
+                navController.popBackStack()
+            },
+            onRemoveLink = {
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    NOTE_LINK_REMOVE_KEY,
+                    true
+                )
+                navController.popBackStack()
+            },
+            viewModel = hiltViewModel()
+        )
+    }
+}
+
+private fun NavGraphBuilder.sharingRoutes(navController: NavHostController, innerPadding: PaddingValues) {
+    composable(
+        route = Destinations.ExportNote.route,
+        arguments = listOf(
+            navArgument("noteId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
+        ExportNoteScreen(
+            parentPadding = innerPadding,
+            noteId = noteId,
+            onBack = { navController.popBackStack() }
+        )
+    }
+    composable(
+        route = Destinations.SharedUsers.route,
+        arguments = listOf(
+            navArgument("noteId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        val noteId = backStackEntry.arguments?.getString("noteId").orEmpty()
+        SharedUsersScreen(
+            parentPadding = innerPadding,
+            noteId = noteId,
+            onBack = { navController.popBackStack() },
+            onManageAccess = { navController.navigate(Destinations.ManageAccess.createRoute(noteId)) },
+            onShareToNewUser = { navController.navigate(Destinations.ShareInvite.createRoute(noteId)) }
+        )
+    }
+    composable(
+        route = Destinations.ManageAccess.route,
+        arguments = listOf(
+            navArgument("noteId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        ManageAccessScreen(
+            parentPadding = innerPadding,
+            noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
+            onBack = { navController.popBackStack() },
+            onConfirmSuccess = { navController.popBackStack() }
+        )
+    }
+    composable(
+        route = Destinations.ShareInvite.route,
+        arguments = listOf(
+            navArgument("noteId") {
+                type = NavType.StringType
+            }
+        )
+    ) { backStackEntry ->
+        ShareInviteScreen(
+            parentPadding = innerPadding,
+            noteId = backStackEntry.arguments?.getString("noteId").orEmpty(),
+            onBack = { navController.popBackStack() },
+            onInviteSuccess = { navController.popBackStack() }
+        )
     }
 }
 
 private const val VOICE_NOTE_SAVED_KEY = "voice_note_saved"
+private const val NOTE_LINK_TARGET_ID_KEY = "note_link_picker_target_id"
+private const val NOTE_LINK_TARGET_TITLE_KEY = "note_link_picker_target_title"
+private const val NOTE_LINK_REMOVE_KEY = "note_link_picker_remove"

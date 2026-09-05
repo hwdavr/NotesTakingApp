@@ -41,7 +41,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 data class NoteEditorUiState(
@@ -106,17 +108,6 @@ open class NoteEditorViewModel @Inject constructor(
 ) : ViewModel() {
     internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
-    fun toggleFormattingToolbar() {
-        uiStateInternal.value = uiStateInternal.value.copy(
-            isFormattingToolbarVisible = !uiStateInternal.value.isFormattingToolbarVisible
-        )
-    }
-    fun updateSelection(start: Int, end: Int) {
-        uiStateInternal.value = uiStateInternal.value.copy(
-            selectionStart = start,
-            selectionEnd = end
-        )
-    }
 
     fun insertEmoji(emoji: String): Boolean {
         if (!uiStateInternal.value.isEditable || emoji.isEmpty()) return false
@@ -165,6 +156,37 @@ open class NoteEditorViewModel @Inject constructor(
     private var autoSaveJob: Job? = null
     private val autoSaveJobs = mutableSetOf<Job>()
     private var summaryJob: Job? = null
+
+    init {
+        observeLinkTargetChanges()
+    }
+
+    private fun observeLinkTargetChanges() {
+        viewModelScope.launch {
+            try {
+                combine(
+                    noteRepository.getActiveNotes(),
+                    noteRepository.getArchivedNotes()
+                ) { active, archived ->
+                    val activeIds = active.map { it.id }.toSet()
+                    val deletedIds = archived.map { it.id }.toSet()
+                    Pair(activeIds, deletedIds)
+                }.collect { (activeIds, deletedIds) ->
+                    val current = uiStateInternal.value
+                    if (current.isLoaded && current.document.hasLinkAnnotations()) {
+                        val resolved = current.document.resolveLinks(activeIds, deletedIds)
+                        if (resolved != current.document) {
+                            uiStateInternal.value = current.copy(document = resolved)
+                            scheduleAutoSave()
+                        }
+                    }
+                }
+            } catch (_: Throwable) {
+                // Ignore if repository flows are unmocked or empty
+            }
+        }
+    }
+
     fun load(noteId: String?, folderId: String? = null) {
         viewModelScope.launch {
             summaryJob?.cancel()
@@ -181,12 +203,19 @@ open class NoteEditorViewModel @Inject constructor(
                 )
                 return@launch
             }
+            val activeNotes = runCatching { noteRepository.getActiveNotes().firstOrNull() }.getOrNull().orEmpty()
+            val archivedNotes = runCatching { noteRepository.getArchivedNotes().firstOrNull() }.getOrNull().orEmpty()
+            val activeIds = activeNotes.map { it.id }.toSet()
+            val deletedIds = archivedNotes.map { it.id }.toSet()
             val note = noteRepository.getNoteById(noteId)
             val loadedState = if (note != null) {
+                val resolvedDoc = NoteDocument.fromContent(note.content)
+                    .resolveLinks(activeIds, deletedIds)
+                    .ensureEditableTextBlock()
                 NoteEditorUiState(
                     noteId = note.id,
                     title = note.title,
-                    document = NoteDocument.fromContent(note.content).ensureEditableTextBlock(),
+                    document = resolvedDoc,
                     folderId = note.folderId,
                     availableFolders = folders,
                     createdAt = note.createdAt,

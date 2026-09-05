@@ -52,4 +52,10 @@ sealed class Destinations(val route: String) {
     data object ManageAccess : Destinations("manageAccess/{noteId}") {
         fun createRoute(noteId: String): String = "$baseRoute/${Uri.encode(noteId)}"
     }
+    data object NoteLinkPicker : Destinations(
+        "noteLinkPicker?callerNoteId={callerNoteId}&hasExistingLink={hasExistingLink}"
+    ) {
+        fun createRoute(callerNoteId: String, hasExistingLink: Boolean = false): String =
+            "$baseRoute?callerNoteId=${Uri.encode(callerNoteId)}&hasExistingLink=$hasExistingLink"
+    }
 }

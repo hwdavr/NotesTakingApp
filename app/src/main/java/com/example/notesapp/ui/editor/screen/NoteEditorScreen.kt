@@ -165,6 +165,7 @@ import com.example.notesapp.ui.editor.viewmodel.addImageBlock
 import com.example.notesapp.ui.editor.viewmodel.addTableBlock
 import com.example.notesapp.ui.editor.viewmodel.cancelFormula
 import com.example.notesapp.ui.editor.viewmodel.deleteVoiceAudio
+import com.example.notesapp.ui.editor.viewmodel.hasLinkAtCurrentSelection
 import com.example.notesapp.ui.editor.viewmodel.onChartTableAction
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.openFormulaSheet
@@ -172,9 +173,11 @@ import com.example.notesapp.ui.editor.viewmodel.openFormulaSheetForEdit
 import com.example.notesapp.ui.editor.viewmodel.resetSelectedTextToBody
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.editor.viewmodel.submitFormula
+import com.example.notesapp.ui.editor.viewmodel.toggleFormattingToolbar
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
 import com.example.notesapp.ui.editor.viewmodel.updateFormulaSource
 import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
+import com.example.notesapp.ui.editor.viewmodel.updateSelection
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -190,6 +193,8 @@ fun NoteEditorScreen(
     onOpenVoiceRecorder: (String, String?) -> Unit,
     voiceNoteSaved: Boolean = false,
     onVoiceNoteSavedConsumed: () -> Unit = {},
+    onOpenNoteLinkPicker: (callerNoteId: String, hasExistingLink: Boolean) -> Unit = { _, _ -> },
+    onOpenNoteLink: (String) -> Unit = {},
     viewModel: NoteEditorViewModel = hiltViewModel(),
     emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel()
 ) {
@@ -278,7 +283,13 @@ fun NoteEditorScreen(
         onFormulaSourceChange = viewModel::updateFormulaSource,
         onSubmitFormula = { viewModel.submitFormula() },
         onCancelFormula = viewModel::cancelFormula,
-        onFormulaClick = viewModel::openFormulaSheetForEdit
+        onFormulaClick = viewModel::openFormulaSheetForEdit,
+        onOpenNoteLinkPicker = {
+            state.noteId?.let { id ->
+                onOpenNoteLinkPicker(id, viewModel.hasLinkAtCurrentSelection())
+            }
+        },
+        onOpenNoteLink = onOpenNoteLink
     )
 }
 
@@ -345,7 +356,9 @@ fun NoteEditorScreenContent(
     onFormulaSourceChange: (String) -> Unit = {},
     onSubmitFormula: () -> Unit = {},
     onCancelFormula: () -> Unit = {},
-    onFormulaClick: (String, String) -> Unit = { _, _ -> }
+    onFormulaClick: (String, String) -> Unit = { _, _ -> },
+    onOpenNoteLinkPicker: () -> Unit = {},
+    onOpenNoteLink: (String) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -561,6 +574,7 @@ fun NoteEditorScreenContent(
                                 onOpenMermaidFullscreen(block)
                             },
                             onFormulaClick = onFormulaClick,
+                            onOpenNoteLink = onOpenNoteLink,
                             focusedBlockId = state.focusedBlockId, selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
                             tableFocusResetTrigger = tableFocusResetTrigger,
@@ -577,6 +591,8 @@ fun NoteEditorScreenContent(
                 onToggleCheckbox = onToggleCheckbox,
                 onToggleMark = onToggleMark,
                 onResetBody = onResetBody,
+                onOpenFormula = onOpenFormula,
+                onOpenNoteLinkPicker = onOpenNoteLinkPicker,
                 onAddImage = onAddImage,
                 onAddTable = onAddTable,
                 onOpenEmojiPicker = { showEmojiPicker = true },
@@ -584,7 +600,6 @@ fun NoteEditorScreenContent(
                     onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
                 },
                 onToggleFormattingToolbar = onToggleFormattingToolbar,
-                onOpenFormula = onOpenFormula,
                 isBasicBlocksPanelOpen = showBasicBlocksPanel,
                 onToggleBasicBlocksPanel = {
                     if (state.isEditable) {
@@ -872,6 +887,7 @@ private fun DocumentBlockList(
     onUpdateCodeBlockLanguage: ((String, String) -> Unit)? = null,
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     onFormulaClick: (String, String) -> Unit = { _, _ -> },
+    onOpenNoteLink: (String) -> Unit = {},
     focusedBlockId: String?,
     selectionStart: Int,
     selectionEnd: Int,
@@ -905,6 +921,7 @@ private fun DocumentBlockList(
                         onSelectionChange = onSelectionChange,
                         onDelete = { onDeleteBlock(block.id) },
                         onFormulaClick = onFormulaClick,
+                        onOpenNoteLink = onOpenNoteLink,
                         focusRequester = requester,
                         selectionStart = selectionStart,
                         selectionEnd = selectionEnd,
@@ -1003,6 +1020,7 @@ private fun TextDocumentBlock(
     onSelectionChange: (Int, Int) -> Unit,
     onDelete: () -> Unit,
     onFormulaClick: (String, String) -> Unit,
+    onOpenNoteLink: (String) -> Unit = {},
     focusRequester: FocusRequester,
     selectionStart: Int,
     selectionEnd: Int,
@@ -1057,11 +1075,12 @@ private fun TextDocumentBlock(
         }
     }
 
-    val visualTransformation = remember(block.children, colors.background, colors.transparent) {
+    val visualTransformation = remember(block.children, colors.background, colors.transparent, colors.primary) {
         VisualTransformation { text ->
             val annotated = block.toAnnotatedString(
                 codeBackground = colors.background,
-                transparentBackground = colors.transparent
+                transparentBackground = colors.transparent,
+                linkColor = colors.primary
             )
             if (annotated.text == text.text) {
                 TransformedText(annotated, OffsetMapping.Identity)
@@ -1153,6 +1172,25 @@ private fun TextDocumentBlock(
                         }
                 )
             }
+        }
+        val noteLinkDescription = stringResource(R.string.editor_link_description)
+        block.children.filter { !it.linkTargetId.isNullOrBlank() }.forEach { link ->
+            val inlineId = link.inlineId ?: link.linkTargetId ?: return@forEach
+            val targetId = link.linkTargetId ?: return@forEach
+            Box(
+                modifier = Modifier
+                    .size(1.dp)
+                    .testTag("editor_note_link_$inlineId")
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        onOpenNoteLink(targetId)
+                    }
+                    .semantics {
+                        contentDescription = noteLinkDescription
+                    }
+            )
         }
     }
 }
@@ -1914,6 +1952,7 @@ private fun EditorBottomBar(
     onToggleMark: (String, String) -> Unit,
     onResetBody: (String) -> Unit = {},
     onOpenFormula: () -> Unit = {},
+    onOpenNoteLinkPicker: () -> Unit = {},
     onAddImage: () -> Unit,
     onAddTable: () -> Unit,
     onOpenEmojiPicker: () -> Unit,
@@ -1926,16 +1965,29 @@ private fun EditorBottomBar(
         return
     }
     if (!state.isEditable) {
-        ReadOnlyEmojiBottomBar()
+        if (state.isFormattingToolbarVisible) {
+            FormattingBottomBar(
+                state = state,
+                activeTextBlockId = activeTextBlockId,
+                onResetBody = onResetBody,
+                onToggleMark = onToggleMark,
+                onOpenFormula = onOpenFormula,
+                onOpenLink = onOpenNoteLinkPicker,
+                onHideToolbar = onToggleFormattingToolbar
+            )
+        } else {
+            ReadOnlyEmojiBottomBar(onToggleFormattingToolbar = onToggleFormattingToolbar)
+        }
         return
     }
-    if (state.isFormattingToolbarVisible && state.isEditable) {
+    if (state.isFormattingToolbarVisible) {
         FormattingBottomBar(
             state = state,
             activeTextBlockId = activeTextBlockId,
             onResetBody = onResetBody,
             onToggleMark = onToggleMark,
             onOpenFormula = onOpenFormula,
+            onOpenLink = onOpenNoteLinkPicker,
             onHideToolbar = onToggleFormattingToolbar
         )
     } else {
@@ -2143,7 +2195,7 @@ private fun DefaultBottomBar(
 }
 
 @Composable
-private fun ReadOnlyEmojiBottomBar() {
+private fun ReadOnlyEmojiBottomBar(onToggleFormattingToolbar: () -> Unit = {}) {
     val colors = LocalAppColors.current
     Row(
         modifier = Modifier
@@ -2163,6 +2215,21 @@ private fun ReadOnlyEmojiBottomBar() {
                 Icons.Outlined.AddCircle,
                 contentDescription = stringResource(R.string.editor_basic_blocks_trigger_disabled_description),
                 tint = colors.textSecondary.copy(alpha = 0.38f)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .background(colors.border, RoundedCornerShape(8.dp))
+                .clickable(onClick = onToggleFormattingToolbar)
+                .testTag("editor_toggle_formatting"),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                stringResource(R.string.editor_format_text_style),
+                color = colors.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
             )
         }
         EmojiInsertionControl(onOpenEmojiPicker = null, isEditable = false)
@@ -2195,6 +2262,7 @@ private fun FormattingBottomBar(
     onResetBody: (String) -> Unit = {},
     onToggleMark: (String, String) -> Unit,
     onOpenFormula: () -> Unit = {},
+    onOpenLink: () -> Unit = {},
     onHideToolbar: () -> Unit
 ) {
     val colors = LocalAppColors.current
@@ -2203,6 +2271,7 @@ private fun FormattingBottomBar(
     val isUnderlineActive = isMarkActive(state, "underline")
     val isStrikethroughActive = isMarkActive(state, "strikethrough")
     val isCodeActive = isMarkActive(state, "code")
+    val disabledColor = colors.textSecondary.copy(alpha = 0.38f)
     LazyRow(
         modifier =
         Modifier.fillMaxWidth()
@@ -2215,6 +2284,7 @@ private fun FormattingBottomBar(
     ) {
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onResetBody(it) } },
                 modifier = Modifier
                     .testTag("editor_body_action")
@@ -2223,21 +2293,29 @@ private fun FormattingBottomBar(
                 Text(
                     stringResource(R.string.editor_format_body),
                     fontWeight = FontWeight.Bold,
-                    color = colors.textPrimary,
+                    color = if (state.isEditable) colors.textPrimary else disabledColor,
                     fontSize = 14.sp
                 )
             }
         }
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "bold") } },
                 modifier = Modifier
                     .testTag("editor_bold_action")
                     .semantics { selected = isBoldActive }
             ) {
+                val textColor = if (!state.isEditable) {
+                    disabledColor
+                } else if (isBoldActive) {
+                    colors.primary
+                } else {
+                    colors.textPrimary
+                }
                 Text(
                     stringResource(R.string.editor_bold_action),
-                    color = if (isBoldActive) colors.primary else colors.textPrimary,
+                    color = textColor,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -2245,14 +2323,22 @@ private fun FormattingBottomBar(
         }
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "italic") } },
                 modifier = Modifier
                     .testTag("editor_italic_action")
                     .semantics { selected = isItalicActive }
             ) {
+                val textColor = if (!state.isEditable) {
+                    disabledColor
+                } else if (isItalicActive) {
+                    colors.primary
+                } else {
+                    colors.textPrimary
+                }
                 Text(
                     stringResource(R.string.editor_italic_action),
-                    color = if (isItalicActive) colors.primary else colors.textPrimary,
+                    color = textColor,
                     fontSize = 18.sp,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold
@@ -2261,14 +2347,22 @@ private fun FormattingBottomBar(
         }
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "underline") } },
                 modifier = Modifier
                     .testTag("editor_underline_action")
                     .semantics { selected = isUnderlineActive }
             ) {
+                val textColor = if (!state.isEditable) {
+                    disabledColor
+                } else if (isUnderlineActive) {
+                    colors.primary
+                } else {
+                    colors.textPrimary
+                }
                 Text(
                     stringResource(R.string.editor_underline_action),
-                    color = if (isUnderlineActive) colors.primary else colors.textPrimary,
+                    color = textColor,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline
@@ -2277,14 +2371,22 @@ private fun FormattingBottomBar(
         }
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "strikethrough") } },
                 modifier = Modifier
                     .testTag("editor_strikethrough_action")
                     .semantics { selected = isStrikethroughActive }
             ) {
+                val textColor = if (!state.isEditable) {
+                    disabledColor
+                } else if (isStrikethroughActive) {
+                    colors.primary
+                } else {
+                    colors.textPrimary
+                }
                 Text(
                     stringResource(R.string.editor_strikethrough_action),
-                    color = if (isStrikethroughActive) colors.primary else colors.textPrimary,
+                    color = textColor,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.LineThrough
@@ -2293,26 +2395,35 @@ private fun FormattingBottomBar(
         }
         item {
             EditorBarButton(
-                onClick = { /* link logic */ },
+                enabled = state.isEditable,
+                onClick = onOpenLink,
                 modifier = Modifier.testTag("editor_link_action")
             ) {
                 Icon(
                     Icons.Outlined.Link,
                     contentDescription = stringResource(R.string.editor_link_description),
-                    tint = colors.textPrimary
+                    tint = if (state.isEditable) colors.textPrimary else disabledColor
                 )
             }
         }
         item {
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = { activeTextBlockId?.let { onToggleMark(it, "code") } },
                 modifier = Modifier
                     .testTag("editor_code_action")
                     .semantics { selected = isCodeActive }
             ) {
+                val textColor = if (!state.isEditable) {
+                    disabledColor
+                } else if (isCodeActive) {
+                    colors.primary
+                } else {
+                    colors.textPrimary
+                }
                 Text(
                     stringResource(R.string.editor_code_action),
-                    color = if (isCodeActive) colors.primary else colors.textPrimary,
+                    color = textColor,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
                 )
@@ -2321,6 +2432,7 @@ private fun FormattingBottomBar(
         item {
             val formulaActionDescription = stringResource(R.string.editor_formula_action_description)
             EditorBarButton(
+                enabled = state.isEditable,
                 onClick = onOpenFormula,
                 modifier = Modifier
                     .testTag("editor_formula_action")
@@ -2330,7 +2442,7 @@ private fun FormattingBottomBar(
             ) {
                 Text(
                     stringResource(R.string.editor_formula_action),
-                    color = colors.textPrimary,
+                    color = if (state.isEditable) colors.textPrimary else disabledColor,
                     fontWeight = FontWeight.Bold
                 )
             }

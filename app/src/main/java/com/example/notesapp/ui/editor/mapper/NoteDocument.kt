@@ -536,7 +536,11 @@ fun List<RichText>.applyLinkToRange(start: Int, end: Int, targetId: String?): Li
         val childEnd = childStart + child.text.length
         currentOffset = childEnd
         if (childStart >= rangeStart && childEnd <= rangeEnd) {
-            child.copy(linkTargetId = targetId?.takeIf { it.isNotBlank() })
+            val normalizedTarget = targetId?.takeIf { it.isNotBlank() }
+            child.copy(
+                linkTargetId = normalizedTarget,
+                inlineId = if (normalizedTarget == null) null else (child.inlineId ?: normalizedTarget)
+            )
         } else {
             child
         }
@@ -577,7 +581,7 @@ fun List<RichText>.insertLinkedText(offset: Int, text: String, targetId: String)
             if (relativeOffset > 0) {
                 updatedChildren += child.copy(text = child.text.substring(0, relativeOffset))
             }
-            updatedChildren += RichText(text = text, linkTargetId = targetId)
+            updatedChildren += RichText(text = text, linkTargetId = targetId, inlineId = targetId)
             if (relativeOffset < child.text.length) {
                 updatedChildren += child.copy(text = child.text.substring(relativeOffset))
             }
@@ -589,7 +593,7 @@ fun List<RichText>.insertLinkedText(offset: Int, text: String, targetId: String)
     }
 
     if (!inserted) {
-        updatedChildren += RichText(text = text, linkTargetId = targetId)
+        updatedChildren += RichText(text = text, linkTargetId = targetId, inlineId = targetId)
     }
     return updatedChildren.mergeAdjacentWithSameMarks()
 }
@@ -605,7 +609,7 @@ fun List<RichText>.removeLinkAtOffset(offset: Int): List<RichText> {
         currentOffset = childEnd
         val containsOffset = targetOffset in childStart until childEnd ||
             (targetOffset == textLength && childEnd == textLength)
-        if (containsOffset) child.copy(linkTargetId = null) else child
+        if (containsOffset) child.copy(linkTargetId = null, inlineId = null) else child
     }.mergeAdjacentWithSameMarks()
 }
 
@@ -615,7 +619,10 @@ private fun List<RichText>.resolveLinks(activeTargetIds: Set<String>, deletedTar
         when {
             targetId.isNullOrBlank() -> listOf(child)
             targetId in deletedTargetIds -> emptyList()
-            targetId in activeTargetIds -> listOf(child)
-            else -> listOf(child.copy(linkTargetId = null))
+            targetId in activeTargetIds -> listOf(
+                if (child.inlineId.isNullOrBlank()) child.copy(inlineId = targetId) else child
+            )
+            activeTargetIds.isNotEmpty() -> listOf(child.copy(linkTargetId = null, inlineId = null))
+            else -> listOf(child)
         }
     }.mergeAdjacentWithSameMarks()

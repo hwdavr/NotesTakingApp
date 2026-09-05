@@ -150,7 +150,7 @@
       "user_visible_behavior": "An editor can search for another note, see its folder context, create a retained-label or target-title link, replace or remove it, and tap a valid primary-color underlined link to open the target. Deleted targets remove the whole linked label, unresolved annotations remain readable plain text, and read-only notes expose all formatting controls as visible disabled controls.",
       "affects_ui": true,
       "requires_visual_verification": true,
-      "status": "not_started",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-4-01",
         "TC-US-4-02",
@@ -187,7 +187,120 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaSheetKeyboard && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_keyboard.png \"$FEATURE_DIR/visual_evidence/formula_sheet_keyboard.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_keyboard.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaSheetDarkTheme && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_dark_theme.png \"$FEATURE_DIR/visual_evidence/formula_sheet_dark_theme.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_dark_theme.png\""
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "test_id": "TC-US-4-01",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#pickerSearchesCandidatesExcludesCurrentNoteAndShowsParentFolder",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; note search filters candidate list, excludes caller note, and displays folder subtitle or No folder."
+        },
+        {
+          "test_id": "TC-US-4-02",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#pickerReturnsTargetAndPreservesSelectedLabel",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; selected label text is preserved when linking to target note."
+        },
+        {
+          "test_id": "TC-US-4-03",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#pickerInsertsTargetTitleWithoutSelection",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; target note title is inserted at collapsed cursor or in new block when no text is selected."
+        },
+        {
+          "test_id": "TC-US-4-04",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#validInternalLinkIsStyledAndOpensTarget",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; link renders with primary color, underline, and opens target note editor on click."
+        },
+        {
+          "test_id": "TC-US-4-05",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#removeLinkReplaceAndCancelHaveSpecifiedOutcomes",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; removing link reverts to plain text, replacing updates target, and cancel leaves document unchanged."
+        },
+        {
+          "test_id": "TC-US-4-06",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#deletingLinkedTargetRemovesEntireLabel",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; cascading deletion removes entire linked label and annotation when target note is deleted."
+        },
+        {
+          "test_id": "TC-US-4-07",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteLinkPickerScreenTest#unresolvedAnnotationRendersReadablePlainText",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; unresolvable or malformed link annotations render safely as readable plain non-clickable text."
+        },
+        {
+          "test_id": "TC-US-4-08",
+          "executed_command": "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorNoteLinkTest\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "Focused JVM test passed; verified rich text JSON round-trip, Markdown/PDF export of notesapp://note/<id> links, and log privacy."
+        },
+        {
+          "test_id": "TC-US-4-09",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorFormattingReadOnlyTest#formattingControlsAreVisibleDisabledAndInert",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented test passed on Medium_Phone (AVD) API 33; all 8 formatting controls are displayed, semantically disabled, and inert in read-only mode."
+        },
+        {
+          "test_id": "TC-US-4-VIS-001",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureToolbarSelection && adb -s emulator-5554 pull /sdcard/Download/formatting_toolbar_selection.png \"$FEATURE_DIR/visual_evidence/formatting_toolbar_selection.png\" && test -s \"$FEATURE_DIR/visual_evidence/formatting_toolbar_selection.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formatting_toolbar_selection.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-002",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureEditorKeyboard && adb -s emulator-5554 pull /sdcard/Download/formatting_toolbar_keyboard.png \"$FEATURE_DIR/visual_evidence/formatting_toolbar_keyboard.png\" && test -s \"$FEATURE_DIR/visual_evidence/formatting_toolbar_keyboard.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formatting_toolbar_keyboard.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-003",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureLinkPicker && adb -s emulator-5554 pull /sdcard/Download/note_link_picker.png \"$FEATURE_DIR/visual_evidence/note_link_picker.png\" && test -s \"$FEATURE_DIR/visual_evidence/note_link_picker.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to note_link_picker.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-004",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaDefault && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_default.png \"$FEATURE_DIR/visual_evidence/formula_sheet_default.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_default.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formula_sheet_default.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-005",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaInvalid && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_invalid.png \"$FEATURE_DIR/visual_evidence/formula_sheet_invalid.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_invalid.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formula_sheet_invalid.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-006",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaSheetKeyboard && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_keyboard.png \"$FEATURE_DIR/visual_evidence/formula_sheet_keyboard.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_keyboard.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formula_sheet_keyboard.png and verified non-empty."
+        },
+        {
+          "test_id": "TC-US-4-VIS-007",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.FormattingToolbarVisualFlowTest#captureFormulaSheetDarkTheme && adb -s emulator-5554 pull /sdcard/Download/formula_sheet_dark_theme.png \"$FEATURE_DIR/visual_evidence/formula_sheet_dark_theme.png\" && test -s \"$FEATURE_DIR/visual_evidence/formula_sheet_dark_theme.png\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1 instrumented visual test passed; active window screenshot captured to formula_sheet_dark_theme.png and verified non-empty."
+        }
+      ],
       "notes": "Final vertical slice and sole visual-verification owner. It uses the already-reachable Link action and the completed editor/formula actions from US-1 through US-3; visual evidence must be captured inside dedicated VisualFlowTest methods, then pulled and checked for non-empty files."
     }
   ]
