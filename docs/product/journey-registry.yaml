@@ -51,3 +51,15 @@ journeys:
     gradle_selector: "com.example.notesapp.navigation.NavigationContractTest#givenMoveToRoute_whenGraphIsBuilt_thenItemArgumentsAreRequired"
     boundary: "MoveTo destination requires itemType and itemId"
     post_return_assertion: "MoveTo route contract satisfied"
+
+  - id: J-EDITOR-UNDO-REOPEN
+    description: "Editor -> type -> undo -> leave via Back (save) -> reopen note: undone content persisted with a fresh undo/redo baseline"
+    introduced_by: editor-undo-redo/US-3
+    destinations:
+      - Notes
+      - Editor
+    test_file: app/src/androidTest/java/com/example/notesapp/ui/editor/screen/NoteEditorUndoRedoPersistenceJourneyTest.kt
+    test_method: undoStatePersistsAcrossExitAndReopenWithFreshBaseline
+    gradle_selector: "com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoPersistenceJourneyTest#undoStatePersistsAcrossExitAndReopenWithFreshBaseline"
+    boundary: "Exit the editor via the top-bar Back action persists the currently visible (undone) document"
+    post_return_assertion: "Reopened note displays the undone content with Undo and Redo disabled on a fresh baseline"

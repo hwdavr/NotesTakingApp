@@ -94,6 +94,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -175,9 +176,11 @@ import com.example.notesapp.ui.editor.viewmodel.onChartTableAction
 import com.example.notesapp.ui.editor.viewmodel.onTableAction
 import com.example.notesapp.ui.editor.viewmodel.openFormulaSheet
 import com.example.notesapp.ui.editor.viewmodel.openFormulaSheetForEdit
+import com.example.notesapp.ui.editor.viewmodel.redo
 import com.example.notesapp.ui.editor.viewmodel.resetSelectedTextToBody
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.editor.viewmodel.submitFormula
+import com.example.notesapp.ui.editor.viewmodel.undo
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
 import com.example.notesapp.ui.editor.viewmodel.updateFormulaSource
 import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
@@ -292,11 +295,13 @@ fun NoteEditorScreen(
                 onOpenNoteLinkPicker(id, viewModel.hasLinkAtCurrentSelection())
             }
         },
-        onOpenNoteLink = onOpenNoteLink
+        onOpenNoteLink = onOpenNoteLink,
+        onUndo = viewModel::undo,
+        onRedo = viewModel::redo
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("LongParameterList")
 @Composable
 fun NoteEditorScreenContent(
@@ -361,7 +366,9 @@ fun NoteEditorScreenContent(
     onCancelFormula: () -> Unit = {},
     onFormulaClick: (String, String) -> Unit = { _, _ -> },
     onOpenNoteLinkPicker: () -> Unit = {},
-    onOpenNoteLink: (String) -> Unit = {}
+    onOpenNoteLink: (String) -> Unit = {},
+    onUndo: () -> Unit = {},
+    onRedo: () -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -402,6 +409,19 @@ fun NoteEditorScreenContent(
                 .padding(innerPadding)
                 .navigationBarsPadding()
                 .imePadding()
+                .onPreviewKeyEvent { keyEvent ->
+                    // Hardware-keyboard chords act on the shared document history from anywhere in
+                    // the editor (title included, title itself excluded from history). Undo/redo are
+                    // only reachable on editable notes with a matching action available.
+                    consumeUndoRedoShortcut(
+                        keyEvent = keyEvent,
+                        editable = state.isEditable,
+                        canUndo = state.canUndo,
+                        canRedo = state.canRedo,
+                        onUndo = onUndo,
+                        onRedo = onRedo
+                    )
+                }
         ) {
             EditorTopBar(
                 onBack = {
@@ -611,7 +631,9 @@ fun NoteEditorScreenContent(
                     if (state.isEditable) {
                         showBasicBlocksPanel = !showBasicBlocksPanel
                     }
-                }
+                },
+                onUndo = onUndo,
+                onRedo = onRedo
             )
             if (showBasicBlocksPanel && state.isEditable) {
                 BasicBlocksPanelSection(
@@ -2013,7 +2035,9 @@ private fun EditorBottomBar(
     onOpenVoiceRecorder: () -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     isBasicBlocksPanelOpen: Boolean,
-    onToggleBasicBlocksPanel: () -> Unit
+    onToggleBasicBlocksPanel: () -> Unit,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit
 ) {
     if (state.formulaSheet != null) {
         return
@@ -2055,7 +2079,11 @@ private fun EditorBottomBar(
             onOpenEmojiPicker = onOpenEmojiPicker,
             onOpenVoiceRecorder = onOpenVoiceRecorder,
             isBasicBlocksPanelOpen = isBasicBlocksPanelOpen,
-            onToggleBasicBlocksPanel = onToggleBasicBlocksPanel
+            onToggleBasicBlocksPanel = onToggleBasicBlocksPanel,
+            canUndo = state.canUndo,
+            canRedo = state.canRedo,
+            onUndo = onUndo,
+            onRedo = onRedo
         )
     }
 }
@@ -2082,7 +2110,11 @@ private fun DefaultBottomBar(
     onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit,
     isBasicBlocksPanelOpen: Boolean,
-    onToggleBasicBlocksPanel: () -> Unit
+    onToggleBasicBlocksPanel: () -> Unit,
+    canUndo: Boolean,
+    canRedo: Boolean,
+    onUndo: () -> Unit,
+    onRedo: () -> Unit
 ) {
     val colors = LocalAppColors.current
     val handleToolbarClick: (() -> Unit) -> Unit = { action ->
@@ -2174,20 +2206,28 @@ private fun DefaultBottomBar(
             )
         }
         item {
-            EditorBarButton(onClick = { handleToolbarClick {} }) {
+            EditorBarButton(
+                onClick = { handleToolbarClick(onUndo) },
+                enabled = canUndo,
+                modifier = Modifier.testTag("editor_undo_action")
+            ) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Undo,
                     contentDescription = stringResource(R.string.editor_undo_description),
-                    tint = colors.textSecondary
+                    tint = if (canUndo) colors.textPrimary else colors.textSecondary.copy(alpha = 0.38f)
                 )
             }
         }
         item {
-            EditorBarButton(onClick = { handleToolbarClick {} }) {
+            EditorBarButton(
+                onClick = { handleToolbarClick(onRedo) },
+                enabled = canRedo,
+                modifier = Modifier.testTag("editor_redo_action")
+            ) {
                 Icon(
                     Icons.AutoMirrored.Outlined.Redo,
                     contentDescription = stringResource(R.string.editor_redo_description),
-                    tint = colors.textSecondary
+                    tint = if (canRedo) colors.textPrimary else colors.textSecondary.copy(alpha = 0.38f)
                 )
             }
         }

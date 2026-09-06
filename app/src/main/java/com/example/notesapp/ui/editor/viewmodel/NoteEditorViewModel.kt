@@ -37,9 +37,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -67,7 +65,9 @@ data class NoteEditorUiState(
     val showCategorizationDialog: Boolean = false,
     val showCategorizationNoMatchDialog: Boolean = false,
     val formulaSheet: FormulaSheetUiState? = null,
-    val pendingTypingMarks: Set<String> = emptySet()
+    val pendingTypingMarks: Set<String> = emptySet(),
+    val canUndo: Boolean = false,
+    val canRedo: Boolean = false
 ) {
     val content: String
         get() = document.toPlainText()
@@ -104,8 +104,8 @@ open class NoteEditorViewModel @Inject constructor(
     internal val deleteVoiceNoteAudioUseCase: DeleteVoiceNoteAudioUseCase,
     private val deleteVoiceNoteBlockUseCase: DeleteVoiceNoteBlockUseCase
 ) : ViewModel() {
-    internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
-    open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
+    internal val uiStateInternal = NoteEditorUndoRedoFlow()
+    open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal
 
     fun toggleFormattingToolbar() {
         uiStateInternal.value = uiStateInternal.value.copy(
@@ -194,6 +194,7 @@ open class NoteEditorViewModel @Inject constructor(
                     isLoaded = true,
                     summaryState = NoteSummaryUiState.Empty
                 )
+                uiStateInternal.resetBaseline()
                 return@launch
             }
             val activeNotes = runCatching { noteRepository.getActiveNotes().firstOrNull() }.getOrNull().orEmpty()
@@ -226,6 +227,7 @@ open class NoteEditorViewModel @Inject constructor(
                 )
             }
             uiStateInternal.value = loadedState
+            uiStateInternal.resetBaseline()
             generateSummaryForLoadedNote(loadedState)
         }
     }
@@ -257,6 +259,7 @@ open class NoteEditorViewModel @Inject constructor(
             splitTextBlock(blockId, value)
             return
         }
+        uiStateInternal.beginTypingRun("block:$blockId")
         val state = uiStateInternal.value
         updateBlock(blockId) { block ->
             if (block is EditorBlock.TextBlock) {
@@ -421,6 +424,9 @@ open class NoteEditorViewModel @Inject constructor(
 
     fun updateImageBlock(blockId: String, url: String? = null, caption: String? = null) {
         if (!uiStateInternal.value.isEditable) return
+        if (url == null && caption != null) {
+            uiStateInternal.beginTypingRun("imageCaption:$blockId")
+        }
         updateBlock(blockId) { block ->
             if (block is EditorBlock.ImageBlock) {
                 block.copy(
@@ -434,6 +440,7 @@ open class NoteEditorViewModel @Inject constructor(
     }
     fun updateTableCell(blockId: String, rowIndex: Int, cellIndex: Int, value: String) {
         if (!uiStateInternal.value.isEditable) return
+        uiStateInternal.beginTypingRun("tableCell:$blockId:$rowIndex:$cellIndex")
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.TableBlock) return@updateBlock block
             block.copy(
@@ -452,6 +459,9 @@ open class NoteEditorViewModel @Inject constructor(
 
     fun updateChart(blockId: String, title: String? = null, selectedColumnId: String? = null) {
         if (!uiStateInternal.value.isEditable) return
+        if (title != null) {
+            uiStateInternal.beginTypingRun("chartTitle:$blockId")
+        }
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.ChartBlock) return@updateBlock block
             val normalizedBlock = block.normalized()
@@ -467,6 +477,7 @@ open class NoteEditorViewModel @Inject constructor(
 
     fun updateChartCell(blockId: String, rowIndex: Int, columnIndex: Int, value: String) {
         if (!uiStateInternal.value.isEditable) return
+        uiStateInternal.beginTypingRun("chartCell:$blockId:$rowIndex:$columnIndex")
         updateBlock(blockId) { block ->
             if (block !is EditorBlock.ChartBlock) return@updateBlock block
             val normalizedBlock = block.normalized()

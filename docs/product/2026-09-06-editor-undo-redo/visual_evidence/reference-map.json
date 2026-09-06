@@ -1,0 +1,7 @@
+{
+  "undo_redo_disabled_baseline.png": "design/mockup_note_editor_undo_redo.png",
+  "undo_redo_undo_enabled.png": "design/mockup_note_editor_undo_redo.png",
+  "undo_redo_redo_enabled.png": "design/mockup_note_editor_undo_redo_redo_enabled.png",
+  "undo_redo_keyboard_visible.png": "design/mockup_note_editor_undo_redo_keyboard.png",
+  "undo_redo_read_only_absent.png": null
+}
