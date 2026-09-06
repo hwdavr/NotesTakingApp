@@ -1,175 +1,184 @@
 {
-  "project": "Notes Taking App",
-  "last_updated": "2026-09-06",
-  "rules": {
-    "single_active_feature": true,
-    "passing_requires_evidence": true,
-    "passing_requires_acceptance_test_evidence": true,
-    "passing_requires_noncontradictory_evidence": true,
-    "do_not_skip_verification": true
-  },
-  "status_legend": {
-    "not_started": "Work has not begun.",
-    "in_progress": "The feature is the current active task.",
-    "blocked": "Work cannot continue until a documented blocker is resolved.",
-    "passing": "Required verification has passed and evidence is recorded."
-  },
-  "platform_validation": {
+ "project": "Notes Taking App",
+ "last_updated": "2026-09-06",
+ "rules": {
+  "single_active_feature": true,
+  "passing_requires_evidence": true,
+  "passing_requires_acceptance_test_evidence": true,
+  "passing_requires_noncontradictory_evidence": true,
+  "do_not_skip_verification": true
+ },
+ "status_legend": {
+  "not_started": "Work has not begun.",
+  "in_progress": "The feature is the current active task.",
+  "blocked": "Work cannot continue until a documented blocker is resolved.",
+  "passing": "Required verification has passed and evidence is recorded."
+ },
+ "platform_validation": {
+  "required": false,
+  "unsupported_environment_policy": "fail_loudly",
+  "reason": "Undo/redo is in-memory editor state over the existing local Room note document; it uses no Android service, permission, hardware, locale, device-model, or platform-model boundary."
+ },
+ "features": [
+  {
+   "id": "US-1",
+   "priority": 1,
+   "area": "editor-undo-redo-engine",
+   "title": "Session document history with typing undo/redo and toolbar states",
+   "description": "Implement the in-memory undo/redo engine in the NoteEditorViewModel boundary and wire the existing Undo/Redo buttons in the editable default bottom toolbar. Add a single internal commit funnel that every document mutation passes through: before the document changes it records a snapshot of the immutable NoteDocument plus editing context (focusedBlockId, selectionStart/End, focusedTableCells), seeds the baseline snapshot when an editable note is loaded or a new note starts, and clears history on read-only notes. Expose undo()/redo() that move a pointer across snapshots, restore the document and recorded focus/selection, clear pendingTypingMarks after application, and derive canUndo/canRedo for UiState. Truncate the redo tail whenever a new document edit lands after an undo. Coalesce continuous typing into the open top step while commits target the same TextBlock and arrive within the coalescing window (a single named constant, ~1 s) with no intervening discrete action; a longer pause or a discrete action starts a new step. Bound the stack at 100 entries by dropping the oldest. The title field is never recorded because the funnel captures only the document. Update the DefaultBottomBar Undo/Redo EditorBarButton handlers from no-ops to real actions with enabled = canUndo/canRedo, disabled icon content at 38% alpha (textSecondary), disabled semantics, and stable test tags editor_undo_action and editor_redo_action; read-only bars keep no Undo/Redo. Keep the funnel, coalescer, and snapshot restore as pure JVM-testable helpers under the viewmodel package so they are Kover-measured.",
+   "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_redo_enabled.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_keyboard.png",
+   "user_visible_behavior": "After this slice ships alone, a user can type in a note body text block and tap the existing Undo button to revert the typed text (whole typing runs in one step), tap Redo to replay it, watch both buttons enable/disable at the correct history states (disabled at the loaded baseline), and confirm that typing only in the title never enables Undo/Redo.",
+   "affects_ui": true,
+   "requires_visual_verification": false,
+   "production_journey": {
     "required": false,
-    "unsupported_environment_policy": "fail_loudly",
-    "reason": "Undo/redo is in-memory editor state over the existing local Room note document; it uses no Android service, permission, hardware, locale, device-model, or platform-model boundary."
+    "reason": "Slice tests undo/redo of body typing strictly within the open editor; it introduces no navigation, picker, saved-state, back-stack, or destination-recreation boundary.",
+    "acceptance_test_id": null,
+    "production_entry_point": null,
+    "test_file": null,
+    "test_method": null,
+    "user_actions": null,
+    "return_boundary": null,
+    "post_return_assertion": null
+   },
+   "status": "passing",
+   "acceptance_test_ids": [
+    "TC-US-1-01",
+    "TC-US-1-02",
+    "TC-US-1-03",
+    "TC-US-1-04",
+    "TC-US-1-05",
+    "TC-US-1-06",
+    "TC-US-1-07",
+    "TC-US-1-08"
+   ],
+   "verification": [
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#typingThenUndoRestoresPreviousText",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoRedoDisabledAtBaselineMakeNoChange",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#redoReplaysUndoneText",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#newEditAfterUndoClearsRedo",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.typingCommitsWithinWindowMergeIntoSingleStep\"",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.pausedTypingSplitsIntoNewUndoStep\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoEnabledAfterTypingRedoDisabledUntilUndo",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#titleOnlyTypingKeepsUndoRedoDisabled"
+   ],
+   "evidence": [
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#typingThenUndoRestoresPreviousText -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoRedoDisabledAtBaselineMakeNoChange -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#redoReplaysUndoneText -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#newEditAfterUndoClearsRedo -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.typingCommitsWithinWindowMergeIntoSingleStep\" -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.pausedTypingSplitsIntoNewUndoStep\" -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoEnabledAfterTypingRedoDisabledUntilUndo -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#titleOnlyTypingKeepsUndoRedoDisabled -> PASSED (exit 0)"
+   ],
+   "notes": "US-1 delivered: in-memory session history funnel (EditorHistory + NoteEditorUndoRedoFlow) records every document mutation with typing-run coalescing, redo-tail truncation, 100-step cap, baseline on load, focus-fallback; undo()/redo() restore document + caret context; canUndo/canRedo drive the wired Undo/Redo bottom-bar controls (38% alpha disabled, stable tags). All 8 acceptance verification commands PASSED; ktlint/detekt/architecture/compose/localization rules and coverage gate pass."
   },
-  "features": [
-    {
-      "id": "US-1",
-      "priority": 1,
-      "area": "editor-undo-redo-engine",
-      "title": "Session document history with typing undo/redo and toolbar states",
-      "description": "Implement the in-memory undo/redo engine in the NoteEditorViewModel boundary and wire the existing Undo/Redo buttons in the editable default bottom toolbar. Add a single internal commit funnel that every document mutation passes through: before the document changes it records a snapshot of the immutable NoteDocument plus editing context (focusedBlockId, selectionStart/End, focusedTableCells), seeds the baseline snapshot when an editable note is loaded or a new note starts, and clears history on read-only notes. Expose undo()/redo() that move a pointer across snapshots, restore the document and recorded focus/selection, clear pendingTypingMarks after application, and derive canUndo/canRedo for UiState. Truncate the redo tail whenever a new document edit lands after an undo. Coalesce continuous typing into the open top step while commits target the same TextBlock and arrive within the coalescing window (a single named constant, ~1 s) with no intervening discrete action; a longer pause or a discrete action starts a new step. Bound the stack at 100 entries by dropping the oldest. The title field is never recorded because the funnel captures only the document. Update the DefaultBottomBar Undo/Redo EditorBarButton handlers from no-ops to real actions with enabled = canUndo/canRedo, disabled icon content at 38% alpha (textSecondary), disabled semantics, and stable test tags editor_undo_action and editor_redo_action; read-only bars keep no Undo/Redo. Keep the funnel, coalescer, and snapshot restore as pure JVM-testable helpers under the viewmodel package so they are Kover-measured.",
-      "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_redo_enabled.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_keyboard.png",
-      "user_visible_behavior": "After this slice ships alone, a user can type in a note body text block and tap the existing Undo button to revert the typed text (whole typing runs in one step), tap Redo to replay it, watch both buttons enable/disable at the correct history states (disabled at the loaded baseline), and confirm that typing only in the title never enables Undo/Redo.",
-      "affects_ui": true,
-      "requires_visual_verification": false,
-      "production_journey": {
-        "required": false,
-        "reason": "Slice tests undo/redo of body typing strictly within the open editor; it introduces no navigation, picker, saved-state, back-stack, or destination-recreation boundary.",
-        "acceptance_test_id": null,
-        "production_entry_point": null,
-        "test_file": null,
-        "test_method": null,
-        "user_actions": null,
-        "return_boundary": null,
-        "post_return_assertion": null
-      },
-      "status": "not_started",
-      "acceptance_test_ids": [
-        "TC-US-1-01",
-        "TC-US-1-02",
-        "TC-US-1-03",
-        "TC-US-1-04",
-        "TC-US-1-05",
-        "TC-US-1-06",
-        "TC-US-1-07",
-        "TC-US-1-08"
-      ],
-      "verification": [
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#typingThenUndoRestoresPreviousText",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoRedoDisabledAtBaselineMakeNoChange",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#redoReplaysUndoneText",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#newEditAfterUndoClearsRedo",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.typingCommitsWithinWindowMergeIntoSingleStep\"",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.pausedTypingSplitsIntoNewUndoStep\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoEnabledAfterTypingRedoDisabledUntilUndo",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#titleOnlyTypingKeepsUndoRedoDisabled"
-      ],
-      "evidence": [],
-      "notes": "Highest-risk foundational slice: the snapshot funnel, coalescer, and pointer semantics must be proven through the already-reachable Undo/Redo buttons and body typing. Title exclusion is inherent to the funnel but is asserted explicitly. Visual screenshots are owned by the final US-3 slice."
-    },
-    {
-      "id": "US-2",
-      "priority": 2,
-      "area": "editor-undo-redo-coverage",
-      "title": "Undo discrete rich-content actions with exact restoration",
-      "description": "Extend and verify that every discrete document action routed through the commit funnel becomes exactly one undo step with byte-exact restoration: block insertions/deletions/conversions (paragraph/H1-H4/list/todo/toggle/callout/quote, code, mermaid, chart, table, image), checkbox and toggle-expansion flips, inline Bold/Italic/Underline/Strikethrough/Code over a selection, emoji insertion, note-link insert/remove/replace and formula insert/update/remove (including commits submitted from the formula sheet and the link flow that arrive through the funnel after their overlay closes), table row/column operations, and chart/code/mermaid title-data-code edits. Table, chart, code, and mermaid cell/field typing coalesce per target like body typing. Undo/redo must restore snapshot focus context to the affected cell/field; when the undo removes the block that held focus (for example undoing a block insertion or deleting a table row), focus falls back to the nearest preceding block or clears when no block exists. Undoing a Voice or Image block insertion removes the block from the document without deleting its audio/image file (no delete use case is invoked) and Redo restores the block with its original id and file path. Multi-step unwind across mixed content and redo-truncation after a rich edit are covered. This slice is presentation-logic and test work; it changes no Composable beyond what US-1 shipped.",
-      "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png",
-      "user_visible_behavior": "After this slice ships alone, a user who inserts a block, applies a mark, or edits a table cell/chart/code field can undo each discrete action through the existing toolbar buttons and get the exact pre-edit document back, with focus and caret restored to the edited cell/field, and undoing an inserted voice/image block removes it from the note without touching its file.",
-      "affects_ui": false,
-      "requires_visual_verification": false,
-      "production_journey": {
-        "required": false,
-        "reason": "Discrete rich-content undo is exercised in the open editor through panels, cells, and sheets; none of its acceptance tests cross a destination, picker-route, or saved-state boundary.",
-        "acceptance_test_id": null,
-        "production_entry_point": null,
-        "test_file": null,
-        "test_method": null,
-        "user_actions": null,
-        "return_boundary": null,
-        "post_return_assertion": null
-      },
-      "status": "not_started",
-      "acceptance_test_ids": [
-        "TC-US-2-01",
-        "TC-US-2-02",
-        "TC-US-2-03",
-        "TC-US-2-04",
-        "TC-US-2-05",
-        "TC-US-2-06",
-        "TC-US-2-07",
-        "TC-US-2-08",
-        "TC-US-2-09"
-      ],
-      "verification": [
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.discreteActionsProduceSeparateStepsAndExactUnwind\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#discreteActionsUnwindAsSeparateSteps",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.redoAcrossRichContentAndTruncationOnNewEdit\"",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRemovedBlockFallsBackToPrecedingBlock\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#undoOfBlockInsertionFallsFocusBackToPreviousBlock",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.cellTypingUndoRestoresSelectionContext\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#tableCellTypingUndoRestoresCellAndCaret",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoVoiceOrImageInsertionKeepsFileAndRedoRestoresBlock\"",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.overlayCommittedEditsBecomeNextUndoStep\""
-      ],
-      "evidence": [],
-      "notes": "Intermediate non-UI slice: the same funnel delivers exact, step-level restoration for every discrete rich-content action; instrumented flows use the already-reachable block panel, emoji surface, and table grid in the open editor, so no later slice is needed to observe the delta. Voice/image file preservation is asserted at the ViewModel boundary without invoking delete use cases."
-    },
-    {
-      "id": "US-3",
-      "priority": 3,
-      "area": "editor-undo-redo-guardrails",
-      "title": "Shortcuts, guardrails, persistence lifecycle, reopen journey, and final visual verification",
-      "description": "Complete the guardrails and close the persistence/lifecycle contract, then own the completed-flow visual evidence. Add editor-screen hardware-keyboard handling for editable notes: Ctrl+Z triggers undo, Ctrl+Shift+Z and Ctrl+Y trigger redo, regardless of which field holds focus (a Ctrl+Z while the title field is focused acts on the shared document history, never the title); combos are not consumed when the note is read-only or the matching action is unavailable. Read-only and mid-session access changes expose no history: undo()/redo() are no-ops, canUndo/canRedo stay false, the controls are not rendered in the read-only bar, and shortcuts are ignored. Undo/redo applied while the IME is visible revert the current text with the bottom toolbar still visible above the keyboard (approved IME exception), and pending typing marks are cleared after every undo/redo application. History survives device rotation because it lives in the ViewModel; the 100-entry cap evicts the oldest snapshots without losing the current state. Undo/redo mutations schedule the existing autosave pipeline so the currently visible (possibly undone) document persists without requiring another edit; leaving the editor saves the visible document and history is released with the ViewModel, so reopening the same note starts a fresh history whose baseline is exactly the saved (undone) content with Undo/Redo disabled. Register the editor undo/redo journey in docs/product/journey-registry.yaml during the Finalize stage. This final slice is the sole visual-verification owner: create NoteEditorUndoRedoVisualFlowTest.kt with in-test captures (InstrumentationRegistry uiAutomation takeScreenshot to /sdcard/Download/<name>.png) for the completed visual states — baseline with both controls disabled, Undo enabled with Redo disabled after an edit, Redo enabled after an undo, keyboard-visible editor with the bottom toolbar (Undo/Redo) above the IME, and the read-only editor without Undo/Redo controls — pull each capture to visual_evidence/ and verify non-empty PNGs, then record visual_evidence/reference-anchor-verification.md rows mapping each capture to its design mockup and runtime bounds tags.",
-      "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_redo_enabled.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_keyboard.png",
-      "user_visible_behavior": "After this slice ships alone, a user can press Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y on a hardware keyboard to undo and redo, sees no Undo/Redo controls or shortcut effect on read-only notes, keeps full history across device rotation and while the soft keyboard is open, and finds the undone content saved when exiting and reopening the note with a fresh history; the completed enabled/disabled, keyboard-visible, and read-only visual states are captured and reviewable against the approved mockups.",
-      "affects_ui": true,
-      "requires_visual_verification": true,
-      "production_journey": {
-        "required": true,
-        "reason": "Undo persistence is proven by exiting the editor and reopening the same note, which crosses the production navigation graph, back stack, and destination recreation (post-return persistence).",
-        "acceptance_test_id": "TC-US-3-09",
-        "production_entry_point": "AppNavigationHost",
-        "test_file": "app/src/androidTest/java/com/example/notesapp/ui/editor/screen/NoteEditorUndoRedoPersistenceJourneyTest.kt",
-        "test_method": "undoStatePersistsAcrossExitAndReopenWithFreshBaseline",
-        "user_actions": "Type into a body text block in the production editor, tap the Undo button, and leave the note through the top-bar back action.",
-        "return_boundary": "The note list is shown again and the same note is reopened from the list into a fresh Editor destination.",
-        "post_return_assertion": "The reopened note displays the undone content and both Undo and Redo controls are disabled, proving a fresh baseline history."
-      },
-      "status": "not_started",
-      "acceptance_test_ids": [
-        "TC-US-3-01",
-        "TC-US-3-02",
-        "TC-US-3-03",
-        "TC-US-3-04",
-        "TC-US-3-05",
-        "TC-US-3-06",
-        "TC-US-3-07",
-        "TC-US-3-08",
-        "TC-US-3-09",
-        "TC-US-3-10",
-        "TC-US-3-VIS-001",
-        "TC-US-3-VIS-002",
-        "TC-US-3-VIS-003",
-        "TC-US-3-VIS-004",
-        "TC-US-3-VIS-005"
-      ],
-      "verification": [
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoReadOnlyTest#readOnlyNoteHidesUndoRedoAndIgnoresShortcuts",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRedoNoopWhenNotEditableAfterAccessChange\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoShortcutsTest#keyboardShortcutsUndoAndRedoDocument",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoShortcutsTest#shortcutIgnoredWhenNoHistoryIsAvailable",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoLifecycleTest#undoHistorySurvivesActivityRecreation",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.capEvictsOldestEntries\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoKeyboardTest#undoAppliesWhileImeVisibleAboveToolbar",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRedoClearsPendingTypingMarks\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoPersistenceJourneyTest#undoStatePersistsAcrossExitAndReopenWithFreshBaseline",
-        "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.autosavePersistsUndoneDocument\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoRedoDisabledAtBaseline && adb -s emulator-5554 pull /sdcard/Download/undo_redo_disabled_baseline.png \"$FEATURE_DIR/visual_evidence/undo_redo_disabled_baseline.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_disabled_baseline.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoEnabledRedoDisabled && adb -s emulator-5554 pull /sdcard/Download/undo_redo_undo_enabled.png \"$FEATURE_DIR/visual_evidence/undo_redo_undo_enabled.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_undo_enabled.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureRedoEnabledAfterUndo && adb -s emulator-5554 pull /sdcard/Download/undo_redo_redo_enabled.png \"$FEATURE_DIR/visual_evidence/undo_redo_redo_enabled.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_redo_enabled.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoRedoKeyboardVisible && adb -s emulator-5554 pull /sdcard/Download/undo_redo_keyboard_visible.png \"$FEATURE_DIR/visual_evidence/undo_redo_keyboard_visible.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_keyboard_visible.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureReadOnlyWithoutUndoRedo && adb -s emulator-5554 pull /sdcard/Download/undo_redo_read_only_absent.png \"$FEATURE_DIR/visual_evidence/undo_redo_read_only_absent.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_read_only_absent.png\""
-      ],
-      "evidence": [],
-      "notes": "Final user-reachable slice and sole visual-verification owner. It merges the guardrail work (shortcuts, read-only guards, rotation/cap/IME robustness) with the persistence lifecycle contract, owns the production-exit/reopen journey (registered as a permanent regression journey), and every in-test visual capture; screenshot commands must run inside dedicated VisualFlowTest methods and pull non-empty PNGs."
-    }
-  ]
+  {
+   "id": "US-2",
+   "priority": 2,
+   "area": "editor-undo-redo-coverage",
+   "title": "Undo discrete rich-content actions with exact restoration",
+   "description": "Extend and verify that every discrete document action routed through the commit funnel becomes exactly one undo step with byte-exact restoration: block insertions/deletions/conversions (paragraph/H1-H4/list/todo/toggle/callout/quote, code, mermaid, chart, table, image), checkbox and toggle-expansion flips, inline Bold/Italic/Underline/Strikethrough/Code over a selection, emoji insertion, note-link insert/remove/replace and formula insert/update/remove (including commits submitted from the formula sheet and the link flow that arrive through the funnel after their overlay closes), table row/column operations, and chart/code/mermaid title-data-code edits. Table, chart, code, and mermaid cell/field typing coalesce per target like body typing. Undo/redo must restore snapshot focus context to the affected cell/field; when the undo removes the block that held focus (for example undoing a block insertion or deleting a table row), focus falls back to the nearest preceding block or clears when no block exists. Undoing a Voice or Image block insertion removes the block from the document without deleting its audio/image file (no delete use case is invoked) and Redo restores the block with its original id and file path. Multi-step unwind across mixed content and redo-truncation after a rich edit are covered. This slice is presentation-logic and test work; it changes no Composable beyond what US-1 shipped.",
+   "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png",
+   "user_visible_behavior": "After this slice ships alone, a user who inserts a block, applies a mark, or edits a table cell/chart/code field can undo each discrete action through the existing toolbar buttons and get the exact pre-edit document back, with focus and caret restored to the edited cell/field, and undoing an inserted voice/image block removes it from the note without touching its file.",
+   "affects_ui": false,
+   "requires_visual_verification": false,
+   "production_journey": {
+    "required": false,
+    "reason": "Discrete rich-content undo is exercised in the open editor through panels, cells, and sheets; none of its acceptance tests cross a destination, picker-route, or saved-state boundary.",
+    "acceptance_test_id": null,
+    "production_entry_point": null,
+    "test_file": null,
+    "test_method": null,
+    "user_actions": null,
+    "return_boundary": null,
+    "post_return_assertion": null
+   },
+   "status": "not_started",
+   "acceptance_test_ids": [
+    "TC-US-2-01",
+    "TC-US-2-02",
+    "TC-US-2-03",
+    "TC-US-2-04",
+    "TC-US-2-05",
+    "TC-US-2-06",
+    "TC-US-2-07",
+    "TC-US-2-08",
+    "TC-US-2-09"
+   ],
+   "verification": [
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.discreteActionsProduceSeparateStepsAndExactUnwind\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#discreteActionsUnwindAsSeparateSteps",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.redoAcrossRichContentAndTruncationOnNewEdit\"",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRemovedBlockFallsBackToPrecedingBlock\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#undoOfBlockInsertionFallsFocusBackToPreviousBlock",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.cellTypingUndoRestoresSelectionContext\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#tableCellTypingUndoRestoresCellAndCaret",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoVoiceOrImageInsertionKeepsFileAndRedoRestoresBlock\"",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.overlayCommittedEditsBecomeNextUndoStep\""
+   ],
+   "evidence": [],
+   "notes": "Intermediate non-UI slice: the same funnel delivers exact, step-level restoration for every discrete rich-content action; instrumented flows use the already-reachable block panel, emoji surface, and table grid in the open editor, so no later slice is needed to observe the delta. Voice/image file preservation is asserted at the ViewModel boundary without invoking delete use cases."
+  },
+  {
+   "id": "US-3",
+   "priority": 3,
+   "area": "editor-undo-redo-guardrails",
+   "title": "Shortcuts, guardrails, persistence lifecycle, reopen journey, and final visual verification",
+   "description": "Complete the guardrails and close the persistence/lifecycle contract, then own the completed-flow visual evidence. Add editor-screen hardware-keyboard handling for editable notes: Ctrl+Z triggers undo, Ctrl+Shift+Z and Ctrl+Y trigger redo, regardless of which field holds focus (a Ctrl+Z while the title field is focused acts on the shared document history, never the title); combos are not consumed when the note is read-only or the matching action is unavailable. Read-only and mid-session access changes expose no history: undo()/redo() are no-ops, canUndo/canRedo stay false, the controls are not rendered in the read-only bar, and shortcuts are ignored. Undo/redo applied while the IME is visible revert the current text with the bottom toolbar still visible above the keyboard (approved IME exception), and pending typing marks are cleared after every undo/redo application. History survives device rotation because it lives in the ViewModel; the 100-entry cap evicts the oldest snapshots without losing the current state. Undo/redo mutations schedule the existing autosave pipeline so the currently visible (possibly undone) document persists without requiring another edit; leaving the editor saves the visible document and history is released with the ViewModel, so reopening the same note starts a fresh history whose baseline is exactly the saved (undone) content with Undo/Redo disabled. Register the editor undo/redo journey in docs/product/journey-registry.yaml during the Finalize stage. This final slice is the sole visual-verification owner: create NoteEditorUndoRedoVisualFlowTest.kt with in-test captures (InstrumentationRegistry uiAutomation takeScreenshot to /sdcard/Download/<name>.png) for the completed visual states \u2014 baseline with both controls disabled, Undo enabled with Redo disabled after an edit, Redo enabled after an undo, keyboard-visible editor with the bottom toolbar (Undo/Redo) above the IME, and the read-only editor without Undo/Redo controls \u2014 pull each capture to visual_evidence/ and verify non-empty PNGs, then record visual_evidence/reference-anchor-verification.md rows mapping each capture to its design mockup and runtime bounds tags.",
+   "ui_design": "docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_redo_enabled.png; docs/product/2026-09-06-editor-undo-redo/design/mockup_note_editor_undo_redo_keyboard.png",
+   "user_visible_behavior": "After this slice ships alone, a user can press Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y on a hardware keyboard to undo and redo, sees no Undo/Redo controls or shortcut effect on read-only notes, keeps full history across device rotation and while the soft keyboard is open, and finds the undone content saved when exiting and reopening the note with a fresh history; the completed enabled/disabled, keyboard-visible, and read-only visual states are captured and reviewable against the approved mockups.",
+   "affects_ui": true,
+   "requires_visual_verification": true,
+   "production_journey": {
+    "required": true,
+    "reason": "Undo persistence is proven by exiting the editor and reopening the same note, which crosses the production navigation graph, back stack, and destination recreation (post-return persistence).",
+    "acceptance_test_id": "TC-US-3-09",
+    "production_entry_point": "AppNavigationHost",
+    "test_file": "app/src/androidTest/java/com/example/notesapp/ui/editor/screen/NoteEditorUndoRedoPersistenceJourneyTest.kt",
+    "test_method": "undoStatePersistsAcrossExitAndReopenWithFreshBaseline",
+    "user_actions": "Type into a body text block in the production editor, tap the Undo button, and leave the note through the top-bar back action.",
+    "return_boundary": "The note list is shown again and the same note is reopened from the list into a fresh Editor destination.",
+    "post_return_assertion": "The reopened note displays the undone content and both Undo and Redo controls are disabled, proving a fresh baseline history."
+   },
+   "status": "not_started",
+   "acceptance_test_ids": [
+    "TC-US-3-01",
+    "TC-US-3-02",
+    "TC-US-3-03",
+    "TC-US-3-04",
+    "TC-US-3-05",
+    "TC-US-3-06",
+    "TC-US-3-07",
+    "TC-US-3-08",
+    "TC-US-3-09",
+    "TC-US-3-10",
+    "TC-US-3-VIS-001",
+    "TC-US-3-VIS-002",
+    "TC-US-3-VIS-003",
+    "TC-US-3-VIS-004",
+    "TC-US-3-VIS-005"
+   ],
+   "verification": [
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoReadOnlyTest#readOnlyNoteHidesUndoRedoAndIgnoresShortcuts",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRedoNoopWhenNotEditableAfterAccessChange\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoShortcutsTest#keyboardShortcutsUndoAndRedoDocument",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoShortcutsTest#shortcutIgnoredWhenNoHistoryIsAvailable",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoLifecycleTest#undoHistorySurvivesActivityRecreation",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.capEvictsOldestEntries\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoKeyboardTest#undoAppliesWhileImeVisibleAboveToolbar",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRedoClearsPendingTypingMarks\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoPersistenceJourneyTest#undoStatePersistsAcrossExitAndReopenWithFreshBaseline",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.autosavePersistsUndoneDocument\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoRedoDisabledAtBaseline && adb -s emulator-5554 pull /sdcard/Download/undo_redo_disabled_baseline.png \"$FEATURE_DIR/visual_evidence/undo_redo_disabled_baseline.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_disabled_baseline.png\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoEnabledRedoDisabled && adb -s emulator-5554 pull /sdcard/Download/undo_redo_undo_enabled.png \"$FEATURE_DIR/visual_evidence/undo_redo_undo_enabled.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_undo_enabled.png\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureRedoEnabledAfterUndo && adb -s emulator-5554 pull /sdcard/Download/undo_redo_redo_enabled.png \"$FEATURE_DIR/visual_evidence/undo_redo_redo_enabled.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_redo_enabled.png\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureUndoRedoKeyboardVisible && adb -s emulator-5554 pull /sdcard/Download/undo_redo_keyboard_visible.png \"$FEATURE_DIR/visual_evidence/undo_redo_keyboard_visible.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_keyboard_visible.png\"",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoVisualFlowTest#captureReadOnlyWithoutUndoRedo && adb -s emulator-5554 pull /sdcard/Download/undo_redo_read_only_absent.png \"$FEATURE_DIR/visual_evidence/undo_redo_read_only_absent.png\" && test -s \"$FEATURE_DIR/visual_evidence/undo_redo_read_only_absent.png\""
+   ],
+   "evidence": [],
+   "notes": "Final user-reachable slice and sole visual-verification owner. It merges the guardrail work (shortcuts, read-only guards, rotation/cap/IME robustness) with the persistence lifecycle contract, owns the production-exit/reopen journey (registered as a permanent regression journey), and every in-test visual capture; screenshot commands must run inside dedicated VisualFlowTest methods and pull non-empty PNGs."
+  }
+ ]
 }

@@ -1,0 +1,17 @@
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#typingThenUndoRestoresPreviousText
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoRedoDisabledAtBaselineMakeNoChange
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#redoReplaysUndoneText
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#newEditAfterUndoClearsRedo
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#undoEnabledAfterTypingRedoDisabledUntilUndo
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoTextTest#titleOnlyTypingKeepsUndoRedoDisabled
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.EditorHistoryTest.typingCommitsWithinWindowMergeIntoSingleStep"
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.pausedTypingSplitsIntoNewUndoStep"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)

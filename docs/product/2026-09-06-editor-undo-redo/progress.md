@@ -34,6 +34,18 @@
 - Known risk or unresolved issue: acceptance rows must avoid unowned navigation/lifecycle wording so every such signal stays with the named US-3 journey; visual rows must match feature_list verification commands verbatim.
 - Next best step: User approval of the 3-slice plan and sprint contract, then `harness-generator`.
 
+### Session 004 — US-1 Implementation (harness-generator, 2026-09-06)
+
+- Date: 2026-09-06
+- Goal: Implement US-1 (history engine + typing undo/redo + toolbar states) slice-by-slice through the harness-generator pipeline.
+- Completed: Built `EditorHistory` (snapshot list + pointer + coalescer, 100-step cap, redo truncation) and `NoteEditorUndoRedoFlow`, a `MutableStateFlow`-API-compatible holder whose `value` setter funnels every document-changing write into history centrally (typing markers at body/table/chart/image-caption/code/mermaid text commit sites, baseline reset on load, focus-move closes runs, suppressed recording for internal link resolution). Added `canUndo`/`canRedo` to `NoteEditorUiState`, `undo()`/`redo()` extension actions scheduling autosave, and wired the DefaultBottomBar Undo/Redo buttons (tags `editor_undo_action`/`editor_redo_action`, 38%-alpha disabled tint, enabled states). Wrote `EditorHistoryTest` + `NoteEditorUndoRedoViewModelTest` (JVM) and `NoteEditorUndoRedoTextTest` (instrumented, 7 methods incl. read-only absence).
+- Verification run: 8/8 acceptance verification commands PASSED (`evidence/US-1/verification.log`); `check-acceptance-test-traceability.sh --test US-1`, `check-journey-registry.sh --run-all`, and `check-platform-evidence.sh --evaluate --slice US-1` exit 0; `ktlintCheck`, `detekt`, architecture/compose/localization/assertions rule checkers exit 0; `check-coverage.sh` PASS 80.81%.
+- Evidence captured: `summary_US-1.md` (all stages complete except Clean Exit), `feature_list.json` US-1 → `passing` with evidence array.
+- Commits: none yet (pending commit at slice close).
+- Files or artifacts updated: production `NoteEditorUndoRedo.kt`, `NoteEditorUndoActions.kt`, `NoteEditorViewModel.kt`, `NoteEditorCodeActions.kt`, `NoteEditorMermaidActions.kt`, `NoteEditorViewModelInternal.kt`, `NoteEditorScreen.kt`; tests listed above; docs artifacts.
+- Known risk or unresolved issue: US-2/US-3 remain; next slice US-2 (rich-content discrete steps) is the immediate follow-on.
+- Next best step: commit US-1, then implement US-2.
+
 ### Session 003 — Design Review And Mockup Regeneration (2026-09-06)
 
 - Date: 2026-09-06

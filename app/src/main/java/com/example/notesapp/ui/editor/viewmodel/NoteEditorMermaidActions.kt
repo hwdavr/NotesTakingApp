@@ -4,6 +4,10 @@ import com.example.notesapp.ui.editor.mapper.EditorBlock
 
 fun NoteEditorViewModel.updateMermaidBlock(blockId: String, code: String? = null, title: String? = null) {
     if (!uiState.value.isEditable) return
+    when {
+        code != null -> uiStateInternal.beginTypingRun("mermaidCode:$blockId")
+        title != null -> uiStateInternal.beginTypingRun("mermaidTitle:$blockId")
+    }
     updateBlock(blockId) { block ->
         if (block is EditorBlock.MermaidBlock) {
             block.copy(

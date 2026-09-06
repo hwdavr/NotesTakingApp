@@ -23,7 +23,10 @@ internal fun NoteEditorViewModel.observeLinkTargetChanges() {
                 if (current.isLoaded && current.document.hasLinkAnnotations()) {
                     val resolved = current.document.resolveLinks(activeIds, deletedIds)
                     if (resolved != current.document) {
+                        val previousRecording = uiStateInternal.recordUserCommits
+                        uiStateInternal.recordUserCommits = false
                         uiStateInternal.value = current.copy(document = resolved)
+                        uiStateInternal.recordUserCommits = previousRecording
                         scheduleAutoSave()
                     }
                 }
