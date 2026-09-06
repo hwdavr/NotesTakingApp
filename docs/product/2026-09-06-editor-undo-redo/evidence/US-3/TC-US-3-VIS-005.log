@@ -1,0 +1,12 @@
+# TC-US-3-VIS-005 — captureReadOnlyWithoutUndoRedo
+
+Finished 1 tests on Medium_Phone(AVD) - 13
+
+BUILD SUCCESSFUL in 14s
+78 actionable tasks: 1 executed, 77 up-to-date
+GRADLE_EXIT=0
+
+/sdcard/Download/undo_redo_read_only_absent.png: 1 file pulled, 0 skipped. 4.8 MB/s (48059 bytes in 0.009s)
+PULL_EXIT=0
+
+SIZE_CHECK=PASS

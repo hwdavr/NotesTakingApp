@@ -1,0 +1,12 @@
+# TC-US-3-VIS-004 — captureUndoRedoKeyboardVisible
+
+Finished 1 tests on Medium_Phone(AVD) - 13
+
+BUILD SUCCESSFUL in 15s
+78 actionable tasks: 1 executed, 77 up-to-date
+GRADLE_EXIT=0
+
+/sdcard/Download/undo_redo_keyboard_visible.png: 1 file pulled, 0 skipped. 18.7 MB/s (132819 bytes in 0.007s)
+PULL_EXIT=0
+
+SIZE_CHECK=PASS

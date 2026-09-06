@@ -1,0 +1,12 @@
+# TC-US-3-VIS-003 — captureRedoEnabledAfterUndo
+
+Finished 1 tests on Medium_Phone(AVD) - 13
+
+BUILD SUCCESSFUL in 16s
+78 actionable tasks: 1 executed, 77 up-to-date
+GRADLE_EXIT=0
+
+/sdcard/Download/undo_redo_redo_enabled.png: 1 file pulled, 0 skipped. 26.3 MB/s (119642 bytes in 0.004s)
+PULL_EXIT=0
+
+SIZE_CHECK=PASS

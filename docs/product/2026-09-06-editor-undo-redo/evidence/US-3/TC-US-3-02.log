@@ -1,0 +1,8 @@
+# TC-US-3-02
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :app:testDebugUnitTest
+
+BUILD SUCCESSFUL in 2s
+36 actionable tasks: 1 executed, 35 up-to-date
+EXIT=0

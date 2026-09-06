@@ -34,6 +34,31 @@ internal data class EditorSnapshot(
     }
 }
 
+/** Outcome of a keyboard shortcut chord. */
+internal enum class UndoRedoShortcutAction { Undo, Redo, None }
+
+/**
+ * Pure decision table for the editor keyboard chords (Ctrl+Z undo, Ctrl+Shift+Z and Ctrl+Y redo).
+ * Kept free of Android types so the full chord matrix is unit-testable on the JVM; the screen
+ * handler feeds it the decoded key/modifier state from the actual [android KeyEvent]s.
+ */
+internal fun resolveUndoRedoShortcut(
+    isCtrlPressed: Boolean,
+    isShiftPressed: Boolean,
+    isKeyZ: Boolean,
+    isKeyY: Boolean,
+    canUndo: Boolean,
+    canRedo: Boolean
+): UndoRedoShortcutAction {
+    if (!isCtrlPressed) return UndoRedoShortcutAction.None
+    return when {
+        isKeyZ && isShiftPressed -> if (canRedo) UndoRedoShortcutAction.Redo else UndoRedoShortcutAction.None
+        isKeyZ -> if (canUndo) UndoRedoShortcutAction.Undo else UndoRedoShortcutAction.None
+        isKeyY -> if (canRedo) UndoRedoShortcutAction.Redo else UndoRedoShortcutAction.None
+        else -> UndoRedoShortcutAction.None
+    }
+}
+
 /**
  * Pure, in-memory, linear document history used by the Note Editor.
  *
@@ -215,10 +240,14 @@ internal class NoteEditorUndoRedoFlow(
                     newCanRedo = history.canRedo
                 }
             }
-            delegate.value = if (newValue.canUndo == newCanUndo && newValue.canRedo == newCanRedo) {
+            // History availability only surfaces on editable notes: read-only/mid-session access
+            // changes expose no undo surface and no shortcuts (guards stay in undo()/redo()).
+            val visibleCanUndo = newCanUndo && newValue.isEditable
+            val visibleCanRedo = newCanRedo && newValue.isEditable
+            delegate.value = if (newValue.canUndo == visibleCanUndo && newValue.canRedo == visibleCanRedo) {
                 newValue
             } else {
-                newValue.copy(canUndo = newCanUndo, canRedo = newCanRedo)
+                newValue.copy(canUndo = visibleCanUndo, canRedo = visibleCanRedo)
             }
         }
 

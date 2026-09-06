@@ -1,0 +1,8 @@
+# TC-US-3-06
+
+> Task :app:transformDebugUnitTestClassesWithAsm UP-TO-DATE
+> Task :app:testDebugUnitTest
+
+BUILD SUCCESSFUL in 989ms
+36 actionable tasks: 1 executed, 35 up-to-date
+EXIT=0

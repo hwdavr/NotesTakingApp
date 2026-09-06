@@ -273,6 +273,43 @@ class EditorHistoryTest {
     }
 
     @Test
+    fun capEvictsOldestEntries() {
+        // Fill past the declared 100-step cap with distinct states; oldest snapshots are
+        // evicted, the pointer stays valid, and undo stops at the retained window.
+        val history = EditorHistory()
+        val extra = 10
+        val totalCommits = HISTORY_CAPACITY + extra
+        repeat(totalCommits) { index ->
+            history.commit(
+                before = snapshot(documentOf(block("b0", "pre$index"))),
+                typingKey = null,
+                typingBlockId = null,
+                nowMs = index.toLong()
+            )
+        }
+
+        var reachableSteps = 0
+        var current = snapshot(documentOf(block("b0", "head")))
+        while (history.canUndo) {
+            current = history.mustUndo(current)
+            reachableSteps++
+        }
+        assertEquals(HISTORY_CAPACITY, reachableSteps)
+        // The newest snapshot survives at the top and the oldest `extra` are gone: the last
+        // undo restores "pre$extra", never an evicted state.
+        assertEquals("pre$extra", textOf(current))
+
+        // The redo tail replays every undone step back to the current head.
+        var replayed = 0
+        while (history.canRedo) {
+            current = history.mustRedo(current)
+            replayed++
+        }
+        assertEquals(HISTORY_CAPACITY, replayed)
+        assertEquals("head", textOf(current))
+    }
+
+    @Test
     fun `history drops the oldest steps beyond its capacity`() {
         val capacity = 5
         val history = EditorHistory(capacity = capacity)

@@ -5,7 +5,8 @@
 - Repository root: clean on `codex/context-index`; all existing feature workspaces tracked under `docs/product/`.
 - Standard startup path: Note Editor destination opens an editable note from the app navigation graph.
 - Standard verification path: `./gradlew testDebugUnitTest`, `./gradlew connectedDebugAndroidTest`, `./gradlew ktlintCheck`, `./gradlew detekt`, coverage via `harness/scripts/check-coverage.sh`.
-- Current highest-priority unfinished feature: `editor-undo-redo` — awaiting implementation approval after slice planning.
+- Feature `editor-undo-redo`: all three slices (US-1 engine/typing/toolbar, US-2 rich-content discrete steps, US-3 shortcuts/guardrails + persistence lifecycle + reopen journey + visual owner) are implemented, passing, and committed (`6893277`, `f727ecb`, and the US-3 commit). Tracker row moved to `To be reviewed`.
+- Current highest-priority unfinished feature: none — `editor-undo-redo` awaits human review.
 - Current blocker: none.
 
 ## Session Log
@@ -41,7 +42,7 @@
 - Completed: Built `EditorHistory` (snapshot list + pointer + coalescer, 100-step cap, redo truncation) and `NoteEditorUndoRedoFlow`, a `MutableStateFlow`-API-compatible holder whose `value` setter funnels every document-changing write into history centrally (typing markers at body/table/chart/image-caption/code/mermaid text commit sites, baseline reset on load, focus-move closes runs, suppressed recording for internal link resolution). Added `canUndo`/`canRedo` to `NoteEditorUiState`, `undo()`/`redo()` extension actions scheduling autosave, and wired the DefaultBottomBar Undo/Redo buttons (tags `editor_undo_action`/`editor_redo_action`, 38%-alpha disabled tint, enabled states). Wrote `EditorHistoryTest` + `NoteEditorUndoRedoViewModelTest` (JVM) and `NoteEditorUndoRedoTextTest` (instrumented, 7 methods incl. read-only absence).
 - Verification run: 8/8 acceptance verification commands PASSED (`evidence/US-1/verification.log`); `check-acceptance-test-traceability.sh --test US-1`, `check-journey-registry.sh --run-all`, and `check-platform-evidence.sh --evaluate --slice US-1` exit 0; `ktlintCheck`, `detekt`, architecture/compose/localization/assertions rule checkers exit 0; `check-coverage.sh` PASS 80.81%.
 - Evidence captured: `summary_US-1.md` (all stages complete except Clean Exit), `feature_list.json` US-1 → `passing` with evidence array.
-- Commits: none yet (pending commit at slice close).
+- Commits: `6893277` at slice close (US-1).
 - Files or artifacts updated: production `NoteEditorUndoRedo.kt`, `NoteEditorUndoActions.kt`, `NoteEditorViewModel.kt`, `NoteEditorCodeActions.kt`, `NoteEditorMermaidActions.kt`, `NoteEditorViewModelInternal.kt`, `NoteEditorScreen.kt`; tests listed above; docs artifacts.
 - Known risk or unresolved issue: US-2/US-3 remain; next slice US-2 (rich-content discrete steps) is the immediate follow-on.
 - Next best step: commit US-1, then implement US-2.
@@ -53,9 +54,9 @@
 - Completed: No production changes required — the US-1 commit funnel already records all rich-content document mutations uniformly. Added six JVM methods to `NoteEditorUndoRedoViewModelTest` (exact unwind across typed run/bold/emoji/checkbox/table-row steps with byte-exact equality, redo across rich content + truncation, fallback focus for removed blocks, empty-document clear, cell typing context restore for tables/charts, file-preserving voice/image undo/redo, overlay link/formula commits) and the instrumented `NoteEditorUndoRedoContentTest` (typing + bold selection + emoji + paragraph insertion via panels, heading-insertion fallback focus, table cell typing caret restore).
 - Verification run: 9/9 US-2 acceptance verification commands PASSED (`evidence/US-2/verification.log`); traceability/journey/platform gates exit 0; ktlint/detekt/arch/compose/l10n/assertions 0 violations; coverage 82.39%.
 - Evidence captured: `summary_US-2.md`; feature_list US-2 → `passing` with evidence.
-- Commits: none yet.
+- Commits: `f727ecb` at slice close (US-2).
 - Known risk: none — US-3 (shortcuts/guardrails/persistence journey/visual owner) remains as the final slice.
-- Next best step: commit US-2, then US-3.
+- Next best step: implement US-3.
 
 ### Session 003 — Design Review And Mockup Regeneration (2026-09-06)
 
@@ -68,3 +69,15 @@
 - Files or artifacts updated: `design.md`, three `design/mockup_*.png` assets, `feature_list.json`, and `docs/product/product.md` tracker status.
 - Known risk or unresolved issue: generated mockups are design references only; final implementation must be compared against runtime UI chrome and the anchor contract.
 - Next best step: User approval of the revised design/mockups, then implementation authorization for the approved plan.
+
+### Session 006 — US-3 Implementation (harness-generator, 2026-09-06)
+
+- Date: 2026-09-06
+- Goal: Implement US-3 (keyboard shortcuts, guardrails, persistence lifecycle, reopen journey, final visual owner) and close the feature through the harness-generator pipeline.
+- Completed: Added an editor-surface hardware-keyboard handler (Ctrl+Z undo; Ctrl+Shift+Z and Ctrl+Y redo acting on shared document history from any field, title excluded from history) driven by a pure JVM-unit-tested chord resolver; masked `canUndo`/`canRedo` off for read-only/mid-session access changes while keeping guards inside `undo()`/`redo()`; verified autosave-after-undo persists the visible document, the 100-entry cap evicts oldest snapshots, undo clears pending typing marks, and history survives activity recreation (retained ViewModel). Wrote the exit/reopen production journey (`NoteEditorUndoRedoPersistenceJourneyTest`), registered it as `J-EDITOR-UNDO-REOPEN`, and added the five-capture `NoteEditorUndoRedoVisualFlowTest` with semantics-bounds geometry assertions, promoted 4 goldens, anchor report, and perceptual comparison against the approved mockups.
+- Verification run: 15/15 US-3 acceptance verification commands PASSED (`evidence/US-3/` logs); traceability `--evaluate`, journey `--validate` + `--run-one J-EDITOR-UNDO-REOPEN`, visual-evidence-contract `--evaluate`, platform gates exit 0; whole JVM suite green; 6/6 guardrail/lifecycle/journey instrumented tests + 5/5 VisualFlow captures green; ktlint/detekt/arch/compose/l10n/assertions 0 violations; coverage above the 80% gate.
+- Evidence captured: `summary_US-3.md`; feature_list US-1/US-2/US-3 all `passing` with evidence (US-3 object-form 15 rows); tracker row -> `To be reviewed`.
+- Commits: US-3 commit at slice close (all three slices now committed).
+- Files or artifacts updated: production `NoteEditorUndoRedo.kt` + `NoteEditorScreen.kt`; JVM tests `NoteEditorUndoRedoShortcutTest`, `NoteEditorUndoRedoViewModelTest`, `EditorHistoryTest`; instrumented `NoteEditorUndoRedoReadOnlyTest`, `NoteEditorUndoRedoShortcutsTest`, `NoteEditorUndoRedoLifecycleTest`, `NoteEditorUndoRedoKeyboardTest`, `NoteEditorUndoRedoPersistenceJourneyTest`, `NoteEditorUndoRedoVisualFlowTest`; `docs/product/journey-registry.yaml`; `visual_evidence/` (5 PNGs, diffs, reference-map.json, anchor + comparison reports); `UX/golden-baselines/` (4 promoted).
+- Known risk or unresolved issue: none — all slices pass; feature awaits human review.
+- Next best step: human review of the `To be reviewed` tracker row.

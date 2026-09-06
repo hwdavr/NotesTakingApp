@@ -3,6 +3,7 @@ package com.example.notesapp.ui.editor.viewmodel
 import com.example.notesapp.base.BaseViewModelTest
 import com.example.notesapp.domain.folder.FolderRepository
 import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
+import com.example.notesapp.domain.note.NoteRepository
 import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.AudioFormat
@@ -18,6 +19,8 @@ import com.example.notesapp.ui.editor.model.TableHandleAction
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -29,6 +32,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class NoteEditorUndoRedoViewModelTest : BaseViewModelTest() {
 
+    private val noteRepository: NoteRepository = mockk(relaxed = true)
     private val folderRepository: FolderRepository = mockk(relaxed = true)
     private val deleteVoiceNoteAudioUseCase: DeleteVoiceNoteAudioUseCase = mockk(relaxed = true)
     private val deleteVoiceNoteBlockUseCase: DeleteVoiceNoteBlockUseCase = mockk(relaxed = true)
@@ -39,7 +43,7 @@ class NoteEditorUndoRedoViewModelTest : BaseViewModelTest() {
         val summarizeNoteUseCase = SummarizeNoteUseCase(mockk<NoteSummarizer>(relaxed = true))
         val categorizeNoteUseCase = mockk<CategorizeNoteUseCase>(relaxed = true)
         viewModel = NoteEditorViewModel(
-            mockk(relaxed = true),
+            noteRepository,
             folderRepository,
             summarizeNoteUseCase,
             categorizeNoteUseCase,
@@ -262,7 +266,7 @@ class NoteEditorUndoRedoViewModelTest : BaseViewModelTest() {
     }
 
     @Test
-    fun `undo clears pending typing marks`() = runTest {
+    fun undoRedoClearsPendingTypingMarks() = runTest {
         seedEditable(textBlock("b1", ""), focus = "b1")
 
         viewModel.toggleBlockMark("b1", "bold") // collapsed cursor -> pending mark
@@ -273,6 +277,18 @@ class NoteEditorUndoRedoViewModelTest : BaseViewModelTest() {
 
         assertTrue(viewModel.uiState.value.pendingTypingMarks.isEmpty())
         assertEquals("", viewModel.uiState.value.document.textOf())
+
+        // Redo replays the typed run without resurrecting the pending mark.
+        viewModel.redo()
+        assertTrue(viewModel.uiState.value.pendingTypingMarks.isEmpty())
+        assertEquals("x", viewModel.uiState.value.document.textOf())
+
+        // Subsequent typing carries no stale Bold mark.
+        viewModel.onTextBlockChange("b1", "xy")
+        val updated = viewModel.uiState.value.document.blocks
+            .filterIsInstance<EditorBlock.TextBlock>()
+            .single()
+        assertTrue(updated.children.filter { it.text == "y" }.all { "bold" !in it.marks })
     }
 
     // ---------------------------------------------------------------------
@@ -527,5 +543,63 @@ class NoteEditorUndoRedoViewModelTest : BaseViewModelTest() {
         viewModel.redo()
         assertEquals(afterFormula, viewModel.uiState.value.document)
         assertFalse(viewModel.uiState.value.canRedo)
+    }
+
+    // ---------------------------------------------------------------------
+    // US-3: access-change guardrails and autosave persistence (TC-US-3-*)
+    // ---------------------------------------------------------------------
+
+    @Test
+    fun undoRedoNoopWhenNotEditableAfterAccessChange() = runTest {
+        seedEditable(textBlock("b1", ""), focus = "b1")
+        viewModel.onTextBlockChange("b1", "typed")
+        assertEquals("typed", viewModel.uiState.value.document.textOf())
+        assertTrue(viewModel.uiState.value.canUndo)
+
+        // Mid-session access change (e.g. share role flips to READ_ONLY): undo surface hides.
+        viewModel.uiStateInternal.value = viewModel.uiStateInternal.value.copy(isEditable = false)
+        assertFalse(viewModel.uiState.value.canUndo)
+        assertFalse(viewModel.uiState.value.canRedo)
+
+        viewModel.undo()
+        viewModel.redo()
+        assertEquals("typed", viewModel.uiState.value.document.textOf())
+        assertFalse(viewModel.uiState.value.canUndo)
+        assertFalse(viewModel.uiState.value.canRedo)
+
+        // Restoring edit access resurfaces the original single step: the access flips
+        // themselves recorded no history entries.
+        viewModel.uiStateInternal.value = viewModel.uiStateInternal.value.copy(isEditable = true)
+        assertTrue(viewModel.uiState.value.canUndo)
+        assertFalse(viewModel.uiState.value.canRedo)
+        viewModel.undo()
+        assertEquals("", viewModel.uiState.value.document.textOf())
+        assertFalse(viewModel.uiState.value.canUndo)
+        assertTrue(viewModel.uiState.value.canRedo)
+    }
+
+    @Test
+    fun autosavePersistsUndoneDocument() = runTest {
+        seedEditable(textBlock("b1", "base"), focus = "b1")
+
+        viewModel.onTextBlockChange("b1", "baseX")
+        assertEquals("baseX", viewModel.uiState.value.document.textOf())
+
+        viewModel.undo()
+        assertEquals("base", viewModel.uiState.value.document.textOf())
+        assertTrue(viewModel.uiState.value.canRedo)
+
+        // The undo schedules the existing autosave path; wait for the 2s debounce.
+        advanceTimeBy(2_001)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            noteRepository.save(
+                match { saved ->
+                    NoteDocument.fromContent(saved.content).textOf() == "base"
+                }
+            )
+        }
+        assertEquals("base", viewModel.uiState.value.document.textOf())
     }
 }

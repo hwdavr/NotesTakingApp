@@ -94,6 +94,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -300,7 +301,7 @@ fun NoteEditorScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class)
 @Suppress("LongParameterList")
 @Composable
 fun NoteEditorScreenContent(
@@ -408,6 +409,19 @@ fun NoteEditorScreenContent(
                 .padding(innerPadding)
                 .navigationBarsPadding()
                 .imePadding()
+                .onPreviewKeyEvent { keyEvent ->
+                    // Hardware-keyboard chords act on the shared document history from anywhere in
+                    // the editor (title included, title itself excluded from history). Undo/redo are
+                    // only reachable on editable notes with a matching action available.
+                    consumeUndoRedoShortcut(
+                        keyEvent = keyEvent,
+                        editable = state.isEditable,
+                        canUndo = state.canUndo,
+                        canRedo = state.canRedo,
+                        onUndo = onUndo,
+                        onRedo = onRedo
+                    )
+                }
         ) {
             EditorTopBar(
                 onBack = {
