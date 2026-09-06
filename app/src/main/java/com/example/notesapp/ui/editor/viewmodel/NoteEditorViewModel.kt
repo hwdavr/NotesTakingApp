@@ -9,7 +9,6 @@ import com.example.notesapp.domain.folder.usecase.CategorizeNoteUseCase
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.domain.note.NoteRepository
-import com.example.notesapp.domain.summary.NoteSummaryResult
 import com.example.notesapp.domain.summary.usecase.SummarizeNoteUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteAudioUseCase
 import com.example.notesapp.domain.voice.usecase.DeleteVoiceNoteBlockUseCase
@@ -41,7 +40,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -99,15 +97,36 @@ sealed interface NoteSummaryUiState {
 
 @HiltViewModel
 open class NoteEditorViewModel @Inject constructor(
-    private val noteRepository: NoteRepository,
+    internal val noteRepository: NoteRepository,
     private val folderRepository: FolderRepository,
-    private val summarizeNoteUseCase: SummarizeNoteUseCase,
+    internal val summarizeNoteUseCase: SummarizeNoteUseCase,
     private val categorizeNoteUseCase: CategorizeNoteUseCase,
     internal val deleteVoiceNoteAudioUseCase: DeleteVoiceNoteAudioUseCase,
     private val deleteVoiceNoteBlockUseCase: DeleteVoiceNoteBlockUseCase
 ) : ViewModel() {
     internal val uiStateInternal = MutableStateFlow(NoteEditorUiState())
     open val uiState: StateFlow<NoteEditorUiState> = uiStateInternal.asStateFlow()
+
+    fun toggleFormattingToolbar() {
+        uiStateInternal.value = uiStateInternal.value.copy(
+            isFormattingToolbarVisible = !uiStateInternal.value.isFormattingToolbarVisible
+        )
+    }
+
+    fun updateSelection(start: Int, end: Int) {
+        uiStateInternal.value = uiStateInternal.value.copy(
+            selectionStart = start,
+            selectionEnd = end
+        )
+    }
+
+    fun onTargetNoteSelected(targetId: String, targetTitle: String) {
+        applyTargetNoteSelected(targetId, targetTitle)
+    }
+
+    fun onRemoveLinkSelected() {
+        applyRemoveLinkSelected()
+    }
 
     fun insertEmoji(emoji: String): Boolean {
         if (!uiStateInternal.value.isEditable || emoji.isEmpty()) return false
@@ -155,36 +174,10 @@ open class NoteEditorViewModel @Inject constructor(
 
     private var autoSaveJob: Job? = null
     private val autoSaveJobs = mutableSetOf<Job>()
-    private var summaryJob: Job? = null
+    internal var summaryJob: Job? = null
 
     init {
         observeLinkTargetChanges()
-    }
-
-    private fun observeLinkTargetChanges() {
-        viewModelScope.launch {
-            try {
-                combine(
-                    noteRepository.getActiveNotes(),
-                    noteRepository.getArchivedNotes()
-                ) { active, archived ->
-                    val activeIds = active.map { it.id }.toSet()
-                    val deletedIds = archived.map { it.id }.toSet()
-                    Pair(activeIds, deletedIds)
-                }.collect { (activeIds, deletedIds) ->
-                    val current = uiStateInternal.value
-                    if (current.isLoaded && current.document.hasLinkAnnotations()) {
-                        val resolved = current.document.resolveLinks(activeIds, deletedIds)
-                        if (resolved != current.document) {
-                            uiStateInternal.value = current.copy(document = resolved)
-                            scheduleAutoSave()
-                        }
-                    }
-                }
-            } catch (_: Throwable) {
-                // Ignore if repository flows are unmocked or empty
-            }
-        }
     }
 
     fun load(noteId: String?, folderId: String? = null) {
@@ -534,32 +527,7 @@ open class NoteEditorViewModel @Inject constructor(
             }
         }
     }
-    private suspend fun saveInternally() {
-        val current = uiStateInternal.value
-        if (!current.isEditable && current.createdAt != 0L) return
-        // Don't auto-save if both title and content are empty
-        if (current.title.isBlank() && current.content.isBlank()) return
-        val now = System.currentTimeMillis()
-        val noteId = current.noteId ?: "note_${UUID.randomUUID()}"
-        val note = Note(
-            id = noteId,
-            title = current.title.ifBlank { "Untitled note" },
-            content = current.document.toJsonString(),
-            folderId = current.folderId,
-            sortKey = now.toString(),
-            deviceId = "",
-            createdAt = if (current.createdAt == 0L) now else current.createdAt,
-            updatedAt = now,
-            isFavorite = current.isFavorite,
-            accessRole = if (current.isEditable) NoteAccessRole.FULL_ACCESS else NoteAccessRole.READ_ONLY
-        )
-        noteRepository.save(note)
-        // Update state with generated ID and createdAt to avoid duplicate creations
-        uiStateInternal.value = uiStateInternal.value.copy(
-            noteId = noteId,
-            createdAt = note.createdAt
-        )
-    }
+
     fun save(onDone: () -> Unit) {
         viewModelScope.launch {
             autoSaveJobs.cancelAndJoinAll()
@@ -584,20 +552,20 @@ open class NoteEditorViewModel @Inject constructor(
             autoSaveJobs.cancelAndJoinAll()
             autoSaveJob = null
             val current = uiStateInternal.value
-            suspend fun saveBeforeNavigatingBack() {
+            val saveBeforeNavigatingBack: suspend () -> Unit = {
                 val latest = uiStateInternal.value
                 if (latest.title.isBlank() && latest.content.isBlank()) {
                     onNavigateBack()
-                    return
-                }
-                uiStateInternal.value = latest.copy(isBackSyncing = true)
-                try {
-                    saveInternally()
-                    uiStateInternal.value = uiStateInternal.value.copy(isBackSyncing = false)
-                    onNavigateBack()
-                } finally {
-                    if (uiStateInternal.value.isBackSyncing) {
+                } else {
+                    uiStateInternal.value = latest.copy(isBackSyncing = true)
+                    try {
+                        saveInternally()
                         uiStateInternal.value = uiStateInternal.value.copy(isBackSyncing = false)
+                        onNavigateBack()
+                    } finally {
+                        if (uiStateInternal.value.isBackSyncing) {
+                            uiStateInternal.value = uiStateInternal.value.copy(isBackSyncing = false)
+                        }
                     }
                 }
             }
@@ -743,23 +711,6 @@ open class NoteEditorViewModel @Inject constructor(
             viewModelScope.launch { deleteVoiceNoteBlockUseCase(voiceBlock.blockId) }
         }
         scheduleAutoSave()
-    }
-
-    private fun generateSummaryForLoadedNote(state: NoteEditorUiState) {
-        summaryJob?.cancel()
-        if (state.noteId.isNullOrBlank()) {
-            uiStateInternal.value = state.copy(summaryState = NoteSummaryUiState.Empty)
-            return
-        }
-        val noteText = state.content
-        summaryJob = viewModelScope.launch {
-            val summaryState = when (val result = summarizeNoteUseCase(state.title, noteText)) {
-                is NoteSummaryResult.Success -> NoteSummaryUiState.Content(result.summary.text)
-                NoteSummaryResult.Empty -> NoteSummaryUiState.Empty
-                NoteSummaryResult.Unavailable -> NoteSummaryUiState.Error
-            }
-            uiStateInternal.value = uiStateInternal.value.copy(summaryState = summaryState)
-        }
     }
 }
 

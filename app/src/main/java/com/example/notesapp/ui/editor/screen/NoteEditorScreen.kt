@@ -88,6 +88,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -96,6 +97,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -111,11 +113,12 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
@@ -146,10 +149,11 @@ import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
 import com.example.notesapp.ui.editor.mapper.basicBlockType
+import com.example.notesapp.ui.editor.mapper.findWordBoundary
 import com.example.notesapp.ui.editor.mapper.formulaAtCursor
 import com.example.notesapp.ui.editor.mapper.splitAtOffsets
 import com.example.notesapp.ui.editor.mapper.text
-import com.example.notesapp.ui.editor.mapper.toAnnotatedString
+import com.example.notesapp.ui.editor.mapper.toVisualText
 import com.example.notesapp.ui.editor.model.ChartBlockCardModel
 import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
@@ -173,11 +177,9 @@ import com.example.notesapp.ui.editor.viewmodel.openFormulaSheetForEdit
 import com.example.notesapp.ui.editor.viewmodel.resetSelectedTextToBody
 import com.example.notesapp.ui.editor.viewmodel.setFocusedBlock
 import com.example.notesapp.ui.editor.viewmodel.submitFormula
-import com.example.notesapp.ui.editor.viewmodel.toggleFormattingToolbar
 import com.example.notesapp.ui.editor.viewmodel.updateCodeBlock
 import com.example.notesapp.ui.editor.viewmodel.updateFormulaSource
 import com.example.notesapp.ui.editor.viewmodel.updateMermaidBlock
-import com.example.notesapp.ui.editor.viewmodel.updateSelection
 import com.example.notesapp.ui.theme.LocalAppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1076,17 +1078,13 @@ private fun TextDocumentBlock(
     }
 
     val visualTransformation = remember(block.children, colors.background, colors.transparent, colors.primary) {
-        VisualTransformation { text ->
-            val annotated = block.toAnnotatedString(
+        VisualTransformation { _ ->
+            val visualText = block.toVisualText(
                 codeBackground = colors.background,
                 transparentBackground = colors.transparent,
                 linkColor = colors.primary
             )
-            if (annotated.text == text.text) {
-                TransformedText(annotated, OffsetMapping.Identity)
-            } else {
-                TransformedText(text, OffsetMapping.Identity)
-            }
+            TransformedText(visualText.annotatedString, visualText.offsetMapping)
         }
     }
 
@@ -1310,10 +1308,20 @@ private object BasicBlockRenderer {
     ) {
         val colors = LocalAppColors.current
         val typography = editorTypography(blockType)
+        var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+        var lastTapTime by remember { mutableStateOf(0L) }
+        var lastTapOffset by remember { mutableStateOf(Offset.Zero) }
+
+        val currentTextFieldValue by rememberUpdatedState(textFieldValue)
+        val currentVisualTransformation by rememberUpdatedState(visualTransformation)
+        val currentOnTextFieldValueChange by rememberUpdatedState(onTextFieldValueChange)
+        val currentOnSelectionChange by rememberUpdatedState(onSelectionChange)
+
         BasicTextField(
             value = textFieldValue,
             readOnly = !isEditable,
             visualTransformation = visualTransformation,
+            onTextLayout = { textLayoutResult = it },
             onValueChange = { nextValue ->
                 val selectionChanged = textFieldValue.selection != nextValue.selection
                 val textChanged = textFieldValue.text != nextValue.text
@@ -1339,6 +1347,39 @@ private object BasicBlockRenderer {
                         true
                     } else {
                         false
+                    }
+                }
+                .pointerInput(isEditable) {
+                    if (!isEditable) return@pointerInput
+                    awaitEachGesture {
+                        val down = awaitFirstDown(pass = PointerEventPass.Initial, requireUnconsumed = false)
+                        val currentTime = System.currentTimeMillis()
+                        val currentPosition = down.position
+                        val dx = currentPosition.x - lastTapOffset.x
+                        val dy = currentPosition.y - lastTapOffset.y
+                        val isDoubleTap = (currentTime - lastTapTime < 300L) && (dx * dx + dy * dy < 1600f)
+
+                        if (isDoubleTap) {
+                            down.consume()
+                            val transformedOffset = textLayoutResult?.getOffsetForPosition(currentPosition)
+                            val rawOffset = transformedOffset?.let {
+                                currentVisualTransformation.filter(AnnotatedString(currentTextFieldValue.text))
+                                    .offsetMapping.transformedToOriginal(it)
+                            } ?: currentTextFieldValue.selection.start
+                            val wordRange = findWordBoundary(currentTextFieldValue.text, rawOffset)
+                            val nextValue = currentTextFieldValue.copy(selection = wordRange)
+                            currentOnTextFieldValueChange(nextValue)
+                            currentOnSelectionChange(wordRange.start, wordRange.end)
+                            lastTapTime = 0L
+                            lastTapOffset = Offset.Zero
+                            do {
+                                val event = awaitPointerEvent(PointerEventPass.Initial)
+                                event.changes.forEach { it.consume() }
+                            } while (event.changes.any { it.pressed })
+                        } else {
+                            lastTapTime = currentTime
+                            lastTapOffset = currentPosition
+                        }
                     }
                 }
                 .testTag("editor_text_block"),

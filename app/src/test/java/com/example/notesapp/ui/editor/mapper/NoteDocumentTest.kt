@@ -1,6 +1,7 @@
 package com.example.notesapp.ui.editor.mapper
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.TextDecoration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -527,5 +528,38 @@ class NoteDocumentTest {
         assertTrue(md.contains("> [!NOTE] Note content"))
         assertTrue(md.contains("> Quote content"))
         assertTrue(md.contains("<details open>"))
+    }
+
+    @Test
+    fun `findWordBoundary selects word when cursor is inside word`() {
+        val text = "This is a formula with math"
+        // Cursor at 'f' (index 10)
+        assertEquals(TextRange(10, 17), findWordBoundary(text, 10))
+        // Cursor at 'm' (index 13)
+        assertEquals(TextRange(10, 17), findWordBoundary(text, 13))
+        // Cursor at 'a' (index 16)
+        assertEquals(TextRange(10, 17), findWordBoundary(text, 16))
+    }
+
+    @Test
+    fun `findWordBoundary selects preceding word when cursor is at trailing word boundary`() {
+        val text = "formula "
+        assertEquals(TextRange(0, 7), findWordBoundary(text, 7))
+    }
+
+    @Test
+    fun `findWordBoundary handles punctuation and spaces`() {
+        val text = "hello, world"
+        // Cursor at comma (index 5)
+        assertEquals(TextRange(0, 5), findWordBoundary(text, 5))
+        // Cursor at space (index 6)
+        assertEquals(TextRange(6, 6), findWordBoundary(text, 6))
+    }
+
+    @Test
+    fun `findWordBoundary handles empty text and out-of-bound cursors`() {
+        assertEquals(TextRange.Zero, findWordBoundary("", 0))
+        assertEquals(TextRange(0, 5), findWordBoundary("hello", -1))
+        assertEquals(TextRange(0, 5), findWordBoundary("hello", 100))
     }
 }
