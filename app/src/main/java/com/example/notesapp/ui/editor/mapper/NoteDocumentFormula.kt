@@ -3,6 +3,7 @@ package com.example.notesapp.ui.editor.mapper
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -127,4 +128,34 @@ internal fun EditorBlock.TextBlock.toVisualText(
             }
         }
     )
+}
+
+fun findWordBoundary(text: String, cursor: Int): TextRange {
+    if (text.isEmpty()) return TextRange.Zero
+    val clamped = cursor.coerceIn(0, text.length)
+    val index = if (clamped == text.length && clamped > 0) clamped - 1 else clamped
+    if (!text[index].isLetterOrDigit() && text[index] != '_') {
+        if (index > 0 && (text[index - 1].isLetterOrDigit() || text[index - 1] == '_')) {
+            val wordCharIndex = index - 1
+            var start = wordCharIndex
+            while (start > 0 && (text[start - 1].isLetterOrDigit() || text[start - 1] == '_')) {
+                start--
+            }
+            var end = wordCharIndex + 1
+            while (end < text.length && (text[end].isLetterOrDigit() || text[end] == '_')) {
+                end++
+            }
+            return TextRange(start, end)
+        }
+        return TextRange(clamped, clamped)
+    }
+    var start = index
+    while (start > 0 && (text[start - 1].isLetterOrDigit() || text[start - 1] == '_')) {
+        start--
+    }
+    var end = index + 1
+    while (end < text.length && (text[end].isLetterOrDigit() || text[end] == '_')) {
+        end++
+    }
+    return TextRange(start, end)
 }

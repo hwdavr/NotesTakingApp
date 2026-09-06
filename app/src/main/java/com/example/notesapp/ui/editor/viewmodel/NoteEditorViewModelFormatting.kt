@@ -8,19 +8,6 @@ import com.example.notesapp.ui.editor.mapper.insertLinkedText
 import com.example.notesapp.ui.editor.mapper.removeLinkAtOffset
 import com.example.notesapp.ui.editor.mapper.text
 
-fun NoteEditorViewModel.toggleFormattingToolbar() {
-    uiStateInternal.value = uiStateInternal.value.copy(
-        isFormattingToolbarVisible = !uiStateInternal.value.isFormattingToolbarVisible
-    )
-}
-
-fun NoteEditorViewModel.updateSelection(start: Int, end: Int) {
-    uiStateInternal.value = uiStateInternal.value.copy(
-        selectionStart = start,
-        selectionEnd = end
-    )
-}
-
 fun NoteEditorViewModel.hasLinkAtCurrentSelection(): Boolean {
     val current = uiStateInternal.value
     val focusedBlock = current.focusedBlockId?.let { id ->
@@ -30,7 +17,7 @@ fun NoteEditorViewModel.hasLinkAtCurrentSelection(): Boolean {
     return focusedBlock.children.hasLinkInRange(start, end)
 }
 
-fun NoteEditorViewModel.onTargetNoteSelected(targetId: String, targetTitle: String) {
+internal fun NoteEditorViewModel.applyTargetNoteSelected(targetId: String, targetTitle: String) {
     if (!uiStateInternal.value.isEditable || targetId.isBlank()) return
     val current = uiStateInternal.value
     val focusedBlock = current.focusedBlockId?.let { id ->
@@ -100,7 +87,7 @@ fun NoteEditorViewModel.onTargetNoteSelected(targetId: String, targetTitle: Stri
     scheduleAutoSave()
 }
 
-fun NoteEditorViewModel.onRemoveLinkSelected() {
+internal fun NoteEditorViewModel.applyRemoveLinkSelected() {
     if (!uiStateInternal.value.isEditable) return
     val current = uiStateInternal.value
     val focusedBlock = current.focusedBlockId?.let { id ->

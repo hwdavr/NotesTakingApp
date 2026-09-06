@@ -16,8 +16,6 @@ import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
 import com.example.notesapp.ui.editor.screen.NoteLinkPickerScreen
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
-import com.example.notesapp.ui.editor.viewmodel.onRemoveLinkSelected
-import com.example.notesapp.ui.editor.viewmodel.onTargetNoteSelected
 import com.example.notesapp.ui.folderdescription.screen.FolderDescriptionScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
