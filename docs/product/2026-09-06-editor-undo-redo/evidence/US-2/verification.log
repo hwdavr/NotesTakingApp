@@ -1,0 +1,24 @@
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.discreteActionsProduceSeparateStepsAndExactUnwind"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#discreteActionsUnwindAsSeparateSteps
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.redoAcrossRichContentAndTruncationOnNewEdit"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRemovedBlockFallsBackToPrecedingBlock"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#undoOfBlockInsertionFallsFocusBackToPreviousBlock
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.cellTypingUndoRestoresSelectionContext"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)
+$ env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#tableCellTypingUndoRestoresCellAndCaret
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoVoiceOrImageInsertionKeepsFileAndRedoRestoresBlock"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)
+$ env ./gradlew testDebugUnitTest --tests "com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.overlayCommittedEditsBecomeNextUndoStep"
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+PASSED (exit 0)

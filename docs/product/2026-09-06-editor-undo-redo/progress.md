@@ -46,6 +46,17 @@
 - Known risk or unresolved issue: US-2/US-3 remain; next slice US-2 (rich-content discrete steps) is the immediate follow-on.
 - Next best step: commit US-1, then implement US-2.
 
+### Session 005 — US-2 Implementation (harness-generator, 2026-09-06)
+
+- Date: 2026-09-06
+- Goal: Implement US-2 (rich-content discrete steps with exact restoration) on top of the US-1 funnel.
+- Completed: No production changes required — the US-1 commit funnel already records all rich-content document mutations uniformly. Added six JVM methods to `NoteEditorUndoRedoViewModelTest` (exact unwind across typed run/bold/emoji/checkbox/table-row steps with byte-exact equality, redo across rich content + truncation, fallback focus for removed blocks, empty-document clear, cell typing context restore for tables/charts, file-preserving voice/image undo/redo, overlay link/formula commits) and the instrumented `NoteEditorUndoRedoContentTest` (typing + bold selection + emoji + paragraph insertion via panels, heading-insertion fallback focus, table cell typing caret restore).
+- Verification run: 9/9 US-2 acceptance verification commands PASSED (`evidence/US-2/verification.log`); traceability/journey/platform gates exit 0; ktlint/detekt/arch/compose/l10n/assertions 0 violations; coverage 82.39%.
+- Evidence captured: `summary_US-2.md`; feature_list US-2 → `passing` with evidence.
+- Commits: none yet.
+- Known risk: none — US-3 (shortcuts/guardrails/persistence journey/visual owner) remains as the final slice.
+- Next best step: commit US-2, then US-3.
+
 ### Session 003 — Design Review And Mockup Regeneration (2026-09-06)
 
 - Date: 2026-09-06

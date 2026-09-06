@@ -95,7 +95,7 @@
     "return_boundary": null,
     "post_return_assertion": null
    },
-   "status": "not_started",
+   "status": "passing",
    "acceptance_test_ids": [
     "TC-US-2-01",
     "TC-US-2-02",
@@ -118,8 +118,18 @@
     "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoVoiceOrImageInsertionKeepsFileAndRedoRestoresBlock\"",
     "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.overlayCommittedEditsBecomeNextUndoStep\""
    ],
-   "evidence": [],
-   "notes": "Intermediate non-UI slice: the same funnel delivers exact, step-level restoration for every discrete rich-content action; instrumented flows use the already-reachable block panel, emoji surface, and table grid in the open editor, so no later slice is needed to observe the delta. Voice/image file preservation is asserted at the ViewModel boundary without invoking delete use cases."
+   "evidence": [
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.discreteActionsProduceSeparateStepsAndExactUnwind\" -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#discreteActionsUnwindAsSeparateSteps -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.redoAcrossRichContentAndTruncationOnNewEdit\" -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoRemovedBlockFallsBackToPrecedingBlock\" -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#undoOfBlockInsertionFallsFocusBackToPreviousBlock -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.cellTypingUndoRestoresSelectionContext\" -> PASSED (exit 0)",
+    "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.NoteEditorUndoRedoContentTest#tableCellTypingUndoRestoresCellAndCaret -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.undoVoiceOrImageInsertionKeepsFileAndRedoRestoresBlock\" -> PASSED (exit 0)",
+    "env ./gradlew testDebugUnitTest --tests \"com.example.notesapp.ui.editor.viewmodel.NoteEditorUndoRedoViewModelTest.overlayCommittedEditsBecomeNextUndoStep\" -> PASSED (exit 0)"
+   ],
+   "notes": "US-2 delivered: verified every rich-content discrete action is exactly one undo step with byte-exact restoration \u2014 marks, emoji, block conversions/insertions, tables/chart cells, code/mermaid fields, voice/image (file-preserving) insertions, and overlay-committed link/formula edits \u2014 plus fallback focus and cell/caret context restoration through the shared US-1 funnel. 9/9 acceptance verification commands PASSED; coverage 82.39%."
   },
   {
    "id": "US-3",
