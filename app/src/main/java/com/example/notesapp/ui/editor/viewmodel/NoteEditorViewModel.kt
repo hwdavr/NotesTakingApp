@@ -1066,6 +1066,8 @@ private fun NoteEditorViewModel.splitTextBlock(blockId: String, value: String) {
     uiStateInternal.value = current.copy(
         document = current.document.copy(blocks = updatedBlocks),
         focusedBlockId = nextFocusId ?: current.focusedBlockId,
+        selectionStart = 0,
+        selectionEnd = 0,
         pendingTypingMarks = carriedMarks
     )
     scheduleAutoSave()

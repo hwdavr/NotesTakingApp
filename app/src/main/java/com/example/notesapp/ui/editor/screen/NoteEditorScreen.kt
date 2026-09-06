@@ -15,6 +15,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -85,6 +86,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -102,7 +104,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -518,16 +519,19 @@ fun NoteEditorScreenContent(
                         Modifier.fillMaxSize()
                             .testTag("editor_content_scrollable")
                             .verticalScroll(rememberScrollState())
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                enabled = state.isEditable
-                            ) {
-                                if (showBasicBlocksPanel) {
-                                    showBasicBlocksPanel = false
-                                } else {
-                                    focusLastBlockTrigger++
-                                    tableFocusResetTrigger++
+                            .pointerInput(state.isEditable) {
+                                // Tap-only (not Modifier.clickable): a clickable ancestor of the focused
+                                // text field treats a hardware Enter as click activation, which bumped
+                                // focusLastBlockTrigger and stole the cursor to the last block after a
+                                // block split. Handle taps directly so Enter stays in the text field.
+                                if (!state.isEditable) return@pointerInput
+                                detectTapGestures {
+                                    if (showBasicBlocksPanel) {
+                                        showBasicBlocksPanel = false
+                                    } else {
+                                        focusLastBlockTrigger++
+                                        tableFocusResetTrigger++
+                                    }
                                 }
                             }
                             .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -911,7 +915,12 @@ private fun DocumentBlockList(
     Column(modifier = Modifier.testTag("rich_document_blocks")) {
         for (block in blocks) {
             when (block) {
-                is EditorBlock.TextBlock -> {
+                // Key each block by its stable id: without keys Compose matches composables by list
+                // position, so inserting a block (e.g. pressing Enter) shifts every later block into a
+                // "new" slot. Their remember/LaunchedEffect state (including focus effects) is then
+                // re-created and the previously-last block's focus effect re-fires, stealing the
+                // cursor to the end of the note.
+                is EditorBlock.TextBlock -> key(block.id) {
                     val requester = focusRequesters.getOrPut(block.id) { FocusRequester() }
                     TextDocumentBlock(
                         block = block,
@@ -931,7 +940,7 @@ private fun DocumentBlockList(
                         focusTrigger = if (block.id == lastTextBlockId) focusLastBlockTrigger else 0
                     )
                 }
-                is EditorBlock.ImageBlock ->
+                is EditorBlock.ImageBlock -> key(block.id) {
                     ImageDocumentBlock(
                         block = block,
                         isEditable = isEditable,
@@ -939,7 +948,8 @@ private fun DocumentBlockList(
                         onCaptionChange = { onImageChange(block.id, null, it) },
                         onDelete = { onDeleteBlock(block.id) }
                     )
-                is EditorBlock.TableBlock ->
+                }
+                is EditorBlock.TableBlock -> key(block.id) {
                     TableDocumentBlock(
                         block = block,
                         isEditable = isEditable,
@@ -950,14 +960,17 @@ private fun DocumentBlockList(
                         onAction = onTableAction,
                         clearFocusTrigger = tableFocusResetTrigger
                     )
-                is EditorBlock.Voice -> if (block.audioFilePath != null) {
-                    VoiceNotePlayer(
-                        block = block,
-                        isEditable = isEditable,
-                        onDeleteAudio = { onDeleteVoiceAudio?.invoke(block.blockId) }
-                    )
                 }
-                is EditorBlock.MermaidBlock -> {
+                is EditorBlock.Voice -> key(block.id) {
+                    if (block.audioFilePath != null) {
+                        VoiceNotePlayer(
+                            block = block,
+                            isEditable = isEditable,
+                            onDeleteAudio = { onDeleteVoiceAudio?.invoke(block.blockId) }
+                        )
+                    }
+                }
+                is EditorBlock.MermaidBlock -> key(block.id) {
                     MermaidBlockCard(
                         block = block,
                         isEditable = isEditable,
@@ -966,7 +979,7 @@ private fun DocumentBlockList(
                         onOpenFullscreen = { onOpenMermaidFullscreen?.invoke(block) }
                     )
                 }
-                is EditorBlock.CodeBlock -> {
+                is EditorBlock.CodeBlock -> key(block.id) {
                     CodeBlockCard(
                         block = block,
                         isEditable = isEditable,
@@ -977,7 +990,7 @@ private fun DocumentBlockList(
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
-                is EditorBlock.ChartBlock -> {
+                is EditorBlock.ChartBlock -> key(block.id) {
                     val callbacks = requireNotNull(chartCallbacks) {
                         "ChartBlockCallbacks are required when the document contains a chart block"
                     }

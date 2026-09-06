@@ -944,6 +944,29 @@ class NoteEditorViewModelTest : BaseViewModelTest() {
     }
 
     @Test
+    fun `splitTextBlock moves focus and cursor to the newly created block`() = runTest {
+        viewModel.load(null)
+        viewModel.onContentChange("Hello")
+        val block = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>().first()
+        viewModel.setFocusedBlock(block.id)
+        viewModel.updateSelection(block.text().length, block.text().length)
+
+        viewModel.onTextBlockChange(block.id, "Hello\n")
+
+        val blocks = viewModel.uiState.value.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+        assertEquals(2, blocks.size)
+        assertEquals("Hello", blocks[0].text())
+        assertEquals("", blocks[1].text())
+        assertEquals(
+            "New block must be focused so the cursor continues on the new line",
+            blocks[1].id,
+            viewModel.uiState.value.focusedBlockId
+        )
+        assertEquals(0, viewModel.uiState.value.selectionStart)
+        assertEquals(0, viewModel.uiState.value.selectionEnd)
+    }
+
+    @Test
     fun `onTextBlockChange on existing checkbox preserves checkbox type`() = runTest {
         viewModel.load(null)
         viewModel.onContentChange("- [ ] ")
