@@ -47,10 +47,10 @@ class SettingsViewModelTest : BaseViewModelTest() {
     }
 
     @Test
-    fun `profile title defaults to Guest when logged out`() {
+    fun `profile title is absent when logged out so the screen can localize Guest`() {
         isLoggedIn.value = false
         profileEmail.value = "user@example.com"
-        assertEquals("Guest", viewModel.uiState.value.profileTitle)
+        assertEquals(null, viewModel.uiState.value.profileTitle)
     }
 
     @Test

@@ -7,6 +7,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.example.notesapp.R
 
@@ -26,16 +27,24 @@ internal fun NoteEditorRenameDialog(
                 onValueChange = onValueChange,
                 label = { Text(stringResource(R.string.folders_note_title_label)) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("note_editor_rename_text_field")
             )
         },
         confirmButton = {
-            Button(onClick = onConfirm) {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.testTag("note_editor_rename_confirm_button")
+            ) {
                 Text(stringResource(R.string.folders_create_action))
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.testTag("note_editor_rename_cancel_button")
+            ) {
                 Text(stringResource(R.string.folders_cancel_action))
             }
         }

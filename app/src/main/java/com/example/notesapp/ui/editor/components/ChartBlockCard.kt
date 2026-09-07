@@ -511,7 +511,7 @@ private fun ChartDatumTargets(
                         height = with(density) { target.height.toDp() }
                     )
                     .clickable { onDatumTapped(index) }
-                    .testTag(chartTag("editor_chart_datum_target_${point.rowIndex}", blockId))
+                    .testTag(chartTag("editor_chart_datum_target", blockId))
                     .semantics {
                         role = Role.Button
                         contentDescription = semanticsDescription
@@ -650,8 +650,9 @@ private fun ChartDataTable(
         ) {
             Column {
                 if (handlesVisible) {
-                    val columnOptionsTag = chartTag(
-                        "editor_chart_column_options_${block.columnIds[targetCell?.columnIndex ?: 0]}",
+                    val columnOptionsTag = chartColumnTag(
+                        "editor_chart_column_options",
+                        block.columnIds[targetCell?.columnIndex ?: 0],
                         block.id
                     )
                     Row(
@@ -687,7 +688,7 @@ private fun ChartDataTable(
                     Row(
                         modifier = Modifier
                             .height(48.dp)
-                            .testTag(chartTag("editor_chart_data_row_$rowIndex", block.id))
+                            .testTag(chartTag("editor_chart_data_row", block.id))
                     ) {
                         if (handlesVisible && rowIndex == targetCell?.rowIndex) {
                             IconButton(
@@ -695,10 +696,7 @@ private fun ChartDataTable(
                                 modifier = Modifier
                                     .size(48.dp)
                                     .testTag(
-                                        chartTag(
-                                            "editor_chart_row_options_${targetCell?.rowIndex ?: rowIndex}",
-                                            block.id
-                                        )
+                                        chartTag("editor_chart_row_options", block.id)
                                     )
                                     .semantics {
                                         contentDescription = rowHandleDescription
@@ -760,8 +758,9 @@ private fun ChartDataTable(
                                             }
                                         }
                                         .testTag(
-                                            chartTag(
-                                                "editor_chart_data_cell_${block.columnIds[columnIndex]}",
+                                            chartColumnTag(
+                                                "editor_chart_data_cell",
+                                                block.columnIds[columnIndex],
                                                 block.id
                                             )
                                         )
@@ -1150,7 +1149,7 @@ private fun ChartColumnChoice(
             .fillMaxWidth()
             .heightIn(min = 56.dp)
             .clickable(enabled = isEditable, role = Role.RadioButton, onClick = onClick)
-            .testTag(chartTag("editor_chart_option_column_${option.id}", block.id))
+            .testTag(chartColumnTag("editor_chart_option_column", option.id, block.id))
             .semantics {
                 role = Role.RadioButton
                 contentDescription = optionDescription
@@ -1161,7 +1160,7 @@ private fun ChartColumnChoice(
             selected = option.id == block.selectedColumnId,
             onClick = if (isEditable) onClick else null,
             modifier = Modifier.testTag(
-                chartTag("editor_chart_option_column_selector_${option.id}", block.id)
+                chartColumnTag("editor_chart_option_column_selector", option.id, block.id)
             )
         )
         Text(label, color = colors.textPrimary)
@@ -1257,7 +1256,13 @@ private fun chartColumnLabel(block: EditorBlock.ChartBlock, option: ChartColumnO
 
 private fun cellText(cell: List<RichText>?): String = cell.orEmpty().joinToString("") { it.text }
 
-private fun chartTag(prefix: String, blockId: String): String = "${prefix}_$blockId"
+private fun chartTag(prefix: String, blockId: String): String {
+    return "${prefix}_$blockId"
+}
+
+private fun chartColumnTag(prefix: String, columnId: String, blockId: String): String {
+    return "${prefix}_${columnId}_$blockId"
+}
 
 private fun renderChartBitmap(
     block: EditorBlock.ChartBlock,

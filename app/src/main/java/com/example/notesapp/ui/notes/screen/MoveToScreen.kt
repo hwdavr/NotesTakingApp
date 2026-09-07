@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -191,7 +192,7 @@ private fun MoveToSearchBox(value: String, onValueChange: (String) -> Unit) {
             color = LocalAppColors.current.textPrimary
         ),
         singleLine = true,
-        cursorBrush = androidx.compose.ui.graphics.SolidColor(LocalAppColors.current.primary),
+        cursorBrush = SolidColor(LocalAppColors.current.primary),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier.padding(horizontal = 12.dp),

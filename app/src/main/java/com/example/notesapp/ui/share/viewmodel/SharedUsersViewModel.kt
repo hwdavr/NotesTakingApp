@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 data class SharedUsersUiState(
     val noteId: String = "",
-    val noteTitle: String = "",
+    val noteTitle: String? = null,
     val isLoading: Boolean = true,
     val users: List<SharedUserUiModel> = emptyList(),
     val errorMessageRes: Int? = null

@@ -52,8 +52,8 @@ class ChartInteractionFlowTest {
 
         listOf(ChartType.BAR, ChartType.LINE, ChartType.PIE).forEach { chartType ->
             val blockId = "chart-interaction-${chartType.storageValue}"
-            composeRule.onAllNodesWithTag("editor_chart_datum_target_1_$blockId").assertCountEquals(1)
-            composeRule.onAllNodesWithTag("editor_chart_datum_target_1_$blockId").get(0).performClick()
+            composeRule.onAllNodesWithTag("editor_chart_datum_target_$blockId").assertCountEquals(3)
+            composeRule.onAllNodesWithTag("editor_chart_datum_target_$blockId").get(0).performClick()
             composeRule.onAllNodesWithTag("editor_chart_tooltip_$blockId").assertCountEquals(1)
             composeRule.onNodeWithContentDescription("A · Value · 10.0").assertIsDisplayed()
             composeRule.onNodeWithContentDescription("Data point A, value 10.0. Selected.").assertIsDisplayed()

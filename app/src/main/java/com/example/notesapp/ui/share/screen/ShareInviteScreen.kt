@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.share.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -142,7 +144,7 @@ fun ShareInviteScreenContent(
                                 .testTag("share_invite_email"),
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
-                            textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
+                            textStyle = LocalTextStyle.current.copy(
                                 color = colors.textPrimary,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -222,7 +224,7 @@ private fun PermissionOptionRow(permission: InvitePermissionUiModel, selected: B
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .testTag("share_invite_permission"),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = 1.dp,
             color = if (selected) colors.primary else colors.border
         )

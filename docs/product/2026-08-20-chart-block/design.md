@@ -185,17 +185,29 @@ Expose the exact rows and columns behind the chart for editing and inspection. T
 3. **Row/column controls**: Editable notes reuse existing row and column insertion/deletion/clear actions, exposed from the Options bottom sheet rather than inline in the Data view. Guards prevent deletion of the category column or the last candidate data column.
 4. **Data hint**: A localized supporting message explains that the chart uses the selected column and invalid numeric cells are skipped.
 
+### Stable Test-Tag Contract
+
+Chart datum targets and data rows are repeated collections, so their tags are
+scoped only by the immutable block ID (`editor_chart_datum_target_<block-id>`
+and `editor_chart_data_row_<block-id>`). Tests select a known collection
+position rather than encoding a transient row index in the tag. Cell and column
+option tags additionally use the persisted column ID:
+`editor_chart_data_cell_<column-id>_<block-id>`,
+`editor_chart_column_options_<column-id>_<block-id>`, and
+`editor_chart_option_column_<column-id>_<block-id>`. No row index or user-entered
+text is part of a chart test tag.
+
 ### Component Inventory
 
 | Component | Purpose | Required States | Test Tag |
 |---|---|---|---|
 | Data view container | Own table mode | Editable, read-only | `editor_chart_table_view_<stable-block-id>` |
 | Variable grid | Display/edit rows and columns | Focused, horizontal scroll, read-only | `editor_chart_data_grid_<stable-block-id>` |
-| Cell editor | Edit a cell value | Editable, focused, read-only | `editor_chart_data_cell_<stable-block-id>` |
+| Cell editor | Edit a cell value | Editable, focused, read-only | `editor_chart_data_cell_<stable-column-id>_<stable-block-id>` |
 | Add row action | Add a row across current columns from Options | Editable, disabled/read-only | `editor_chart_add_row_<stable-block-id>` |
 | Add column action | Add a candidate data column from Options | Editable, disabled/read-only | `editor_chart_add_column_<stable-block-id>` |
 | Row options action | Clear/delete row | Editable, disabled/read-only | `editor_chart_row_options_<stable-block-id>` |
-| Column options action | Clear/delete column with invariants | Editable, disabled/read-only | `editor_chart_column_options_<stable-block-id>` |
+| Column options action | Clear/delete column with invariants | Editable, disabled/read-only | `editor_chart_column_options_<stable-column-id>_<stable-block-id>` |
 | Data hint | Explain selected-column mapping/filtering | Visible, localized | `editor_chart_data_hint_<stable-block-id>` |
 
 ### Reference Anchor Contract
@@ -204,7 +216,7 @@ Expose the exact rows and columns behind the chart for editing and inspection. T
 |---|---|---|
 | Data grid aligns with chart card | `editor_chart_data_grid_<id>`, `editor_chart_block_<id>` | Grid left/right align with card content inset within ±2 dp. |
 | Data hint follows grid | `editor_chart_data_hint_<id>`, `editor_chart_data_grid_<id>` | Hint begins after the grid with at least 8 dp spacing and remains inside card width. |
-| Row/column targets remain accessible | `editor_chart_data_cell_<id>`, `editor_chart_row_options_<id>`, `editor_chart_column_options_<id>` | Interactive controls meet the project’s 48 dp target contract. |
+| Row/column targets remain accessible | `editor_chart_data_cell_<column-id>_<id>`, `editor_chart_row_options_<id>`, `editor_chart_column_options_<column-id>_<id>` | Interactive controls meet the project’s 48 dp target contract. |
 
 ### Visual States
 

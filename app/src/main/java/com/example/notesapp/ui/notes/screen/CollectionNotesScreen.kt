@@ -347,7 +347,7 @@ private fun CollectionAddButton(onClick: () -> Unit, modifier: Modifier = Modifi
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "+",
+                text = stringResource(R.string.collection_add_button_symbol),
                 color = colors.onPrimary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium

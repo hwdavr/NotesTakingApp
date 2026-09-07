@@ -77,4 +77,10 @@ class BasicBlocksPanelTest {
     fun pageBlockTypeIsExcludedFromCatalog() {
         assertTrue(approvedBasicBlockTiles.none { it.type == BasicBlockType.UNKNOWN })
     }
+
+    @Test
+    fun quoteTileSpansBothGridColumnsWithoutTypeLogicInComposable() {
+        assertEquals(2, approvedBasicBlockTiles.first { it.type == BasicBlockType.QUOTE }.gridSpan)
+        assertTrue(approvedBasicBlockTiles.filterNot { it.type == BasicBlockType.QUOTE }.all { it.gridSpan == 1 })
+    }
 }

@@ -270,7 +270,7 @@ fun FullscreenDiagramViewerContent(
                     }
 
                     Text(
-                        text = "${(scale * 100).roundToInt()}%",
+                        text = stringResource(R.string.mermaid_zoom_percent, (scale * 100).roundToInt()),
                         style = TextStyle(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,

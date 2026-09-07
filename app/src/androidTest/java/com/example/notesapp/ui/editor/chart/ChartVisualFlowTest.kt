@@ -121,7 +121,7 @@ class ChartVisualFlowTest {
 
         composeRule.runOnIdle { blockState.value = chartBlock().copy(id = "visual-selected") }
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag("editor_chart_datum_target_2_visual-selected").performClick()
+        composeRule.onAllNodesWithTag("editor_chart_datum_target_visual-selected").get(1).performClick()
         composeRule.onNodeWithTag("editor_chart_tooltip_visual-selected").assertIsDisplayed()
         composeRule.onNodeWithTag("editor_chart_tooltip_dismiss_visual-selected").assertIsDisplayed()
         assertTooltipLayout("visual-selected")
@@ -231,8 +231,10 @@ class ChartVisualFlowTest {
                 composeRule.onNodeWithTag("editor_chart_empty_$allZeroId").assertIsDisplayed()
             } else {
                 composeRule.onNodeWithTag("editor_chart_plot_$allZeroId").assertIsDisplayed()
-                composeRule.onNodeWithTag("editor_chart_datum_target_1_$allZeroId").assertIsDisplayed()
-                composeRule.onNodeWithTag("editor_chart_datum_target_2_$allZeroId").assertIsDisplayed()
+                val datumTargets = composeRule.onAllNodesWithTag("editor_chart_datum_target_$allZeroId")
+                datumTargets.assertCountEquals(2)
+                datumTargets[0].assertIsDisplayed()
+                datumTargets[1].assertIsDisplayed()
             }
         }
     }
@@ -308,7 +310,7 @@ class ChartVisualFlowTest {
         repeat(40) {
             grid.performTouchInput { swipeUp() }
         }
-        composeRule.onNodeWithTag("editor_chart_data_row_200_large-chart").assertExists()
+        composeRule.onAllNodesWithTag("editor_chart_data_row_large-chart").get(200).assertExists()
     }
 
     private fun setChartContent(block: EditorBlock.ChartBlock) {

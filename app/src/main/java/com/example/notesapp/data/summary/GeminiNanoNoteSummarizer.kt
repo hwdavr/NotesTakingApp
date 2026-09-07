@@ -7,7 +7,9 @@ import com.example.notesapp.domain.summary.NoteSummarizer
 import com.example.notesapp.domain.summary.NoteSummary
 import com.example.notesapp.domain.summary.NoteSummaryUnavailableException
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.mlkit.genai.common.DownloadCallback
 import com.google.mlkit.genai.common.FeatureStatus
+import com.google.mlkit.genai.common.GenAiException
 import com.google.mlkit.genai.summarization.Summarization
 import com.google.mlkit.genai.summarization.SummarizationRequest
 import com.google.mlkit.genai.summarization.SummarizerOptions
@@ -53,11 +55,11 @@ class GeminiNanoNoteSummarizer @Inject constructor(
                 FeatureStatus.DOWNLOADABLE -> {
                     android.util.Log.d(TAG, "Gemini Nano model is DOWNLOADABLE; initiating download...")
                     runCatching {
-                        summarizer.downloadFeature(object : com.google.mlkit.genai.common.DownloadCallback {
+                        summarizer.downloadFeature(object : DownloadCallback {
                             override fun onDownloadStarted(bytesToDownload: Long) {
                                 android.util.Log.d(TAG, "Gemini Nano download started; bytes=$bytesToDownload")
                             }
-                            override fun onDownloadFailed(e: com.google.mlkit.genai.common.GenAiException) {
+                            override fun onDownloadFailed(e: GenAiException) {
                                 android.util.Log.w(TAG, "Gemini Nano download failed", e)
                             }
                             override fun onDownloadProgress(totalBytesDownloaded: Long) {

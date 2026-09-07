@@ -522,7 +522,7 @@ private fun MermaidPreviewContent(block: EditorBlock.MermaidBlock) {
                         contentColor = colors.primary
                     ) {
                         Text(
-                            text = "${(scale * 100).roundToInt()}%",
+                            text = stringResource(R.string.mermaid_zoom_percent, (scale * 100).roundToInt()),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )

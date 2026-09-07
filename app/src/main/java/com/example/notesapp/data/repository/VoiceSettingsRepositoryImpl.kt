@@ -2,6 +2,7 @@ package com.example.notesapp.data.repository
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.notesapp.data.local.VoiceNoteBlockDao
@@ -44,7 +45,7 @@ class VoiceSettingsRepositoryImpl @Inject constructor(
     init {
         repositoryScope.launch {
             context.voiceSettingsDataStore.data
-                .catch { emit(androidx.datastore.preferences.core.emptyPreferences()) }
+                .catch { emit(emptyPreferences()) }
                 .map { preferences ->
                     AudioFormat.fromStorageValue(
                         preferences[VOICE_FORMAT_KEY].orEmpty()

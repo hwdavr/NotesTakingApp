@@ -97,13 +97,7 @@ fun BasicBlocksPanel(onTileSelected: (BasicBlockType) -> Unit, modifier: Modifie
                     items(
                         items = section.tiles,
                         key = { it.testTag },
-                        span = { tile ->
-                            if (tile.type == BasicBlockType.QUOTE) {
-                                GridItemSpan(2)
-                            } else {
-                                GridItemSpan(1)
-                            }
-                        }
+                        span = { tile -> GridItemSpan(tile.gridSpan) }
                     ) { tile ->
                         BasicBlockTile(
                             tile = tile,
@@ -121,7 +115,8 @@ data class BasicBlockTileItem(
     @StringRes val labelRes: Int,
     @StringRes val descriptionRes: Int,
     val testTag: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val gridSpan: Int = 1
 )
 
 private val basicBlockTiles = listOf(
@@ -200,7 +195,8 @@ private val basicBlockTiles = listOf(
         labelRes = R.string.basic_blocks_quote_label,
         descriptionRes = R.string.basic_blocks_quote_description,
         testTag = "basic_blocks_quote",
-        icon = Icons.Outlined.FormatQuote
+        icon = Icons.Outlined.FormatQuote,
+        gridSpan = 2
     )
 )
 

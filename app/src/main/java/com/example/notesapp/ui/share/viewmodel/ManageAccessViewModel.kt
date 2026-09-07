@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 
 data class ManageAccessUiState(
     val noteId: String = "",
-    val noteTitle: String = "",
+    val noteTitle: String? = null,
     val isLoading: Boolean = true,
     val isSubmitting: Boolean = false,
     val users: List<ManageAccessUserUiModel> = emptyList(),

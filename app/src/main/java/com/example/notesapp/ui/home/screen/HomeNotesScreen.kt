@@ -506,7 +506,7 @@ private fun HomeAddButton(onClick: () -> Unit, contentDescription: String, modif
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "+",
+                text = stringResource(R.string.home_add_button_symbol),
                 color = colors.onSecondary,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium

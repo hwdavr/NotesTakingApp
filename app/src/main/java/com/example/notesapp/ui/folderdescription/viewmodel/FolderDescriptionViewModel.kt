@@ -43,7 +43,7 @@ class FolderDescriptionViewModel @Inject constructor(
     val navigationEvents = events.receiveAsFlow()
 
     private var currentFolder: Folder? = null
-    private var originalDescription = ""
+    private var originalValue = ""
 
     init {
         loadFolder()
@@ -52,7 +52,7 @@ class FolderDescriptionViewModel @Inject constructor(
     fun onDescriptionChanged(description: String) {
         _uiState.value = _uiState.value.copy(
             description = description,
-            canSave = description.trim() != originalDescription
+            canSave = description.trim() != originalValue
         )
     }
 
@@ -97,7 +97,7 @@ class FolderDescriptionViewModel @Inject constructor(
                 )
             } else {
                 currentFolder = folder
-                originalDescription = folder.description
+                originalValue = folder.description
                 _uiState.value = FolderDescriptionUiState(
                     isLoading = false,
                     folderName = folder.name,

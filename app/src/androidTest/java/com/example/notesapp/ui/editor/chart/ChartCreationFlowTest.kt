@@ -48,9 +48,10 @@ class ChartCreationFlowTest {
             val blockId = chartType.storageValue
             composeRule.onNodeWithTag("editor_chart_plot_$blockId").assertIsDisplayed()
             composeRule.onAllNodesWithTag("editor_chart_plot_$blockId").assertCountEquals(1)
-            listOf(1, 2, 3).forEach { rowIndex ->
-                composeRule.onAllNodesWithTag("editor_chart_datum_target_${rowIndex}_$blockId")
-                    .assertCountEquals(1)
+            val datumTargets = composeRule.onAllNodesWithTag("editor_chart_datum_target_$blockId")
+            datumTargets.assertCountEquals(3)
+            repeat(3) { index ->
+                datumTargets[index].assertIsDisplayed()
             }
         }
     }

@@ -68,7 +68,7 @@ fun SharedUsersScreen(
     }
     SharedUsersScreenContent(
         parentPadding = parentPadding,
-        noteTitle = state.noteTitle.ifBlank { stringResource(R.string.editor_untitled_note) },
+        noteTitle = state.noteTitle.orEmpty().ifBlank { stringResource(R.string.editor_untitled_note) },
         users = state.users,
         isLoading = state.isLoading,
         errorMessageRes = state.errorMessageRes,

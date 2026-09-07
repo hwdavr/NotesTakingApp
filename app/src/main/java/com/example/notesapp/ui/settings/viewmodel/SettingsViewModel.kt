@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class SettingsUiState(
-    val profileTitle: String = "Guest",
+    val profileTitle: String? = null,
     val voiceAudioFormat: SettingsAudioFormat = SettingsAudioFormat.AAC,
     val voiceStorage: VoiceStorageUiState = VoiceStorageUiState()
 )
@@ -55,7 +55,7 @@ open class SettingsViewModel @Inject constructor(
         voiceSettingsRepository.storageUsage
     ) { isLoggedIn, email, audioFormat, storageUsage ->
         SettingsUiState(
-            profileTitle = if (isLoggedIn) email?.takeIf { it.isNotBlank() } ?: "Guest" else "Guest",
+            profileTitle = email?.takeIf { isLoggedIn && it.isNotBlank() },
             voiceAudioFormat = SettingsAudioFormat.fromDomain(audioFormat),
             voiceStorage = storageUsage.toUiState()
         )

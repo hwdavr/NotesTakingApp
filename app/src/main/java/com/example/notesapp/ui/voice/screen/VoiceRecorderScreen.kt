@@ -10,6 +10,7 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -66,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -119,7 +121,7 @@ fun VoiceRecorderScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         val permanentlyDenied = !granted && (context as? Activity)?.let {
-            !androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
+            !ActivityCompat.shouldShowRequestPermissionRationale(
                 it,
                 Manifest.permission.RECORD_AUDIO
             )
@@ -301,7 +303,7 @@ fun VoiceRecorderContent(
                 modifier = Modifier.testTag("recorder_status_pill"),
                 shape = RoundedCornerShape(28.dp),
                 color = colors.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, colors.border)
+                border = BorderStroke(1.dp, colors.border)
             ) {
                 Text(
                     text = statusText,
@@ -582,7 +584,7 @@ private fun FormatChip(labelRes: Int) {
         modifier = Modifier.testTag("recorder_format_chip"),
         shape = RoundedCornerShape(10.dp),
         color = colors.transparent,
-        border = androidx.compose.foundation.BorderStroke(1.dp, colors.border)
+        border = BorderStroke(1.dp, colors.border)
     ) {
         Text(
             text = stringResource(labelRes),

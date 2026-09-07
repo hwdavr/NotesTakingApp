@@ -77,7 +77,7 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsScreenContent(
         parentPadding = parentPadding,
-        profileTitle = uiState.profileTitle,
+        profileTitle = uiState.profileTitle ?: stringResource(R.string.settings_guest_profile),
         voiceAudioFormat = uiState.voiceAudioFormat,
         voiceStorage = uiState.voiceStorage,
         onVoiceAudioFormatSelected = viewModel::selectVoiceAudioFormat,
@@ -289,7 +289,7 @@ private fun SettingsTopBar() {
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "♛",
+                    text = stringResource(R.string.settings_pro_badge_symbol),
                     color = LocalAppColors.current.onAccent,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
@@ -378,12 +378,12 @@ private fun HeroBanner(modifier: Modifier = Modifier) {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "👤", fontSize = 32.sp)
+                Text(text = stringResource(R.string.settings_profile_avatar_symbol), fontSize = 32.sp)
             }
         }
         // Sparkle decoration
         Text(
-            text = "✦",
+            text = stringResource(R.string.settings_sparkle_symbol),
             color = LocalAppColors.current.onAccent.copy(alpha = 0.30f),
             fontSize = 20.sp,
             modifier = Modifier.align(Alignment.TopEnd).padding(top = 0.dp, end = 96.dp)
