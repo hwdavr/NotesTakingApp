@@ -7,6 +7,43 @@ on:
     branches: [ "master" ]
 
 jobs:
+  full-source-rules:
+    name: Full Source Rules
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code and Harness
+        uses: actions/checkout@v4
+        with:
+          # The source-rule entry points live in the pinned harness submodule.
+          submodules: recursive
+          # A private harness repository needs this read-only secret. Public
+          # harnesses fall back to the workflow token.
+          token: ${{ secrets.HARNESS_REPO_TOKEN || github.token }}
+          persist-credentials: false
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Architecture Rules (full source)
+        run: bash harness/scripts/check-architecture-rules.sh --all
+
+      - name: Run Compose Rules (full source)
+        run: bash harness/scripts/check-compose-rules.sh --all
+
+      - name: Run Localization Rules (full source)
+        run: bash harness/scripts/check-localization-rules.sh --all
+
+      - name: Run Navigation Rules (full source)
+        run: bash harness/scripts/check-navigation-rules.sh
+
+      - name: Run Test Assertion Rules (full test source)
+        run: bash harness/scripts/check-test-assertions-quality.sh
+
   build:
     name: Build & Test Android App
     runs-on: ubuntu-latest
