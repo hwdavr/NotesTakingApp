@@ -29,20 +29,12 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Run Architecture Rules (full source)
-        run: bash harness/scripts/check-architecture-rules.sh --all
+      - name: Run Full Source Rules Bundle
+        run: bash harness/scripts/check-full-source-rules.sh
 
-      - name: Run Compose Rules (full source)
-        run: bash harness/scripts/check-compose-rules.sh --all
-
-      - name: Run Localization Rules (full source)
-        run: bash harness/scripts/check-localization-rules.sh --all
-
-      - name: Run Navigation Rules (full source)
-        run: bash harness/scripts/check-navigation-rules.sh
-
-      - name: Run Test Assertion Rules (full test source)
-        run: bash harness/scripts/check-test-assertions-quality.sh
+      - name: Verify Full Source Rules Wiring
+        if: always()
+        run: bash harness/scripts/tests/full-source-rules-contract-test.sh
 
   build:
     name: Build & Test Android App
