@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!--
+        Security findings in this profile are high-confidence errors. The
+        existing SetJavaScriptEnabled finding is intentionally left at the
+        default warning level because the offline Mermaid renderer requires a
+        separate, user-approved remediation decision.
+    -->
+    <issue id="AddJavascriptInterface" severity="error" />
+    <issue id="JavascriptInterface" severity="error" />
+    <issue id="AllowAllHostnameVerifier" severity="error" />
+    <issue id="BadHostnameVerifier" severity="error" />
+    <issue id="WebViewClientOnReceivedSslError" severity="error" />
+    <issue id="SSLCertificateSocketFactoryCreateSocket" severity="error" />
+    <issue id="SSLCertificateSocketFactoryGetInsecure" severity="error" />
+    <issue id="InsecureBaseConfiguration" severity="error" />
+    <issue id="AcceptsUserCertificates" severity="error" />
+    <issue id="ExportedService" severity="error" />
+    <issue id="ExportedReceiver" severity="error" />
+    <issue id="ExportedContentProvider" severity="error" />
+    <issue id="GrantAllUris" severity="error" />
+    <issue id="SetWorldReadable" severity="error" />
+    <issue id="SetWorldWritable" severity="error" />
+    <issue id="WorldReadableFiles" severity="error" />
+    <issue id="WorldWriteableFiles" severity="error" />
+</lint>

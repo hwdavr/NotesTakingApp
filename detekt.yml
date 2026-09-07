@@ -151,3 +151,11 @@ style:
       - value: 'androidx.room.*'
         reason: 'Room must not be imported outside the data layer. Use repository interfaces defined in the domain layer.'
 
+      # ── Security-sensitive imports ────────────────────────────────────────
+      # These APIs bypass the approved OkHttp/Retrofit transport or provide an
+      # always-trusting TLS implementation. Import checks are syntax-based, so
+      # they remain effective in the standard non-type-resolved Detekt task.
+      - value: 'java.net.HttpURLConnection'
+        reason: 'Use the approved OkHttp/Retrofit transport abstraction so HTTPS and timeout policy are centralized.'
+      - value: 'org.apache.http.conn.ssl.AllowAllHostnameVerifier'
+        reason: 'This hostname verifier trusts every host and disables TLS hostname verification.'

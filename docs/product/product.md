@@ -3,7 +3,7 @@
 **Platform**: Android (Kotlin · Jetpack Compose · Material 3 · Room · Hilt)
 **Minimum SDK**: Android 7.0 (API 24) / Target SDK 34
 **Privacy**: 100% on-device note storage in local Room database with optional AI note summarization (Gemini Nano) and sharing capabilities.
-**Last updated**: 2026-08-23
+**Last updated**: 2026-09-07
 
 ---
 
@@ -196,5 +196,11 @@ Lifecycle rules:
   - `domain/`: Business models, use cases (`SummarizeNoteUseCase`, `CategorizeNoteUseCase`), repository contracts.
   - `data/`: Room Database (`NoteDao`, `FolderDao`), Remote API interfaces, MediaPipe / Gemini Nano AI clients, Data Mappers.
 - **Tech Stack**: Kotlin 1.9+ · Jetpack Compose · Material 3 · Navigation Compose · Room · Hilt · KSP · Java 17 · minSdk 24 / targetSdk 34.
+- **Build & security gates**: Android Lint runs for debug and release variants;
+  high-confidence WebView, TLS, exported-component, and file-permission findings
+  are promoted to errors through `app/lint.xml`. Detekt retains zero tolerated
+  issues and rejects direct `HttpURLConnection` and always-trusting hostname
+  verifier imports; CI runs Ktlint, Detekt, and both Lint variants on every push
+  and pull request.
 
-*Document last updated: 2026-09-06*
+*Document last updated: 2026-09-07*

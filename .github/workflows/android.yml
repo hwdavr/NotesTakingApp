@@ -66,9 +66,9 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x gradlew
 
-      # Step 5: Run Code Quality Checks (Ktlint & Detekt)
-      # - name: Run Code Style & Quality Checks
-      #   run: ./gradlew ktlintCheck detekt
+      # Step 5: Run Code Quality and Security Checks
+      - name: Run Code Quality & Security Checks
+        run: ./gradlew ktlintCheck detekt lintDebug lintRelease
 
       # Step 6: Run Unit Tests
       - name: Run Unit Tests
