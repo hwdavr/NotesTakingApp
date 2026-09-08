@@ -49,6 +49,10 @@ jobs:
       # Step 1: Checkout the code
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.HARNESS_REPO_TOKEN || github.token }}
+          persist-credentials: false
 
       # Step 2: Set up Java 17 environment
       - name: Set up JDK 17
@@ -68,7 +72,26 @@ jobs:
 
       # Step 5: Run Code Quality and Security Checks
       - name: Run Code Quality & Security Checks
-        run: ./gradlew ktlintCheck detekt lintDebug lintRelease
+        run: |
+          ./gradlew ktlintCheck detekt lintDebug lintRelease
+          mkdir -p app/build/reports/ai-security
+          bash harness/scripts/check-ai-security-rules.sh \
+            --root . \
+            --format markdown \
+            --output app/build/reports/ai-security/security-report.md
+          bash harness/scripts/check-ai-security-rules.sh \
+            --root . \
+            --format json \
+            --output app/build/reports/ai-security/security-report.json
+          bash harness/scripts/tests/ai-security-rules-contract-test.sh
+
+      - name: Upload AI Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-security-reports
+          path: app/build/reports/ai-security/
+          if-no-files-found: ignore
 
       # Step 6: Run Unit Tests
       - name: Run Unit Tests

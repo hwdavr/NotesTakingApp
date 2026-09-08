@@ -2,12 +2,12 @@
 <lint>
     <!--
         Security findings in this profile are high-confidence errors. The
-        existing SetJavaScriptEnabled finding is intentionally left at the
-        default warning level because the offline Mermaid renderer requires a
-        separate, user-approved remediation decision.
+        inline Mermaid renderer does not require JavaScript; any future
+        enablement must fail this policy and receive a separate review.
     -->
     <issue id="AddJavascriptInterface" severity="error" />
     <issue id="JavascriptInterface" severity="error" />
+    <issue id="SetJavaScriptEnabled" severity="error" />
     <issue id="AllowAllHostnameVerifier" severity="error" />
     <issue id="BadHostnameVerifier" severity="error" />
     <issue id="WebViewClientOnReceivedSslError" severity="error" />

@@ -586,9 +586,10 @@ internal fun MermaidSvgView(svgString: String, isDark: Boolean, modifier: Modifi
                 setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
                 settings.apply {
-                    javaScriptEnabled = true
-                    domStorageEnabled = true
-                    allowFileAccess = true
+                    javaScriptEnabled = false
+                    domStorageEnabled = false
+                    allowFileAccess = false
+                    allowContentAccess = false
                     blockNetworkLoads = true
                     loadWithOverviewMode = true
                     useWideViewPort = false
@@ -597,7 +598,7 @@ internal fun MermaidSvgView(svgString: String, isDark: Boolean, modifier: Modifi
         },
         update = { webView ->
             webView.loadDataWithBaseURL(
-                "file:///android_asset/mermaid/",
+                "about:blank",
                 htmlData,
                 "text/html; charset=utf-8",
                 "UTF-8",

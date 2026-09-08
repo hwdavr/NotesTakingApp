@@ -201,6 +201,8 @@ Lifecycle rules:
   are promoted to errors through `app/lint.xml`. Detekt retains zero tolerated
   issues and rejects direct `HttpURLConnection` and always-trusting hostname
   verifier imports; CI runs Ktlint, Detekt, and both Lint variants on every push
-  and pull request.
+  and pull request. The AI security evaluator also exercises hostile model
+  outputs, bounded prompt fields, strict Mermaid WebView settings, and redacted
+  source-policy reports in CI.
 
-*Document last updated: 2026-09-07*
+*Document last updated: 2026-09-08*

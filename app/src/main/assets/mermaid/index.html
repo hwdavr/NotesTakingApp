@@ -53,7 +53,7 @@
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
                 startOnLoad: false,
-                securityLevel: 'loose'
+                securityLevel: 'strict'
             });
         }
 
@@ -74,7 +74,7 @@
 
                 mermaid.initialize({
                     startOnLoad: false,
-                    securityLevel: 'loose',
+                    securityLevel: 'strict',
                     theme: isDark ? 'dark' : 'default',
                     themeVariables: {
                         primaryColor: primaryColor || '#7C6CF2',
