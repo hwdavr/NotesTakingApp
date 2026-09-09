@@ -45,6 +45,7 @@
 | API | `api-contract-rules.md` | Not applicable — no endpoint, DTO, schema, or OpenAPI change; note content remains local document JSON and history is never serialized. | `sharedContracts/openapi.yaml` remains unchanged. |
 | OBS | `observability.md` | Not applicable — in-memory undo/redo adds no async, network, persistence, or error boundary and reuses the existing autosave path unchanged. | Review confirms no new log statements and no content/title/PII is ever logged by the new code. |
 | ANL | `analytics-rules.md` | Not applicable — analytics: none; no product-approved event or funnel is requested for undo/redo. | No analytics dependency or event is added. |
+| SEC | `android-security.md` | Not applicable — no Android security boundary is changed. | No authentication, sensitive storage, URI/IPC, network, WebView, AI/model, SDK, or release-security boundary changes. |
 
 ## Generated Context Index *(execution aid — no new authority)*
 

@@ -45,6 +45,7 @@
 | API | `api-contract-rules.md` | Not applicable — no endpoint, DTO, schema, or OpenAPI change; document JSON remains local note content. | `sharedContracts/openapi.yaml` remains unchanged; every acceptance row declares `N/A — no API`. |
 | OBS | `observability.md` | Required | Persistence and renderer failures use safe diagnostics; US-4 verifies that note content, titles, IDs, labels, and formula source are not logged. |
 | ANL | `analytics-rules.md` | Not applicable — analytics: none; no product-approved event or funnel is requested. | No analytics event or dependency is added. |
+| SEC | `android-security.md` | Not applicable — no Android security boundary is changed. | No authentication, sensitive storage, URI/IPC, network, WebView, AI/model, SDK, or release-security boundary changes. |
 
 ## Spec Coverage Matrix
 

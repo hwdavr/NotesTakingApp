@@ -46,6 +46,7 @@ As a person editing a note, I want to reverse my most recent document change (Un
 | API | `api-contract-rules.md` | Conditional | Not applicable — no endpoint, DTO, schema, or OpenAPI change; note content remains local document JSON and history is never serialized. | Review confirms `sharedContracts/openapi.yaml` and content JSON schema are unchanged. |
 | OBS | `observability.md` | Conditional | Not applicable — in-memory undo/redo adds no async, network, persistence, or error boundary and reuses the existing autosave path unchanged; no logger changes or diagnostics are introduced. | Review confirms no new log statements and no content/title/PII logged anywhere in the new code. |
 | ANL | `analytics-rules.md` | Conditional | Not applicable — analytics: none; no product-approved impression, action, funnel, or error event is requested for undo/redo. | Review confirms no analytics dependency or event is added. |
+| SEC | `android-security.md` | Conditional | Not applicable — no Android security boundary is changed. | No authentication, sensitive storage, URI/IPC, network, WebView, AI/model, SDK, or release-security boundary changes. |
 
 ## Technical Spec
 
