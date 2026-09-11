@@ -6,7 +6,7 @@
 - Standard startup path: Existing Android app production entry through `AppNavigationHost` and Note Editor
 - Standard verification path: `./gradlew testDebugUnitTest` plus scoped `connectedDebugAndroidTest` commands on `emulator-5554`
 - Current highest-priority unfinished feature: `US-2` — Complete bookmark management, export, and visual verification
-- Current blocker: None for US-2 implementation; the US-1 Stage 7 commit is deferred pending explicit user approval because the checkout is shared with other agents.
+- Current blocker: None for US-2 implementation; the US-1 Stage 7 commit is recorded as `cb7375e`.
 
 ## Session Log
 
@@ -34,7 +34,7 @@
   - Test infrastructure: project-owned `HiltTestRunner`, debug-only `HiltTestActivity`, Hilt test dependencies, and `okhttp-tls` for HTTPS fixtures.
 - Verification run: All 12 US-1 acceptance commands exit 0 (8 instrumented on `emulator-5554`, 4 JVM suites; logs in `evidence/US-1/`). Supporting gates: `testDebugUnitTest` 539 tests / 0 failures; 34/34 existing editor+navigation instrumented regression tests; `check-journey-registry.sh --run-all` 6/6 journeys including new `J-WEB-BOOKMARK-ADD`; `check-acceptance-test-traceability.sh --evaluate US-1` PASS; `check-platform-evidence.sh --evaluate --slice US-1` PASS; `check-full-source-rules.sh`, `ktlintCheck`, `detekt`, `lintDebug`, `assembleDebug` exit 0; kover project-owned line coverage 82.03%.
 - Evidence captured: `evidence/US-1/TC-US-1-01.log` … `TC-US-1-12.log`, updated `feature_list.json` (US-1 `passing` with per-Test-ID evidence), `summary_US-1.md`, `session-handoff.md`, and `docs/knowledge/pitfalls/2026-09-11-navigation-reentry-reload.md`.
-- Commits: None — Stage 7 commit deferred pending explicit user approval in the shared checkout.
+- Commits: `cb7375e` — `feat(editor): add metadata-enriched web bookmark block with URL validation` (55 files: domain/data/DI/UI/navigation, tests, harness evidence and state docs). Created with explicit user approval; the `.harness` submodule pointer and its internal edits were deliberately left uncommitted.
 - Files or artifacts updated: application sources and tests listed above, `docs/product/product.md` tracker/capabilities/roadmap, `docs/product/journey-registry.yaml`, and this progress file.
 - Known risk or unresolved issue: The editor destination now reloads only when the requested note is not already loaded; future editor changes must preserve that guard. The project-owned instrumentation runner affects every instrumented suite.
 - Next best step: Implement US-2 (card actions, real `ACTION_VIEW` browser boundary, export/compatibility completion, and the five source-fed visual captures).

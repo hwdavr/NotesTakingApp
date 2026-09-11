@@ -48,8 +48,13 @@
   cleartext stays disabled); no device-level browser launch exists yet.
 - Risk for the next session: the `testInstrumentationRunner` is now project-owned. Any new suite
   that relies on the production `Application` class must be checked against `HiltTestRunner`.
-- Risk for the next session: `Stage 7` requires a commit; it is intentionally **not** created
-  because this is a shared checkout with other agents' work. Commit only with user approval.
+- `Stage 7` commit `cb7375e` (`feat(editor): add metadata-enriched web bookmark block with URL
+  validation`) contains the whole US-1 slice, its tests, evidence, and state docs. It was created
+  with explicit user approval.
+- Risk for the next session: the `.harness` submodule is still dirty — its working tree carries an
+  uncommitted existing-screen-baseline gate (`harness/scripts/check-existing-screen-baseline-contract.sh`,
+  `ci-checks.md`, planning/design templates) on top of `9286bd5`, while this repo's committed pointer
+  remains `1078686`. Commit inside the harness repo before relying on that gate in CI.
 
 ## Next Best Step
 

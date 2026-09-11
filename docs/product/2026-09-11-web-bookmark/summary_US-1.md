@@ -16,7 +16,7 @@
 | Implement | ✅ Completed | 2026-09-11 22:35 | Bookmark domain/data/ViewModel/UI/navigation layers implemented; `assembleDebug` exits 0. |
 | Test | ✅ Completed | 2026-09-11 22:50 | 12/12 acceptance commands exit 0 (8 instrumented on `emulator-5554`, 4 JVM suites); full JVM suite 539 tests / 0 failures; 34/34 existing editor+nav instrumented regression tests; all 5 pre-existing critical journeys plus the new bookmark journey pass. |
 | Code Quality Fix | ✅ Completed | 2026-09-11 23:05 | `check-full-source-rules.sh`, `ktlintCheck`, `detekt`, `lintDebug` exit 0; kover line coverage 82.03% (threshold met). |
-| Update State | ✅ Completed | 2026-09-11 23:20 | `feature_list.json` US-1 evidence recorded and status `passing`; `progress.md`, `product.md`, and `journey-registry.yaml` (`J-WEB-BOOKMARK-ADD`) updated. Commit deferred to explicit user approval (see Open Items). |
+| Update State | ✅ Completed | 2026-09-11 23:20 | `feature_list.json` US-1 evidence recorded and status `passing`; `progress.md`, `product.md`, and `journey-registry.yaml` (`J-WEB-BOOKMARK-ADD`) updated. Stage 7 commit `cb7375e` created with explicit user approval. |
 | Clean Exit | ✅ Completed | 2026-09-11 23:25 | `session-handoff.md` written; clean-state checklist recorded below; metrics validate. |
 | Install App To Device | ✅ Completed | 2026-09-11 23:30 | `./gradlew installDebug` exits 0 on `emulator-5554`. |
 
@@ -45,7 +45,7 @@
 ## Open Items
 
 - US-2 (card management, browser boundary, export/compatibility, visual verification) remains `not_started`; the feature stays `In Progress` in the product tracker.
-- The Stage 7 commit (`feat(editor): add metadata-enriched web bookmark`) is intentionally not created: the shared checkout may contain other agents' work, so the commit awaits explicit user approval.
+- Stage 7 commit `cb7375e` (`feat(editor): add metadata-enriched web bookmark block with URL validation`) holds the slice. The `.harness` submodule pointer and the harness repo's own uncommitted gate edits were excluded on request and remain uncommitted.
 - Real browser-handler and no-handler runtime configuration for `TC-US-2-02`/`TC-US-2-03` remains unverified until US-2.
 
 ## Stage Evidence
