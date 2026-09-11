@@ -50,7 +50,7 @@
         "return_boundary": "The Add Web Bookmark destination pops back to the originating note editor after successful save.",
         "post_return_assertion": "The saved Web Bookmark card and its metadata-derived title are visible in the originating note editor."
       },
-      "status": "in_progress",
+      "status": "passing",
       "acceptance_test_ids": [
         "TC-US-1-01",
         "TC-US-1-02",
@@ -79,8 +79,93 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#appendsBookmarkWhenNoBlockIsFocused",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#retainsUrlDraftAcrossRecreationAndKeyboard"
       ],
-      "evidence": [],
-      "notes": "First implementation increment. Metadata is fetched on Save, never on every keystroke. HTTP URLs are saved without metadata retrieval because cleartext traffic remains disabled."
+      "evidence": [
+        {
+          "test_id": "TC-US-1-01",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkBasicBlocksTest#advancedPanelShowsWebBookmarkTile",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 tests passed on emulator-5554 (Medium_Phone AVD, API 33); log: evidence/US-1/TC-US-1-01.log"
+        },
+        {
+          "test_id": "TC-US-1-02",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#opensAddBookmarkPageAndReturnsWithSavedCard",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 production-entry journey tests passed on emulator-5554; log: evidence/US-1/TC-US-1-02.log"
+        },
+        {
+          "test_id": "TC-US-1-03",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkEditorScreenTest#showsUrlOnlyEditorWithBottomActions",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 tests passed on emulator-5554; log: evidence/US-1/TC-US-1-03.log"
+        },
+        {
+          "test_id": "TC-US-1-04",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkEditorScreenTest#invalidUrlShowsInlineErrorWithoutSaving",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 tests passed on emulator-5554; log: evidence/US-1/TC-US-1-04.log"
+        },
+        {
+          "test_id": "TC-US-1-05",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkEditorScreenTest#enablesSaveForHttpAndHttpsUrl",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 tests passed on emulator-5554; log: evidence/US-1/TC-US-1-05.log"
+        },
+        {
+          "test_id": "TC-US-1-06",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "WebBookmarkMetadataIntegrationTest 4 tests / 0 failures against a real MockWebServer HTTPS fixture; log: evidence/US-1/TC-US-1-06.log"
+        },
+        {
+          "test_id": "TC-US-1-07",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "Partial, whitespace-only, markup-bearing, and missing candidates resolve independently to host/blank; log: evidence/US-1/TC-US-1-07.log"
+        },
+        {
+          "test_id": "TC-US-1-08",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "HTTP, timeout, offline, non-HTML, non-2xx, oversized, malformed, and downgrade-redirect fixtures all save with host/blank fallback; log: evidence/US-1/TC-US-1-08.log"
+        },
+        {
+          "test_id": "TC-US-1-09",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#insertsBookmarkAfterFocusedBlock",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 production-entry journey tests passed on emulator-5554; log: evidence/US-1/TC-US-1-09.log"
+        },
+        {
+          "test_id": "TC-US-1-10",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#appendsBookmarkWhenNoBlockIsFocused",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 production-entry journey tests passed on emulator-5554; log: evidence/US-1/TC-US-1-10.log"
+        },
+        {
+          "test_id": "TC-US-1-11",
+          "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkPersistenceIntegrationTest\"",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "WebBookmarkPersistenceIntegrationTest 4 tests / 0 failures: JSON, content-store, repository, and legacy-block round trips; log: evidence/US-1/TC-US-1-11.log"
+        },
+        {
+          "test_id": "TC-US-1-12",
+          "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#retainsUrlDraftAcrossRecreationAndKeyboard",
+          "exit_status": 0,
+          "result": "PASS",
+          "output": "1/1 production-entry journey tests passed on emulator-5554; log: evidence/US-1/TC-US-1-12.log"
+        }
+      ],
+      "notes": "First implementation increment. Metadata is fetched on Save, never on every keystroke. HTTP URLs are saved without metadata retrieval because cleartext traffic remains disabled. Full JVM suite on the frozen sources: 539 tests / 0 failures. Existing editor/navigation instrumented regression set: 34/34 passed. All five registered critical journeys passed with the Hilt test runner in place."
     },
     {
       "id": "US-2",

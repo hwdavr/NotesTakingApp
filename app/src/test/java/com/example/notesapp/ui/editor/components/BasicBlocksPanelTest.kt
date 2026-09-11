@@ -22,6 +22,7 @@ class BasicBlocksPanelTest {
             "basic_blocks_callout",
             "basic_blocks_quote",
             "basic_blocks_code",
+            "basic_blocks_web_bookmark",
             "basic_blocks_mermaid",
             "basic_blocks_bar_chart",
             "basic_blocks_line_chart",
@@ -40,13 +41,14 @@ class BasicBlocksPanelTest {
             BasicBlockType.CALLOUT,
             BasicBlockType.QUOTE,
             BasicBlockType.CODE,
+            BasicBlockType.WEB_BOOKMARK,
             BasicBlockType.MERMAID,
             BasicBlockType.BAR_CHART,
             BasicBlockType.LINE_CHART,
             BasicBlockType.PIE_CHART
         )
 
-        assertEquals(16, approvedBasicBlockTiles.size)
+        assertEquals(17, approvedBasicBlockTiles.size)
         assertEquals(expectedTags, approvedBasicBlockTiles.map { it.testTag })
         assertEquals(expectedTypes, approvedBasicBlockTiles.map { it.type })
     }
@@ -63,6 +65,7 @@ class BasicBlocksPanelTest {
         assertEquals(
             listOf(
                 BasicBlockType.CODE,
+                BasicBlockType.WEB_BOOKMARK,
                 BasicBlockType.MERMAID,
                 BasicBlockType.BAR_CHART,
                 BasicBlockType.LINE_CHART,

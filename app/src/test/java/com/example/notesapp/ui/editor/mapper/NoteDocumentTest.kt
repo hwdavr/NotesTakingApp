@@ -272,7 +272,12 @@ class NoteDocumentTest {
     @Test
     fun basicBlockTypesRoundTripWithDefaults() {
         val supportedTypes = BasicBlockType.entries
-            .filter { it != BasicBlockType.UNKNOWN && it != BasicBlockType.MERMAID && it != BasicBlockType.CODE }
+            .filter {
+                it != BasicBlockType.UNKNOWN &&
+                    it != BasicBlockType.MERMAID &&
+                    it != BasicBlockType.CODE &&
+                    it != BasicBlockType.WEB_BOOKMARK
+            }
         val originalBlocks = supportedTypes.map { type -> type.createEmptyTextBlock() }
 
         val restoredBlocks = NoteDocument(blocks = originalBlocks)

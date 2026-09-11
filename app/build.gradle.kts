@@ -64,7 +64,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.notesapp.HiltTestRunner"
         vectorDrawables { useSupportLibrary = true }
         manifestPlaceholders["auth0Domain"] = "dev-9sa8k5kv.us.auth0.com"
         manifestPlaceholders["auth0Scheme"] = "notesapp"
@@ -181,6 +181,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:okhttp-tls:4.12.0")
     testImplementation("org.robolectric:robolectric:4.12.2")
     testImplementation("androidx.test:core:1.6.1")
     testImplementation("org.json:json:20240303")
@@ -191,6 +192,8 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("io.mockk:mockk-android:1.13.10")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51")
+    kspAndroidTest("com.google.dagger:hilt-android-compiler:2.51")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

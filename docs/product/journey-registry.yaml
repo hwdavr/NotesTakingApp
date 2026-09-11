@@ -52,6 +52,18 @@ journeys:
     boundary: "MoveTo destination requires itemType and itemId"
     post_return_assertion: "MoveTo route contract satisfied"
 
+  - id: J-WEB-BOOKMARK-ADD
+    description: "Editor -> Basic Blocks Advanced -> Add Web Bookmark -> save -> return to editor with the saved card"
+    introduced_by: web-bookmark/US-1
+    destinations:
+      - Editor
+      - WebBookmarkEditor
+    test_file: app/src/androidTest/java/com/example/notesapp/navigation/WebBookmarkJourneyTest.kt
+    test_method: opensAddBookmarkPageAndReturnsWithSavedCard
+    gradle_selector: "com.example.notesapp.navigation.WebBookmarkJourneyTest#opensAddBookmarkPageAndReturnsWithSavedCard"
+    boundary: "The Add Web Bookmark destination pops back to the originating note editor after a successful save"
+    post_return_assertion: "The saved bookmark card and its metadata-derived title are visible in the originating note editor"
+
   - id: J-EDITOR-UNDO-REOPEN
     description: "Editor -> type -> undo -> leave via Back (save) -> reopen note: undone content persisted with a fresh undo/redo baseline"
     introduced_by: editor-undo-redo/US-3

@@ -14,6 +14,7 @@ enum class BasicBlockType(val storageValue: String) {
     QUOTE("quote"),
     MERMAID("mermaid"),
     CODE("code"),
+    WEB_BOOKMARK("web_bookmark"),
     BAR_CHART("chart_bar"),
     LINE_CHART("chart_line"),
     PIE_CHART("chart_pie"),

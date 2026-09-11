@@ -14,6 +14,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.notesapp.R
+import com.example.notesapp.domain.bookmark.webBookmarkHost
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.ui.editor.chart.ChartBitmapColors
 import com.example.notesapp.ui.editor.chart.ChartBitmapRenderer
@@ -175,6 +176,9 @@ class NoteExporter(private val context: Context) {
                 is EditorBlock.Voice -> {
                     renderer.currentY += 10f
                 }
+                is EditorBlock.WebBookmarkBlock -> {
+                    renderWebBookmarkBlock(block, renderer, textPaint)
+                }
             }
         }
         pdfDocument.finishPage(renderer.currentPage)
@@ -184,6 +188,31 @@ class NoteExporter(private val context: Context) {
             pdfDocument.close()
             outputStream.close()
         }
+    }
+
+    private fun renderWebBookmarkBlock(
+        block: EditorBlock.WebBookmarkBlock,
+        renderer: PdfRenderer,
+        textPaint: TextPaint
+    ) {
+        val body = buildString {
+            append(block.title.ifBlank { webBookmarkHost(block.url) })
+            if (block.description.isNotBlank()) append("\n").append(block.description)
+            if (block.url.isNotBlank()) append("\n").append(block.url)
+        }.trim()
+        if (body.isBlank()) return
+        textPaint.textSize = 12f
+        textPaint.isFakeBoldText = true
+        textPaint.color = Color.BLACK
+        val layout = StaticLayout.Builder.obtain(body, 0, body.length, textPaint, contentWidth.toInt())
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            .build()
+        renderer.ensureSpace(layout.height + 12f)
+        renderer.canvas.save()
+        renderer.canvas.translate(margin, renderer.currentY)
+        layout.draw(renderer.canvas)
+        renderer.canvas.restore()
+        renderer.currentY += layout.height + 12f
     }
 
     private fun renderCodeBlock(

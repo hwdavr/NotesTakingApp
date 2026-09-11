@@ -1,0 +1,11 @@
+# TC-US-1-08 — savesFallbackForMetadataFailures
+
+Command: ./gradlew testDebugUnitTest --tests "com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest"
+Run: 2026-09-11 (suite re-executed with the frozen production sources; 539 JVM tests, 0 failures)
+
+Covering method: WebBookmarkMetadataIntegrationTest#savesFallbackForMetadataFailures
+Fixture coverage: HTTP (no request), timeout, offline/connection error, non-HTML content type, non-2xx status, oversized body, malformed HTML, unsupported downgrade redirect.
+Suite size: WebBookmarkMetadataIntegrationTest tests=4 failures=0 errors=0
+
+BUILD SUCCESSFUL in 4s
+EXIT=0

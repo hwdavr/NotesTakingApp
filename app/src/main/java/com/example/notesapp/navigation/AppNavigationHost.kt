@@ -15,7 +15,9 @@ import com.example.notesapp.domain.voice.RecordingEntryPoint
 import com.example.notesapp.ui.editor.screen.ExportNoteScreen
 import com.example.notesapp.ui.editor.screen.NoteEditorScreen
 import com.example.notesapp.ui.editor.screen.NoteLinkPickerScreen
+import com.example.notesapp.ui.editor.screen.WebBookmarkEditorScreen
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
+import com.example.notesapp.ui.editor.viewmodel.upsertWebBookmark
 import com.example.notesapp.ui.folderdescription.screen.FolderDescriptionScreen
 import com.example.notesapp.ui.folders.screen.FoldersScreen
 import com.example.notesapp.ui.home.screen.HomeNotesScreen
@@ -236,6 +238,9 @@ internal fun AppNavigationHost(
             val removeLinkRequested = backStackEntry.savedStateHandle
                 .getStateFlow<Boolean>(NOTE_LINK_REMOVE_KEY, false)
                 .collectAsStateWithLifecycle()
+            val webBookmarkResult = backStackEntry.savedStateHandle
+                .getStateFlow<Array<String>?>(WEB_BOOKMARK_RESULT_KEY, null)
+                .collectAsStateWithLifecycle()
 
             val editorViewModel: NoteEditorViewModel = hiltViewModel()
 
@@ -251,6 +256,18 @@ internal fun AppNavigationHost(
                 if (removeLinkRequested.value) {
                     editorViewModel.onRemoveLinkSelected()
                     backStackEntry.savedStateHandle[NOTE_LINK_REMOVE_KEY] = false
+                }
+            }
+            LaunchedEffect(webBookmarkResult.value) {
+                val result = webBookmarkResult.value
+                if (result != null && result.size == WEB_BOOKMARK_RESULT_FIELD_COUNT) {
+                    editorViewModel.upsertWebBookmark(
+                        blockId = result[0],
+                        url = result[1],
+                        title = result[2],
+                        description = result[3]
+                    )
+                    backStackEntry.savedStateHandle[WEB_BOOKMARK_RESULT_KEY] = null
                 }
             }
 
@@ -292,10 +309,14 @@ internal fun AppNavigationHost(
                 onOpenNoteLink = { targetNoteId ->
                     navController.navigate(Destinations.Editor.createRoute(noteId = targetNoteId))
                 },
+                onOpenWebBookmarkEditor = {
+                    navController.navigate(Destinations.WebBookmarkEditor.createRoute())
+                },
                 viewModel = editorViewModel
             )
         }
         noteLinkPickerRoute(navController)
+        webBookmarkEditorRoute(navController)
         composable(
             route = Destinations.VoiceRecorder.route,
             arguments = listOf(
@@ -339,6 +360,33 @@ internal fun AppNavigationHost(
             )
         }
         sharingRoutes(navController, innerPadding)
+    }
+}
+
+private fun NavGraphBuilder.webBookmarkEditorRoute(navController: NavHostController) {
+    composable(
+        route = Destinations.WebBookmarkEditor.route,
+        arguments = listOf(
+            navArgument("blockId") {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument("initialUrl") {
+                type = NavType.StringType
+                defaultValue = ""
+            }
+        )
+    ) {
+        WebBookmarkEditorScreen(
+            onBack = { navController.popBackStack() },
+            onSaved = { result ->
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    WEB_BOOKMARK_RESULT_KEY,
+                    arrayOf(result.blockId, result.url, result.title, result.description)
+                )
+                navController.popBackStack()
+            }
+        )
     }
 }
 
@@ -447,6 +495,8 @@ private fun NavGraphBuilder.sharingRoutes(navController: NavHostController, inne
 }
 
 private const val VOICE_NOTE_SAVED_KEY = "voice_note_saved"
+private const val WEB_BOOKMARK_RESULT_KEY = "web_bookmark_saved_result"
+private const val WEB_BOOKMARK_RESULT_FIELD_COUNT = 4
 private const val NOTE_LINK_TARGET_ID_KEY = "note_link_picker_target_id"
 private const val NOTE_LINK_TARGET_TITLE_KEY = "note_link_picker_target_title"
 private const val NOTE_LINK_REMOVE_KEY = "note_link_picker_remove"

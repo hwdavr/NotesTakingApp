@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.FormatQuote
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PieChart
+import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Title
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -207,6 +208,13 @@ private val advancedBlockTiles = listOf(
         descriptionRes = R.string.basic_blocks_code_description,
         testTag = "basic_blocks_code",
         icon = Icons.Outlined.Code
+    ),
+    BasicBlockTileItem(
+        type = BasicBlockType.WEB_BOOKMARK,
+        labelRes = R.string.basic_blocks_web_bookmark_label,
+        descriptionRes = R.string.basic_blocks_web_bookmark_description,
+        testTag = "basic_blocks_web_bookmark",
+        icon = Icons.Outlined.Public
     ),
     BasicBlockTileItem(
         type = BasicBlockType.MERMAID,

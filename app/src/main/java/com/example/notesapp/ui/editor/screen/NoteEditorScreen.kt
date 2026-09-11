@@ -147,6 +147,7 @@ import com.example.notesapp.ui.editor.components.TableColumnOptionsSheet
 import com.example.notesapp.ui.editor.components.TableOptionsSheet
 import com.example.notesapp.ui.editor.components.TableRowOptionsSheet
 import com.example.notesapp.ui.editor.components.VoiceNotePlayer
+import com.example.notesapp.ui.editor.components.WebBookmarkBlockCard
 import com.example.notesapp.ui.editor.mapper.BasicBlockType
 import com.example.notesapp.ui.editor.mapper.EditorBlock
 import com.example.notesapp.ui.editor.mapper.RichText
@@ -201,12 +202,25 @@ fun NoteEditorScreen(
     onVoiceNoteSavedConsumed: () -> Unit = {},
     onOpenNoteLinkPicker: (callerNoteId: String, hasExistingLink: Boolean) -> Unit = { _, _ -> },
     onOpenNoteLink: (String) -> Unit = {},
+    onOpenWebBookmarkEditor: () -> Unit = {},
     viewModel: NoteEditorViewModel = hiltViewModel(),
     emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val emojiPickerState by emojiPickerViewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(noteId, folderId) { viewModel.load(noteId, folderId) }
+    // Navigation Compose disposes a destination's composition while another destination is on top,
+    // so this effect restarts when the editor is re-entered. Reloading an already-loaded note would
+    // replace in-memory edits (for example a bookmark that was just inserted) with the last
+    // autosaved content, so only load when the requested note is not already the loaded one.
+    LaunchedEffect(noteId, folderId) {
+        val state = viewModel.uiState.value
+        val requestedNoteId = noteId.orEmpty()
+        val alreadyLoaded = state.isLoaded &&
+            (requestedNoteId.isBlank() || state.noteId == requestedNoteId)
+        if (!alreadyLoaded) {
+            viewModel.load(noteId, folderId)
+        }
+    }
     LaunchedEffect(voiceNoteSaved) {
         if (voiceNoteSaved) {
             viewModel.load(noteId, folderId)
@@ -296,6 +310,9 @@ fun NoteEditorScreen(
             }
         },
         onOpenNoteLink = onOpenNoteLink,
+        onOpenWebBookmarkEditor = {
+            viewModel.save { onOpenWebBookmarkEditor() }
+        },
         onUndo = viewModel::undo,
         onRedo = viewModel::redo
     )
@@ -367,6 +384,7 @@ fun NoteEditorScreenContent(
     onFormulaClick: (String, String) -> Unit = { _, _ -> },
     onOpenNoteLinkPicker: () -> Unit = {},
     onOpenNoteLink: (String) -> Unit = {},
+    onOpenWebBookmarkEditor: () -> Unit = {},
     onUndo: () -> Unit = {},
     onRedo: () -> Unit = {}
 ) {
@@ -640,12 +658,14 @@ fun NoteEditorScreenContent(
                     onTileSelected = { type ->
                         if (!isSelectionInFlight) {
                             isSelectionInFlight = true
-                            val success = onInsertBasicBlock(type)
-                            if (!success && type == BasicBlockType.PARAGRAPH) {
-                                onAddParagraph()
-                            }
-                            if (success) {
-                                showBasicBlocksPanel = false
+                            // Web Bookmark gathers its URL on a dedicated destination.
+                            when {
+                                type == BasicBlockType.WEB_BOOKMARK -> {
+                                    showBasicBlocksPanel = false
+                                    onOpenWebBookmarkEditor()
+                                }
+                                onInsertBasicBlock(type) -> showBasicBlocksPanel = false
+                                type == BasicBlockType.PARAGRAPH -> onAddParagraph()
                             }
                             isSelectionInFlight = false
                         }
@@ -654,30 +674,17 @@ fun NoteEditorScreenContent(
             }
         }
         if (showNoteActionsSheet) {
-            NoteActionsSheetSection(
+            NoteActionsSheetHost(
                 state = state,
                 onDismiss = { showNoteActionsSheet = false },
-                onAddToFavorites = {
-                    onToggleFavorite()
-                    showNoteActionsSheet = false
-                },
-                onMoveTo = {
-                    showNoteActionsSheet = false
-                    onMoveNote()
-                },
-                onRename = {
-                    showNoteActionsSheet = false
+                onToggleFavorite = onToggleFavorite,
+                onMoveNote = onMoveNote,
+                onStartRename = {
                     renameTextFieldValue = state.title
                     showRenameDialog = true
                 },
-                onDelete = {
-                    showNoteActionsSheet = false
-                    onDelete()
-                },
-                onExport = {
-                    showNoteActionsSheet = false
-                    onExportNote()
-                }
+                onDelete = onDelete,
+                onExportNote = onExportNote
             )
         }
         if (showEmojiPicker) {
@@ -1032,6 +1039,7 @@ private fun DocumentBlockList(
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
+                is EditorBlock.WebBookmarkBlock -> key(block.id) { WebBookmarkBlockCard(block = block) }
             }
         }
     }

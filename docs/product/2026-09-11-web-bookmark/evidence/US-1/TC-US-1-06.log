@@ -1,0 +1,10 @@
+# TC-US-1-06 — savesMetadataFromHttpsHtml
+
+Command: ./gradlew testDebugUnitTest --tests "com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest"
+Run: 2026-09-11 (suites re-executed in the frozen-code run: 539 JVM tests, 0 failures)
+
+Covering method: WebBookmarkMetadataIntegrationTest#savesMetadataFromHttpsHtml
+Suite size: WebBookmarkMetadataIntegrationTest tests=4 failures=0 errors=0
+
+BUILD SUCCESSFUL in 4s
+EXIT=0

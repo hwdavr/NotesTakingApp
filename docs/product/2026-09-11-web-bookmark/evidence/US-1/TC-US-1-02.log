@@ -1,0 +1,11 @@
+# TC-US-1-02 — opensAddBookmarkPageAndReturnsWithSavedCard
+
+Command: env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest#opensAddBookmarkPageAndReturnsWithSavedCard
+Run: 2026-09-11, emulator-5554 (Medium_Phone AVD, API 33)
+
+Starting 1 tests on Medium_Phone(AVD) - 13
+Finished 1 tests on Medium_Phone(AVD) - 13
+
+BUILD SUCCESSFUL in 8s
+79 actionable tasks: 1 executed, 78 up-to-date
+EXIT=0

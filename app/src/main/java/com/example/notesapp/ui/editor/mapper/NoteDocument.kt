@@ -1,5 +1,6 @@
 package com.example.notesapp.ui.editor.mapper
 
+import com.example.notesapp.domain.bookmark.webBookmarkHost
 import com.example.notesapp.domain.voice.AudioFormat
 import java.util.UUID
 import org.json.JSONArray
@@ -42,6 +43,9 @@ data class NoteDocument(
                 row.joinToString("\t") { cell -> cell.joinToString("") { it.text } }
             }
             is EditorBlock.Voice -> ""
+            is EditorBlock.WebBookmarkBlock -> listOf(block.title, block.description, block.url)
+                .filter { it.isNotBlank() }
+                .joinToString(" ")
         }
     }.trim()
     fun toMarkdown(
@@ -104,6 +108,7 @@ data class NoteDocument(
                 imageFailureMessage = chartImageFailureMessage
             )
             is EditorBlock.Voice -> ""
+            is EditorBlock.WebBookmarkBlock -> webBookmarkMarkdown(block)
         }
     }.trim()
     fun ensureEditableTextBlock(): NoteDocument {
@@ -217,6 +222,12 @@ sealed class EditorBlock {
         override val id: String
             get() = blockId
     }
+    data class WebBookmarkBlock(
+        override val id: String = newBlockId(),
+        val url: String = "",
+        val title: String = "",
+        val description: String = ""
+    ) : EditorBlock()
 }
 data class RichText(
     val text: String,
@@ -229,6 +240,11 @@ data class RichText(
         get() = !formulaSource.isNullOrBlank()
 }
 fun noteContentPreview(content: String): String = NoteDocument.fromContent(content).toPlainText().ifBlank { content }
+fun webBookmarkMarkdown(block: EditorBlock.WebBookmarkBlock): String {
+    if (block.url.isBlank()) return listOf(block.title, block.description).filter { it.isNotBlank() }.joinToString(" ")
+    val label = block.title.ifBlank { webBookmarkHost(block.url) }
+    return "[$label](${block.url})"
+}
 fun codeBlockLanguageSlug(language: String): String = when (language.trim().lowercase()) {
     "" -> ""
     DEFAULT_CODE_BLOCK_LANGUAGE.lowercase() -> ""
@@ -345,6 +361,12 @@ private fun EditorBlock.toJson(): JSONObject = when (this) {
         .put("channels", channels)
         .put("createdAt", createdAt)
         .put("updatedAt", updatedAt)
+    is EditorBlock.WebBookmarkBlock -> JSONObject()
+        .put("id", id)
+        .put("type", "web_bookmark")
+        .put("url", url)
+        .put("title", title)
+        .put("description", description)
 }
 private fun JSONObject.toEditorBlock(): EditorBlock? {
     val id = optString("id").ifBlank { newBlockId() }
@@ -395,6 +417,12 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
             channels = optInt("channels", 1),
             createdAt = optLong("createdAt", 0L),
             updatedAt = optLong("updatedAt", 0L)
+        )
+        "web_bookmark" -> EditorBlock.WebBookmarkBlock(
+            id = id,
+            url = optString("url"),
+            title = optString("title"),
+            description = optString("description")
         )
         else -> toTextBlockOrFallback(id)
     }

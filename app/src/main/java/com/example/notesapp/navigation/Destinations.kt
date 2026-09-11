@@ -58,4 +58,11 @@ sealed class Destinations(val route: String) {
         fun createRoute(callerNoteId: String, hasExistingLink: Boolean = false): String =
             "$baseRoute?callerNoteId=${Uri.encode(callerNoteId)}&hasExistingLink=$hasExistingLink"
     }
+    data object WebBookmarkEditor : Destinations(
+        "webBookmarkEditor?blockId={blockId}&initialUrl={initialUrl}"
+    ) {
+        fun createRoute(blockId: String? = null, initialUrl: String? = null): String =
+            "$baseRoute?blockId=${Uri.encode(blockId.orEmpty())}" +
+                "&initialUrl=${Uri.encode(initialUrl.orEmpty())}"
+    }
 }

@@ -546,4 +546,17 @@
     <string name="editor_chart_datum_selected_content_description">%1$s. %2$s.</string>
     <string name="editor_chart_tooltip">%1$s · %2$s · %3$s</string>
     <string name="editor_chart_tooltip_dismiss_description">Dismiss chart data callout</string>
+    <string name="basic_blocks_web_bookmark_label">Web Bookmark</string>
+    <string name="basic_blocks_web_bookmark_description">Save a web page with its title and description.</string>
+    <string name="web_bookmark_editor_add_title">Add Web Bookmark</string>
+    <string name="web_bookmark_editor_edit_title">Edit Web Bookmark</string>
+    <string name="web_bookmark_guidance">Page title and description will be fetched automatically when available.</string>
+    <string name="web_bookmark_url_label">Web address</string>
+    <string name="web_bookmark_url_supporting">Paste a web address starting with http:// or https://.</string>
+    <string name="web_bookmark_invalid_url_error">Enter a valid HTTP or HTTPS URL.</string>
+    <string name="web_bookmark_metadata_loading">Fetching page details…</string>
+    <string name="web_bookmark_metadata_fallback">Page details unavailable. The bookmark was saved with fallback details.</string>
+    <string name="web_bookmark_save">Save bookmark</string>
+    <string name="web_bookmark_cancel">Cancel</string>
+    <string name="web_bookmark_back_content_description">Back to note</string>
 </resources>

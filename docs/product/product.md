@@ -57,7 +57,7 @@ Lifecycle rules:
 | chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | To be human reviewed | 2026-08-23 | Fix pass applied; re-verification evidence attached; 16/16 code findings fixed and 0 unresolved test/visual findings. Fresh 437 JVM tests, 172/172 connected tests, clean Kover 83.569%, quality/evidence/lifecycle gates pass. API24/API34 direct runtimes remain explicitly documented human-review environments under fail-loudly policy. |
 | formatting-toolbar | Formatting Toolbar Completion | [docs/product/2026-09-02-formatting-toolbar/](2026-09-02-formatting-toolbar/) | To be reviewed | 2026-09-06 | All 4 slices (US-1..US-4) passing. Formatting toolbar completed end-to-end with inline formulas, selection formatting, responsive formula sheet, internal note links, read-only protection, and verified visual flows. Ready for evaluation. |
 | editor-undo-redo | Note Editor Undo & Redo | [docs/product/2026-09-06-editor-undo-redo/](2026-09-06-editor-undo-redo/) | To be reviewed | 2026-09-06 | All three slices delivered and passing on 2026-09-06 (US-1 engine/typing/toolbar, US-2 rich-content discrete steps, US-3 shortcuts/guardrails + persistence lifecycle + exit/reopen journey + visual owner). 32/32 acceptance commands PASSED; keyboard chords (Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y) resolve through a pure unit-tested matrix; read-only/mid-session access changes expose no history; undone document persists via autosave/Back and reopens with a fresh baseline; journey `J-EDITOR-UNDO-REOPEN` registered; 5 VisualFlow captures with 4 promoted goldens + anchor report PASS. Coverage 82%+, all quality gates green. Awaiting human review. |
-| web-bookmark | Web Bookmark in Notes | [docs/product/2026-09-11-web-bookmark/](2026-09-11-web-bookmark/) | In Progress | 2026-09-11 | Implementation approved by user 2026-09-11; US-1 (add flow) in progress via harness-generator. |
+| web-bookmark | Web Bookmark in Notes | [docs/product/2026-09-11-web-bookmark/](2026-09-11-web-bookmark/) | In Progress | 2026-09-11 | US-1 (add flow) `passing`: 12/12 acceptance commands green (8 instrumented on emulator-5554, 4 JVM suites), 539 JVM tests, 34/34 editor+navigation regression tests, 6/6 critical journeys including new `J-WEB-BOOKMARK-ADD`, 82.03% coverage, all quality gates green. US-2 (card management, real browser boundary, export/compatibility, visual verification) not started. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
@@ -97,6 +97,7 @@ Lifecycle rules:
 | Code block model, persistence & panel insertion (US-1) | ✅ Slice done | `EditorBlock.CodeBlock(id, language, code)` with backward-compatible `type: "code"` JSON serialization, `BasicBlockType.CODE` mapping, `BasicBlocksPanel` Basic/Advanced section reorganization with Code tile under Advanced, `insertBasicBlock(BasicBlockType.CODE)` focus-aware insertion with auto-save, Markdown fenced code block export (```<language>\n<code>\n```), and PDF monospace box export path. TC-US-1-01..04 PASS. |
 | Code block card, syntax highlighting & actions (US-2) | ✅ Slice done | Elevated Material 3 card with a 14-language selector dropdown, synchronized line-number gutter, real-time regex-based `CodeSyntaxHighlighter`, one-tap clipboard copy with checkmark feedback, delete action with auto-save, and read-only highlighted rendering. TC-US-2-01..07 PASS. |
 | Code block read-only flows & visual verification (US-3) | ✅ Slice done | Connected editor coverage verifies editable interaction, Advanced panel insertion, and read-only copy/disabled controls; in-test screenshots and concrete bounds evidence are recorded for the Code Block card and Advanced Basic Blocks panel. TC-US-3-01..03 and TC-US-3-VIS-01..02 PASS. |
+| Web bookmark add flow (US-1) | ✅ Slice done | Backward-compatible `EditorBlock.WebBookmarkBlock` JSON, bounded credential-free `http`/`https` URL validation, isolated unauthenticated HTTPS metadata fetch with bounded HTML parsing and host/blank fallback, URL-only full page with bottom-safe-area Save/Cancel and recreation-safe draft, focused-after/append insertion, autosave, editor card rendering, and Markdown/PDF export text. 12/12 acceptance commands pass with a production-entry journey. |
 
 ### ✅ Folder & Collection Management
 
@@ -164,6 +165,7 @@ Lifecycle rules:
 - **Checklists & Task Lists**: Interactive checkable list items within note documents.
 - **Basic Blocks Panel**: ✅ Implemented (awaiting evaluation review) — document block compatibility, inline catalog insertion, compact scrollable panel geometry, accessibility, and visual reference proof delivered.
 - **Chart Blocks**: ✅ Delivered — chart block persistence, insertion/conversion, local Bar/Line/Pie rendering, editable data tables, protected row/column operations, selected-column options, datum callouts, empty/error recovery, read-only inspection, Markdown ZIP/PDF export, real Android boundary verification, and final visual-flow evidence are complete and awaiting evaluation review.
+- **Web Bookmarks**: 🟡 Partially delivered — the metadata-enriched add flow is shipped (URL validation, HTTPS metadata with host/blank fallback, URL-only full page, focused/append insertion, autosave, editor card, export text). Card actions, the real `ACTION_VIEW` browser boundary, edit/delete management, and visual verification remain before the feature is complete.
 
 ### Group 2 — Search & Organization
 - **Offline Full-Text Search**: Fast FTS5 Room database search with highlight matching across titles and note bodies.
@@ -180,7 +182,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟡 In progress (To be reviewed) | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), selection & inline mark formatting (US-2), responsive formula sheet (US-3), and internal note links with full visual verification (US-4). Ready for evaluation. |
+| **Note Editor** | 🟡 In progress | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), selection & inline mark formatting (US-2), responsive formula sheet (US-3), internal note links with full visual verification (US-4), and the metadata-enriched web bookmark add flow (web-bookmark US-1). |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
@@ -206,4 +208,4 @@ Lifecycle rules:
   outputs, bounded prompt fields, strict Mermaid WebView settings, and redacted
   source-policy reports in CI.
 
-*Document last updated: 2026-09-08*
+*Document last updated: 2026-09-11*

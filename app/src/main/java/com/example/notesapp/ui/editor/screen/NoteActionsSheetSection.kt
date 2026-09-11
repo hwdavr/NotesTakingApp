@@ -6,6 +6,46 @@ import com.example.notesapp.domain.note.NoteAccessRole
 import com.example.notesapp.ui.editor.components.EditorNoteActionsSheet
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 
+/**
+ * Wires the editor's sheet-local state and callbacks into [NoteActionsSheetSection] so the editor
+ * content composable stays within the file's method-length budget.
+ */
+@Composable
+internal fun NoteActionsSheetHost(
+    state: NoteEditorUiState,
+    onDismiss: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onMoveNote: () -> Unit,
+    onStartRename: () -> Unit,
+    onDelete: () -> Unit,
+    onExportNote: () -> Unit
+) {
+    NoteActionsSheetSection(
+        state = state,
+        onDismiss = onDismiss,
+        onAddToFavorites = {
+            onToggleFavorite()
+            onDismiss()
+        },
+        onMoveTo = {
+            onDismiss()
+            onMoveNote()
+        },
+        onRename = {
+            onDismiss()
+            onStartRename()
+        },
+        onDelete = {
+            onDismiss()
+            onDelete()
+        },
+        onExport = {
+            onDismiss()
+            onExportNote()
+        }
+    )
+}
+
 @Composable
 internal fun NoteActionsSheetSection(
     state: NoteEditorUiState,

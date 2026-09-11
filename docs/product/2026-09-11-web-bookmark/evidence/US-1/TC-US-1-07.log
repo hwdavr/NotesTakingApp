@@ -1,0 +1,10 @@
+# TC-US-1-07 — usesHostAndBlankFallbackForPartialMetadata
+
+Command: ./gradlew testDebugUnitTest --tests "com.example.notesapp.integration.WebBookmarkMetadataIntegrationTest"
+Run: 2026-09-11 (suite re-executed with the frozen production sources; 539 JVM tests, 0 failures)
+
+Covering methods: WebBookmarkMetadataIntegrationTest#usesHostAndBlankFallbackForPartialMetadata, #sanitizesAndBoundsMetadataReturnedOverHttps
+Suite size: WebBookmarkMetadataIntegrationTest tests=4 failures=0 errors=0
+
+BUILD SUCCESSFUL in 4s
+EXIT=0
