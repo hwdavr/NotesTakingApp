@@ -3,7 +3,7 @@
 **Platform**: Android (Kotlin · Jetpack Compose · Material 3 · Room · Hilt)
 **Minimum SDK**: Android 7.0 (API 24) / Target SDK 34
 **Privacy**: 100% on-device note storage in local Room database with optional AI note summarization (Gemini Nano) and sharing capabilities.
-**Last updated**: 2026-09-07
+**Last updated**: 2026-09-11
 
 ---
 
@@ -57,6 +57,7 @@ Lifecycle rules:
 | chart-block | Table to Chart Block | [docs/product/2026-08-20-chart-block/](2026-08-20-chart-block/) | To be human reviewed | 2026-08-23 | Fix pass applied; re-verification evidence attached; 16/16 code findings fixed and 0 unresolved test/visual findings. Fresh 437 JVM tests, 172/172 connected tests, clean Kover 83.569%, quality/evidence/lifecycle gates pass. API24/API34 direct runtimes remain explicitly documented human-review environments under fail-loudly policy. |
 | formatting-toolbar | Formatting Toolbar Completion | [docs/product/2026-09-02-formatting-toolbar/](2026-09-02-formatting-toolbar/) | To be reviewed | 2026-09-06 | All 4 slices (US-1..US-4) passing. Formatting toolbar completed end-to-end with inline formulas, selection formatting, responsive formula sheet, internal note links, read-only protection, and verified visual flows. Ready for evaluation. |
 | editor-undo-redo | Note Editor Undo & Redo | [docs/product/2026-09-06-editor-undo-redo/](2026-09-06-editor-undo-redo/) | To be reviewed | 2026-09-06 | All three slices delivered and passing on 2026-09-06 (US-1 engine/typing/toolbar, US-2 rich-content discrete steps, US-3 shortcuts/guardrails + persistence lifecycle + exit/reopen journey + visual owner). 32/32 acceptance commands PASSED; keyboard chords (Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y) resolve through a pure unit-tested matrix; read-only/mid-session access changes expose no history; undone document persists via autosave/Back and reopens with a fresh baseline; journey `J-EDITOR-UNDO-REOPEN` registered; 5 VisualFlow captures with 4 promoted goldens + anchor report PASS. Coverage 82%+, all quality gates green. Awaiting human review. |
+| web-bookmark | Web Bookmark in Notes | [docs/product/2026-09-11-web-bookmark/](2026-09-11-web-bookmark/) | In Progress | 2026-09-11 | Implementation approved by user 2026-09-11; US-1 (add flow) in progress via harness-generator. |
 <!-- HARNESS_TRACKER_END -->
 
 ---
