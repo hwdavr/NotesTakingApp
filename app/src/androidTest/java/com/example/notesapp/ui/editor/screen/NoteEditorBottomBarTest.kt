@@ -3,6 +3,7 @@ package com.example.notesapp.ui.editor.screen
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -354,5 +355,68 @@ class NoteEditorBottomBarTest {
         }
         composeRule.onNodeWithTag("editor_checkbox_icon").assertIsDisplayed().performClick()
         assertEquals(listOf("block_1"), toggledCheckedBlocks)
+    }
+
+    @Test
+    fun defaultBottomBar_requestedActionsAreEnabled_andCameraIsAbsent() {
+        var discussionOpened = false
+        composeRule.setContent {
+            NoteEditorScreenContent(
+                parentPadding = PaddingValues(0.dp),
+                noteId = "note_1",
+                state = NoteEditorUiState(
+                    noteId = "note_1",
+                    isLoaded = true,
+                    isEditable = true,
+                    document = NoteDocument(
+                        blocks = listOf(
+                            EditorBlock.TextBlock(
+                                id = "block_1",
+                                children = listOf(RichText("Hello"))
+                            )
+                        )
+                    )
+                ),
+                onBack = {},
+                onShareRequested = {},
+                onDelete = {},
+                onTitleChange = {},
+                onRename = {},
+                onToggleFavorite = {},
+                onMoveNote = {},
+                onExportNote = {},
+                onOpenVoiceRecorder = { _, _ -> },
+                onTextBlockChange = { _, _ -> },
+                onToggleCheckbox = {},
+                onToggleCheckboxChecked = {},
+                onToggleMark = { _, _ -> },
+                onAddParagraph = {},
+                onAddImage = {},
+                onEmojiSelected = {},
+                onEmojiQueryChange = {},
+                onEmojiClearQuery = {},
+                onEmojiCategorySelected = {},
+                onEmojiSkinToneRequested = {},
+                onEmojiSkinToneDismissed = {},
+                onImageChange = { _, _, _ -> },
+                onAddTable = {},
+                onTableCellChange = { _, _, _, _ -> },
+                onFolderSelected = {},
+                onToggleFormattingToolbar = {},
+                onBlockFocused = {},
+                onSelectionChange = { _, _ -> },
+                onDeleteBlock = {},
+                onOpenDiscussion = { discussionOpened = true }
+            )
+        }
+
+        composeRule.onNodeWithTag("editor_mention_action").assertIsEnabled().performClick()
+        assertTrue(discussionOpened)
+
+        composeRule.onNodeWithTag("editor_default_bottom_bar").performTouchInput { swipeLeft() }
+        composeRule.onNodeWithTag("editor_add_image").assertIsEnabled()
+        composeRule.onNodeWithTag("editor_mic_btn").assertIsEnabled()
+        composeRule.onNodeWithTag("editor_add_table").assertIsEnabled()
+        assertTrue(composeRule.onAllNodesWithTag("editor_camera_action").fetchSemanticsNodes().isEmpty())
     }
 }

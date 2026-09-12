@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 
 package com.example.notesapp.ui.editor.screen
 
@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,12 +42,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
@@ -54,7 +56,6 @@ import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.Image
@@ -65,7 +66,6 @@ import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -142,6 +142,8 @@ import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
 import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.components.CodeBlockCard
+import com.example.notesapp.ui.editor.components.DiscussionBottomSheetHost
+import com.example.notesapp.ui.editor.components.EditorTopBar
 import com.example.notesapp.ui.editor.components.EmojiPickerBottomSheet
 import com.example.notesapp.ui.editor.components.FormulaEditorSheet
 import com.example.notesapp.ui.editor.components.MermaidBlockCard
@@ -166,6 +168,8 @@ import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
 import com.example.notesapp.ui.editor.platform.WebBookmarkBrowserLauncher
 import com.example.notesapp.ui.editor.platform.WebBookmarkOpenResult
+import com.example.notesapp.ui.editor.viewmodel.DiscussionUiState
+import com.example.notesapp.ui.editor.viewmodel.DiscussionViewModel
 import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
@@ -209,10 +213,12 @@ fun NoteEditorScreen(
     onOpenWebBookmarkEditor: () -> Unit = {},
     onEditWebBookmarkEditor: (String, String, String, String) -> Unit = { _, _, _, _ -> },
     viewModel: NoteEditorViewModel = hiltViewModel(),
-    emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel()
+    emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel(),
+    discussionViewModel: DiscussionViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val emojiPickerState by emojiPickerViewModel.uiState.collectAsStateWithLifecycle()
+    val discussionState by discussionViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val browserLauncher = remember(context) { WebBookmarkBrowserLauncher(context) }
     // Navigation Compose disposes a destination's composition while another destination is on top,
@@ -316,6 +322,23 @@ fun NoteEditorScreen(
                 onOpenNoteLinkPicker(id, viewModel.hasLinkAtCurrentSelection())
             }
         },
+        discussionState = discussionState,
+        onOpenDiscussion = {
+            val textBlocks = state.document.blocks.filterIsInstance<EditorBlock.TextBlock>()
+            val activeTextBlock = textBlocks.firstOrNull { block -> block.id == state.focusedBlockId }
+                ?: textBlocks.firstOrNull()
+            discussionViewModel.open(
+                noteId = state.noteId,
+                blockId = activeTextBlock?.id,
+                focusedBlockText = activeTextBlock?.text().orEmpty(),
+                folders = state.availableFolders
+            )
+        },
+        onDismissDiscussion = discussionViewModel::dismiss,
+        onDiscussionValueChange = discussionViewModel::onCommentValueChange,
+        onDiscussionMentionButtonClick = discussionViewModel::onMentionButtonClick,
+        onSendDiscussionComment = discussionViewModel::sendComment,
+        onMentionSelect = discussionViewModel::applyMentionCompletion,
         onOpenNoteLink = onOpenNoteLink,
         onOpenWebBookmarkEditor = {
             viewModel.save { onOpenWebBookmarkEditor() }
@@ -403,7 +426,14 @@ fun NoteEditorScreenContent(
     onEditWebBookmarkEditor: (String, String, String, String) -> Unit = { _, _, _, _ -> },
     onOpenWebBookmark: (String) -> Boolean = { true },
     onUndo: () -> Unit = {},
-    onRedo: () -> Unit = {}
+    onRedo: () -> Unit = {},
+    discussionState: DiscussionUiState = DiscussionUiState(),
+    onOpenDiscussion: () -> Unit = {},
+    onDismissDiscussion: () -> Unit = {},
+    onDiscussionValueChange: (String, Int, Int) -> Unit = { _, _, _ -> },
+    onDiscussionMentionButtonClick: () -> Unit = {},
+    onSendDiscussionComment: () -> Unit = {},
+    onMentionSelect: (String) -> Unit = {}
 ) {
     val colors = LocalAppColors.current
     if (!state.isLoaded) {
@@ -447,9 +477,7 @@ fun NoteEditorScreenContent(
                 .navigationBarsPadding()
                 .imePadding()
                 .onPreviewKeyEvent { keyEvent ->
-                    // Hardware-keyboard chords act on the shared document history from anywhere in
-                    // the editor (title included, title itself excluded from history). Undo/redo are
-                    // only reachable on editable notes with a matching action available.
+                    // Hardware-keyboard chords use shared document history; undo/redo require edit access.
                     consumeUndoRedoShortcut(
                         keyEvent = keyEvent,
                         editable = state.isEditable,
@@ -461,27 +489,11 @@ fun NoteEditorScreenContent(
                 }
         ) {
             EditorTopBar(
-                onBack = {
-                    if (showBasicBlocksPanel) {
-                        showBasicBlocksPanel = false
-                    } else {
-                        onBack()
-                    }
-                },
-                onShare = {
-                    if (showBasicBlocksPanel) {
-                        showBasicBlocksPanel = false
-                    } else {
-                        onShareRequested()
-                    }
-                },
-                onMore = {
-                    if (showBasicBlocksPanel) {
-                        showBasicBlocksPanel = false
-                    } else {
-                        showNoteActionsSheet = true
-                    }
-                }
+                isBasicBlocksPanelOpen = showBasicBlocksPanel,
+                onCloseBasicBlocksPanel = { showBasicBlocksPanel = false },
+                onBack = onBack,
+                onShare = onShareRequested,
+                onMore = { showNoteActionsSheet = true }
             )
             HorizontalDivider(color = colors.border, thickness = 1.dp)
             Column(
@@ -577,10 +589,7 @@ fun NoteEditorScreenContent(
                             .testTag("editor_content_scrollable")
                             .verticalScroll(rememberScrollState())
                             .pointerInput(state.isEditable) {
-                                // Tap-only (not Modifier.clickable): a clickable ancestor of the focused
-                                // text field treats a hardware Enter as click activation, which bumped
-                                // focusLastBlockTrigger and stole the cursor to the last block after a
-                                // block split. Handle taps directly so Enter stays in the text field.
+                                // Handle taps directly so hardware Enter stays in the focused text field.
                                 if (!state.isEditable) return@pointerInput
                                 detectTapGestures {
                                     if (showBasicBlocksPanel) {
@@ -646,6 +655,7 @@ fun NoteEditorScreenContent(
                             onMoreWebBookmark = { block -> webBookmarkInteractionState.openActions(block.id) },
                             focusedBlockId = state.focusedBlockId, selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
+                            blockIdToReveal = state.blockIdToReveal,
                             tableFocusResetTrigger = tableFocusResetTrigger,
                             focusLastBlockTrigger = focusLastBlockTrigger
                         )
@@ -669,6 +679,7 @@ fun NoteEditorScreenContent(
                     onOpenVoiceRecorder(state.noteId.orEmpty(), state.focusedBlockId)
                 },
                 onToggleFormattingToolbar = onToggleFormattingToolbar,
+                onOpenDiscussion = onOpenDiscussion,
                 isBasicBlocksPanelOpen = showBasicBlocksPanel,
                 onToggleBasicBlocksPanel = {
                     if (state.isEditable) {
@@ -698,6 +709,14 @@ fun NoteEditorScreenContent(
                 )
             }
         }
+        DiscussionBottomSheetHost(
+            discussionState,
+            onDiscussionValueChange,
+            onDiscussionMentionButtonClick,
+            onSendDiscussionComment,
+            onDismissDiscussion,
+            onMentionSelect
+        )
         if (showNoteActionsSheet) {
             NoteActionsSheetHost(
                 state = state,
@@ -952,6 +971,7 @@ private fun DocumentBlockList(
     onOpenWebBookmark: (String) -> Unit = {},
     onMoreWebBookmark: (EditorBlock.WebBookmarkBlock) -> Unit = {},
     focusedBlockId: String?,
+    blockIdToReveal: String?,
     selectionStart: Int,
     selectionEnd: Int,
     tableFocusResetTrigger: Int = 0,
@@ -998,18 +1018,32 @@ private fun DocumentBlockList(
                     )
                 }
                 is EditorBlock.ImageBlock -> key(block.id) {
+                    val bringIntoViewRequester = remember(block.id) { BringIntoViewRequester() }
+                    LaunchedEffect(blockIdToReveal, block.id) {
+                        if (blockIdToReveal == block.id) {
+                            bringIntoViewRequester.bringIntoView()
+                        }
+                    }
                     ImageDocumentBlock(
                         block = block,
                         isEditable = isEditable,
+                        modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
                         onUrlChange = { onImageChange(block.id, it, null) },
                         onCaptionChange = { onImageChange(block.id, null, it) },
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
                 is EditorBlock.TableBlock -> key(block.id) {
+                    val bringIntoViewRequester = remember(block.id) { BringIntoViewRequester() }
+                    LaunchedEffect(blockIdToReveal, block.id) {
+                        if (blockIdToReveal == block.id) {
+                            bringIntoViewRequester.bringIntoView()
+                        }
+                    }
                     TableDocumentBlock(
                         block = block,
                         isEditable = isEditable,
+                        modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
                         onCellChange = { row, cell, value ->
                             onTableCellChange(block.id, row, cell, value)
                         },
@@ -1513,12 +1547,13 @@ private object BasicBlockRenderer {
 private fun ImageDocumentBlock(
     block: EditorBlock.ImageBlock,
     isEditable: Boolean,
+    modifier: Modifier = Modifier,
     onUrlChange: (String) -> Unit,
     onCaptionChange: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth().testTag("editor_image_block"),
+        modifier = modifier.fillMaxWidth().testTag("editor_image_block"),
         color = LocalAppColors.current.background,
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -1669,6 +1704,7 @@ private fun ImageDocumentBlock(
 private fun TableDocumentBlock(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
+    modifier: Modifier = Modifier,
     focusedCell: TableFocusTarget?,
     onCellChange: (rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     onAction: (TableHandleAction) -> Unit,
@@ -1707,6 +1743,7 @@ private fun TableDocumentBlock(
     TableDocumentBlockContent(
         block = block,
         isEditable = isEditable,
+        modifier = modifier,
         targetCell = targetCell,
         focusedColumnIndex = focusedColumnIndex,
         focusedRowIndex = focusedRowIndex,
@@ -1736,6 +1773,7 @@ private fun TableDocumentBlock(
 private fun TableDocumentBlockContent(
     block: EditorBlock.TableBlock,
     isEditable: Boolean,
+    modifier: Modifier = Modifier,
     targetCell: TableFocusTarget?,
     focusedColumnIndex: Int?,
     focusedRowIndex: Int?,
@@ -1746,7 +1784,7 @@ private fun TableDocumentBlockContent(
     onTableHandleClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().testTag("editor_table_block"),
+        modifier = modifier.fillMaxWidth().testTag("editor_table_block"),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         Text(
@@ -2027,42 +2065,6 @@ private enum class TableHandleSheet {
 }
 
 @Composable
-private fun EditorTopBar(onBack: () -> Unit, onShare: () -> Unit, onMore: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = stringResource(R.string.collection_notes_back),
-                tint = LocalAppColors.current.textPrimary
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            IconButton(onClick = onShare) {
-                Icon(
-                    Icons.Outlined.Share,
-                    contentDescription = stringResource(R.string.editor_share_description),
-                    tint = LocalAppColors.current.textPrimary
-                )
-            }
-            IconButton(onClick = onMore) {
-                Icon(
-                    Icons.Outlined.MoreHoriz,
-                    contentDescription = stringResource(R.string.editor_more_description),
-                    tint = LocalAppColors.current.textPrimary
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun EditorBottomBar(
     state: NoteEditorUiState,
     activeTextBlockId: String?,
@@ -2077,6 +2079,7 @@ private fun EditorBottomBar(
     onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit,
     onToggleFormattingToolbar: () -> Unit,
+    onOpenDiscussion: () -> Unit,
     isBasicBlocksPanelOpen: Boolean,
     onToggleBasicBlocksPanel: () -> Unit,
     onUndo: () -> Unit,
@@ -2121,6 +2124,7 @@ private fun EditorBottomBar(
             onAddTable = onAddTable,
             onOpenEmojiPicker = onOpenEmojiPicker,
             onOpenVoiceRecorder = onOpenVoiceRecorder,
+            onOpenDiscussion = onOpenDiscussion,
             isBasicBlocksPanelOpen = isBasicBlocksPanelOpen,
             onToggleBasicBlocksPanel = onToggleBasicBlocksPanel,
             canUndo = state.canUndo,
@@ -2152,6 +2156,7 @@ private fun DefaultBottomBar(
     onAddTable: () -> Unit,
     onOpenEmojiPicker: () -> Unit,
     onOpenVoiceRecorder: () -> Unit,
+    onOpenDiscussion: () -> Unit,
     isBasicBlocksPanelOpen: Boolean,
     onToggleBasicBlocksPanel: () -> Unit,
     canUndo: Boolean,
@@ -2168,6 +2173,12 @@ private fun DefaultBottomBar(
         } else {
             action()
         }
+    }
+    val handleRequestedActionClick: (() -> Unit) -> Unit = { action ->
+        if (isBasicBlocksPanelOpen) {
+            onToggleBasicBlocksPanel()
+        }
+        action()
     }
     LazyRow(
         modifier =
@@ -2240,7 +2251,10 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { handleToolbarClick {} }) {
+            EditorBarButton(
+                onClick = { handleRequestedActionClick(onOpenDiscussion) },
+                modifier = Modifier.testTag("editor_mention_action")
+            ) {
                 Text(
                     stringResource(R.string.editor_mention_action),
                     color = colors.textPrimary,
@@ -2281,47 +2295,38 @@ private fun DefaultBottomBar(
             }
         }
         item {
-            EditorBarButton(onClick = { handleToolbarClick {} }) {
-                Icon(
-                    Icons.Outlined.CameraAlt,
-                    contentDescription = stringResource(R.string.editor_camera_description),
-                    tint = colors.textSecondary
-                )
-            }
-        }
-        item {
             EditorBarButton(
-                onClick = { handleToolbarClick(onAddImage) },
+                onClick = { handleRequestedActionClick(onAddImage) },
                 modifier = Modifier.testTag("editor_add_image")
             ) {
                 Icon(
                     Icons.Outlined.Image,
                     contentDescription = stringResource(R.string.editor_image_description),
-                    tint = colors.textSecondary
+                    tint = colors.textPrimary
                 )
             }
         }
         item {
             EditorBarButton(
-                onClick = { handleToolbarClick(onOpenVoiceRecorder) },
+                onClick = { handleRequestedActionClick(onOpenVoiceRecorder) },
                 modifier = Modifier.testTag("editor_mic_btn")
             ) {
                 Icon(
                     Icons.Outlined.Mic,
                     contentDescription = stringResource(R.string.editor_mic_description),
-                    tint = colors.textSecondary
+                    tint = colors.textPrimary
                 )
             }
         }
         item {
             EditorBarButton(
-                onClick = { handleToolbarClick(onAddTable) },
+                onClick = { handleRequestedActionClick(onAddTable) },
                 modifier = Modifier.testTag("editor_add_table")
             ) {
                 Icon(
                     Icons.Outlined.TableChart,
                     contentDescription = stringResource(R.string.editor_table_description),
-                    tint = colors.textSecondary
+                    tint = colors.textPrimary
                 )
             }
         }

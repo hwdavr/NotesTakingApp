@@ -3,7 +3,7 @@
 **Platform**: Android (Kotlin · Jetpack Compose · Material 3 · Room · Hilt)
 **Minimum SDK**: Android 7.0 (API 24) / Target SDK 34
 **Privacy**: 100% on-device note storage in local Room database with optional AI note summarization (Gemini Nano) and sharing capabilities.
-**Last updated**: 2026-09-11
+**Last updated**: 2026-09-12
 
 ---
 
@@ -80,6 +80,8 @@ Lifecycle rules:
 | Basic blocks catalog insertion (US-2) | ✅ Slice done | Inline attached 2-column Basic blocks panel under unchanged 56 dp toolbar with 11 block actions (excluding Page), focus-aware insertion after focused block and append when no focus, empty defaults, auto-save, and single-tap collapse. |
 | Basic blocks compact & accessible experience (US-3) | ✅ Slice done | Capped panel height min(280 dp, 40% usable height), 48 dp baseline tile targets, vertical scrolling through Quote, inner BackHandler dismissal, read-only trigger visibility/disabled state, light/dark theme support, accessibility semantics, and verified top/scrolled visual anchor proof. |
 | Basic blocks auto-collapse on outside interaction (US-4) | ✅ Slice done | Open Basic blocks panel collapses on outside tap (editor content or non-trigger toolbar controls) without block insertion, focus change, or document mutation; trigger toggle and tile insertion contracts preserved. |
+| Editor bottom-bar capture actions | ✅ Done | Editable-note `@`, image, microphone, and table actions use their existing paths, execute on the first tap while Basic Blocks is open, and expose enabled visual treatment; Image/Table blocks insert after the focused block and are revealed inline; the obsolete camera action is removed. |
+| Discussion comments and mentions | ✅ Done | Bottom-bar `@` opens the in-editor Discussion sheet for the active text block with `@` ready; one grouped autocomplete surface offers dates, active shared users, and other notes, while comments use the authenticated API and Room cache with an offline local fallback. |
 | Table structure operations (US-1) | ✅ Slice done | Backward-compatible `fitToWidth` JSON, row/column insert/clear/delete, final-row/column block removal, deep-copy duplicate, table delete, read-only guards, and existing auto-save persistence. |
 | Chart block foundation (US-1) | ✅ Slice done | Backward-compatible ChartBlock JSON with stable IDs and selected-column fallback, Bar/Line/Pie insertion and focused-table conversion, local bitmap rendering, chart card Chart/Data/Options shell, title/data persistence callbacks, localized accessibility semantics, and acceptance coverage. |
 | Chart block data editing (US-2) | ✅ Slice done | Editable ChartBlock-owned table with stable column selection, localized two-level Options flow, Add row/Add column and row/column operation sheets, protected category/last-data-column invariants, invalid-value filtering, auto-save/reload, and JVM plus connected acceptance coverage. |
@@ -183,7 +185,7 @@ Lifecycle rules:
 
 | Area | Status | Key Capabilities |
 |---|---|---|
-| **Note Editor** | 🟡 In progress | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, table path, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), selection & inline mark formatting (US-2), responsive formula sheet (US-3), internal note links with full visual verification (US-4), and the metadata-enriched web bookmark add flow (web-bookmark US-1). |
+| **Note Editor** | 🟡 In progress | Text editing, complete basic-block panel & persistence, document blocks, summary cards, action sheets, emoji path, enabled image/microphone/table capture actions with focused inline Image/Table insertion, Discussion comments and date/user/other-note mentions, complete ChartBlock creation/data/interaction/read-only/export flow with visual evidence, Mermaid diagram preview & fullscreen interactive viewer, code block card with syntax highlighting, line numbers, language selection, copy & delete, read-only behavior, visual evidence, inline-formula foundation (US-1), selection & inline mark formatting (US-2), responsive formula sheet (US-3), internal note links with full visual verification (US-4), and the metadata-enriched web bookmark add flow (web-bookmark US-1). |
 | **Folders & Categories** | ✅ Shipped | Tree structure, move operations, smart AI categorization |
 | **AI Summarizer** | ✅ Shipped | Gemini Nano on-device summarization, status handling |
 | **Sharing & Security** | ✅ Shipped | Invite sharing, manage permissions, password validation |
@@ -209,4 +211,4 @@ Lifecycle rules:
   outputs, bounded prompt fields, strict Mermaid WebView settings, and redacted
   source-policy reports in CI.
 
-*Document last updated: 2026-09-11*
+*Document last updated: 2026-09-12*

@@ -53,6 +53,7 @@ data class NoteEditorUiState(
     val isFormattingToolbarVisible: Boolean = false,
     val showBasicBlocksPanel: Boolean = false,
     val focusedBlockId: String? = null,
+    val blockIdToReveal: String? = null,
     val focusedTableCells: Map<String, TableFocusTarget> = emptyMap(),
     val selectionStart: Int = 0,
     val selectionEnd: Int = 0,

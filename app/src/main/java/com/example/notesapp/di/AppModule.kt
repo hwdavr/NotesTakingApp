@@ -11,6 +11,7 @@ import com.example.notesapp.data.emoji.BundledEmojiCatalogRepository
 import com.example.notesapp.data.emoji.DataStoreRecentEmojiRepository
 import com.example.notesapp.data.local.AppDatabase
 import com.example.notesapp.data.local.FolderDao
+import com.example.notesapp.data.local.NoteBlockCommentDao
 import com.example.notesapp.data.local.NoteDao
 import com.example.notesapp.data.local.NoteShareDao
 import com.example.notesapp.data.local.VoiceNoteBlockDao
@@ -19,6 +20,7 @@ import com.example.notesapp.data.remote.NotesApiService
 import com.example.notesapp.data.remote.TokenAuthenticator
 import com.example.notesapp.data.repository.FolderRepositoryImpl
 import com.example.notesapp.data.repository.JsonVoiceNoteDocumentStore
+import com.example.notesapp.data.repository.NoteCommentRepositoryImpl
 import com.example.notesapp.data.repository.NoteRepositoryImpl
 import com.example.notesapp.data.repository.NoteShareRepositoryImpl
 import com.example.notesapp.data.repository.VoiceNoteRepositoryImpl
@@ -43,6 +45,7 @@ import com.example.notesapp.data.voice.RecordingTranscriptCoordinator
 import com.example.notesapp.data.voice.SpeechRecognizerFactory
 import com.example.notesapp.data.voice.VoiceAudioCapture
 import com.example.notesapp.data.voice.VoiceAudioEncoder
+import com.example.notesapp.domain.comment.repository.NoteCommentRepository
 import com.example.notesapp.domain.emoji.EmojiCatalogRepository
 import com.example.notesapp.domain.emoji.repository.RecentEmojiRepository
 import com.example.notesapp.domain.folder.FolderCategorizer
@@ -67,6 +70,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.time.Clock
 import javax.inject.Named
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
@@ -96,6 +100,10 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindNoteShareRepository(impl: NoteShareRepositoryImpl): NoteShareRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNoteCommentRepository(impl: NoteCommentRepositoryImpl): NoteCommentRepository
 
     @Binds
     @Singleton
@@ -189,6 +197,9 @@ abstract class AppModule {
         fun provideNoteShareDao(database: AppDatabase): NoteShareDao = database.noteShareDao()
 
         @Provides
+        fun provideNoteBlockCommentDao(database: AppDatabase): NoteBlockCommentDao = database.noteBlockCommentDao()
+
+        @Provides
         fun provideVoiceNoteBlockDao(database: AppDatabase): VoiceNoteBlockDao = database.voiceNoteBlockDao()
 
         @Provides
@@ -227,6 +238,10 @@ abstract class AppModule {
         @Provides
         @Singleton
         fun provideNotesApiService(retrofit: Retrofit): NotesApiService = retrofit.create(NotesApiService::class.java)
+
+        @Provides
+        @Singleton
+        fun provideClock(): Clock = Clock.systemDefaultZone()
 
         @Provides
         @Singleton
