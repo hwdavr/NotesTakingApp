@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.notesapp.ui.theme.LocalAppColors
 
@@ -29,14 +32,25 @@ fun NoteCard(
     preview: String,
     meta: String,
     color: androidx.compose.ui.graphics.Color,
+    fixedHeight: Dp? = null,
+    titleMaxLines: Int = Int.MAX_VALUE,
+    previewMaxLines: Int = Int.MAX_VALUE,
+    cardTestTag: String? = null,
     onMoreClick: (() -> Unit)? = null,
     moreActionsTestTag: String? = null,
     badgeTestTag: String? = null
 ) {
     val colors = LocalAppColors.current
+    val cardTagModifier = if (cardTestTag != null) {
+        Modifier.testTag(cardTestTag)
+    } else {
+        Modifier
+    }
     Surface(
         modifier = Modifier
+            .then(cardTagModifier)
             .fillMaxWidth()
+            .then(fixedHeight?.let { Modifier.height(it) } ?: Modifier)
             .clip(RoundedCornerShape(24.dp)),
         tonalElevation = 1.dp,
         shape = RoundedCornerShape(24.dp),
@@ -50,8 +64,11 @@ fun NoteCard(
             ) {
                 Text(
                     text = title,
+                    modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = titleMaxLines,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (onMoreClick != null) {
                     IconButton(
@@ -68,7 +85,13 @@ fun NoteCard(
                     Icon(Icons.Outlined.MoreHoriz, contentDescription = "More")
                 }
             }
-            Text(text = preview, style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
+            Text(
+                text = preview,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textSecondary,
+                maxLines = previewMaxLines,
+                overflow = TextOverflow.Ellipsis
+            )
             if (meta.isNotBlank()) {
                 Text(
                     text = meta,

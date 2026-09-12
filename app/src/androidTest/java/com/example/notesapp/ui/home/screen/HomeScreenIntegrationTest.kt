@@ -10,13 +10,16 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.FakeFolderRepository
 import com.example.notesapp.FakeNoteRepository
 import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.domain.note.Note
+import com.example.notesapp.ui.home.model.HomeUiState
 import com.example.notesapp.ui.home.viewmodel.HomeViewModel
+import com.example.notesapp.ui.notes.model.NoteUiModel
 import com.example.notesapp.ui.theme.NotesTakingAppTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -171,6 +174,83 @@ class HomeScreenIntegrationTest {
         composeRule.onAllNodesWithText("Favorites").assertCountEquals(1)
         composeRule.onAllNodesWithText("Work").assertCountEquals(1)
     }
+
+    @Test
+    fun homeCardsUseFixedHeightForLongAndShortPreviews() {
+        val longNote = note(
+            id = "note_long",
+            title = "Tricky Technical Experience",
+            content = "long content",
+            folderId = null
+        )
+        val shortNote = note(
+            id = "note_short",
+            title = "Another note",
+            content = "short content",
+            folderId = null
+        )
+        val state = HomeUiState(
+            recentNotes = listOf(
+                NoteUiModel(
+                    id = longNote.id,
+                    title = longNote.title,
+                    preview = "Line one\nLine two\nLine three\nLine four\nLine five\nLine six",
+                    colorIndex = 2
+                ),
+                NoteUiModel(
+                    id = shortNote.id,
+                    title = shortNote.title,
+                    preview = "Meeting notes",
+                    colorIndex = 2
+                )
+            ),
+            noteActions = mapOf(longNote.id to longNote, shortNote.id to shortNote)
+        )
+
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                HomeNotesScreenContent(
+                    parentPadding = PaddingValues(0.dp),
+                    state = state,
+                    onAddNote = {},
+                    onRecordNote = {},
+                    onOpenNote = {},
+                    onSelectFolder = {}
+                )
+            }
+        }
+
+        val expectedHeight = 220f * composeRule.density.density
+        composeRule.waitUntil(5000) {
+            composeRule.onAllNodesWithTag("home_note_card", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        val firstCardHeight = composeRule
+            .onAllNodesWithTag("home_note_card", useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .first()
+            .boundsInRoot
+            .height
+
+        composeRule.onNodeWithTag("home_notes_list").performScrollToIndex(1)
+        composeRule.waitUntil(5000) {
+            composeRule.onAllNodesWithTag("home_note_card", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        val secondCardHeight = composeRule
+            .onAllNodesWithTag("home_note_card", useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .last()
+            .boundsInRoot
+            .height
+
+        assertEquals(expectedHeight, firstCardHeight, 1f)
+        assertEquals(expectedHeight, secondCardHeight, 1f)
+        assertEquals(firstCardHeight, secondCardHeight, 1f)
+    }
+
     private fun step(description: String, action: () -> Unit) {
         action()
     }

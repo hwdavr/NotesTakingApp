@@ -207,7 +207,9 @@ fun HomeNotesScreenContent(
                     }
                     else -> {
                         LazyColumn(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("home_notes_list"),
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(bottom = 104.dp)
                         ) {
@@ -226,6 +228,10 @@ fun HomeNotesScreenContent(
                                             else -> ""
                                         },
                                         color = cardColors[note.colorIndex],
+                                        fixedHeight = 220.dp,
+                                        titleMaxLines = 1,
+                                        previewMaxLines = 4,
+                                        cardTestTag = "home_note_card",
                                         onMoreClick = {
                                             selectedNoteForQuickActions = state.noteActions[note.id]
                                         },
