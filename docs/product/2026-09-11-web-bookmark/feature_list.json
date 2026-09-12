@@ -172,7 +172,7 @@
       "priority": 2,
       "area": "editor-web-bookmark",
       "title": "Complete bookmark management, export, and visual verification",
-      "description": "Implement the persisted bookmark card's open and mutation behavior, then close the feature's export, compatibility, and visual-verification contract. Add stable semantic/test tags, the single More/actions control, the existing EditorNoteActionsSheet/SheetActionRow visual treatment for Edit and Delete, the full-page Edit destination with same-block identity, confirmation-gated deletion, read-only guards, and the Android ACTION_VIEW browser launcher with validated URI resolution and recoverable no-handler feedback. Preserve stable order and autosave semantics for edits and deletes. Export plain text, Markdown, and PDF context/URLs without network work; keep legacy and malformed content readable and safe; capture the completed editor/card, URL-only full page, keyboard state, actions sheet, and responsive states from the instrumented test against the approved source-fed design assets. The real platform test must exercise the Android intent/package-manager boundary on an emulator rather than a fake callback.",
+      "description": "Implement the persisted bookmark card's open and mutation behavior, then close the feature's export, compatibility, and visual-verification contract. Add stable semantic/test tags, the single More/actions control, the existing EditorNoteActionsSheet/SheetActionRow visual treatment for Edit and Delete, the full-page Edit destination with same-block identity, confirmation-gated deletion, read-only guards, and the Android ACTION_VIEW browser launcher with validated URI resolution and recoverable no-handler feedback. Preserve stable order and autosave semantics for edits and deletes. Export plain text, Markdown, and PDF context/URLs without network work; keep legacy and malformed content readable and safe; capture the completed editor/card, URL-only full page from the production app shell, keyboard state, actions sheet, and responsive states from source-fed instrumented visual flows against the approved design assets. The real platform test must exercise the Android intent/package-manager boundary on an emulator rather than a fake callback.",
       "ui_design": "docs/product/2026-09-11-web-bookmark/design/mockup_editor_web_bookmark_actions_sheet_from_baseline_v2.png",
       "user_visible_behavior": "A saved bookmark card exposes Open and one More control. More opens a standard app-style bottom sheet with Edit and Delete rows; Edit opens the URL-only full page, Delete opens confirmation, read-only notes hide mutations, and Open launches the validated URL in the external browser. Export preserves bookmark context and URLs without fetching; malformed/legacy content remains safe; the complete flow remains readable and unclipped across approved theme, RTL, scale, IME, and layout states.",
       "affects_ui": true,
@@ -188,7 +188,7 @@
         "return_boundary": "The Edit Web Bookmark destination pops back to the originating note editor after the same block is updated.",
         "post_return_assertion": "The original bookmark card remains at the same position with the same stable identity and updated visible content."
       },
-      "status": "not_started",
+      "status": "in_progress",
       "acceptance_test_ids": [
         "TC-US-2-01",
         "TC-US-2-02",
@@ -224,12 +224,139 @@
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#supportsDarkRtlAndLargeTextWithoutClipping",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#supportsDarkRtlAndLargeTextWithoutClipping && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_responsive.png \"$FEATURE_DIR/visual_evidence/web_bookmark_responsive.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_responsive.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#capturesBookmarkCardState && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_card_content.png \"$FEATURE_DIR/visual_evidence/web_bookmark_card_content.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_card_content.png\"",
-        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#capturesAddBookmarkPageState && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_add_page.png \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page.png\"",
+        "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkAppShellVisualFlowTest#capturesAddBookmarkPageFromAppShell && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_add_page.png \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#capturesAddBookmarkPageKeyboardState && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_add_page_keyboard.png \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page_keyboard.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_add_page_keyboard.png\"",
         "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest#capturesBookmarkActionsSheetState && adb -s emulator-5554 pull /sdcard/Download/web_bookmark_actions_sheet.png \"$FEATURE_DIR/visual_evidence/web_bookmark_actions_sheet.png\" && test -s \"$FEATURE_DIR/visual_evidence/web_bookmark_actions_sheet.png\""
       ],
-      "evidence": [],
-      "notes": "Depends on US-1's bookmark model, card, and full-page route. US-2 owns the real browser platform boundary, export/compatibility completion, and final visual verification. Visual screenshots must be source-fed from the active WebBookmarkVisualFlowTest, not post-test device screencaps."
+  "evidence": [
+    {
+      "test_id": "TC-US-2-01",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkCardTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2/2 WebBookmarkCardTest tests passed on emulator-5554; report: app/build/reports/androidTests/connected/debug"
+    },
+    {
+      "test_id": "TC-US-2-02",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.platform.WebBookmarkPlatformBoundaryTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2/2 platform boundary tests passed on emulator-5554, including real ACTION_VIEW browser resolution"
+    },
+    {
+      "test_id": "TC-US-2-03",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.platform.WebBookmarkPlatformBoundaryTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2/2 platform boundary tests passed on emulator-5554, including no-handler recovery without mutation"
+    },
+    {
+      "test_id": "TC-US-2-04",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkCardActionsTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "3/3 action-sheet tests passed on emulator-5554, including Edit handoff with existing bookmark data"
+    },
+    {
+      "test_id": "TC-US-2-05",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "7/7 production journey tests passed on emulator-5554; same-ID edit return verified"
+    },
+    {
+      "test_id": "TC-US-2-06",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "7/7 production journey tests passed on emulator-5554; changed URL metadata refresh and in-place identity verified"
+    },
+    {
+      "test_id": "TC-US-2-07",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkJourneyTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "7/7 production journey tests passed on emulator-5554; back-out without mutation verified"
+    },
+    {
+      "test_id": "TC-US-2-08",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkCardActionsTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "3/3 action-sheet tests passed on emulator-5554; confirmation-gated delete and cancel behavior verified"
+    },
+    {
+      "test_id": "TC-US-2-09",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkCardActionsTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "3/3 action-sheet tests passed on emulator-5554; final bookmark deletion leaves editable text block"
+    },
+    {
+      "test_id": "TC-US-2-10",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkCardTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2/2 card tests passed on emulator-5554; read-only hides More while Open remains available"
+    },
+    {
+      "test_id": "TC-US-2-11",
+      "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkExportIntegrationTest\" --tests \"com.example.notesapp.integration.WebBookmarkCompatibilityIntegrationTest\"",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2 scoped JVM integration tests passed; export payload and no-fetch compatibility contracts verified"
+    },
+    {
+      "test_id": "TC-US-2-12",
+      "executed_command": "./gradlew testDebugUnitTest --tests \"com.example.notesapp.integration.WebBookmarkExportIntegrationTest\" --tests \"com.example.notesapp.integration.WebBookmarkCompatibilityIntegrationTest\"",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "2 scoped JVM integration tests passed; malformed and legacy bookmark content remains readable and safe"
+    },
+    {
+      "test_id": "TC-US-2-13",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "5/5 visual-flow tests passed on emulator-5554; responsive dark/RTL/large-text proof captured"
+    },
+    {
+      "test_id": "TC-US-2-VIS-01",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "5/5 visual-flow tests passed; visual_evidence/web_bookmark_card_content.png is non-empty"
+    },
+    {
+      "test_id": "TC-US-2-VIS-02",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.navigation.WebBookmarkAppShellVisualFlowTest#capturesAddBookmarkPageFromAppShell",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "1/1 app-shell visual-flow test passed on emulator-5554; active-window visual_evidence/web_bookmark_add_page.png is non-empty and app_bottom_navigation is absent"
+    },
+    {
+      "test_id": "TC-US-2-VIS-03",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "5/5 visual-flow tests passed; visual_evidence/web_bookmark_add_page_keyboard.png is non-empty"
+    },
+    {
+      "test_id": "TC-US-2-VIS-04",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "5/5 visual-flow tests passed; active-window capture includes the production editor/card backdrop and action sheet; mockup-aligned scoped v2 comparison score 0.9958"
+    },
+    {
+      "test_id": "TC-US-2-VIS-05",
+      "executed_command": "env ANDROID_SERIAL=emulator-5554 ./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.example.notesapp.ui.editor.screen.WebBookmarkVisualFlowTest",
+      "exit_status": 0,
+      "result": "PASS",
+      "output": "5/5 visual-flow tests passed; visual_evidence/web_bookmark_responsive.png is non-empty"
+    }
+  ],
+      "notes": "Depends on US-1's bookmark model, card, and full-page route. US-2 owns the real browser platform boundary, export/compatibility completion, and final visual verification. Visual screenshots must be source-fed from the active dedicated Web Bookmark visual-flow tests, not post-test device screencaps."
     }
   ]
 }

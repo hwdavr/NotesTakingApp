@@ -695,8 +695,9 @@ open class NoteEditorViewModel @Inject constructor(
 
     fun deleteBlock(blockId: String) {
         val current = uiStateInternal.value
+        if (!current.isEditable) return
         val blocks = current.document.blocks
-        if (blocks.size <= 1 && blocks.firstOrNull() !is EditorBlock.Voice) return
+        if (blocks.size <= 1 && blocks.firstOrNull() is EditorBlock.TextBlock) return
         val index = blocks.indexOfFirst { it.id == blockId }
         if (index == -1) return
         val precedingVoiceBlock = blocks.getOrNull(index - 1) as? EditorBlock.Voice

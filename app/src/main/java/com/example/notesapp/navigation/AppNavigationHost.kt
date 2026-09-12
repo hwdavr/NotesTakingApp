@@ -312,6 +312,16 @@ internal fun AppNavigationHost(
                 onOpenWebBookmarkEditor = {
                     navController.navigate(Destinations.WebBookmarkEditor.createRoute())
                 },
+                onEditWebBookmarkEditor = { blockId, initialUrl, initialTitle, initialDescription ->
+                    navController.navigate(
+                        Destinations.WebBookmarkEditor.createRoute(
+                            blockId = blockId,
+                            initialUrl = initialUrl,
+                            initialTitle = initialTitle,
+                            initialDescription = initialDescription
+                        )
+                    )
+                },
                 viewModel = editorViewModel
             )
         }
@@ -372,6 +382,14 @@ private fun NavGraphBuilder.webBookmarkEditorRoute(navController: NavHostControl
                 defaultValue = ""
             },
             navArgument("initialUrl") {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument("initialTitle") {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+            navArgument("initialDescription") {
                 type = NavType.StringType
                 defaultValue = ""
             }

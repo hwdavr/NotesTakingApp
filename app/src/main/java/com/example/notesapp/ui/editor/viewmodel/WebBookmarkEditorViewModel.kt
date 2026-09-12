@@ -58,6 +58,9 @@ class WebBookmarkEditorViewModel @Inject constructor(
 
     val editingBlockId: String = savedStateHandle.get<String>(ARG_BLOCK_ID).orEmpty()
     val isEditMode: Boolean = editingBlockId.isNotBlank()
+    private val initialUrl = savedStateHandle.get<String>(ARG_INITIAL_URL).orEmpty()
+    private val initialTitle = savedStateHandle.get<String>(ARG_INITIAL_TITLE).orEmpty()
+    private val initialDescription = savedStateHandle.get<String>(ARG_INITIAL_DESCRIPTION).orEmpty()
 
     private val uiStateInternal = MutableStateFlow(
         WebBookmarkEditorUiState(
@@ -89,8 +92,17 @@ class WebBookmarkEditorViewModel @Inject constructor(
                 uiStateInternal.update { it.copy(showInvalidUrlError = true) }
             is WebBookmarkValidationResult.Valid -> viewModelScope.launch {
                 uiStateInternal.update { it.copy(isSaving = true) }
-                val metadata = metadataSource.fetch(validated.url)
-                    ?: WebBookmarkMetadata.fallback(validated.url)
+                val metadata = if (isEditMode && validated.url == initialUrl.trim()) {
+                    WebBookmarkMetadata(
+                        title = initialTitle,
+                        description = initialDescription
+                    )
+                } else if (validated.url.startsWith("http://", ignoreCase = true)) {
+                    WebBookmarkMetadata.fallback(validated.url)
+                } else {
+                    metadataSource.fetch(validated.url)
+                        ?: WebBookmarkMetadata.fallback(validated.url)
+                }
                 uiStateInternal.update { it.copy(isSaving = false) }
                 saveResultChannel.send(
                     WebBookmarkSaveResult(
@@ -107,6 +119,8 @@ class WebBookmarkEditorViewModel @Inject constructor(
     private companion object {
         const val ARG_BLOCK_ID = "blockId"
         const val ARG_INITIAL_URL = "initialUrl"
+        const val ARG_INITIAL_TITLE = "initialTitle"
+        const val ARG_INITIAL_DESCRIPTION = "initialDescription"
         const val KEY_URL_DRAFT = "web_bookmark_url_draft"
     }
 }

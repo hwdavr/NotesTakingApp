@@ -559,4 +559,16 @@
     <string name="web_bookmark_save">Save bookmark</string>
     <string name="web_bookmark_cancel">Cancel</string>
     <string name="web_bookmark_back_content_description">Back to note</string>
+    <string name="web_bookmark_open">Open</string>
+    <string name="web_bookmark_actions_content_description">More actions for web bookmark</string>
+    <string name="web_bookmark_actions_title">Bookmark options</string>
+    <string name="web_bookmark_actions_edit">Edit bookmark</string>
+    <string name="web_bookmark_actions_edit_content_description">Edit web bookmark</string>
+    <string name="web_bookmark_actions_delete">Delete bookmark</string>
+    <string name="web_bookmark_actions_delete_content_description">Delete web bookmark</string>
+    <string name="web_bookmark_delete_title">Delete bookmark?</string>
+    <string name="web_bookmark_delete_message">This bookmark will be removed from the note.</string>
+    <string name="web_bookmark_delete_confirm">Delete</string>
+    <string name="web_bookmark_delete_cancel">Cancel</string>
+    <string name="web_bookmark_browser_error">No browser is available to open this link.</string>
 </resources>

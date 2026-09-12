@@ -64,6 +64,18 @@ journeys:
     boundary: "The Add Web Bookmark destination pops back to the originating note editor after a successful save"
     post_return_assertion: "The saved bookmark card and its metadata-derived title are visible in the originating note editor"
 
+  - id: J-WEB-BOOKMARK-EDIT
+    description: "Editor bookmark card -> More -> Edit Web Bookmark -> save unchanged URL -> return to the same card"
+    introduced_by: web-bookmark/US-2
+    destinations:
+      - Editor
+      - WebBookmarkEditor
+    test_file: app/src/androidTest/java/com/example/notesapp/navigation/WebBookmarkJourneyTest.kt
+    test_method: opensEditFromActionsAndReturnsWithSameBookmark
+    gradle_selector: "com.example.notesapp.navigation.WebBookmarkJourneyTest#opensEditFromActionsAndReturnsWithSameBookmark"
+    boundary: "The Edit Web Bookmark destination pops back to the originating note editor after the same block is updated"
+    post_return_assertion: "The original bookmark card remains at the same position with the same stable identity"
+
   - id: J-EDITOR-UNDO-REOPEN
     description: "Editor -> type -> undo -> leave via Back (save) -> reopen note: undone content persisted with a fresh undo/redo baseline"
     introduced_by: editor-undo-redo/US-3

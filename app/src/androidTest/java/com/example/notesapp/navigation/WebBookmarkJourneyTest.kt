@@ -2,8 +2,10 @@ package com.example.notesapp.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -14,12 +16,16 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.FakeWebBookmarkMetadataSource
 import com.example.notesapp.HiltTestActivity
+import com.example.notesapp.auth.AuthManager
+import com.example.notesapp.auth.TokenStorage
 import com.example.notesapp.di.WebBookmarkModule
 import com.example.notesapp.domain.bookmark.WebBookmarkMetadata
 import com.example.notesapp.domain.bookmark.WebBookmarkMetadataSource
@@ -34,6 +40,8 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -70,6 +78,7 @@ class WebBookmarkJourneyTest {
     lateinit var noteRepository: NoteRepository
 
     private lateinit var navController: NavHostController
+    private val loggedInAuthManager = FakeLoggedInAuthManager()
 
     @Before
     fun setUp() {
@@ -85,6 +94,45 @@ class WebBookmarkJourneyTest {
 
         composeRule.onNodeWithText(FIXTURE_TITLE).assertIsDisplayed()
         assertEquals(listOf(ADD_URL), fixtureMetadataSource.fetchedUrls.toList())
+    }
+
+    @Test
+    fun appShell_hidesGlobalTabsAtWebBookmarkEditor() {
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                AppNavHost(
+                    authManager = loggedInAuthManager,
+                    onLogin = { _, _ -> }
+                )
+            }
+        }
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            composeRule.onAllNodesWithTag("home_add_fab").fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeRule.onNodeWithTag("home_add_fab").performClick()
+        composeRule.onNodeWithTag("home_fab_text_note").performClick()
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            composeRule.onAllNodesWithTag("editor_basic_blocks_trigger").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("editor_basic_blocks_trigger").performClick()
+        composeRule.onNodeWithTag("basic_blocks_grid")
+            .performScrollToNode(hasTestTag("basic_blocks_web_bookmark"))
+        composeRule.onNodeWithTag("basic_blocks_web_bookmark").performClick()
+        awaitBookmarkPage()
+
+        composeRule.onAllNodesWithTag("app_bottom_navigation").assertCountEquals(0)
+
+        composeRule.onNodeWithTag("web_bookmark_back_button").performClick()
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            composeRule.onAllNodesWithTag("editor_basic_blocks_trigger").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.activity.onBackPressedDispatcher.onBackPressed()
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            composeRule.onAllNodesWithTag("home_add_fab").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("home_add_fab").assertIsDisplayed()
+        composeRule.onNodeWithTag("app_bottom_navigation").assertIsDisplayed()
     }
 
     @Test
@@ -178,6 +226,61 @@ class WebBookmarkJourneyTest {
         composeRule.onNodeWithTag("web_bookmark_bottom_actions").assertIsDisplayed()
     }
 
+    @Test
+    fun opensEditFromActionsAndReturnsWithSameBookmark() {
+        mountProductionGraph()
+        val noteId = seedNote(documentWithBookmark())
+        openEditor(noteId)
+
+        openBookmarkEdit()
+        composeRule.onNodeWithTag("web_bookmark_editor_page_title").assertTextEquals("Edit Web Bookmark")
+        composeRule.onNodeWithTag("web_bookmark_url_field").assertTextContains(BOOKMARK_URL)
+        composeRule.onNodeWithTag("web_bookmark_save_button").performClick()
+        awaitEditor()
+
+        val bookmark = persistedBookmarks(noteId).single()
+        assertEquals(BOOKMARK_ID, bookmark.id)
+        assertEquals(BOOKMARK_URL, bookmark.url)
+        composeRule.onNodeWithTag("editor_web_bookmark_block_$BOOKMARK_ID").assertIsDisplayed()
+    }
+
+    @Test
+    fun changesUrlAndRefreshesMetadataInPlace() {
+        mountProductionGraph()
+        val noteId = seedNote(documentWithBookmark())
+        openEditor(noteId)
+
+        openBookmarkEdit()
+        composeRule.onNodeWithTag("web_bookmark_url_field").performTextReplacement(CHANGED_URL)
+        composeRule.onNodeWithTag("web_bookmark_save_button").performClick()
+        awaitEditor()
+
+        val bookmark = awaitPersistedBookmark(noteId) { it.url == CHANGED_URL }
+        assertEquals(BOOKMARK_ID, bookmark.id)
+        assertEquals(CHANGED_URL, bookmark.url)
+        assertEquals(FIXTURE_TITLE, bookmark.title)
+        assertEquals(FIXTURE_DESCRIPTION, bookmark.description)
+        assertEquals(listOf(CHANGED_URL), fixtureMetadataSource.fetchedUrls.toList())
+    }
+
+    @Test
+    fun backsOutOfEditWithoutMutation() {
+        mountProductionGraph()
+        val noteId = seedNote(documentWithBookmark())
+        openEditor(noteId)
+
+        openBookmarkEdit()
+        composeRule.onNodeWithTag("web_bookmark_url_field").performTextReplacement(CHANGED_URL)
+        composeRule.onNodeWithTag("web_bookmark_back_button").performClick()
+        awaitEditor()
+
+        val bookmark = persistedBookmarks(noteId).single()
+        assertEquals(BOOKMARK_ID, bookmark.id)
+        assertEquals(BOOKMARK_URL, bookmark.url)
+        assertEquals(BOOKMARK_TITLE, bookmark.title)
+        composeRule.onNodeWithTag("editor_web_bookmark_block_$BOOKMARK_ID").assertIsDisplayed()
+    }
+
     private fun mountProductionGraph() {
         composeRule.setContent { ProductionGraphContent() }
         composeRule.waitForIdle()
@@ -220,6 +323,21 @@ class WebBookmarkJourneyTest {
         composeRule.waitForIdle()
     }
 
+    private fun openBookmarkEdit() {
+        composeRule.onNodeWithTag("editor_web_bookmark_actions_$BOOKMARK_ID").performClick()
+        composeRule.onNodeWithTag("web_bookmark_actions_edit").performClick()
+        awaitBookmarkPage()
+    }
+
+    private fun awaitEditor() {
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            composeRule.onAllNodesWithTag("editor_web_bookmark_block_$BOOKMARK_ID")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+        composeRule.waitForIdle()
+    }
+
     private fun awaitBookmarkPage() {
         composeRule.waitUntil(WAIT_TIMEOUT_MS) {
             composeRule.onAllNodesWithTag("web_bookmark_editor_page").fetchSemanticsNodes().isNotEmpty()
@@ -248,6 +366,41 @@ class WebBookmarkJourneyTest {
         )
     )
 
+    private fun documentWithBookmark(): NoteDocument = NoteDocument(
+        blocks = listOf(
+            EditorBlock.TextBlock(id = "text-1", children = listOf(RichText(FIRST_BLOCK_TEXT))),
+            EditorBlock.WebBookmarkBlock(
+                id = BOOKMARK_ID,
+                url = BOOKMARK_URL,
+                title = BOOKMARK_TITLE,
+                description = BOOKMARK_DESCRIPTION
+            )
+        )
+    )
+
+    private fun persistedBookmarks(noteId: String): List<EditorBlock.WebBookmarkBlock> = runBlocking {
+        NoteDocument
+            .fromContent(noteRepository.getNoteById(noteId)!!.content)
+            .blocks
+            .filterIsInstance<EditorBlock.WebBookmarkBlock>()
+    }
+
+    private fun awaitPersistedBookmark(
+        noteId: String,
+        predicate: (EditorBlock.WebBookmarkBlock) -> Boolean
+    ): EditorBlock.WebBookmarkBlock {
+        val deadline = System.currentTimeMillis() + WAIT_TIMEOUT_MS
+        var bookmarks = persistedBookmarks(noteId)
+        while (System.currentTimeMillis() < deadline) {
+            val match = bookmarks.firstOrNull(predicate)
+            if (match != null) return match
+            composeRule.waitForIdle()
+            Thread.sleep(POLL_INTERVAL_MS)
+            bookmarks = persistedBookmarks(noteId)
+        }
+        return bookmarks.first(predicate)
+    }
+
     private companion object {
         // Generous bound: the first journey test in a process pays cold start-up and Room setup.
         const val WAIT_TIMEOUT_MS = 20_000L
@@ -256,7 +409,30 @@ class WebBookmarkJourneyTest {
         const val FIXTURE_DESCRIPTION = "Fixture page description"
         const val ADD_URL = "https://fixture.example/article"
         const val SECOND_ADD_URL = "https://fixture.example/second"
+        const val BOOKMARK_ID = "bookmark-journey-1"
+        const val BOOKMARK_URL = "https://fixture.example/original"
+        const val CHANGED_URL = "https://fixture.example/changed"
+        const val BOOKMARK_TITLE = "Original bookmark"
+        const val BOOKMARK_DESCRIPTION = "Original description"
         const val FIRST_BLOCK_TEXT = "First block"
         const val SECOND_BLOCK_TEXT = "Second block"
+    }
+
+    private class FakeLoggedInAuthManager : AuthManager(
+        context = InstrumentationRegistry.getInstrumentation().targetContext,
+        tokenStorage = object : TokenStorage(InstrumentationRegistry.getInstrumentation().targetContext) {
+            override fun saveTokens(accessToken: String, refreshToken: String?, idToken: String?) = Unit
+
+            override fun getAccessToken(): String? = null
+
+            override fun getRefreshToken(): String? = null
+
+            override fun getIdToken(): String? = null
+
+            override fun clearTokens() = Unit
+        }
+    ) {
+        override val isLoggedIn = MutableStateFlow(true)
+        override val logoutMessage = MutableSharedFlow<String>(extraBufferCapacity = 1)
     }
 }

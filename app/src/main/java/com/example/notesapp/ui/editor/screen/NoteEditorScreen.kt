@@ -162,6 +162,8 @@ import com.example.notesapp.ui.editor.model.ChartTableAction
 import com.example.notesapp.ui.editor.model.EmojiPickerUiState
 import com.example.notesapp.ui.editor.model.TableFocusTarget
 import com.example.notesapp.ui.editor.model.TableHandleAction
+import com.example.notesapp.ui.editor.platform.WebBookmarkBrowserLauncher
+import com.example.notesapp.ui.editor.platform.WebBookmarkOpenResult
 import com.example.notesapp.ui.editor.viewmodel.EmojiPickerViewModel
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 import com.example.notesapp.ui.editor.viewmodel.NoteEditorViewModel
@@ -203,11 +205,14 @@ fun NoteEditorScreen(
     onOpenNoteLinkPicker: (callerNoteId: String, hasExistingLink: Boolean) -> Unit = { _, _ -> },
     onOpenNoteLink: (String) -> Unit = {},
     onOpenWebBookmarkEditor: () -> Unit = {},
+    onEditWebBookmarkEditor: (String, String, String, String) -> Unit = { _, _, _, _ -> },
     viewModel: NoteEditorViewModel = hiltViewModel(),
     emojiPickerViewModel: EmojiPickerViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val emojiPickerState by emojiPickerViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val browserLauncher = remember(context) { WebBookmarkBrowserLauncher(context) }
     // Navigation Compose disposes a destination's composition while another destination is on top,
     // so this effect restarts when the editor is re-entered. Reloading an already-loaded note would
     // replace in-memory edits (for example a bookmark that was just inserted) with the last
@@ -313,6 +318,14 @@ fun NoteEditorScreen(
         onOpenWebBookmarkEditor = {
             viewModel.save { onOpenWebBookmarkEditor() }
         },
+        onEditWebBookmarkEditor = { blockId, initialUrl, initialTitle, initialDescription ->
+            viewModel.save {
+                onEditWebBookmarkEditor(blockId, initialUrl, initialTitle, initialDescription)
+            }
+        },
+        onOpenWebBookmark = { url ->
+            browserLauncher.open(url) is WebBookmarkOpenResult.Opened
+        },
         onUndo = viewModel::undo,
         onRedo = viewModel::redo
     )
@@ -385,6 +398,8 @@ fun NoteEditorScreenContent(
     onOpenNoteLinkPicker: () -> Unit = {},
     onOpenNoteLink: (String) -> Unit = {},
     onOpenWebBookmarkEditor: () -> Unit = {},
+    onEditWebBookmarkEditor: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onOpenWebBookmark: (String) -> Boolean = { true },
     onUndo: () -> Unit = {},
     onRedo: () -> Unit = {}
 ) {
@@ -403,6 +418,7 @@ fun NoteEditorScreenContent(
     var showRenameDialog by remember { mutableStateOf(false) }
     var renameTextFieldValue by remember { mutableStateOf("") }
     var activeFullscreenMermaidBlock by remember { mutableStateOf<EditorBlock.MermaidBlock?>(null) }
+    val webBookmarkInteractionState = rememberWebBookmarkInteractionState()
     val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
     val breadcrumbText =
         buildBreadcrumb(
@@ -418,7 +434,8 @@ fun NoteEditorScreenContent(
     Scaffold(
         modifier = Modifier.padding(top = parentPadding.calculateTopPadding()),
         containerColor = colors.surface,
-        contentWindowInsets = WindowInsets(0)
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { webBookmarkInteractionState.RenderSnackbarHost() }
     ) { innerPadding ->
         Column(
             modifier =
@@ -619,6 +636,12 @@ fun NoteEditorScreenContent(
                             },
                             onFormulaClick = onFormulaClick,
                             onOpenNoteLink = onOpenNoteLink,
+                            onOpenWebBookmark = { url ->
+                                if (!onOpenWebBookmark(url)) {
+                                    webBookmarkInteractionState.showBrowserErrorMessage()
+                                }
+                            },
+                            onMoreWebBookmark = { block -> webBookmarkInteractionState.openActions(block.id) },
                             focusedBlockId = state.focusedBlockId, selectionStart = state.selectionStart,
                             selectionEnd = state.selectionEnd,
                             tableFocusResetTrigger = tableFocusResetTrigger,
@@ -687,6 +710,7 @@ fun NoteEditorScreenContent(
                 onExportNote = onExportNote
             )
         }
+        WebBookmarkActionsOverlay(state, webBookmarkInteractionState, onEditWebBookmarkEditor, onDeleteBlock)
         if (showEmojiPicker) {
             EmojiPickerBottomSheet(
                 uiState = emojiPickerState,
@@ -923,6 +947,8 @@ private fun DocumentBlockList(
     onOpenMermaidFullscreen: ((EditorBlock.MermaidBlock) -> Unit)? = null,
     onFormulaClick: (String, String) -> Unit = { _, _ -> },
     onOpenNoteLink: (String) -> Unit = {},
+    onOpenWebBookmark: (String) -> Unit = {},
+    onMoreWebBookmark: (EditorBlock.WebBookmarkBlock) -> Unit = {},
     focusedBlockId: String?,
     selectionStart: Int,
     selectionEnd: Int,
@@ -1039,7 +1065,14 @@ private fun DocumentBlockList(
                         onDelete = { onDeleteBlock(block.id) }
                     )
                 }
-                is EditorBlock.WebBookmarkBlock -> key(block.id) { WebBookmarkBlockCard(block = block) }
+                is EditorBlock.WebBookmarkBlock -> key(block.id) {
+                    WebBookmarkBlockCard(
+                        block = block,
+                        isEditable = isEditable,
+                        onOpen = { onOpenWebBookmark(block.url) },
+                        onMore = { onMoreWebBookmark(block) }
+                    )
+                }
             }
         }
     }

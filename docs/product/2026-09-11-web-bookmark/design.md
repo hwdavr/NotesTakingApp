@@ -5,7 +5,10 @@
 **Source request**: Add a web bookmark to a note.  
 **Related spec**: `spec.md`  
 **Project design system**: [`docs/product/design_system.md`](../design_system.md)  
-**Approved design-system exceptions**: None.
+**Approved design-system exceptions**: On 2026-09-12, the user approved the actions-sheet
+mockup as authoritative over the earlier close-button prose: omit a header close button and use
+the mockup's title, plain Edit row, divider, and destructive Delete row. M3 scrim tap,
+swipe-down, and system Back remain the dismissal paths.
 
 ## Baseline Reset After Review
 
@@ -280,12 +283,12 @@ Keep bookmark cards compact while giving editable users a clear place to access 
 - **Entry point**: Tap `More actions for web bookmark` on an editable bookmark card.
 - **Edit exit**: Tap Edit to dismiss the sheet and navigate to the full-page editor in Edit mode for the same stable block ID.
 - **Delete exit**: Tap Delete to dismiss the sheet and open the existing confirmation dialog; only confirmation removes the block.
-- **Cancel/back behavior**: Scrim tap, close, swipe-down, or system back dismisses the sheet without mutation.
+- **Cancel/back behavior**: Scrim tap, swipe-down, or system back dismisses the sheet without mutation.
 - **Read-only behavior**: The More/actions control and mutation sheet are absent in read-only notes; Open remains available.
 
 ### Information Architecture
 
-1. **Sheet header**: `Bookmark options` with the standard centered drag handle and a close/dismiss affordance consistent with the existing M3 sheet.
+1. **Sheet header**: `Bookmark options` with the standard centered drag handle.
 2. **Edit row**: Unboxed `SheetActionRow` treatment with an edit icon; navigates to the full-page editor without changing the note.
 3. **Delete row**: Unboxed `SheetActionRow` treatment with the destructive error icon/text; opens confirmation.
 
@@ -297,7 +300,6 @@ Keep bookmark cards compact while giving editable users a clear place to access 
 | Sheet title | Identifies the selected bookmark actions | Visible | `web_bookmark_actions_sheet_title` |
 | Edit action row | Navigates to full-page Edit mode | Enabled, standard `SheetActionRow` | `web_bookmark_actions_edit` |
 | Delete action row | Opens delete confirmation | Enabled, destructive `SheetActionRow` | `web_bookmark_actions_delete` |
-| Close action | Dismisses without mutation | Enabled | `web_bookmark_actions_close` |
 
 ### Reference Anchor Contract
 
@@ -310,7 +312,7 @@ Keep bookmark cards compact while giving editable users a clear place to access 
 
 | State | User Sees | User Can Do |
 |-------|-----------|-------------|
-| Open | Existing editor-style bottom sheet with a centered handle, simple title, divider, and plain Edit/Delete rows over the current editor. | Edit, Delete, close, swipe down, tap scrim, or press back. |
+| Open | Existing editor-style bottom sheet with a centered handle, simple title, divider, and plain Edit/Delete rows over the current editor. | Edit, Delete, swipe down, tap scrim, or press back. |
 | Dismissing | The sheet closes without changing the note. | Return to the card or continue with the selected next destination. |
 | Read-only | No actions control or mutation sheet is shown. | Open the bookmark only. |
 
@@ -320,7 +322,7 @@ Keep bookmark cards compact while giving editable users a clear place to access 
 - The sheet uses the existing `EditorNoteActionsSheet` contract: `surface` container, 20dp top corners from the current implementation, 16dp horizontal padding, 12dp vertical spacing, header/divider, and `SheetActionRow` rows; no outlined row cards or chevrons.
 - Edit dismisses the sheet before navigating to the full-page editor; the card remains unchanged until Save.
 - Delete dismisses the sheet and opens confirmation; cancel leaves the card unchanged, while confirm removes only that block and autosaves.
-- Scrim tap, swipe-down, close, and system back dismiss without mutation.
+- Scrim tap, swipe-down, and system back dismiss without mutation.
 
 ### Copy Requirements
 
@@ -331,7 +333,6 @@ Keep bookmark cards compact while giving editable users a clear place to access 
 | Edit content description | `Edit web bookmark` |
 | Delete action | `Delete bookmark` |
 | Delete content description | `Delete web bookmark` |
-| Close content description | `Close bookmark options` |
 
 All copy is localized through `stringResource()` and destructive actions use the design-system error token plus text, not color alone.
 

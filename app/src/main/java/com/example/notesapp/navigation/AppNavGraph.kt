@@ -16,6 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.notesapp.auth.AuthManager
@@ -50,7 +52,8 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         Destinations.SharedUsers.route,
         Destinations.ManageAccess.route,
         Destinations.ShareInvite.route,
-        Destinations.VoiceRecorder.route
+        Destinations.VoiceRecorder.route,
+        Destinations.WebBookmarkEditor.route
     )
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -80,7 +83,7 @@ fun AppNavHost(authManager: AuthManager, onLogin: (onSuccess: () -> Unit, onErro
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (showBottomBar) {
-                NavigationBar {
+                NavigationBar(modifier = Modifier.testTag("app_bottom_navigation")) {
                     bottomNavItems.forEach { item ->
                         NavigationBarItem(
                             selected = currentRoute == item.route,

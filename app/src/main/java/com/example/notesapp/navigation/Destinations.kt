@@ -59,10 +59,17 @@ sealed class Destinations(val route: String) {
             "$baseRoute?callerNoteId=${Uri.encode(callerNoteId)}&hasExistingLink=$hasExistingLink"
     }
     data object WebBookmarkEditor : Destinations(
-        "webBookmarkEditor?blockId={blockId}&initialUrl={initialUrl}"
+        "webBookmarkEditor?blockId={blockId}&initialUrl={initialUrl}" +
+            "&initialTitle={initialTitle}&initialDescription={initialDescription}"
     ) {
-        fun createRoute(blockId: String? = null, initialUrl: String? = null): String =
-            "$baseRoute?blockId=${Uri.encode(blockId.orEmpty())}" +
-                "&initialUrl=${Uri.encode(initialUrl.orEmpty())}"
+        fun createRoute(
+            blockId: String? = null,
+            initialUrl: String? = null,
+            initialTitle: String? = null,
+            initialDescription: String? = null
+        ): String = "$baseRoute?blockId=${Uri.encode(blockId.orEmpty())}" +
+            "&initialUrl=${Uri.encode(initialUrl.orEmpty())}" +
+            "&initialTitle=${Uri.encode(initialTitle.orEmpty())}" +
+            "&initialDescription=${Uri.encode(initialDescription.orEmpty())}"
     }
 }

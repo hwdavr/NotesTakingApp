@@ -241,9 +241,15 @@ data class RichText(
 }
 fun noteContentPreview(content: String): String = NoteDocument.fromContent(content).toPlainText().ifBlank { content }
 fun webBookmarkMarkdown(block: EditorBlock.WebBookmarkBlock): String {
-    if (block.url.isBlank()) return listOf(block.title, block.description).filter { it.isNotBlank() }.joinToString(" ")
+    if (block.url.isBlank()) {
+        return listOf(block.title, block.description)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+    }
     val label = block.title.ifBlank { webBookmarkHost(block.url) }
-    return "[$label](${block.url})"
+    return listOf(block.description, "[$label](${block.url})")
+        .filter { it.isNotBlank() }
+        .joinToString("\n")
 }
 fun codeBlockLanguageSlug(language: String): String = when (language.trim().lowercase()) {
     "" -> ""
@@ -420,13 +426,15 @@ private fun JSONObject.toEditorBlock(): EditorBlock? {
         )
         "web_bookmark" -> EditorBlock.WebBookmarkBlock(
             id = id,
-            url = optString("url"),
-            title = optString("title"),
-            description = optString("description")
+            url = optStringValue("url"),
+            title = optStringValue("title"),
+            description = optStringValue("description")
         )
         else -> toTextBlockOrFallback(id)
     }
 }
+
+private fun JSONObject.optStringValue(key: String): String = opt(key).takeIf { it is String } as? String ?: ""
 
 private fun JSONObject.toTextBlockOrFallback(id: String): EditorBlock.TextBlock? {
     val blockType = BasicBlockType.fromStorageValue(optString("type", BasicBlockType.PARAGRAPH.storageValue))
