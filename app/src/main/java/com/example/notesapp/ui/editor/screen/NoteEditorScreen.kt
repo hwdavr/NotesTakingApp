@@ -109,6 +109,8 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -2158,6 +2160,8 @@ private fun DefaultBottomBar(
     onRedo: () -> Unit
 ) {
     val colors = LocalAppColors.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val handleToolbarClick: (() -> Unit) -> Unit = { action ->
         if (isBasicBlocksPanelOpen) {
             onToggleBasicBlocksPanel()
@@ -2177,7 +2181,11 @@ private fun DefaultBottomBar(
     ) {
         item {
             EditorBarButton(
-                onClick = onToggleBasicBlocksPanel,
+                onClick = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus(force = true)
+                    onToggleBasicBlocksPanel()
+                },
                 modifier = Modifier.testTag("editor_basic_blocks_trigger")
             ) {
                 Icon(
