@@ -126,6 +126,8 @@
     <string name="editor_done">Done</string>
     <string name="editor_delete_action">Archive</string>
     <string name="editor_untitled_note">Untitled note</string>
+    <string name="editor_add_comment_action">Add comment</string>
+    <string name="editor_share_action">Share</string>
     <string name="editor_export_action">Export</string>
     <string name="editor_image_label">Image</string>
     <string name="editor_image_url_placeholder">Image URL</string>

@@ -14,6 +14,8 @@ import com.example.notesapp.ui.editor.viewmodel.NoteEditorUiState
 internal fun NoteActionsSheetHost(
     state: NoteEditorUiState,
     onDismiss: () -> Unit,
+    onAddComment: () -> Unit,
+    onShareNote: () -> Unit,
     onToggleFavorite: () -> Unit,
     onMoveNote: () -> Unit,
     onStartRename: () -> Unit,
@@ -23,6 +25,14 @@ internal fun NoteActionsSheetHost(
     NoteActionsSheetSection(
         state = state,
         onDismiss = onDismiss,
+        onAddComment = {
+            onDismiss()
+            onAddComment()
+        },
+        onShare = {
+            onDismiss()
+            onShareNote()
+        },
         onAddToFavorites = {
             onToggleFavorite()
             onDismiss()
@@ -50,6 +60,8 @@ internal fun NoteActionsSheetHost(
 internal fun NoteActionsSheetSection(
     state: NoteEditorUiState,
     onDismiss: () -> Unit,
+    onAddComment: () -> Unit,
+    onShare: () -> Unit,
     onAddToFavorites: () -> Unit,
     onMoveTo: () -> Unit,
     onRename: () -> Unit,
@@ -73,6 +85,8 @@ internal fun NoteActionsSheetSection(
     EditorNoteActionsSheet(
         note = currentNote,
         onDismiss = onDismiss,
+        onAddComment = onAddComment,
+        onShare = onShare,
         onAddToFavorites = onAddToFavorites,
         onMoveTo = onMoveTo,
         onRename = onRename,

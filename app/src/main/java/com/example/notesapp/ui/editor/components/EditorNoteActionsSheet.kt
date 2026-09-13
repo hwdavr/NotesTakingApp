@@ -14,6 +14,8 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -40,6 +42,8 @@ import com.example.notesapp.ui.theme.LocalAppColors
 fun EditorNoteActionsSheet(
     note: Note,
     onDismiss: () -> Unit,
+    onAddComment: () -> Unit,
+    onShare: () -> Unit,
     onAddToFavorites: () -> Unit,
     onMoveTo: () -> Unit,
     onRename: () -> Unit,
@@ -81,6 +85,20 @@ fun EditorNoteActionsSheet(
                 )
             }
             HorizontalDivider(color = colors.divider, thickness = 1.dp)
+            if (note.accessRole != NoteAccessRole.READ_ONLY) {
+                SheetActionRow(
+                    icon = Icons.Outlined.ModeComment,
+                    label = stringResource(R.string.editor_add_comment_action),
+                    onClick = onAddComment,
+                    modifier = Modifier.testTag("add_comment_action")
+                )
+                SheetActionRow(
+                    icon = Icons.Outlined.Share,
+                    label = stringResource(R.string.editor_share_action),
+                    onClick = onShare,
+                    modifier = Modifier.testTag("share_note_action")
+                )
+            }
             SheetActionRow(
                 icon = Icons.Outlined.FileDownload,
                 label = stringResource(R.string.editor_export_action),

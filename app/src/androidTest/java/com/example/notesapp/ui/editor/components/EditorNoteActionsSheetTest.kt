@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.notesapp.domain.note.Note
 import com.example.notesapp.domain.note.NoteAccessRole
@@ -32,6 +33,8 @@ class EditorNoteActionsSheetTest {
                     accessRole = NoteAccessRole.READ_ONLY
                 ),
                 onDismiss = {},
+                onAddComment = {},
+                onShare = {},
                 onAddToFavorites = {},
                 onMoveTo = {},
                 onRename = {},
@@ -41,9 +44,64 @@ class EditorNoteActionsSheetTest {
         }
 
         composeRule.onNodeWithTag("export_item_action").assertIsDisplayed()
+        assertTrue(composeRule.onAllNodesWithTag("share_note_action").fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag("add_to_favorites_action").fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag("move_item_action").fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag("rename_item_action").fetchSemanticsNodes().isEmpty())
         assertTrue(composeRule.onAllNodesWithTag("delete_item_action").fetchSemanticsNodes().isEmpty())
+    }
+
+    @Test
+    fun editableNote_showsShareEntryPointInBottomSheet() {
+        var shareClicked = false
+        composeRule.setContent {
+            EditorNoteActionsSheet(
+                note = Note(
+                    id = "note_1",
+                    title = "Shared roadmap",
+                    content = "Content",
+                    createdAt = 1L,
+                    updatedAt = 1L
+                ),
+                onDismiss = {},
+                onAddComment = {},
+                onShare = { shareClicked = true },
+                onAddToFavorites = {},
+                onMoveTo = {},
+                onRename = {},
+                onDelete = {},
+                onExport = {}
+            )
+        }
+
+        composeRule.onNodeWithTag("share_note_action").assertIsDisplayed().performClick()
+        assertTrue(shareClicked)
+    }
+
+    @Test
+    fun editableNote_showsAddCommentEntryPointInBottomSheet() {
+        var commentClicked = false
+        composeRule.setContent {
+            EditorNoteActionsSheet(
+                note = Note(
+                    id = "note_1",
+                    title = "Shared roadmap",
+                    content = "Content",
+                    createdAt = 1L,
+                    updatedAt = 1L
+                ),
+                onDismiss = {},
+                onAddComment = { commentClicked = true },
+                onShare = {},
+                onAddToFavorites = {},
+                onMoveTo = {},
+                onRename = {},
+                onDelete = {},
+                onExport = {}
+            )
+        }
+
+        composeRule.onNodeWithTag("add_comment_action").assertIsDisplayed().performClick()
+        assertTrue(commentClicked)
     }
 }

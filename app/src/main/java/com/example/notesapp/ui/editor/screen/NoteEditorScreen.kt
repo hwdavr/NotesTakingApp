@@ -721,6 +721,8 @@ fun NoteEditorScreenContent(
             NoteActionsSheetHost(
                 state = state,
                 onDismiss = { showNoteActionsSheet = false },
+                onAddComment = onOpenDiscussion,
+                onShareNote = onShareRequested,
                 onToggleFavorite = onToggleFavorite,
                 onMoveNote = onMoveNote,
                 onStartRename = {
