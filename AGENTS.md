@@ -32,7 +32,6 @@ triggered rule. For a complex slice, run
 | `.agents/skills/` | How-to guides and modular workflow steps (L2). |
 | `.agents/gates/` | CI checks and review/release checklists. |
 | `harness/templates/` | Standard output formats for plans, reviews, tests. |
-| `harness/rules-matrix/` | Visual matrix mapping of rules to files. |
 | `harness/scripts/` | Validation scripts and contract test runners. |
 | `docs/product/<YYYY-MM-DD>-<feature-short-name>/` | Stable complex-feature workspace for planning, implementation, evidence, and completed records. |
 | `docs/knowledge/` | Past bugs, pitfalls, architecture decisions (L3). |
@@ -72,7 +71,7 @@ triggered rule. For a complex slice, run
 Key skills under `.agents/skills/`:
 - **Planning & Requirements**: `spec-driven-development`, `feature-specification`, `slice-planning`, `implementation-plan`
 - **UX & Design**: `ux-design`
-- **Implementation**: `android-implementation`, `android-data-layer`, `android-domain-layer`, `android-ui-layer`, `api-contract-update`
+- **Implementation**: `android-implementation`, `android-ui-layer`, `api-contract-update`
 - **Testing & Verification**: `android-testing`, `ui-verification`, `android-unit-test`, `android-instrumented-ui-test`, `shared-json-scenarios`
 - **Review & Quality**: `code-quality-fix`, `android-code-review`, `code-review-and-quality`, `android-test-review`, `android-code-quality-checks`
 - **Session & Knowledge**: `context-management`, `knowledge-capture`, `documentation-and-adrs`, `karpathy-guidelines`
