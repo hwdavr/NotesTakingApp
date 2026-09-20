@@ -464,7 +464,6 @@
     <string name="editor_basic_blocks_trigger_description">Show basic blocks</string>
     <string name="editor_basic_blocks_trigger_hide_description">Hide basic blocks</string>
     <string name="editor_basic_blocks_trigger_disabled_description">Basic blocks are unavailable in a read-only note.</string>
-    <string name="basic_blocks_panel_title">Basic blocks</string>
     <string name="basic_blocks_text_label">Text</string>
     <string name="basic_blocks_text_description">Insert Text</string>
     <string name="basic_blocks_heading_1_label">Heading 1</string>

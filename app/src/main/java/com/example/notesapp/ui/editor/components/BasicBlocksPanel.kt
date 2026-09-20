@@ -69,20 +69,11 @@ fun BasicBlocksPanel(onTileSelected: (BasicBlockType) -> Unit, modifier: Modifie
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = stringResource(R.string.basic_blocks_panel_title),
-                modifier = Modifier
-                    .testTag("basic_blocks_panel_title")
-                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 4.dp),
-                color = colors.textPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold
-            )
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = maxPanelHeight - 28.dp)
+                    .heightIn(max = maxPanelHeight)
                     .testTag("basic_blocks_grid"),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

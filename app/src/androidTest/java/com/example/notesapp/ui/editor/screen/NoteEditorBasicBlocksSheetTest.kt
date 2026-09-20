@@ -81,9 +81,10 @@ class NoteEditorBasicBlocksSheetTest {
         // Trigger is visible
         composeRule.onNodeWithTag("editor_basic_blocks_trigger").assertIsDisplayed().performClick()
 
-        // Panel and title are displayed
+        // Panel and section headers are displayed without a redundant panel title
         composeRule.onNodeWithTag("basic_blocks_panel").assertIsDisplayed()
-        composeRule.onNodeWithTag("basic_blocks_panel_title").assertIsDisplayed()
+        composeRule.onNodeWithTag("basic_blocks_panel_title").assertDoesNotExist()
+        composeRule.onNodeWithTag("basic_blocks_section_basic").assertIsDisplayed()
         composeRule.onNodeWithTag("basic_blocks_grid").assertIsDisplayed()
 
         // All 11 tiles exist in grid and can be scrolled to
