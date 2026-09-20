@@ -313,8 +313,7 @@
     <string name="editor_image_description">Insert image</string>
     <string name="editor_mic_description">Record voice note</string>
     <string name="editor_table_description">Insert table</string>
-    <string name="editor_keyboard_hide_description">Hide keyboard</string>
-    <string name="editor_close_description">Close</string>
+    <string name="editor_hide_formatting_description">Hide formatting toolbar</string>
     <string name="editor_summary_title">AI summary</string>
     <string name="editor_summary_loading">Generating summary...</string>
     <string name="editor_summary_empty">Add more note content to generate a summary.</string>

@@ -1,5 +1,5 @@
 {
-  "version": "2.14",
+  "version": "2.18",
   "children": [
     {
       "type": "frame",
@@ -6144,54 +6144,16 @@
               "name": "doc",
               "width": "fill_container",
               "height": "fill_container",
-              "fill": "$--background",
+              "fill": "#FFFFFF",
               "layout": "vertical",
-              "gap": 10,
+              "gap": 8,
               "padding": [
                 12,
+                8,
                 16,
-                14,
-                16
+                8
               ],
               "children": [
-                {
-                  "type": "frame",
-                  "id": "MGDaQ",
-                  "name": "breadcrumb",
-                  "width": "fill_container",
-                  "fill": "$--accent",
-                  "cornerRadius": 8,
-                  "gap": 8,
-                  "padding": [
-                    8,
-                    10
-                  ],
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "yCrw9",
-                      "name": "bcIcon",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "folder",
-                      "library": "lucide",
-                      "fill": "$--muted-foreground"
-                    },
-                    {
-                      "type": "text",
-                      "id": "l1W1pw",
-                      "name": "bcText",
-                      "fill": "$--muted-foreground",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "Notes / Product / Force update strategy",
-                      "fontFamily": "Inter",
-                      "fontSize": 12,
-                      "fontWeight": "500"
-                    }
-                  ]
-                },
                 {
                   "type": "frame",
                   "id": "I9TJCO",
@@ -6199,15 +6161,15 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "fill": "#FFFFFF",
-                  "cornerRadius": 8,
-                  "stroke": "$--border",
-                  "strokeWidth": 1,
+                  "stroke": "#00000000",
                   "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 12,
                   "padding": [
+                    8,
+                    8,
                     18,
-                    16
+                    8
                   ],
                   "children": [
                     {
@@ -6356,7 +6318,7 @@
                           "name": "action/add",
                           "width": 36,
                           "height": 36,
-                          "fill": "$--accent",
+                          "fill": "#FFFFFF",
                           "cornerRadius": 8,
                           "justifyContent": "center",
                           "alignItems": "center",
@@ -6369,7 +6331,7 @@
                               "height": 22,
                               "icon": "circle-plus",
                               "library": "lucide",
-                              "fill": "$--primary"
+                              "fill": "$--foreground"
                             }
                           ]
                         },
@@ -6379,7 +6341,7 @@
                           "name": "action/format",
                           "width": 36,
                           "height": 36,
-                          "fill": "#EAF1FF",
+                          "fill": "#FFFFFF",
                           "cornerRadius": 8,
                           "justifyContent": "center",
                           "alignItems": "center",
@@ -6388,7 +6350,7 @@
                               "type": "text",
                               "id": "fNSQW",
                               "name": "formatText",
-                              "fill": "#4F65FF",
+                              "fill": "$--foreground",
                               "content": "Aa",
                               "fontFamily": "Inter",
                               "fontSize": 16,
@@ -6462,6 +6424,29 @@
                               "fontFamily": "Inter",
                               "fontSize": 20,
                               "fontWeight": "700"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "N5QxLD",
+                          "name": "action/comment",
+                          "width": 36,
+                          "height": 36,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "kZ157",
+                              "name": "commentIcon",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "message-circle",
+                              "library": "lucide",
+                              "fill": "#7281A7"
                             }
                           ]
                         },
@@ -6625,53 +6610,8 @@
                               "fill": "$--muted-foreground"
                             }
                           ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "N5QxLD",
-                          "name": "action/comment",
-                          "width": 36,
-                          "height": 36,
-                          "fill": "#FFFFFF",
-                          "cornerRadius": 8,
-                          "justifyContent": "center",
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "kZ157",
-                              "name": "commentIcon",
-                              "width": 20,
-                              "height": 20,
-                              "icon": "message-circle",
-                              "library": "lucide",
-                              "fill": "#7281A7"
-                            }
-                          ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "SqMVX",
-                  "name": "scrollHint",
-                  "width": 24,
-                  "height": "fill_container",
-                  "fill": "#FFFFFF",
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "DYQFg",
-                      "name": "overflowChevron",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "chevron-right",
-                      "library": "lucide",
-                      "fill": "$--muted-foreground"
                     }
                   ]
                 }
@@ -6684,7 +6624,7 @@
     {
       "type": "frame",
       "id": "fjIGe",
-      "x": 906,
+      "x": 556,
       "y": 981,
       "name": "Note Edit - Text Format",
       "width": 390,
@@ -6825,54 +6765,16 @@
               "name": "doc",
               "width": "fill_container",
               "height": "fill_container",
-              "fill": "$--background",
+              "fill": "#FFFFFF",
               "layout": "vertical",
-              "gap": 10,
+              "gap": 8,
               "padding": [
                 12,
+                8,
                 16,
-                14,
-                16
+                8
               ],
               "children": [
-                {
-                  "type": "frame",
-                  "id": "rXNEG",
-                  "name": "breadcrumb",
-                  "width": "fill_container",
-                  "fill": "$--accent",
-                  "cornerRadius": 8,
-                  "gap": 8,
-                  "padding": [
-                    8,
-                    10
-                  ],
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "m5pAnq",
-                      "name": "bcIcon",
-                      "width": 16,
-                      "height": 16,
-                      "icon": "folder",
-                      "library": "lucide",
-                      "fill": "$--muted-foreground"
-                    },
-                    {
-                      "type": "text",
-                      "id": "AaTPO",
-                      "name": "bcText",
-                      "fill": "$--muted-foreground",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "Notes / Product / Force update strategy",
-                      "fontFamily": "Inter",
-                      "fontSize": 12,
-                      "fontWeight": "500"
-                    }
-                  ]
-                },
                 {
                   "type": "frame",
                   "id": "YsrBr",
@@ -6880,15 +6782,15 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "fill": "#FFFFFF",
-                  "cornerRadius": 8,
-                  "stroke": "$--border",
-                  "strokeWidth": 1,
+                  "stroke": "#00000000",
                   "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 12,
                   "padding": [
+                    8,
+                    8,
                     18,
-                    16
+                    8
                   ],
                   "children": [
                     {
@@ -7114,11 +7016,11 @@
                       "type": "icon",
                       "id": "XI4OT",
                       "name": "collapseIcon",
-                      "width": 18,
-                      "height": 18,
-                      "icon": "keyboard-off",
+                      "width": 20,
+                      "height": 20,
+                      "icon": "chevron-down",
                       "library": "lucide",
-                      "fill": "$--muted-foreground"
+                      "fill": "$--foreground"
                     }
                   ]
                 }

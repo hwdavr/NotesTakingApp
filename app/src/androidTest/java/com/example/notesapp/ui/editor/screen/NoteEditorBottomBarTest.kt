@@ -2,6 +2,7 @@ package com.example.notesapp.ui.editor.screen
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -79,6 +80,8 @@ class NoteEditorBottomBarTest {
         composeRule.onNodeWithTag("editor_toggle_formatting").performClick()
         // Now formatting bottom bar is shown
         composeRule.onNodeWithTag("editor_formatting_bottom_bar").assertIsDisplayed()
+        composeRule.onNodeWithTag("editor_hide_formatting")
+            .assertContentDescriptionEquals("Hide formatting toolbar")
         assertTrue(composeRule.onAllNodesWithTag("editor_default_bottom_bar").fetchSemanticsNodes().isEmpty())
         // Click hide button
         composeRule.onNodeWithTag("editor_hide_formatting").performClick()

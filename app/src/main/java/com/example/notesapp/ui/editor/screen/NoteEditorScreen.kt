@@ -62,7 +62,6 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.InsertEmoticon
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MoreHoriz
@@ -2256,15 +2255,6 @@ private fun DefaultBottomBar(
                 )
             }
         }
-        item {
-            EditorBarButton(onClick = { handleToolbarClick {} }) {
-                Icon(
-                    Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                    contentDescription = stringResource(R.string.editor_close_description),
-                    tint = colors.textSecondary
-                )
-            }
-        }
     }
 }
 
@@ -2527,8 +2517,8 @@ private fun FormattingBottomBar(
                 modifier = Modifier.testTag("editor_hide_formatting")
             ) {
                 Icon(
-                    Icons.Outlined.KeyboardHide,
-                    contentDescription = stringResource(R.string.editor_keyboard_hide_description),
+                    Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = stringResource(R.string.editor_hide_formatting_description),
                     tint = colors.textSecondary
                 )
             }
