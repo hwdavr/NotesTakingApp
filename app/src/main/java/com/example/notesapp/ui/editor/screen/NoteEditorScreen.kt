@@ -70,9 +70,7 @@ import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -127,7 +125,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -138,7 +135,6 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.example.notesapp.R
 import com.example.notesapp.domain.emoji.EmojiCategory
-import com.example.notesapp.domain.folder.Folder
 import com.example.notesapp.ui.editor.components.BasicBlocksPanel
 import com.example.notesapp.ui.editor.components.ChartBlockCard
 import com.example.notesapp.ui.editor.components.CodeBlockCard
@@ -296,7 +292,6 @@ fun NoteEditorScreen(
             onAddColumn = { blockId -> viewModel.addChartColumn(blockId) },
             onTableAction = viewModel::onChartTableAction
         ),
-        onFolderSelected = viewModel::onFolderSelected,
         onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
         onBlockFocused = viewModel::setFocusedBlock,
         onSelectionChange = viewModel::updateSelection,
@@ -394,7 +389,6 @@ fun NoteEditorScreenContent(
     onAddTable: () -> Unit,
     onTableCellChange: (blockId: String, rowIndex: Int, cellIndex: Int, value: String) -> Unit,
     chartCallbacks: ChartBlockCallbacks? = null,
-    onFolderSelected: (String?) -> Unit,
     onToggleFormattingToolbar: () -> Unit,
     onBlockFocused: (String?) -> Unit,
     onSelectionChange: (Int, Int) -> Unit,
@@ -440,7 +434,6 @@ fun NoteEditorScreenContent(
         NoteEditorLoading(parentPadding = parentPadding)
         return
     }
-    var folderMenuExpanded by remember { mutableStateOf(false) }
     var showNoteActionsSheet by remember { mutableStateOf(false) }
     var showEmojiPicker by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = showEmojiPicker) { showEmojiPicker = false }
@@ -451,13 +444,6 @@ fun NoteEditorScreenContent(
     var renameTextFieldValue by remember { mutableStateOf("") }
     var activeFullscreenMermaidBlock by remember { mutableStateOf<EditorBlock.MermaidBlock?>(null) }
     val webBookmarkInteractionState = rememberWebBookmarkInteractionState()
-    val selectedFolder = state.availableFolders.firstOrNull { it.id == state.folderId }
-    val breadcrumbText =
-        buildBreadcrumb(
-            folders = state.availableFolders,
-            selectedFolder = selectedFolder,
-            title = state.title.ifBlank { stringResource(R.string.editor_untitled_note) }
-        )
     val activeTextBlockId = state.activeTextBlockId()
     val activeBlock = state.document.blocks.find { it.id == activeTextBlockId }
     val isCheckboxActive = activeBlock is EditorBlock.TextBlock && activeBlock.type == "checkbox"
@@ -513,68 +499,6 @@ fun NoteEditorScreenContent(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                ExposedDropdownMenuBox(
-                    expanded = folderMenuExpanded,
-                    onExpandedChange = {
-                        if (state.isEditable) {
-                            folderMenuExpanded = !folderMenuExpanded
-                        }
-                    }
-                ) {
-                    Surface(
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
-                        color = colors.border,
-                        shape = RoundedCornerShape(8.dp),
-                        onClick = {
-                            if (state.isEditable) {
-                                folderMenuExpanded = true
-                            }
-                        }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Link,
-                                contentDescription = null,
-                                tint = colors.textSecondary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(
-                                text = breadcrumbText,
-                                modifier = Modifier.weight(1f),
-                                color = colors.textSecondary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    ExposedDropdownMenu(
-                        expanded = folderMenuExpanded,
-                        onDismissRequest = { folderMenuExpanded = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.editor_no_folder)) },
-                            onClick = {
-                                onFolderSelected(null)
-                                folderMenuExpanded = false
-                            }
-                        )
-                        state.availableFolders.forEach { folder ->
-                            DropdownMenuItem(
-                                text = { Text(folder.name) },
-                                onClick = {
-                                    onFolderSelected(folder.id)
-                                    folderMenuExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
                 Surface(
                     modifier = Modifier
                         .weight(1f)
@@ -2663,25 +2587,6 @@ private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
     disabledBorderColor = LocalAppColors.current.transparent,
     cursorColor = LocalAppColors.current.primary
 )
-private fun buildBreadcrumb(folders: List<Folder>, selectedFolder: Folder?, title: String): String {
-    if (selectedFolder == null) {
-        return "Notes / $title"
-    }
-    val byId = folders.associateBy { it.id }
-    val names = mutableListOf<String>()
-    var current: Folder? = selectedFolder
-    while (current != null) {
-        names += current.name
-        current = current.parentFolderId?.let(byId::get)
-    }
-    return buildString {
-        append("Notes")
-        append(" / ")
-        append(names.asReversed().joinToString(" / "))
-        append(" / ")
-        append(title)
-    }
-}
 
 @Composable
 private fun ShimmerEffect() {

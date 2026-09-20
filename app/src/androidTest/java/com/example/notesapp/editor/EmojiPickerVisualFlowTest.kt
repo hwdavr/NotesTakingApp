@@ -273,7 +273,6 @@ class EmojiPickerVisualFlowTest {
             onImageChange = { _, _, _ -> },
             onAddTable = {},
             onTableCellChange = { _, _, _, _ -> },
-            onFolderSelected = {},
             onToggleFormattingToolbar = {},
             onBlockFocused = {},
             onSelectionChange = { _, _ -> },

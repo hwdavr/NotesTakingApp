@@ -133,7 +133,6 @@ class NoteEditorUndoRedoContentTest {
                 onImageChange = viewModel::updateImageBlock,
                 onAddTable = {},
                 onTableCellChange = viewModel::updateTableCell,
-                onFolderSelected = viewModel::onFolderSelected,
                 onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
                 onBlockFocused = { viewModel.setFocusedBlock(it) },
                 onSelectionChange = viewModel::updateSelection,

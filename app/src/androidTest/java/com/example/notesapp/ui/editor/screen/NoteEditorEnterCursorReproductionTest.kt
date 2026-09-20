@@ -138,7 +138,6 @@ class NoteEditorEnterCursorReproductionTest {
                 onImageChange = viewModel::updateImageBlock,
                 onAddTable = {},
                 onTableCellChange = viewModel::updateTableCell,
-                onFolderSelected = viewModel::onFolderSelected,
                 onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
                 onBlockFocused = { blockId ->
                     viewModel?.setFocusedBlock(blockId)

@@ -66,7 +66,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },
@@ -78,6 +77,11 @@ class NoteEditorRichDocumentScreenTest {
         assertEditorNodeExists("editor_text_block")
         assertEditorNodeExists("editor_image_block")
         assertEditorNodeExists("editor_table_block")
+        assertTrue(
+            composeRule.onAllNodesWithTag("note_editor_folder_breadcrumb", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isEmpty()
+        )
     }
 
     private fun assertEditorNodeExists(testTag: String) {
@@ -125,7 +129,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },
@@ -179,7 +182,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = { addedTable = true },
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = { isFormattingVisible.value = !isFormattingVisible.value },
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },
@@ -241,7 +243,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },
@@ -297,7 +298,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = { focusedBlockId = it },
                 onSelectionChange = { _, _ -> },
@@ -359,7 +359,6 @@ class NoteEditorRichDocumentScreenTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = { focusedBlockId = it },
                 onSelectionChange = { _, _ -> },

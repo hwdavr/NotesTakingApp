@@ -165,7 +165,6 @@ class NoteEditorBottomBarBugReproductionTest {
                 onTableCellChange = { _, _, _, _ -> },
                 onOpenDiscussion = onOpenDiscussion,
                 discussionState = discussionStateProvider(),
-                onFolderSelected = {},
                 onToggleFormattingToolbar = {},
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },

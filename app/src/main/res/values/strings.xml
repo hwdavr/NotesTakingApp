@@ -121,7 +121,6 @@
     <string name="move_to_recent_folders">Recent folders</string>
     <string name="move_to_folder_results">Folders</string>
     <string name="move_to_empty_folders">No folders found.</string>
-    <string name="editor_no_folder">No folder</string>
     <string name="editor_title_placeholder">Untitled note</string>
     <string name="editor_done">Done</string>
     <string name="editor_delete_action">Archive</string>

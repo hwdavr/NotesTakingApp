@@ -130,7 +130,6 @@ class NoteEditorUndoRedoLifecycleTest {
                 onImageChange = vm::updateImageBlock,
                 onAddTable = {},
                 onTableCellChange = vm::updateTableCell,
-                onFolderSelected = vm::onFolderSelected,
                 onToggleFormattingToolbar = vm::toggleFormattingToolbar,
                 onBlockFocused = vm::setFocusedBlock,
                 onSelectionChange = vm::updateSelection,

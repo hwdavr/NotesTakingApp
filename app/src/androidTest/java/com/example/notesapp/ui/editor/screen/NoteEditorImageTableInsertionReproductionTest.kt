@@ -117,7 +117,6 @@ class NoteEditorImageTableInsertionReproductionTest {
                 onImageChange = viewModel::updateImageBlock,
                 onAddTable = viewModel::addTableBlock,
                 onTableCellChange = viewModel::updateTableCell,
-                onFolderSelected = {},
                 onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
                 onBlockFocused = viewModel::setFocusedBlock,
                 onSelectionChange = viewModel::updateSelection,

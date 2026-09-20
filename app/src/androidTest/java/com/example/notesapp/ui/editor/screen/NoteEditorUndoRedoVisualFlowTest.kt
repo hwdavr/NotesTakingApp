@@ -143,7 +143,6 @@ class NoteEditorUndoRedoVisualFlowTest {
                 onImageChange = viewModel::updateImageBlock,
                 onAddTable = {},
                 onTableCellChange = viewModel::updateTableCell,
-                onFolderSelected = viewModel::onFolderSelected,
                 onToggleFormattingToolbar = viewModel::toggleFormattingToolbar,
                 onBlockFocused = viewModel::setFocusedBlock,
                 onSelectionChange = viewModel::updateSelection,

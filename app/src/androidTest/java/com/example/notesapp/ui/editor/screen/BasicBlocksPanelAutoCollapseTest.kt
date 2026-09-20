@@ -63,7 +63,6 @@ class BasicBlocksPanelAutoCollapseTest {
                 onImageChange = { _, _, _ -> },
                 onAddTable = {},
                 onTableCellChange = { _, _, _, _ -> },
-                onFolderSelected = {},
                 onToggleFormattingToolbar = onToggleFormattingToolbar,
                 onBlockFocused = {},
                 onSelectionChange = { _, _ -> },
