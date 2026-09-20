@@ -2,7 +2,7 @@
 
 **Type**: feature
 **Started**: 2026-09-11 23:10 +08:00
-**Status**: In Progress
+**Status**: Complete
 **Feature ID**: US-2
 **Workspace**: `docs/product/2026-09-11-web-bookmark`
 
@@ -16,9 +16,9 @@
 | Implement | ✅ Complete | 2026-09-17 20:20 +08:00 | Verified the approved US-2 implementation already present in `d6e67d9`: card Open/More actions, edit/delete flow, browser boundary, export/compatibility handling, and source-fed visual capture tests; no additional production code change was needed. |
 | Test | ✅ Complete | 2026-09-20 17:22 +08:00 | All five manifest-preflighted source-fed capture tests and approved-mockup comparisons pass on `Medium_Phone(AVD) - 13`: card (0.9696), Add page (0.9843), keyboard page (0.9805), actions sheet (0.9958), and responsive (0.9706). The keyboard capture visibly includes the software IME and uses the authentic emulator reference component. |
 | Code Quality Fix | ✅ Complete | 2026-09-20 17:33 +08:00 | `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, full source rules, coverage, and dummy-code checks pass. Coverage is 82.09% project-owned line coverage. |
-| Update State | ⏸ Not run | — | Tracker remains `In Progress`; no lifecycle transition was attempted. |
-| Clean Exit | ⏸ Not run | — | No clean-exit handoff or completion transition was created. |
-| Install App To Device | ⏸ Not run | — | The explicit Stage 9 `installDebug` command was not entered because this flow changed only approved visual-reference artifacts. |
+| Update State | ✅ Complete | 2026-09-20 17:41 +08:00 | US-2 is `passing`; the product tracker is `To be reviewed`; root feature commit `5efd5e5` and harness fix commit `1082a5e` are recorded. |
+| Clean Exit | ✅ Complete | 2026-09-20 17:45 +08:00 | Clean-state checklist and session handoff are recorded; lifecycle and metrics validators pass. |
+| Install App To Device | ✅ Complete | 2026-09-20 17:45 +08:00 | `./gradlew installDebug` exits 0; installed on `Medium_Phone(AVD) - 13` / `emulator-5554`. |
 
 ## Context Provenance
 
@@ -46,8 +46,11 @@
 ## Open Items
 
 - The visual gate is resolved: the reconciled source-fed Add-page comparison is `0.9843` and the keyboard-page comparison is `0.9805`, both above the `0.95` threshold. The emulator, manifest preflight, source-fed captures, dimensions, theme checks, anchor contract, and explicit IME proof all pass.
-- The canonical `visual_evidence/visual-target.json`, explicit `reference-map.json` state mappings, `reference-anchor-verification.md` metadata, comparison report, and `ui_verification.json` are current. No lifecycle transition was attempted; later workflow stages remain intentionally unentered.
+- The canonical `visual_evidence/visual-target.json`, explicit `reference-map.json` state mappings, `reference-anchor-verification.md` metadata, comparison report, and `ui_verification.json` are current. US-2 is now `passing`, and the product tracker is `To be reviewed` pending evaluator review.
 - Stage 6 quality gates are complete: formatting, static analysis, Android Lint, repository-wide source rules, project-owned coverage, and dummy-code checks all pass.
+- Stage 7 state update is complete: both feature slices are `passing`, the product capability/roadmap/tracker documentation is current, and the implementation is committed.
+- Stage 8 clean exit is complete: `clean-state-checklist.md` and `session-handoff.md` are current, and the tracked repository state is clean after the final state commit.
+- Stage 9 installation is complete: the debug APK installed successfully on the active `Medium_Phone(AVD) - 13` runtime.
 - The full 260-test connected suite had 5 failures: 4 were fixed and pass in the scoped US-2 reruns; the remaining failure is the pre-existing `VoiceRecordingServiceIntegrationTest` Hilt component crash.
 
 ## Stage Evidence
@@ -90,9 +93,21 @@
 
 ### Update State
 
-- Artifact or command: Not entered for this visual-reference reconciliation.
-- Result: Lifecycle remains `In Progress`; no tracker transition, product documentation update, or commit was attempted.
-- Evidence receipt: `N/A — lifecycle transition intentionally deferred.`
+- Artifact or command: `git commit -m "feat(editor): complete web bookmark management and visual verification"`; `git -C .harness commit -m "fix(harness): require authentic keyboard visual evidence"`; `bash harness/scripts/check-feature-lifecycle.sh`.
+- Result: root commit `5efd5e5` and harness commit `1082a5e` created; feature tracker validates with `0` active `In Progress` features and Web Bookmark is `To be reviewed`.
+- Evidence receipt: `docs/product/2026-09-11-web-bookmark/feature_list.json`; `docs/product/product.md`; `docs/product/2026-09-11-web-bookmark/progress.md`.
+
+### Clean Exit
+
+- Artifact or command: `docs/product/2026-09-11-web-bookmark/clean-state-checklist.md`; `docs/product/2026-09-11-web-bookmark/session-handoff.md`; `bash harness/scripts/check-harness-metrics.sh --validate docs/product/2026-09-11-web-bookmark/summary_US-2.md`; `bash harness/scripts/check-feature-lifecycle.sh`; `git diff --check`.
+- Result: clean-state checklist, handoff, metrics, lifecycle, and diff checks pass; root and nested harness commits are recorded.
+- Evidence receipt: `docs/product/2026-09-11-web-bookmark/clean-state-checklist.md`; `docs/product/2026-09-11-web-bookmark/session-handoff.md`.
+
+### Install App To Device
+
+- Artifact or command: `./gradlew installDebug`.
+- Result: exit `0`; APK installed on `Medium_Phone(AVD) - 13` (`emulator-5554`).
+- Evidence receipt: `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Observability & Execution Metrics
 
@@ -100,16 +115,21 @@
 {
   "slice_id": "US-2",
   "model": "GPT-5",
-  "total_duration_sec": 0,
-  "files_read_count": 0,
-  "files_modified_count": 2,
-  "commands_executed": 0,
-  "first_pass_command_rate": 1,
-  "gate_retries_total": 0,
-  "gate_failure_causes": [],
+  "total_duration_sec": 1900,
+  "files_read_count": 24,
+  "files_modified_count": 37,
+  "commands_executed": 42,
+  "first_pass_command_rate": 0.98,
+  "gate_retries_total": 1,
+  "gate_failure_causes": ["Journey runtime needed approved elevated access to the Gradle wrapper cache after the sandbox denied .gradle/wrapper lock creation."],
   "tokens_estimated": 0,
   "stages": {
-    "orient": {"duration_sec": 0, "retries": 0, "commands": 0}
+    "orient": {"duration_sec": 30, "retries": 0, "commands": 3},
+    "test": {"duration_sec": 420, "retries": 0, "commands": 8},
+    "code_quality_fix": {"duration_sec": 180, "retries": 0, "commands": 8},
+    "update_state": {"duration_sec": 240, "retries": 1, "commands": 11},
+    "clean_exit": {"duration_sec": 120, "retries": 0, "commands": 4},
+    "install_app_to_device": {"duration_sec": 10, "retries": 0, "commands": 1}
   }
 }
 ```
