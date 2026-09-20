@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "platform": "android",
+  "device": "Medium_Phone(AVD) - 13",
+  "logical_size_dp": {
+    "width": 411,
+    "height": 914
+  },
+  "physical_size_px": {
+    "width": 1080,
+    "height": 2400
+  },
+  "density_dpi": 420,
+  "components": {
+    "keyboard": {
+      "type": "software_keyboard",
+      "logical_bounds_dp": {
+        "x": 0,
+        "y": 580.95,
+        "width": 411.43,
+        "height": 333.33
+      },
+      "physical_bounds_px": {
+        "x": 0,
+        "y": 1525,
+        "width": 1080,
+        "height": 875
+      },
+      "dock_position": "bottom",
+      "navigation_bar_included": true,
+      "variants": {
+        "light": "keyboard_light.png",
+        "dark": "keyboard_dark.png"
+      },
+      "capture_method": "UiAutomation.takeScreenshot() from an instrumented VisualFlowTest while the real emulator IME is visible"
+    }
+  }
+}

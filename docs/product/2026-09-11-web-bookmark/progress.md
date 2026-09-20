@@ -81,3 +81,14 @@
 - Known risk or unresolved issue: Golden-baseline promotion remains intentionally awaiting user
   approval; the unrelated full-suite VoiceRecordingService Hilt crash is unchanged.
 - Next best step: Approve golden promotion separately if the feature should be closed.
+
+### Session 006
+
+- Date: 2026-09-20
+- Goal: Continue US-2 after the approved Add-page and keyboard-reference reconciliation.
+- Completed: Reconciled the source-fed Add-page and authentic AVD-keyboard references; all five visual comparisons pass. Completed Stage 6 quality gates and refreshed the scoped US-2 instrumented acceptance classes plus JVM export/compatibility tests.
+- Verification run: `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, full source rules, coverage (82.09%), dummy-code scan, 7/7 critical journeys, 21/21 scoped US-2 instrumented tests, and scoped JVM export/compatibility tests pass. Visual evaluate, UI verification, acceptance traceability, and platform evidence remain green.
+- Evidence captured: Updated `summary_US-2.md`, `feature_list.json`, `product.md`, visual comparison report, and source-fed reference assets; lifecycle tracker moved to `To be reviewed` after both US-1 and US-2 reached `passing`.
+- Commits: Pending Stage 7 commit and Stage 8 clean-exit handoff.
+- Known risk or unresolved issue: The `.harness` submodule remains dirty with harness-retrospective changes and is intentionally not included in the root feature commit; the unrelated full-suite `VoiceRecordingServiceIntegrationTest` Hilt crash remains documented from earlier sessions.
+- Next best step: Complete the Stage 7 commit, write the final session handoff, validate clean-exit metrics, and install the debug app on the active emulator.

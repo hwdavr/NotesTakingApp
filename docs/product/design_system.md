@@ -1,7 +1,7 @@
 # Notes Taking App Design System
 
 **Status**: Active project-wide UI contract  
-**Last synchronized with code**: 2026-08-14  
+**Last synchronized with code**: 2026-09-20
 **Applies to**: Requirements, UX design, mockups, Compose implementation, UI tests, visual verification, and review
 
 ---
@@ -150,6 +150,56 @@ Dedicated semantic tokens for the Note Editor Code Block syntax highlighter. Add
 - Rounded surface corners (16dp top radius for bottom sheets; 12dp for cards and dialogs).
 - Respect `WindowInsets.safeDrawing`, status bars, navigation bars, and gesture insets.
 
+### Reference Components
+
+To improve mockup accuracy and prevent generated designs from inventing Android system UI,
+standardized system components are captured from real Android emulator executions and maintained
+in the project reference-component repository.
+
+#### Storage Architecture And Matching Rule
+
+Reference components are stored by concrete emulator device name under:
+
+```text
+docs/product/reference_components/<emulator_device_name>/
+```
+
+Every feature's canonical `visual_evidence/visual-target.json` declares the `device`,
+`appearance`, and `logical_size_dp`. Mockup generation and visual verification must resolve the
+reference-component directory matching those values. The device manifest in each directory is the
+source of truth for physical bounds, density, and component variants.
+
+#### Software Keyboard Reference Component
+
+Android software keyboards include platform- and locale-specific key layouts, action keys,
+suggestion/utility rows, navigation controls, and gesture-inset treatment. They must be captured
+from the target emulator rather than synthesized in a mockup.
+
+| Emulator device | Appearance | Physical bounds (px) | Logical bounds (dp) | Component asset |
+|---|---|---:|---:|---|
+| `Medium_Phone(AVD) - 13` | Light | `x: 0, y: 1525, w: 1080, h: 875` | `x: 0, y: 580.95, w: 411.43, h: 333.33` | [`docs/product/reference_components/Medium_Phone(AVD) - 13/keyboard_light.png`](reference_components/Medium%20Phone%28AVD%29%20-%2013/keyboard_light.png) |
+| `Medium_Phone(AVD) - 13` | Dark | `x: 0, y: 1525, w: 1080, h: 875` | `x: 0, y: 580.95, w: 411.43, h: 333.33` | [`docs/product/reference_components/Medium_Phone(AVD) - 13/keyboard_dark.png`](reference_components/Medium%20Phone%28AVD%29%20-%2013/keyboard_dark.png) |
+
+Component metadata and the physical crop boundary are declared in
+[`manifest.json`](reference_components/Medium%20Phone%28AVD%29%20-%2013/manifest.json).
+
+#### Keyboard Invariants And Generation Protocol
+
+1. **Real emulator capture**: reference assets must be authentic pixel crops from a booted target
+   emulator, produced from an in-test `UiAutomation.takeScreenshot()` while the real IME is visible.
+2. **Device-aligned docking**: keyboard-visible mockups must dock the matching component at the
+   manifest's bottom-aligned physical bounds; the app content above it must not overlap the IME.
+3. **No hallucinated keyboards**: mockup workflows must composite or strictly reference the
+   authentic emulator asset instead of generating synthetic keys or incorrect proportions.
+4. **Dynamic-region handling**: keyboard-visible states in `visual-target.json` must declare
+   `{ "kind": "keyboard", "handling": "fixture" }` with a rationale explaining the fixed
+   emulator locale and focused-field fixture.
+
+The repeatable generator is
+`bash harness/scripts/generate-keyboard-reference-components.sh`; the visual-evidence contract
+validates the device manifest and both appearance assets before a keyboard-visible feature can
+pass.
+
 ## Accessibility And Testability
 
 - Every interactive element has a localized label/content description and a stable `testTag`.
@@ -158,6 +208,8 @@ Dedicated semantic tokens for the Note Editor Code Block syntax highlighter. Add
 - Minimum target size: 48×48dp, including icon-only actions.
 - Support TalkBack traversal, keyboard focus, RTL, font scaling, narrow phones, landscape, and tablets.
 - Never rely on gesture-only behavior when an accessible button/action alternative is practical.
+- Keyboard-visible mockups use the authentic emulator reference component matching the visual
+  target device and appearance.
 
 ## Workflow Requirements
 

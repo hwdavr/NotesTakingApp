@@ -26,7 +26,7 @@ The previously generated generic mockups remain in `design/` only as superseded 
 
 ## Conditional Keyboard-Visible Mockup Contract
 
-The Add/Edit Web Bookmark full page contains one URL text field. The keyboard-visible mockup `design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png` shows the page still open above the IME with the web-address field focused and the bottom-pinned Save/Cancel actions reachable. The actions bottom sheet has no text input and is not present while the URL page is typing; tapping the URL field does not dismiss the page. `imePadding()` keeps the field and bottom action area reachable.
+The Add/Edit Web Bookmark full page contains one URL text field. The keyboard-visible mockup `design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png` shows the page still open above the authentic `Medium_Phone(AVD) - 13` IME with the web-address field focused and the bottom-pinned Save/Cancel actions reachable. The actions bottom sheet has no text input and is not present while the URL page is typing; tapping the URL field does not dismiss the page. `imePadding()` keeps the field and bottom action area reachable.
 
 ## Screens Covered
 
@@ -256,8 +256,9 @@ All copy is localized through `stringResource()`. Do not put raw metadata or exc
 ### Design Assets
 
 - **Source-fed shell baseline**: `design/baseline_editor_basic_blocks_top.png` — unchanged editor shell captured inside the active emulator test.
-- **Baseline-derived base page**: `design/mockup_add_web_bookmark_full_page_from_baseline_v2.png` — full-page Add mode with no raised form container and bottom-aligned actions.
-- **Baseline-derived keyboard page**: `design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png` — the full page stays open with the focused Web address field and bottom-aligned Save/Cancel actions above the IME.
+- **Source-fed approved base page**: `design/mockup_add_web_bookmark_full_page_from_baseline_v2.png` — reconciled from the approved production app-shell capture after visual review on 2026-09-20; it preserves the full-page Add mode, current guidance copy, field treatment, and bottom-aligned actions.
+- **Source-fed approved keyboard page**: `design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png` — reconciled from the approved production keyboard capture after visual review on 2026-09-20; it uses the real `Medium_Phone(AVD) - 13` keyboard component and preserves the focused field plus bottom-aligned actions above the IME.
+- **Authentic emulator keyboard reference**: `docs/product/reference_components/Medium_Phone(AVD) - 13/keyboard_light.png` — the real light Gboard component matching the canonical visual target; the device manifest also contains the dark variant.
 
 ### Out Of Scope For This Design
 

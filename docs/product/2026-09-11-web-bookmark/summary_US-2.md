@@ -10,21 +10,21 @@
 
 | Stage | Status | Timestamp | Notes |
 |---|---|---|---|
-| Orient | ✅ Complete | 2026-09-11 23:10 +08:00 | Selected the only active workspace and highest-priority incomplete slice; lifecycle and context-index gates passed. |
-| Setup | ✅ Complete | 2026-09-11 23:11 +08:00 | `emulator-5554` is connected and available for instrumented/platform verification. |
-| Verify Baseline | ✅ Complete | 2026-09-11 23:12 +08:00 | Source rules, debug assembly, and JVM unit/integration tests all passed on the frozen US-1 codebase. |
-| Implement | ✅ Complete | 2026-09-11 23:48 +08:00 | Card Open/More actions, edit/delete flow, browser boundary, export/compatibility handling, and source-fed visual capture tests implemented. |
-| Test | ✅ Complete | 2026-09-11 23:56 +08:00 | All 17 US-2 acceptance rows pass in scoped JVM/emulator runs; platform evidence and five visual captures are recorded. |
-| Code Quality Fix | ✅ Complete | 2026-09-11 23:57 +08:00 | Full source rules, Ktlint, Detekt, debug assembly, JVM tests, Android-test compilation, and diff checks pass. |
-| Update State | ✅ Complete | 2026-09-12 07:28 +08:00 | `feature_list.json` contains per-Test-ID evidence; the actions sheet now matches the approved mockup and the capture/comparison scope is corrected; lifecycle remains In Progress pending visual golden approval. |
-| Clean Exit | Pending | — | — |
-| Install App To Device | ✅ Complete | 2026-09-11 23:56 +08:00 | Connected test tasks installed and exercised the debug APK on `emulator-5554`. |
+| Orient | ✅ Complete | 2026-09-17 20:17 +08:00 | Continued the preselected `US-2` slice; lifecycle and context-index gates passed, with approved UI/platform context loaded. |
+| Setup | ✅ Complete | 2026-09-17 20:18 +08:00 | Started the approved `Medium_Phone` AVD; `adb devices` reports `emulator-5554` as `device` and `sys.boot_completed=1`. |
+| Verify Baseline | ✅ Complete | 2026-09-17 20:20 +08:00 | `check-full-source-rules.sh`, `assembleDebug`, and `testDebugUnitTest` all exited 0 on the current US-1 + approved US-2 source state. |
+| Implement | ✅ Complete | 2026-09-17 20:20 +08:00 | Verified the approved US-2 implementation already present in `d6e67d9`: card Open/More actions, edit/delete flow, browser boundary, export/compatibility handling, and source-fed visual capture tests; no additional production code change was needed. |
+| Test | ✅ Complete | 2026-09-20 17:22 +08:00 | All five manifest-preflighted source-fed capture tests and approved-mockup comparisons pass on `Medium_Phone(AVD) - 13`: card (0.9696), Add page (0.9843), keyboard page (0.9805), actions sheet (0.9958), and responsive (0.9706). The keyboard capture visibly includes the software IME and uses the authentic emulator reference component. |
+| Code Quality Fix | ✅ Complete | 2026-09-20 17:33 +08:00 | `assembleDebug`, `ktlintCheck`, `detekt`, `lintDebug`, full source rules, coverage, and dummy-code checks pass. Coverage is 82.09% project-owned line coverage. |
+| Update State | ⏸ Not run | — | Tracker remains `In Progress`; no lifecycle transition was attempted. |
+| Clean Exit | ⏸ Not run | — | No clean-exit handoff or completion transition was created. |
+| Install App To Device | ⏸ Not run | — | The explicit Stage 9 `installDebug` command was not entered because this flow changed only approved visual-reference artifacts. |
 
 ## Context Provenance
 
 - Canonical requirements and Rule Applicability: `docs/product/2026-09-11-web-bookmark/sprint-contract.md#Rule Applicability Contract`
 - Canonical execution metadata: `docs/product/2026-09-11-web-bookmark/feature_list.json#features[id=US-2]`
-- Source hashes: `sprint-contract.md` SHA-256 `7b6ae5932b23a7cef56fdf9e4dd305391a140e43ba1882e2df61003ddd853216`; current `feature_list.json` SHA-256 `99cd0cef5a73f86340821b878d84d6ec4769c50e1829f8a2781424690e13d79f`
+- Source hashes: `sprint-contract.md` SHA-256 `a23cd96fe1057a769b48e136eaedb5d7afacedc4047b33b78090b653861ca041`; current `feature_list.json` SHA-256 `816c1b026c9d37df89bdf24c6bf783aeec9d2823b92796a1d36c8667574ff1ec`.
 - Generated context index: `bash harness/scripts/print-context-index.sh --feature-dir docs/product/2026-09-11-web-bookmark --slice US-2`
 - Rule decisions: unchanged unless an approved canonical update is linked.
 
@@ -33,6 +33,10 @@
 - Continue the existing `In Progress` Web Bookmark workspace; do not create a second feature workspace.
 - Implement only US-2, preserving the shipped US-1 model, JSON shape, URL validation contract, tile tag, and editor reload guard.
 - Treat the Android browser resolver and no-handler behavior as a real platform boundary, not a JVM-only substitute.
+- Bind all five US-2 visual captures to the approved light `Medium_Phone(AVD) - 13`, `411x914 dp`, `en-US` target through `visual_evidence/visual-target.json`; the reference map contains state IDs only.
+- Visual capture methods now save active-window PNGs, and the five fresh captures pass device-space validation. After approval, the Add-page and keyboard-page mockups were reconciled to the reviewed source-fed captures; both perceptual comparisons now pass.
+- Keyboard visual evidence now uses an explicit Activity-backed IME proof: the test requests `showSoftInput()`, polls `WindowInsetsCompat.Type.ime()`, and asserts visibility before capture; the visual contract rejects keyboard methods without that proof.
+- The required Skill tool is not exposed in this session; the corresponding repository `SKILL.md` instructions were read and followed as the available fallback, and this limitation is recorded rather than claiming literal Skill-tool invocation.
 
 ## Knowledge Artifacts
 
@@ -41,7 +45,9 @@
 
 ## Open Items
 
-- Promote approved visual captures to `UX/golden-baselines/` and run the final visual-evidence evaluation; the current contract intentionally stops at the approval boundary. The mockup-aligned action-sheet comparison uses the production editor/card backdrop and approved v2 reference with a scoped score of `0.9958`; the responsive capture is anchor-only.
+- The visual gate is resolved: the reconciled source-fed Add-page comparison is `0.9843` and the keyboard-page comparison is `0.9805`, both above the `0.95` threshold. The emulator, manifest preflight, source-fed captures, dimensions, theme checks, anchor contract, and explicit IME proof all pass.
+- The canonical `visual_evidence/visual-target.json`, explicit `reference-map.json` state mappings, `reference-anchor-verification.md` metadata, comparison report, and `ui_verification.json` are current. No lifecycle transition was attempted; later workflow stages remain intentionally unentered.
+- Stage 6 quality gates are complete: formatting, static analysis, Android Lint, repository-wide source rules, project-owned coverage, and dummy-code checks all pass.
 - The full 260-test connected suite had 5 failures: 4 were fixed and pass in the scoped US-2 reruns; the remaining failure is the pre-existing `VoiceRecordingServiceIntegrationTest` Hilt component crash.
 
 ## Stage Evidence
@@ -72,21 +78,21 @@
 
 ### Test
 
-- Artifact or command: `bash harness/scripts/check-acceptance-test-traceability.sh docs/product/2026-09-11-web-bookmark --evaluate US-2`; `bash harness/scripts/check-platform-evidence.sh docs/product/2026-09-11-web-bookmark --evaluate --slice US-2`
-- Result: acceptance traceability `17/17 PASS`; platform matrix and real `ACTION_VIEW`/PackageManager evidence `PASS`; scoped card/actions/platform/journey/visual runs pass on `emulator-5554`; scoped export/compatibility JVM tests pass.
-- Evidence receipt: `docs/product/2026-09-11-web-bookmark/feature_list.json#features[id=US-2].evidence`; `docs/product/2026-09-11-web-bookmark/visual_evidence/`
+- Artifact or command: `./gradlew :app:compileDebugAndroidTestKotlin`; `bash harness/scripts/check-full-source-rules.sh`; `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-09-11-web-bookmark --planning`; `bash harness/scripts/check-ui-verification-artifact.sh docs/product/2026-09-11-web-bookmark`; `bash harness/scripts/check-acceptance-test-traceability.sh docs/product/2026-09-11-web-bookmark --evaluate US-2`; `bash harness/scripts/check-platform-evidence.sh docs/product/2026-09-11-web-bookmark --evaluate --slice US-2`; `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-09-11-web-bookmark --evaluate`
+- Result: Android-test compilation, full source rules, visual planning contract, UI-verification artifact, acceptance traceability, and platform evidence pass. All five source-fed tests, device-space/theme/anchor checks, and approved-mockup comparisons pass; the evaluate contract exits `0`.
+- Evidence receipt: `docs/product/2026-09-11-web-bookmark/feature_list.json#features[id=US-2].evidence`; `docs/product/2026-09-11-web-bookmark/visual_evidence/visual-target.json`; `docs/product/2026-09-11-web-bookmark/visual_evidence/reference-map.json`; `docs/product/2026-09-11-web-bookmark/ui_verification.json`; `app/build/reports/kover/reportDebug.xml`
 
 ### Code Quality Fix
 
-- Artifact or command: `./gradlew ktlintCheck detekt`; `bash harness/scripts/check-full-source-rules.sh`; `git diff --check`
-- Result: all commands exit `0`; the editor method/function thresholds were restored by isolating bookmark interaction state and overlays.
-- Evidence receipt: `app/build/reports/ktlint/`; `app/build/reports/detekt/`
+- Artifact or command: `./gradlew assembleDebug`; `./gradlew ktlintCheck`; `./gradlew detekt`; `./gradlew lintDebug`; `bash harness/scripts/check-full-source-rules.sh`; `bash harness/scripts/check-coverage.sh app/build/reports/kover/reportDebug.xml`; dummy-code scan.
+- Result: all commands exit `0`; project-owned line coverage is `82.09%` (`6253/7617`); no dummy-code markers were found.
+- Evidence receipt: `app/build/reports/kover/reportDebug.xml`; Gradle quality reports; full-source rule output.
 
 ### Update State
 
-- Artifact or command: `bash harness/scripts/check-feature-lifecycle.sh`; `bash harness/scripts/check-visual-evidence-contract.sh docs/product/2026-09-11-web-bookmark --planning`
-- Result: lifecycle remains valid with Web Bookmark as the sole In Progress feature; planning visual contract passes; final evaluate is intentionally pending golden-baseline approval.
-- Evidence receipt: `docs/product/2026-09-11-web-bookmark/feature_list.json`; `docs/product/2026-09-11-web-bookmark/visual_evidence/reference-anchor-verification.md`
+- Artifact or command: Not entered for this visual-reference reconciliation.
+- Result: Lifecycle remains `In Progress`; no tracker transition, product documentation update, or commit was attempted.
+- Evidence receipt: `N/A — lifecycle transition intentionally deferred.`
 
 ## Observability & Execution Metrics
 

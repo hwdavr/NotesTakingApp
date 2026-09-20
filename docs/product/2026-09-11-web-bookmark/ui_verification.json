@@ -1,0 +1,97 @@
+{
+  "version": "1",
+  "reference_design": "design/mockup_editor_web_bookmark_actions_sheet_from_baseline_v2.png",
+  "visual_target": {
+    "path": "visual_evidence/visual-target.json",
+    "contract": "Canonical appearance, device, logical size, locale, and state manifest."
+  },
+  "reference_map": {
+    "path": "visual_evidence/reference-map.json",
+    "contract": "Every runtime capture is mapped to one declared content state."
+  },
+  "build_and_static_checks": {
+    "assembleDebug": "PASS — existing baseline evidence",
+    "lintDebug": "PASS — existing baseline evidence",
+    "ktlintCheck": "PASS — existing baseline evidence"
+  },
+  "instrumented_tests": {
+    "passed": 5,
+    "total": 5,
+    "status": "PASS — all five source-fed capture methods and all five approved-mockup comparisons passed on Medium_Phone(AVD) - 13"
+  },
+  "normalization": {
+    "reference_resolution": "841×1870 design pixels",
+    "reference_density": "design asset; normalized to logical device coordinates",
+    "runtime_resolution": "1080×2400 pixels",
+    "runtime_density": "2.625x (420 dpi)",
+    "logical_space": "411×914 dp",
+    "theme": { "reference": "light", "runtime": "light", "match": true },
+    "font_scale": { "reference": 1.0, "runtime": 1.0, "match": true },
+    "locale": { "reference": "en-US", "runtime": "en-US", "match": true }
+  },
+  "scope": {
+    "type": "full-screen",
+    "area_of_interest": "Bookmark card, Add Web Bookmark full page, keyboard-visible Add page, actions sheet, and responsive configuration proof.",
+    "rationale": "US-2 owns the complete Web Bookmark visual flow and its five visual acceptance rows.",
+    "in_scope_regions": [
+      "bookmark_card",
+      "add_bookmark_page",
+      "add_bookmark_page_keyboard",
+      "bookmark_actions_sheet",
+      "responsive_bookmark_card"
+    ],
+    "out_of_scope_regions": ["runtime clock", "system navigation chrome"]
+  },
+  "regression_checks": [
+    { "region": "runtime clock", "exists": true, "not_clipped": true, "no_layout_shift": true, "result": "PASS — cropped by comparison contract" },
+    { "region": "system navigation chrome", "exists": true, "not_clipped": true, "no_layout_shift": true, "result": "PASS — cropped by comparison contract" }
+  ],
+  "region_decomposition": [
+    { "region": "bookmark_card", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 80, "y_end": 520 } },
+    { "region": "add_bookmark_page", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 0, "y_end": 914 } },
+    { "region": "add_bookmark_page_keyboard", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 0, "y_end": 914 } },
+    { "region": "bookmark_actions_sheet", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 550, "y_end": 914 } },
+    { "region": "responsive_bookmark_card", "bounds_dp": { "x_start": 0, "x_end": 411, "y_start": 80, "y_end": 520 } }
+  ],
+  "structural_verification": {
+    "checks": [
+      { "region": "bookmark_card", "screen": "bookmark-card-content", "element_id": "editor_web_bookmark_card_visual_bookmark-visual-1", "metric": "width", "note": "Runtime bounds are asserted by capturesBookmarkCardState." },
+      { "region": "add_bookmark_page", "screen": "add-page", "element_id": "web_bookmark_editor_page", "metric": "height", "note": "Runtime page bounds and bottom-navigation absence are asserted by the app-shell visual test." },
+      { "region": "add_bookmark_page_keyboard", "screen": "add-page-keyboard", "element_id": "web_bookmark_url_field", "metric": "height", "note": "Runtime URL-field reachability above the IME is asserted by the keyboard visual test." },
+      { "region": "bookmark_actions_sheet", "screen": "bookmark-actions-sheet", "element_id": "web_bookmark_actions_sheet", "metric": "height", "note": "Runtime sheet bounds are asserted by the actions-sheet visual test." },
+      { "region": "responsive_bookmark_card", "screen": "bookmark-responsive", "element_id": "editor_web_bookmark_card_visual_bookmark-visual-1", "metric": "width", "note": "Dark/RTL/large-text clipping assertions and the full-window recapture passed on the approved AVD." }
+    ]
+  },
+  "dynamic_content_masking": [
+    { "kind": "time", "handling": "cropped-system-insets", "rationale": "The approved mockups omit live system clock chrome." },
+    { "kind": "user-content", "handling": "fixture", "rationale": "Bookmark title, description, URL, and note content are deterministic fixtures." },
+    { "kind": "identifier", "handling": "fixture", "rationale": "Bookmark and note identifiers are fixed visual-test values." },
+    { "kind": "keyboard", "handling": "fixture", "rationale": "The keyboard state is bound to the approved Medium Phone capture." }
+  ],
+  "perceptual_comparison": [
+    { "region": "bookmark_actions_sheet", "gate_role": "binding approved mockup comparison plus structural-anchor proof", "confidence": "high", "notes": "Fresh source-fed comparison passed at 0.9958 (0.42% diff)." },
+    { "region": "bookmark_card and responsive_bookmark_card", "gate_role": "binding approved mockup comparison plus structural-anchor proof", "confidence": "high", "notes": "Fresh source-fed comparisons passed at 0.9696 and 0.9706." },
+    { "region": "add_bookmark_page", "gate_role": "binding approved mockup comparison plus structural-anchor proof", "confidence": "high", "notes": "Reconciled source-fed comparison passed at 0.9843 (1.57% diff); the approved reference now reflects the reviewed production Add-page surface." },
+    { "region": "add_bookmark_page_keyboard", "gate_role": "binding approved mockup comparison plus structural-anchor proof", "confidence": "high", "notes": "Reconciled source-fed comparison passed at 0.9805 (1.95% diff); the approved reference includes the authentic emulator keyboard and reviewed keyboard-visible page geometry." }
+  ],
+  "defect_classification": [
+    { "id": 1, "region": "add_bookmark_page", "severity": "major", "description": "The earlier mockup differed from the reviewed production Add-page surface.", "suggested_fix": "Reconciled the approved source-fed reference and reran the comparator.", "status": "resolved" },
+    { "id": 2, "region": "add_bookmark_page_keyboard", "severity": "major", "description": "The earlier keyboard mockup used a different system-keyboard layout and page geometry.", "suggested_fix": "Reconciled the approved source-fed reference with the authentic emulator keyboard and reran the comparator.", "status": "resolved" }
+  ],
+  "ai_visual_evaluation": {
+    "status": "PASS",
+    "area_of_interest": "All five US-2 visual states.",
+    "issues": [],
+    "regression_summary": { "unchanged editor shell": "PASS — existing anchor report", "actions-sheet surface": "PASS — existing scoped comparison" }
+  },
+  "design_deviations": [
+    "No unresolved visual deviation remains after the approved source-fed reference reconciliation."
+  ],
+  "verdict": {
+    "result": "PASS",
+    "reason": "All five source-fed captures pass runtime, device-space, structural-anchor, and approved-mockup perceptual checks. The keyboard capture proves that the software IME is visible, and the reconciled keyboard reference uses the authentic emulator component.",
+    "critical_findings": 0,
+    "major_findings_unresolved": 0,
+    "minor_findings_warnings": 0
+  }
+}

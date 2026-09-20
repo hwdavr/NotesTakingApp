@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.FakeWebBookmarkMetadataSource
@@ -86,6 +87,9 @@ class WebBookmarkAppShellVisualFlowTest {
         composeRule.waitUntil(WAIT_TIMEOUT_MS) {
             composeRule.onAllNodesWithTag("web_bookmark_editor_page").fetchSemanticsNodes().isNotEmpty()
         }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("web_bookmark_url_field")
+            .performTextInput("https://developer.android.com")
         composeRule.waitForIdle()
 
         val pageBounds = composeRule

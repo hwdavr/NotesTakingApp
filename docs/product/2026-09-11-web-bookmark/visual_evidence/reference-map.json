@@ -1,17 +1,11 @@
 {
-  "web_bookmark_card_content.png": "design/mockup_editor_web_bookmark_card_from_baseline_v2.png",
-  "web_bookmark_add_page.png": "design/mockup_add_web_bookmark_full_page_from_baseline_v2.png",
-  "web_bookmark_add_page_keyboard.png": "design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png",
-  "web_bookmark_actions_sheet.png": {
-    "reference": "design/mockup_editor_web_bookmark_actions_sheet_from_baseline_v2.png",
-    "mask": [
-      {
-        "x": 0,
-        "y": 0,
-        "w": 1080,
-        "h": 1600
-      }
-    ]
-  },
-  "web_bookmark_responsive.png": null
+  "version": 1,
+  "target_manifest": "visual-target.json",
+  "captures": {
+    "web_bookmark_card_content.png": { "state_id": "bookmark-card-content" },
+    "web_bookmark_add_page.png": { "state_id": "add-page" },
+    "web_bookmark_add_page_keyboard.png": { "state_id": "add-page-keyboard" },
+    "web_bookmark_actions_sheet.png": { "state_id": "bookmark-actions-sheet" },
+    "web_bookmark_responsive.png": { "state_id": "bookmark-responsive" }
+  }
 }

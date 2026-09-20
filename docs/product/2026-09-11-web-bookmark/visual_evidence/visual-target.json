@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "target_id": "web-bookmark-light-medium-phone-en-us",
+  "appearance": "light",
+  "device": "Medium_Phone(AVD) - 13",
+  "logical_size_dp": { "width": 411, "height": 914 },
+  "locale": "en-US",
+  "states": {
+    "bookmark-card-content": {
+      "content_state_id": "bookmark-card-content",
+      "reference": "design/mockup_editor_web_bookmark_card_from_baseline_v2.png",
+      "content_state": "Light editable note editor with one deterministic persisted bookmark card and its More action visible.",
+      "mask": [],
+      "dynamic_regions": [
+        { "kind": "time", "handling": "cropped-system-insets", "rationale": "System status and navigation chrome are cropped by the comparator because the approved mockup has no live clock." },
+        { "kind": "user-content", "handling": "fixture", "rationale": "The visual test supplies a deterministic bookmark title, description, and URL." },
+        { "kind": "identifier", "handling": "fixture", "rationale": "The bookmark block ID is the fixed visual fixture identifier." },
+        { "kind": "keyboard", "handling": "not-present", "rationale": "The base card state is captured without the software keyboard." }
+      ]
+    },
+    "add-page": {
+      "content_state_id": "add-page",
+      "reference": "design/mockup_add_web_bookmark_full_page_from_baseline_v2.png",
+      "content_state": "Light production Add Web Bookmark page with an empty URL field and bottom-pinned actions.",
+      "mask": [],
+      "dynamic_regions": [
+        { "kind": "time", "handling": "cropped-system-insets", "rationale": "System status and navigation chrome are runtime-dependent and excluded from the page comparison." },
+        { "kind": "user-content", "handling": "fixture", "rationale": "The Add page starts from a deterministic empty draft." },
+        { "kind": "identifier", "handling": "fixture", "rationale": "The production shell uses a deterministic test note and no user-generated identifier is displayed." },
+        { "kind": "keyboard", "handling": "not-present", "rationale": "The base Add page is captured before the URL field receives focus." }
+      ]
+    },
+    "add-page-keyboard": {
+      "content_state_id": "add-page-keyboard",
+      "reference": "design/mockup_add_web_bookmark_full_page_keyboard_from_baseline_v2.png",
+      "content_state": "Light Add Web Bookmark page with the deterministic HTTPS draft focused and the software keyboard visible.",
+      "mask": [],
+      "dynamic_regions": [
+        { "kind": "time", "handling": "cropped-system-insets", "rationale": "System status and navigation chrome are runtime-dependent and excluded from the page comparison." },
+        { "kind": "user-content", "handling": "fixture", "rationale": "The focused field uses the deterministic https://example.com draft from the test." },
+        { "kind": "identifier", "handling": "fixture", "rationale": "The page contains no user-generated identifier beyond the deterministic test fixture." },
+        { "kind": "keyboard", "handling": "fixture", "rationale": "The keyboard-visible reference was approved for the concrete Medium Phone runtime and the capture is produced after the real IME is shown." }
+      ]
+    },
+    "bookmark-actions-sheet": {
+      "content_state_id": "bookmark-actions-sheet",
+      "reference": "design/mockup_editor_web_bookmark_actions_sheet_from_baseline_v2.png",
+      "content_state": "Light editable note editor with the bookmark actions bottom sheet open over the deterministic card fixture.",
+      "mask": [],
+      "dynamic_regions": [
+        { "kind": "time", "handling": "cropped-system-insets", "rationale": "System status and navigation chrome are runtime-dependent." },
+        { "kind": "user-content", "handling": "mask", "mask": { "x": 0, "y": 0, "w": 1080, "h": 1600, "rationale": "The unchanged editor backdrop above the sheet is masked so the binding comparison focuses on the approved sheet surface and rows." }, "rationale": "The approved v2 comparison intentionally masks the unchanged editor backdrop while retaining the scrim, rounded sheet, handle, header, divider, and actions." },
+        { "kind": "identifier", "handling": "fixture", "rationale": "The card and note use deterministic visual fixture identifiers." },
+        { "kind": "keyboard", "handling": "not-present", "rationale": "The actions sheet is captured with no software keyboard visible." }
+      ]
+    },
+    "bookmark-responsive": {
+      "content_state_id": "bookmark-responsive",
+      "reference": "design/mockup_editor_web_bookmark_card_from_baseline_v2.png",
+      "content_state": "Light full-window responsive proof after the test has exercised dark theme, RTL, large text, and a narrow card width without clipping.",
+      "mask": [],
+      "dynamic_regions": [
+        { "kind": "time", "handling": "cropped-system-insets", "rationale": "System status and navigation chrome are runtime-dependent." },
+        { "kind": "user-content", "handling": "fixture", "rationale": "The responsive test uses the same deterministic bookmark fixture as the card state." },
+        { "kind": "identifier", "handling": "fixture", "rationale": "The responsive test uses the fixed visual bookmark ID." },
+        { "kind": "keyboard", "handling": "not-present", "rationale": "The responsive card proof is captured without the software keyboard." }
+      ]
+    }
+  }
+}

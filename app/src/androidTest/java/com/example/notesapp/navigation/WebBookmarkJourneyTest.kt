@@ -14,6 +14,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
@@ -172,14 +173,9 @@ class WebBookmarkJourneyTest {
         addBookmarkThroughAdvancedPanel(ADD_URL)
         addBookmarkThroughAdvancedPanel(SECOND_ADD_URL)
 
-        // Autosave is debounced, so poll the persisted document until both appends land.
-        val deadline = System.currentTimeMillis() + WAIT_TIMEOUT_MS
-        var persistedUrls = persistedBookmarkUrls(noteId)
-        while (persistedUrls.size < 2 && System.currentTimeMillis() < deadline) {
-            composeRule.waitForIdle()
-            Thread.sleep(POLL_INTERVAL_MS)
-            persistedUrls = persistedBookmarkUrls(noteId)
-        }
+        // Autosave is debounced, so wait for the persisted document until both appends land.
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) { persistedBookmarkUrls(noteId).size >= 2 }
+        val persistedUrls = persistedBookmarkUrls(noteId)
 
         assertEquals(
             "Persisted bookmark URLs should append in order when no block is focused",
@@ -228,7 +224,20 @@ class WebBookmarkJourneyTest {
 
     @Test
     fun opensEditFromActionsAndReturnsWithSameBookmark() {
-        mountProductionGraph()
+        composeRule.setContent {
+            NotesTakingAppTheme {
+                val controller = rememberNavController()
+                navController = controller
+                AppNavigationHost(
+                    navController = controller,
+                    innerPadding = PaddingValues(0.dp),
+                    isLoggedIn = true,
+                    onLogin = { _, _ -> },
+                    onAuthError = {}
+                )
+            }
+        }
+        composeRule.waitForIdle()
         val noteId = seedNote(documentWithBookmark())
         openEditor(noteId)
 
@@ -237,6 +246,7 @@ class WebBookmarkJourneyTest {
         composeRule.onNodeWithTag("web_bookmark_url_field").assertTextContains(BOOKMARK_URL)
         composeRule.onNodeWithTag("web_bookmark_save_button").performClick()
         awaitEditor()
+        composeRule.onNodeWithTag("editor_web_bookmark_block_$BOOKMARK_ID").performScrollTo()
 
         val bookmark = persistedBookmarks(noteId).single()
         assertEquals(BOOKMARK_ID, bookmark.id)
@@ -389,22 +399,17 @@ class WebBookmarkJourneyTest {
         noteId: String,
         predicate: (EditorBlock.WebBookmarkBlock) -> Boolean
     ): EditorBlock.WebBookmarkBlock {
-        val deadline = System.currentTimeMillis() + WAIT_TIMEOUT_MS
-        var bookmarks = persistedBookmarks(noteId)
-        while (System.currentTimeMillis() < deadline) {
-            val match = bookmarks.firstOrNull(predicate)
-            if (match != null) return match
-            composeRule.waitForIdle()
-            Thread.sleep(POLL_INTERVAL_MS)
-            bookmarks = persistedBookmarks(noteId)
+        var matchingBookmark: EditorBlock.WebBookmarkBlock? = null
+        composeRule.waitUntil(WAIT_TIMEOUT_MS) {
+            matchingBookmark = persistedBookmarks(noteId).firstOrNull(predicate)
+            matchingBookmark != null
         }
-        return bookmarks.first(predicate)
+        return requireNotNull(matchingBookmark)
     }
 
     private companion object {
         // Generous bound: the first journey test in a process pays cold start-up and Room setup.
         const val WAIT_TIMEOUT_MS = 20_000L
-        const val POLL_INTERVAL_MS = 250L
         const val FIXTURE_TITLE = "Fixture page title"
         const val FIXTURE_DESCRIPTION = "Fixture page description"
         const val ADD_URL = "https://fixture.example/article"

@@ -1,10 +1,14 @@
 package com.example.notesapp.ui.editor.screen
 
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
+import android.os.SystemClock
 import android.provider.MediaStore
+import android.view.inputmethod.InputMethodManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,12 +21,14 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.notesapp.ui.editor.components.WebBookmarkBlockCard
@@ -41,7 +47,7 @@ import org.junit.runner.RunWith
 class WebBookmarkVisualFlowTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun capturesBookmarkCardState() {
@@ -57,10 +63,8 @@ class WebBookmarkVisualFlowTest {
             }
         }
         composeRule.waitForIdle()
-        saveCapture(
-            "web_bookmark_card_content.png",
-            composeRule.onNodeWithTag("editor_web_bookmark_card_visual_${bookmark().id}").captureToImage()
-        )
+        composeRule.onNodeWithTag("editor_web_bookmark_card_visual_${bookmark().id}").assertIsDisplayed()
+        saveActiveWindowCapture("web_bookmark_card_content.png")
     }
 
     @Test
@@ -76,10 +80,8 @@ class WebBookmarkVisualFlowTest {
             }
         }
         composeRule.waitForIdle()
-        saveCapture(
-            "web_bookmark_add_page_content_only.png",
-            composeRule.onNodeWithTag("web_bookmark_editor_page").captureToImage()
-        )
+        composeRule.onNodeWithTag("web_bookmark_editor_page").assertIsDisplayed()
+        saveActiveWindowCapture("web_bookmark_add_page_content_only.png")
     }
 
     @Test
@@ -87,7 +89,7 @@ class WebBookmarkVisualFlowTest {
         composeRule.setContent {
             NotesTakingAppTheme {
                 WebBookmarkEditorScreenContent(
-                    uiState = WebBookmarkEditorUiState(url = "https://example.com"),
+                    uiState = WebBookmarkEditorUiState(url = "https://developer.android.com"),
                     onUrlChanged = {},
                     onSave = {},
                     onBack = {}
@@ -96,10 +98,11 @@ class WebBookmarkVisualFlowTest {
         }
         composeRule.onNodeWithTag("web_bookmark_url_field").performClick()
         composeRule.waitForIdle()
-        saveCapture(
-            "web_bookmark_add_page_keyboard.png",
-            composeRule.onNodeWithTag("web_bookmark_editor_page").captureToImage()
-        )
+        check(ensureImeVisible()) { "Soft keyboard must be visible for the keyboard capture" }
+        SystemClock.sleep(1_000L)
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("web_bookmark_editor_page").assertIsDisplayed()
+        saveActiveWindowCapture("web_bookmark_add_page_keyboard.png")
     }
 
     @Test
@@ -149,7 +152,7 @@ class WebBookmarkVisualFlowTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("editor_web_bookmark_actions_${bookmark().id}").performClick()
         composeRule.onNodeWithTag("web_bookmark_actions_sheet_title").assertIsDisplayed()
-        Thread.sleep(500)
+        composeRule.waitForIdle()
         composeRule.onNodeWithTag("web_bookmark_actions_edit").captureToImage()
         saveActiveWindowCapture("web_bookmark_actions_sheet.png")
     }
@@ -192,7 +195,7 @@ class WebBookmarkVisualFlowTest {
             .onNodeWithTag("editor_web_bookmark_card_visual_${bookmark().id}")
             .captureToImage()
         assertTrue(differingPixelCount(darkImage, lightImage) > 0)
-        saveCapture("web_bookmark_responsive.png", darkImage)
+        saveActiveWindowCapture("web_bookmark_responsive.png")
     }
 
     private fun saveActiveWindowCapture(fileName: String) {
@@ -204,13 +207,33 @@ class WebBookmarkVisualFlowTest {
         }
     }
 
-    private fun saveCapture(fileName: String, image: ImageBitmap) {
-        val bitmap = image.asAndroidBitmap()
-        try {
-            writeBitmapCapture(fileName, bitmap)
-        } finally {
-            bitmap.recycle()
+    private fun isImeVisible(): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(composeRule.activity.window.decorView) ?: return false
+        return insets.isVisible(WindowInsetsCompat.Type.ime())
+    }
+
+    private fun ensureImeVisible(): Boolean {
+        composeRule.waitForIdle()
+        if (isImeVisible()) return true
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val activity = composeRule.activity
+            val inputMethodManager =
+                activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val focusedView = activity.currentFocus
+            if (focusedView != null) {
+                inputMethodManager.showSoftInput(focusedView, InputMethodManager.SHOW_IMPLICIT)
+            } else {
+                inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+            }
         }
+
+        val deadline = SystemClock.uptimeMillis() + 3_000L
+        while (SystemClock.uptimeMillis() < deadline) {
+            SystemClock.sleep(100L)
+            if (isImeVisible()) return true
+        }
+        return isImeVisible()
     }
 
     private fun writeBitmapCapture(fileName: String, bitmap: Bitmap) {
