@@ -530,7 +530,9 @@ fun NoteEditorScreenContent(
                         OutlinedTextField(
                             value = state.title,
                             onValueChange = onTitleChange,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("editor_title_input"),
                             placeholder = {
                                 Text(
                                     text =
@@ -547,7 +549,7 @@ fun NoteEditorScreenContent(
                                 color = colors.textPrimary
                             ),
                             colors = editorFieldColors(),
-                            singleLine = true,
+                            singleLine = false,
                             enabled = state.isEditable
                         )
                         DocumentBlockList(
